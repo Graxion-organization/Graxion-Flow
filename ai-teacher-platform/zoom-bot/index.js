@@ -31,6 +31,27 @@ const joinZoomMeeting = async (payload) => {
   });
 
   const page = await browser.newPage();
+
+  // Inject script to override getUserMedia and create a custom audio destination
+  // This allows us to pipe Web Audio API directly into the Zoom Meeting Microphone.
+  await page.evaluateOnNewDocument(() => {
+    const originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    navigator.mediaDevices.getUserMedia = async (constraints) => {
+      const stream = await originalGetUserMedia(constraints);
+      if (constraints.audio) {
+        window.audioCtx = window.audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        const dest = window.audioCtx.createMediaStreamDestination();
+        window.botAudioDest = dest;
+
+        const audioTracks = dest.stream.getAudioTracks();
+        if (audioTracks.length > 0) {
+          stream.getAudioTracks().forEach(t => stream.removeTrack(t));
+          audioTracks.forEach(t => stream.addTrack(t));
+        }
+      }
+      return stream;
+    };
+  });
   
   // We need to bypass the waiting room and click join.
   // In a real scenario, we'd build a custom Zoom Web SDK page to host the bot locally,
@@ -82,6 +103,9 @@ const joinZoomMeeting = async (payload) => {
             const source = window.audioCtx.createBufferSource();
             source.buffer = buffer;
             source.connect(window.audioCtx.destination);
+            if (window.botAudioDest) {
+              source.connect(window.botAudioDest); // Pipe into Zoom Mic!
+            }
             source.onended = window.playNext;
             source.start(0);
           };
