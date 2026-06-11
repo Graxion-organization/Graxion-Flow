@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Presenter Bot</title>
+    <meta charset="utf-8" />
+    <link type="text/css" rel="stylesheet" href="https://source.zoom.us/2.17.0/css/bootstrap.css" />
+    <link type="text/css" rel="stylesheet" href="https://source.zoom.us/2.17.0/css/react-select.css" />
+    <style>
+        body { background-color: #1a1a1a; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; }
+        #zmmtg-root { display: none; }
+    </style>
+</head>
+<body>
+    <div id="status">Initializing AI Presenter...</div>
+
+    <!-- Zoom Meeting SDK -->
+    <script src="https://source.zoom.us/2.17.0/lib/vendor/react.min.js"></script>
+    <script src="https://source.zoom.us/2.17.0/lib/vendor/react-dom.min.js"></script>
+    <script src="https://source.zoom.us/2.17.0/lib/vendor/redux.min.js"></script>
+    <script src="https://source.zoom.us/2.17.0/lib/vendor/redux-thunk.min.js"></script>
+    <script src="https://source.zoom.us/2.17.0/lib/vendor/lodash.min.js"></script>
+    <script src="https://source.zoom.us/zoom-meeting-2.17.0.min.js"></script>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const meetingNumber = urlParams.get('meetingNumber');
+        const passWord = urlParams.get('password');
+        const signature = urlParams.get('signature');
+        const sdkKey = urlParams.get('sdkKey');
+        const userName = urlParams.get('userName') || 'AI Presenter';
+
+        ZoomMtg.setZoomJSLib('https://source.zoom.us/2.17.0/lib', '/av');
+        ZoomMtg.preLoadWasm();
+        ZoomMtg.prepareWebSDK();
+
+        document.getElementById('status').innerText = 'Joining meeting...';
+
+        ZoomMtg.init({
+            leaveUrl: 'http://localhost:5000',
+            success: (success) => {
+                ZoomMtg.join({
+                    sdkKey: sdkKey,
+                    signature: signature,
+                    meetingNumber: meetingNumber,
+                    passWord: passWord,
+                    userName: userName,
+                    success: (success) => {
+                        console.log("Successfully joined Zoom meeting");
+                        document.getElementById('status').innerText = 'Joined meeting successfully.';
+                    },
+                    error: (error) => {
+                        console.error("Zoom SDK Error:", error);
+                        document.getElementById('status').innerText = 'Failed to join meeting: ' + JSON.stringify(error);
+                    }
+                })
+            },
+            error: (error) => {
+                console.log(error);
+                document.getElementById('status').innerText = 'Init Error: ' + JSON.stringify(error);
+            }
+        });
+    </script>
+</body>
+</html>
