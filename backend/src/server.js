@@ -34,6 +34,7 @@ const adminRoutes = require('./routes/admin');
 const fraudAdminRoutes = require('./routes/fraudAdmin');
 const featureFlagsRoutes = require('./routes/featureFlags');
 const organizationRoutes = require('./routes/organizationRoutes');
+const ecommerceRoutes = require('./routes/ecommerceRoutes');
 
 const contactRoutes = require('./routes/contacts');
 const contactGroupRoutes = require('./routes/contactGroups');
@@ -50,6 +51,7 @@ const sessionRoutes = require('./routes/sessions');
 const materialRoutes = require('./routes/materials');
 const courseRoutes = require('./routes/courses');
 const batchRoutes = require('./routes/batches');
+const dealsRoutes = require('./routes/deals');
 
 const { checkMaintenance } = require('./middleware/maintenance');
 const { healthMonitor } = require('./middleware/healthMonitor');
@@ -69,41 +71,32 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
-const corsOptions = {
-  origin: (origin, callback) => {
-    const allowedOrigins = [
-      process.env.FRONTEND_URL,
-      'http://localhost:3000',
-      'https://automation.poojatrendhub.com'
-    ];
+// CORS Configuration
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim()) 
+  : ['http://localhost:3000'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true);
     
-    // Only allow undefined origin in development or for specific allowed origins
-    if (!origin && process.env.NODE_ENV !== 'production') {
+    // If ALLOWED_ORIGINS has '*', allow all origins
+    if (allowedOrigins.includes('*')) {
       return callback(null, true);
     }
     
-    const isAllowed = allowedOrigins.some(ao => ao && ao === origin) || 
-                      (process.env.NODE_ENV !== 'production' && origin && origin.endsWith('.vercel.app'));
-
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      logger.warn(`CORS blocked for origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
     }
+    
+    const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+    return callback(new Error(msg), false);
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Organization-Id'],
-};
-
-// Apply CORS conditionally (skip for webhooks which don't send Origin)
-app.use((req, res, next) => {
-  if (req.path.startsWith('/api/webhooks')) {
-    return next();
-  }
-  cors(corsOptions)(req, res, next);
-});
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Organization-Id']
+}));
 
 // Rate limiting - global
 const globalLimiter = rateLimit({
@@ -255,6 +248,12 @@ app.use('/api/sessions', sessionRoutes);
 app.use('/api/materials', materialRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/batches', batchRoutes);
+app.use('/api/deals', dealsRoutes);
+
+app.use('/api/webhooks/telegram', telegramWebhookRoutes);
+
+// Ecommerce Webhooks (public for external services)
+app.use('/api/webhooks/ecommerce', ecommerceRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────
 app.all('*', (req, res, next) => {
