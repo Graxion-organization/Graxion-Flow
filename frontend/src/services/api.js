@@ -90,6 +90,7 @@ export const whatsappAPI = {
   getOne: (id) => api.get(`/whatsapp/${id}`),
   verify: (id) => api.post(`/whatsapp/${id}/verify`),
   disconnect: (id) => api.delete(`/whatsapp/${id}`),
+  getQualityRating: (id) => api.get(`/whatsapp/accounts/${id}/quality-rating`),
   // Embedded Signup
   embeddedSignupCallback: (code, redirectUri) => api.post('/whatsapp/embedded-signup/callback', { code, redirectUri }),
   embeddedSignupSave: (data) => api.post('/whatsapp/embedded-signup/save', data),
@@ -296,10 +297,10 @@ export const featureFlagAPI = {
 // Contacts
 export const contactAPI = {
   getAll: (params) => api.get('/contacts', { params }),
-  getOne: (id) => api.get(\`/contacts/\${id}\`),
+  getOne: (id) => api.get(`/contacts/${id}`),
   create: (data) => api.post('/contacts', data),
-  update: (id, data) => api.patch(\`/contacts/\${id}\`, data),
-  delete: (id) => api.delete(\`/contacts/\${id}\`),
+  update: (id, data) => api.patch(`/contacts/${id}`, data),
+  delete: (id) => api.delete(`/contacts/${id}`),
   importCsv: (formData) => api.post('/contacts/import', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
 };
 
@@ -307,46 +308,46 @@ export const contactAPI = {
 export const contactGroupAPI = {
   getAll: () => api.get('/contact-groups'),
   create: (data) => api.post('/contact-groups', data),
-  update: (id, data) => api.patch(\`/contact-groups/\${id}\`, data),
-  delete: (id) => api.delete(\`/contact-groups/\${id}\`)
+  update: (id, data) => api.patch(`/contact-groups/${id}`, data),
+  delete: (id) => api.delete(`/contact-groups/${id}`)
 };
 
 // Templates
 export const templateAPI = {
   getAll: () => api.get('/templates'),
   sync: () => api.post('/templates/sync'),
-  getOne: (id) => api.get(\`/templates/\${id}\`)
+  getOne: (id) => api.get(`/templates/${id}`)
 };
 
 // Broadcasts
 export const broadcastAPI = {
   getAll: () => api.get('/broadcasts'),
   create: (data) => api.post('/broadcasts', data),
-  getOne: (id) => api.get(\`/broadcasts/\${id}\`)
+  getOne: (id) => api.get(`/broadcasts/${id}`)
 };
 
 // Campaigns
 export const campaignAPI = {
   getAll: () => api.get('/campaigns'),
   create: (data) => api.post('/campaigns', data),
-  getOne: (id) => api.get(\`/campaigns/\${id}\`)
+  getOne: (id) => api.get(`/campaigns/${id}`)
 };
 
 // Flows
 export const flowAPI = {
   getAll: () => api.get('/flows'),
   create: (data) => api.post('/flows', data),
-  getOne: (id) => api.get(\`/flows/\${id}\`),
-  update: (id, data) => api.patch(\`/flows/\${id}\`, data),
-  delete: (id) => api.delete(\`/flows/\${id}\`)
+  getOne: (id) => api.get(`/flows/${id}`),
+  update: (id, data) => api.patch(`/flows/${id}`, data),
+  delete: (id) => api.delete(`/flows/${id}`)
 };
 
 // Keywords
 export const keywordAPI = {
   getAll: () => api.get('/keywords'),
   create: (data) => api.post('/keywords', data),
-  update: (id, data) => api.patch(\`/keywords/\${id}\`, data),
-  delete: (id) => api.delete(\`/keywords/\${id}\`)
+  update: (id, data) => api.patch(`/keywords/${id}`, data),
+  delete: (id) => api.delete(`/keywords/${id}`)
 };
 
 // Analytics
@@ -364,6 +365,14 @@ export const adminAnalyticsAPI = {
   getRevenue: () => api.get('/admin/analytics/revenue'),
   getWebhookHealth: () => api.get('/admin/analytics/webhook-health'),
   getApiUsage: () => api.get('/admin/analytics/api-usage')
+};
+
+// Deals
+export const dealAPI = {
+  getAll: () => api.get('/deals'),
+  create: (data) => api.post('/deals', data),
+  update: (id, data) => api.patch(`/deals/${id}`, data),
+  delete: (id) => api.delete(`/deals/${id}`),
 };
 
 export default api;

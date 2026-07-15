@@ -188,12 +188,18 @@ exports.getQualityRating = async (req, res, next) => {
 
     const waService = new WhatsAppService(decrypt(account.accessToken), account.phoneNumberId);
     
-    const response = await waService.client.get(`/${account.phoneNumberId}?fields=quality_rating`);
+    const response = await waService.client.get(`/${account.phoneNumberId}?fields=quality_rating,messaging_limit_tier,display_phone_number,name_status`);
     
     account.qualityRating = response.data.quality_rating;
     await account.save();
 
-    res.status(200).json({ status: 'success', data: { qualityRating: response.data.quality_rating } });
+    res.status(200).json({ status: 'success', data: { 
+      qualityRating: response.data.quality_rating,
+      messagingLimit: response.data.messaging_limit_tier,
+      phone: response.data.display_phone_number,
+      nameStatus: response.data.name_status,
+      status: account.status
+    } });
   } catch (err) {
     logger.error('Get Quality Rating error:', err.response?.data || err.message);
     next(new AppError('Failed to fetch quality rating from Meta', 500));
