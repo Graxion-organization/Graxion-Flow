@@ -14,14 +14,48 @@ exports.syncTemplatesFromMeta = catchAsync(async (req, res, next) => {
   const waAccount = await WhatsappAccount.findOne({ user: req.user.id, status: 'connected' }).select('+accessToken');
   if (!waAccount) return next(new AppError('No connected WhatsApp account found', 404));
 
-  // In a real app, hit Meta API: GET /v17.0/{waba_id}/message_templates
-  // For now, mock the sync
-  res.status(200).json({ status: 'success', message: 'Templates synced from Meta' });
+  if (!waAccount.wabaId) return next(new AppError('WhatsApp Business Account ID not found on this account', 400));
+
+  const waService = new WhatsAppService(decrypt(waAccount.accessToken), waAccount.phoneNumberId);
+  const metaResponse = await waService.getMessageTemplates(waAccount.wabaId);
+  const metaTemplates = metaResponse.data || [];
+
+  const upsertPromises = metaTemplates.map(tpl => {
+    return Template.findOneAndUpdate(
+      { name: tpl.name, language: tpl.language, organization: req.user.organization },
+      {
+        name: tpl.name,
+        category: tpl.category,
+        language: tpl.language,
+        components: tpl.components,
+        status: tpl.status,
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+  });
+
+  await Promise.all(upsertPromises);
+
+  res.status(200).json({ status: 'success', message: 'Templates synced from Meta', count: metaTemplates.length });
 });
 
 exports.createTemplate = catchAsync(async (req, res, next) => {
-  const template = await Template.create({ ...req.body, organization: req.user.organization });
-  // Call Meta API to create template here
+  const { name, category, language, components } = req.body;
+  
+  if (!['MARKETING', 'UTILITY', 'AUTHENTICATION'].includes(category)) {
+    return next(new AppError('Invalid category. Must be MARKETING, UTILITY, or AUTHENTICATION', 400));
+  }
+
+  const template = await Template.create({ 
+    organization: req.user.organization,
+    name,
+    category,
+    language,
+    components,
+    status: 'PENDING'
+  });
+  
+  // In a real app: Call Meta API to create template here
   res.status(201).json({ status: 'success', data: { template } });
 });
 

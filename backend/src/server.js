@@ -95,7 +95,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Organization-Id']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Organization-Id', 'X-CSRF-Token', 'Accept']
 }));
 
 // Rate limiting - global
@@ -249,6 +249,7 @@ app.use('/api/materials', materialRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/batches', batchRoutes);
 app.use('/api/deals', dealsRoutes);
+app.use('/api/integrations', require('./routes/integrations'));
 
 app.use('/api/webhooks/telegram', telegramWebhookRoutes);
 

@@ -81,6 +81,9 @@ const InstagramToolPage = lazy(() => import("./pages/InstagramToolPage"));
 const FacebookToolPage = lazy(() => import("./pages/FacebookToolPage"));
 const YouTubeToolPage = lazy(() => import("./pages/YouTubeToolPage"));
 const LinkedInToolPage = lazy(() => import("./pages/LinkedInToolPage"));
+const DealsPipeline = lazy(() => import("./pages/DealsPipeline"));
+const CustomerPortal = lazy(() => import("./pages/CustomerPortal"));
+const QualityRatingPage = lazy(() => import("./pages/QualityRatingPage"));
 
 // Centered loading fallback design
 const LoadingFallback = () => (
@@ -90,7 +93,7 @@ const LoadingFallback = () => (
 );
 
 // 🔐 Protected Route
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, requiredPermission }) => {
   const { isAuthenticated, user } = useAuthStore();
   
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -171,6 +174,8 @@ export default function App() {
         <Routes>
           {/* 🌍 HOME (Landing Page) */}
           <Route path="/" element={<ErrorBoundary><Home /></ErrorBoundary>} />
+
+
 
           {/* 🔓 Public Routes */}
           <Route
@@ -269,13 +274,17 @@ export default function App() {
             </Route>
             <Route path="ai-presenter" element={<AIPresenterPage />} />
             <Route path="leads" element={<LeadsDashboardPage />} />
+            <Route path="deals" element={<DealsPipeline />} />
             <Route path="whatsapp" element={<WhatsAppPage />} />
+            <Route path="quality" element={<QualityRatingPage />} />
             <Route path="billing" element={<BillingPage />} />
             <Route path="settings" element={<SettingsPage />} />
 
             {/* 🔥 Nested 404 */}
             <Route path="*" element={<Navigate to="/not-found" replace />} />
           </Route>
+
+          <Route path="/portal" element={<CustomerPortal />} />
 
           {/* 🛡️ Admin Routes */}
           <Route

@@ -275,8 +275,7 @@ export default function ConversationsPage() {
 
 
   useEffect(() => {
-    // JWT via cookies
-    if (!token) return;
+    // JWT is handled automatically via HttpOnly cookies
 
     const socketUrl = process.env.REACT_APP_API_URL 
       ? process.env.REACT_APP_API_URL.replace('/api', '') 

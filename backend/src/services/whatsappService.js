@@ -221,6 +221,84 @@ class WhatsAppService {
     }
   }
 
+  // --- Meta API Advanced Management ---
+
+  async registerPhoneNumber(pin) {
+    try {
+      const response = await this.client.post(`/${this.phoneNumberId}/register`, {
+        messaging_product: 'whatsapp',
+        pin
+      });
+      return response.data;
+    } catch (err) {
+      logger.error('WhatsApp registerPhoneNumber error:', err.response?.data || err.message);
+      throw new AppError('Failed to register phone number.', 502);
+    }
+  }
+
+  async updateBusinessProfile(data) {
+    // data: { address, description, email, websites, about, profile_picture_handle }
+    try {
+      const response = await this.client.post(`/${this.phoneNumberId}/whatsapp_business_profile`, {
+        messaging_product: 'whatsapp',
+        ...data
+      });
+      return response.data;
+    } catch (err) {
+      logger.error('WhatsApp updateBusinessProfile error:', err.response?.data || err.message);
+      throw new AppError('Failed to update business profile.', 502);
+    }
+  }
+
+  async uploadMediaToMeta(fileStream, mimeType, length) {
+    try {
+      const FormData = require('form-data');
+      const form = new FormData();
+      form.append('file', fileStream);
+      form.append('type', mimeType);
+      form.append('messaging_product', 'whatsapp');
+
+      const response = await this.client.post(`/${this.phoneNumberId}/media`, form, {
+        headers: {
+          ...form.getHeaders(),
+          'Content-Length': length
+        }
+      });
+      return response.data; // { id: '<MEDIA_ID>' }
+    } catch (err) {
+      logger.error('WhatsApp uploadMediaToMeta error:', err.response?.data || err.message);
+      throw new AppError('Failed to upload media to Meta.', 502);
+    }
+  }
+
+  async getMessageTemplates(wabaId) {
+    try {
+      const response = await this.client.get(`/${wabaId}/message_templates`);
+      return response.data;
+    } catch (err) {
+      logger.error('WhatsApp getMessageTemplates error:', err.response?.data || err.message);
+      throw new AppError('Failed to fetch message templates from Meta.', 502);
+    }
+  }
+
+  static async getSystemUserToken(appId, appSecret) {
+    try {
+      const axios = require('axios');
+      // Fetches a generic access token using app secret (often used to manage system users)
+      const response = await axios.get('https://graph.facebook.com/v19.0/oauth/access_token', {
+        params: {
+          client_id: appId,
+          client_secret: appSecret,
+          grant_type: 'client_credentials'
+        }
+      });
+      return response.data;
+    } catch (err) {
+      logger.error('WhatsApp getSystemUserToken error:', err.response?.data || err.message);
+      throw new AppError('Failed to fetch system user token.', 502);
+    }
+  }
+
   // --- Static Verifier & Parser ---
   static async verifyWebhook(mode, token, challenge) {
     if (mode === 'subscribe' && token === process.env.META_WEBHOOK_VERIFY_TOKEN) {
@@ -241,12 +319,37 @@ class WhatsAppService {
 
       if (value.statuses && value.statuses.length > 0) {
         const statusObj = value.statuses[0];
+        
         return {
           isStatusUpdate: true,
           messageId: statusObj.id,
           status: statusObj.status, // 'sent', 'delivered', 'read', 'failed'
           recipientId: statusObj.recipient_id,
           timestamp: statusObj.timestamp,
+          pricing: statusObj.pricing // For conversation pricing tracking
+        };
+      }
+
+      // Handle template status webhooks
+      if (value.event === 'message_template_status_update') {
+        return {
+          isTemplateStatusUpdate: true,
+          templateId: value.message_template_id,
+          templateName: value.message_template_name,
+          templateLanguage: value.message_template_language,
+          status: value.event_update?.status,
+          reason: value.event_update?.reason
+        };
+      }
+
+      // Handle account quality updates
+      if (value.event === 'account_update' || value.event === 'account_reviews_update') {
+        return {
+          isAccountUpdate: true,
+          phoneNumberId: value.phone_number_id,
+          displayPhoneNumber: value.display_phone_number,
+          decision: value.decision,
+          event_update: value.event_update
         };
       }
 

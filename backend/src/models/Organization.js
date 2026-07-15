@@ -41,7 +41,13 @@ const organizationSchema = new mongoose.Schema({
   prompts: [{
     name: String,
     content: String
-  }]
+  }],
+  ssoConfig: {
+    enabled: { type: Boolean, default: false },
+    entryPoint: { type: String }, // IdP Login URL
+    issuer: { type: String },     // SP Entity ID
+    cert: { type: String }        // IdP Public Cert
+  }
 }, {
   timestamps: true,
 });

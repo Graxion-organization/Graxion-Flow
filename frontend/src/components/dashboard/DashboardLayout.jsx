@@ -22,6 +22,8 @@ import {
   Moon,
   SunMedium,
   Video,
+  Briefcase,
+  ShieldCheck,
 } from "lucide-react";
 import { io } from "socket.io-client";
 import { useAuthStore, useNotificationStore, useOrganizationStore, useBrandingStore } from "../../store";
@@ -35,8 +37,11 @@ const ALL_NAV_ITEMS = [
   { to: "/app/dashboard", icon: LayoutDashboard, label: "Dashboard", minRole: "viewer" },
   { to: "/app/contacts", icon: Target, label: "Contacts CRM", minRole: "viewer" },
   { to: "/app/conversations", icon: MessageSquare, label: "Inbox", minRole: "viewer" },
+  { to: "/app/deals", icon: Briefcase, label: "Deals Pipeline", minRole: "viewer" },
+  { to: "/app/quality", icon: ShieldCheck, label: "Meta Quality & Compliance", minRole: "viewer" },
   { to: "/app/agents", icon: Bot, label: "AI Agents", minRole: "admin" },
-  { to: "/app/automation", icon: Sparkles, label: "Social AI", minRole: "editor" },
+  { to: "/social-hub", icon: Share2, label: "Social Hub (Auto Post)", minRole: "editor" },
+  { to: "/app/automation", icon: Sparkles, label: "Social AI Replies", minRole: "editor" },
   { to: "/app/flow-builder", icon: Share2, label: "Flow Builder", minRole: "editor" },
   { to: "/app/keyword-triggers", icon: Info, label: "Keyword Triggers", minRole: "editor" },
   { to: "/app/templates", icon: Target, label: "Templates", minRole: "editor" },
@@ -375,10 +380,9 @@ export default function DashboardLayout() {
                 {isDark ? <SunMedium size={17} /> : <Moon size={17} />}
               </button>
 
-              <div className="relative" ref={notifRef}>
-                <button
+              <button
                 onClick={toggleLanguage}
-                className={`p-2.5 rounded-xl transition-colors relative flex items-center gap-1 ${
+                className={`p-2.5 rounded-xl transition-colors flex items-center justify-center min-w-[38px] ${
                   isDark
                     ? "hover:bg-white/10 text-slate-300 hover:text-white"
                     : "hover:bg-slate-200 text-slate-600 hover:text-slate-900"
@@ -388,7 +392,8 @@ export default function DashboardLayout() {
                 <span className="text-sm font-bold uppercase">{i18n.language}</span>
               </button>
 
-              <button onClick={() => setNotifOpen((o) => !o)} className={`relative p-2.5 rounded-xl transition-colors ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-slate-100 hover:bg-slate-200"}`}>
+              <div className="relative" ref={notifRef}>
+                <button onClick={() => setNotifOpen((o) => !o)} className={`relative p-2.5 rounded-xl transition-colors ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-slate-100 hover:bg-slate-200"}`}>
                   <Bell size={18} className={unreadCount > 0 ? "text-[#FF6A00]" : ""} />
                   {unreadCount > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-[#FF6A00] text-white text-[9px] font-bold rounded-full flex items-center justify-center">

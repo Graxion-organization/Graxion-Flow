@@ -2,6 +2,7 @@ const Conversation = require('../models/Conversation');
 const User = require('../models/User');
 const Campaign = require('../models/Campaign');
 const Agent = require('../models/Agent');
+const Message = require('../models/Message');
 
 // Helper to get start and end dates based on timeframe
 const getDateRange = (timeframe) => {
@@ -19,25 +20,40 @@ exports.getMessageVolume = async (req, res, next) => {
     const { timeframe = '30d' } = req.query;
     const { start, end } = getDateRange(timeframe);
     
-    // In a real app we'd aggregate a Message collection.
-    // For now, we mock daily volume based on the requested timeframe.
+    // 1. Fetch conversations belonging to the organization
+    const conversations = await Conversation.find({ organization: req.user.organization }, '_id').lean();
+    const convoIds = conversations.map(c => c._id);
+
+    // 2. Aggregate messages
+    const aggregation = await Message.aggregate([
+      { $match: { conversationId: { $in: convoIds }, timestamp: { $gte: start, $lte: end } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } },
+          sent: { $sum: { $cond: [{ $eq: ["$role", "assistant"] }, 1, 0] } },
+          received: { $sum: { $cond: [{ $eq: ["$role", "user"] }, 1, 0] } }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // 3. Fill in missing dates to ensure the chart looks continuous
     const days = timeframe === '7d' ? 7 : timeframe === '30d' ? 30 : 90;
-    const data = [];
+    const dataMap = {};
+    aggregation.forEach(item => { dataMap[item._id] = item; });
     
+    const data = [];
     for (let i = days; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
+      const isoDate = d.toISOString().split('T')[0];
       const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       
-      // Generate some mock volume data with a slight upward trend
-      const baseVol = 100 + (days - i) * 2;
-      const noise = Math.floor(Math.random() * 50) - 25;
-      
-      data.push({
-        date: dateStr,
-        sent: Math.max(0, Math.floor((baseVol + noise) * 0.6)),
-        received: Math.max(0, Math.floor((baseVol + noise) * 0.4))
-      });
+      if (dataMap[isoDate]) {
+        data.push({ date: dateStr, sent: dataMap[isoDate].sent, received: dataMap[isoDate].received });
+      } else {
+        data.push({ date: dateStr, sent: 0, received: 0 });
+      }
     }
 
     res.status(200).json({ status: 'success', data: { volume: data } });
@@ -64,12 +80,20 @@ exports.getCreditUsage = async (req, res, next) => {
 
 exports.getAiMetrics = async (req, res, next) => {
   try {
-    const metrics = {
-      averageResponseTime: '1.2s',
-      tokensUsed: 145000,
-      costSaved: '$450',
-      resolutionRate: '82%'
-    };
+    const conversations = await Conversation.find({ organization: req.user.organization });
+    let tokensUsed = 0;
+    let resolvedCount = 0;
+    
+    for (const c of conversations) {
+      tokensUsed += c.totalTokensUsed || 0;
+      if (c.status === 'closed') resolvedCount++;
+    }
+    
+    const resolutionRate = conversations.length > 0 ? ((resolvedCount / conversations.length) * 100).toFixed(1) + '%' : '0%';
+    const costSaved = '$' + (resolvedCount * 5).toFixed(0);
+    const averageResponseTime = '1.2s'; // keeping response time mocked as aggregating per message can be heavy
+    
+    const metrics = { averageResponseTime, tokensUsed, costSaved, resolutionRate };
     res.status(200).json({ status: 'success', data: { metrics } });
   } catch (err) {
     next(err);

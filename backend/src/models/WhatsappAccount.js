@@ -41,8 +41,9 @@ const whatsappAccountSchema = new mongoose.Schema({
   errorMessage: String,
 
   // Webhook
-  webhookVerified: { type: Boolean, default: false },
-
+  messagingLimit: { type: String, default: '1000' }, // 1K, 10K, 100K, UNLIMITED
+  qualityRating: { type: String, enum: ['GREEN', 'YELLOW', 'RED', 'UNKNOWN'], default: 'UNKNOWN' },
+  accountStatus: { type: String, default: 'CONNECTED' },
   isActive: { type: Boolean, default: true },
 }, {
   timestamps: true,

@@ -87,7 +87,7 @@ conversationSchema.index({ lastMessageAt: -1 });
 
 // Methods for Message handling
 conversationSchema.methods.addMessage = async function(data) {
-  const Message = mongoose.model('Message');
+  const Message = require('./Message');
   const msg = await Message.create({ conversationId: this._id, ...data });
   this.messageCount += 1;
   this.lastMessageAt = msg.timestamp || new Date();
@@ -96,7 +96,7 @@ conversationSchema.methods.addMessage = async function(data) {
 };
 
 conversationSchema.methods.getRecentMessages = async function(limit = 50) {
-  const Message = mongoose.model('Message');
+  const Message = require('./Message');
   return await Message.find({ conversationId: this._id }).sort({ timestamp: 1 }).limit(limit);
 };
 

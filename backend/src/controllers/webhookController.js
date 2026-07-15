@@ -13,6 +13,8 @@ const { enqueueWebhook } = require('../queues/webhookQueue');
 const { generateSpeech, deleteTempAudio, transcribeAudio } = require('../utils/audioHelper');
 const CloudinaryService = require('../services/cloudinaryService');
 const { checkKeywordMatch } = require('../utils/keywordMatcher');
+const conversationPricingService = require('../services/conversationPricingService');
+const Template = require('../models/Template');
 const path = require('path');
 const os = require('os');
 
@@ -77,6 +79,43 @@ exports.processWebhookPayload = async (payload) => {
           conversationId: conv._id,
           messages: await conv.getRecentMessages(),
         });
+        
+        // Track Pricing if included (META API Phase 15)
+        if (parsed.pricing && conv.organization) {
+          await conversationPricingService.processPricingWebhook(conv.organization, parsed.pricing, parsed.timestamp);
+        }
+      }
+      return;
+    }
+
+    if (parsed.isTemplateStatusUpdate) {
+      logger.info(`[Meta Webhook] Template Status Update: ${parsed.templateName} -> ${parsed.status}`);
+      // Find template by name and update status
+      await Template.findOneAndUpdate(
+        { name: parsed.templateName },
+        { status: parsed.status, rejectReason: parsed.reason }
+      );
+      return;
+    }
+
+    if (parsed.isAccountUpdate) {
+      logger.warn(`[Meta Webhook] Account Update for ${parsed.phoneNumberId}: ${parsed.event_update || parsed.decision}`);
+      // Update account quality rating
+      const waAccount = await WhatsappAccount.findOne({ phoneNumberId: parsed.phoneNumberId });
+      if (waAccount) {
+        waAccount.qualityRating = parsed.event_update?.quality_rating || waAccount.qualityRating;
+        waAccount.accountStatus = parsed.event_update?.status || waAccount.accountStatus;
+        await waAccount.save();
+        
+        // Notify admin of quality drop
+        if (waAccount.qualityRating === 'YELLOW' || waAccount.qualityRating === 'RED') {
+          emitNotification(waAccount.user.toString(), {
+            type: 'system_alert',
+            title: '⚠️ WhatsApp Quality Drop',
+            message: `Your account quality rating dropped to ${waAccount.qualityRating}. Please review your messaging.`,
+            platform: 'whatsapp'
+          });
+        }
       }
       return;
     }

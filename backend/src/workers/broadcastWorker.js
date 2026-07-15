@@ -38,17 +38,32 @@ const broadcastWorker = new Worker(BROADCAST_QUEUE_NAME, async (job) => {
 
     const waService = new WhatsAppService(waAccount.accessToken, waAccount.phoneNumberId);
 
+    const Template = require('../models/Template');
+    const template = await Template.findById(templateId);
+    if (!template) throw new Error('Template not found');
+
     // Fetch contacts in group
-    const contacts = await Contact.find({ organization: broadcast.organization }); // simplistic for now, should filter by contactGroupId
+    let contactQuery = { organization: broadcast.organization, optIn: true };
+    if (contactGroupId && contactGroupId !== 'all') {
+      const ContactGroup = require('../models/ContactGroup');
+      const group = await ContactGroup.findById(contactGroupId);
+      if (group && group.filterCriteria) {
+        // If filter criteria exists, use it (simplified here)
+        Object.assign(contactQuery, group.filterCriteria);
+      } else {
+        // Simplified fallback: maybe contacts don't have explicit array, but tags
+        // For this MVP, if a group is selected, we assume filterCriteria has tags or similar
+      }
+    }
+
+    const contacts = await Contact.find(contactQuery);
 
     let sent = 0;
     let failed = 0;
 
     for (const contact of contacts) {
-      if (!contact.optIn) continue;
-
       try {
-        await waService.sendTemplateMessage(contact.phone, templateId);
+        await waService.sendTemplateMessage(contact.phone, template.name, template.language);
         sent++;
       } catch (err) {
         logger.error(`Broadcast failed for ${contact.phone}: ${err.message}`);

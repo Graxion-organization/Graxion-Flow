@@ -10,6 +10,13 @@ const contactSchema = new mongoose.Schema({
   optIn: { type: Boolean, default: false },
   source: String,
   lastMessageAt: Date,
+  timeline: [{
+    type: { type: String, enum: ['MESSAGE', 'CAMPAIGN', 'ORDER', 'NOTE'] },
+    title: String,
+    description: String,
+    timestamp: { type: Date, default: Date.now },
+    metadata: mongoose.Schema.Types.Mixed
+  }]
 }, { timestamps: true });
 
 contactSchema.index({ organization: 1, phone: 1 }, { unique: true });

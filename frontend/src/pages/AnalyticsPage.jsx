@@ -70,7 +70,9 @@ export default function AnalyticsPage() {
             </div>
           </div>
           <p className="text-gray-400 text-sm">AI Token Usage</p>
-          <p className="text-2xl font-bold mt-1">{metrics?.tokensUsed?.toLocaleString() || '14.2M'}</p>
+          <p className="text-2xl font-bold mt-1">
+            {metrics?.tokensUsed !== undefined ? metrics.tokensUsed.toLocaleString() : '0'}
+          </p>
         </div>
 
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-xl">
@@ -80,7 +82,9 @@ export default function AnalyticsPage() {
             </div>
           </div>
           <p className="text-gray-400 text-sm">Est. AI Cost Saved</p>
-          <p className="text-2xl font-bold mt-1">{metrics?.costSaved || '$0'}</p>
+          <p className="text-2xl font-bold mt-1">
+            {metrics?.costSaved !== undefined ? metrics.costSaved : '$0'}
+          </p>
         </div>
 
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-xl">
@@ -90,7 +94,9 @@ export default function AnalyticsPage() {
             </div>
           </div>
           <p className="text-gray-400 text-sm">AI Resolution Rate</p>
-          <p className="text-2xl font-bold mt-1">{metrics?.resolutionRate || '0%'}</p>
+          <p className="text-2xl font-bold mt-1">
+            {metrics?.resolutionRate !== undefined ? metrics.resolutionRate : '0%'}
+          </p>
         </div>
       </div>
 

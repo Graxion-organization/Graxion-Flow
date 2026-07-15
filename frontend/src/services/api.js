@@ -137,6 +137,13 @@ export const agentAPI = {
   deleteKnowledgeBaseEntry: (id, entryIndex) => api.delete(`/agents/${id}/knowledge-base/${entryIndex}`),
 };
 
+// Integrations
+export const integrationsAPI = {
+  getAll: () => api.get('/integrations'),
+  connect: (platform, data) => api.post(`/integrations/connect/${platform}`, data),
+  disconnect: (platform) => api.delete(`/integrations/disconnect/${platform}`),
+};
+
 // Meetings (AI Presenter)
 export const meetingAPI = {
   getAll: () => api.get('/meetings'),
