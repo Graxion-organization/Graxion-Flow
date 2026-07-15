@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#25D366">
+    <meta name="description" content="Data Deletion Instructions for WhatsAgent - WhatsApp AI Automation Platform">
+    <title>Data Deletion Instructions | WhatsAgent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #25D366;
+            --primary-dark: #128C7E;
+            --bg: #030712;
+            --card-bg: #111827;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --red: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-decoration: none;
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .description {
+            color: var(--text-muted);
+            font-size: 18px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .steps {
+            display: grid;
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .step-card {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 24px;
+            display: flex;
+            gap: 20px;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(37, 211, 102, 0.2);
+        }
+
+        .step-num {
+            width: 48px;
+            height: 48px;
+            background-color: rgba(37, 211, 102, 0.1);
+            color: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .step-content p {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .security-box {
+            background: linear-gradient(135deg, rgba(37, 211, 102, 0.1) 0%, rgba(18, 140, 126, 0.05) 100%);
+            border: 1px solid rgba(37, 211, 102, 0.2);
+            padding: 40px;
+            border-radius: 32px;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .security-box h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .security-box p {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: #fff;
+            padding: 14px 32px;
+            border-radius: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2);
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 40px;
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 32px; }
+            .step-card { flex-direction: column; text-align: center; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.767 5.767 0 1.267.405 2.436 1.096 3.389l-.715 2.613 2.734-.715a5.727 5.727 0 002.652.652c3.181 0 5.767-2.586 5.767-5.767 0-3.181-2.586-5.767-5.767-5.767zm3.39 8.13c-.147.414-.733.754-1.018.795-.259.037-.585.045-.945-.074-.224-.074-.5-.17-.864-.326-1.545-.662-2.545-2.226-2.62-2.33-.075-.104-.616-.819-.616-1.562 0-.743.386-1.109.525-1.258.14-.148.304-.185.407-.185.104 0 .207.001.296.005.093.003.22.003.344.301.127.306.436 1.066.474 1.144.038.077.063.167.012.271-.051.104-.077.167-.154.256-.077.089-.161.2-.23.27-.077.078-.157.163-.067.319.09.156.401.662.861 1.071.593.528 1.092.69 1.248.767.156.077.248.064.341-.044.093-.108.397-.463.504-.62.107-.158.214-.132.359-.078.145.054.919.434 1.076.512.157.078.262.117.3.183.037.066.037.38-.11.794zM12 2C6.477 2 2 6.477 2 12c0 1.891.524 3.66 1.438 5.168L2 22l4.957-1.302C8.423 21.524 10.155 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/>
+                </svg>
+                WhatsAgent
+            </a>
+            <h1>Data Deletion Policy</h1>
+            <p class="description">Follow these steps to permanently delete your WhatsAgent account and all associated data.</p>
+        </div>
+
+        <div class="steps">
+            <div class="step-card">
+                <div class="step-num">01</div>
+                <div class="step-content">
+                    <h3>Request Deletion</h3>
+                    <p>Log in to your WhatsAgent dashboard and navigate to <b>Settings > Danger Zone</b>. Click on "Request Account Deletion".</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-num">02</div>
+                <div class="step-content">
+                    <h3>Security Verification</h3>
+                    <p>For your protection, we will send <b>3 unique verification codes</b> to your registered email. You must enter all codes in the correct order.</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-num">03</div>
+                <div class="step-content">
+                    <h3>Provide Feedback</h3>
+                    <p>Select the reason for leaving and provide any feedback. This helps us improve our service for others.</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-num">04</div>
+                <div class="step-content">
+                    <h3>Instant Disable</h3>
+                    <p>Once verified, your account is immediately disabled. All active AI bots, automation tasks, and agents will stop instantly.</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-num">05</div>
+                <div class="step-content">
+                    <h3>30-Day Grace Period</h3>
+                    <p>Your data is kept for 30 days. You can restore your account anytime during this period. After 30 days, all data is purged permanently.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="security-box">
+            <h2>Manage Your Data Now</h2>
+            <p>You can manage your account and data privacy directly from your user dashboard.</p>
+            <a href="/app/settings" class="btn">Go to Dashboard</a>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2026 WhatsAgent. All rights reserved.</p>
+            <p style="margin-top: 8px;">Need help? Contact us at support@whatsagent.com</p>
+        </div>
+    </div>
+</body>
+</html>
