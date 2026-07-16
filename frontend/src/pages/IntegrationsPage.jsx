@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowTopRightOnSquareIcon, XMarkIcon, CheckCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { integrationsAPI } from '../services/api';
 import toast from 'react-hot-toast';
@@ -45,10 +46,51 @@ const INTEGRATIONS_CONFIG = [
       { name: 'spreadsheetId', label: 'Spreadsheet ID (from URL)', type: 'text' },
       { name: 'accessToken', label: 'Google Service Account JSON or Token', type: 'password' }
     ]
+  },
+  {
+    id: 'whatsapp',
+    name: 'WhatsApp',
+    description: 'Connect your WhatsApp Business API account.',
+    icon: '💬',
+    color: 'bg-green-500/10 text-green-400 border-green-500/20',
+    route: '/app/whatsapp'
+  },
+  {
+    id: 'facebook',
+    name: 'Facebook',
+    description: 'Connect Facebook Pages for messaging automation.',
+    icon: '📘',
+    color: 'bg-blue-600/10 text-blue-500 border-blue-600/20',
+    route: '/app/automation/facebook'
+  },
+  {
+    id: 'instagram',
+    name: 'Instagram',
+    description: 'Automate DM replies and story mentions.',
+    icon: '📸',
+    color: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
+    route: '/app/automation/instagram'
+  },
+  {
+    id: 'youtube',
+    name: 'YouTube',
+    description: 'Automate comment replies with AI.',
+    icon: '▶️',
+    color: 'bg-red-500/10 text-red-400 border-red-500/20',
+    route: '/app/automation/youtube'
+  },
+  {
+    id: 'linkedin',
+    name: 'LinkedIn',
+    description: 'Automate connection requests and messaging.',
+    icon: '💼',
+    color: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    route: '/app/automation/linkedin'
   }
 ];
 
 export default function IntegrationsPage() {
+  const navigate = useNavigate();
   const [integrations, setIntegrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
@@ -148,23 +190,28 @@ export default function IntegrationsPage() {
 
               {isConnected ? (
                 <div className="flex gap-2">
-                  <button className="flex-1 py-2 bg-gray-800 rounded-lg text-emerald-400 hover:bg-gray-700 transition flex items-center justify-center gap-2 font-medium">
-                    <CheckCircleIcon className="w-5 h-5" /> Configured
-                  </button>
                   <button 
-                    onClick={() => handleDisconnect(int.id, int.name)}
-                    className="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition"
-                    title="Disconnect"
+                    onClick={() => int.route ? navigate(int.route) : null}
+                    className={`flex-1 py-2 bg-gray-800 rounded-lg text-emerald-400 hover:bg-gray-700 transition flex items-center justify-center gap-2 font-medium ${!int.route && 'cursor-default'}`}
                   >
-                    <TrashIcon className="w-5 h-5" />
+                    <CheckCircleIcon className="w-5 h-5" /> {int.route ? 'Manage' : 'Configured'}
                   </button>
+                  {!int.route && (
+                    <button 
+                      onClick={() => handleDisconnect(int.id, int.name)}
+                      className="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition"
+                      title="Disconnect"
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  )}
                 </div>
               ) : (
                 <button 
-                  onClick={() => openModal(int)}
+                  onClick={() => int.route ? navigate(int.route) : openModal(int)}
                   className="w-full py-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition flex items-center justify-center gap-2 font-medium"
                 >
-                  Configure <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+                  {int.route ? 'Manage' : 'Configure'} <ArrowTopRightOnSquareIcon className="w-4 h-4" />
                 </button>
               )}
             </div>
