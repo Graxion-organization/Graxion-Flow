@@ -24,6 +24,9 @@ import {
   Video,
   Briefcase,
   ShieldCheck,
+  Building2,
+  Plus,
+  Users
 } from "lucide-react";
 import { io } from "socket.io-client";
 import { useAuthStore, useNotificationStore, useOrganizationStore, useBrandingStore } from "../../store";
@@ -36,10 +39,12 @@ import { useTranslation } from "react-i18next";
 const ALL_NAV_ITEMS = [
   { to: "/app/dashboard", icon: LayoutDashboard, label: "Dashboard", minRole: "viewer" },
   { to: "/app/contacts", icon: Target, label: "Contacts CRM", minRole: "viewer" },
+  { to: "/app/leads", icon: Users, label: "Leads", minRole: "viewer" },
   { to: "/app/conversations", icon: MessageSquare, label: "Inbox", minRole: "viewer" },
   { to: "/app/deals", icon: Briefcase, label: "Deals Pipeline", minRole: "viewer" },
   { to: "/app/quality", icon: ShieldCheck, label: "Meta Quality & Compliance", minRole: "viewer" },
   { to: "/app/agents", icon: Bot, label: "AI Agents", minRole: "admin" },
+  { to: "/app/ai-presenter", icon: Video, label: "AI Presenter", minRole: "admin" },
   { to: "/social-hub", icon: Share2, label: "Social Hub (Auto Post)", minRole: "editor" },
   { to: "/app/automation", icon: Sparkles, label: "Social AI Replies", minRole: "editor" },
   { to: "/app/flow-builder", icon: Share2, label: "Flow Builder", minRole: "editor" },
@@ -139,6 +144,49 @@ export default function DashboardLayout() {
     localStorage.setItem("app-theme", theme);
     window.dispatchEvent(new CustomEvent("app-theme-change", { detail: { theme } }));
   }, [theme]);
+
+  // Handle automatic organization creation if user has none
+  const { organizations, addOrganization, setCurrentOrganization: setGlobalCurrentOrg } = useOrganizationStore();
+  const [isAutoCreating, setIsAutoCreating] = useState(false);
+
+  useEffect(() => {
+    const handleAutoCreate = async () => {
+      // If we've already loaded and there are 0 orgs
+      if (organizations.length === 0 && !currentOrganization && !isAutoCreating) {
+        setIsAutoCreating(true);
+        try {
+          // Check if it's not just a momentary glitch by fetching
+          const { organizationAPI } = require('../../services/api');
+          const res = await organizationAPI.getAll();
+          const orgs = res.data?.data?.organizations || [];
+          
+          if (orgs.length === 0) {
+            // Truly no orgs - create one automatically
+            toast.loading('Setting up your default workspace...', { id: 'org-setup' });
+            const createRes = await organizationAPI.create({ name: `${user?.name || 'My'}'s Workspace` });
+            const newOrg = createRes.data?.data?.organization;
+            if (newOrg) {
+              addOrganization(newOrg);
+              setGlobalCurrentOrg(newOrg);
+              toast.success('Workspace created successfully!', { id: 'org-setup' });
+            }
+          } else {
+            // Found orgs, just set the first one
+            setGlobalCurrentOrg(orgs[0]);
+          }
+        } catch (err) {
+          toast.dismiss('org-setup');
+          // Only show error if it's not a 400 org required error
+        } finally {
+          setIsAutoCreating(false);
+        }
+      }
+    };
+    
+    if (user && !currentOrganization) {
+      handleAutoCreate();
+    }
+  }, [organizations, currentOrganization, user, addOrganization, setGlobalCurrentOrg, isAutoCreating]);
 
   const isDark = theme === "dark";
 
@@ -478,8 +526,34 @@ export default function DashboardLayout() {
         </header>
 
         <main className="flex-1 overflow-y-auto px-4 lg:px-7 py-5">
-          <div className="nav-fade-up">
-            <Outlet key={currentOrganization?._id || "no-org"} />
+          <div className="nav-fade-up h-full">
+            {!currentOrganization ? (
+              <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in fade-in zoom-in duration-500">
+                <div className={`p-8 rounded-3xl max-w-md w-full border text-center shadow-xl ${isDark ? 'bg-slate-900 border-white/10 shadow-black/40' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
+                    {isAutoCreating ? (
+                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF6A00]"></div>
+                    ) : (
+                       <Building2 size={32} className={isDark ? 'text-slate-400' : 'text-slate-500'} />
+                    )}
+                  </div>
+                  <h2 className="text-2xl font-bold mb-3">{isAutoCreating ? 'Setting up...' : 'Workspace Required'}</h2>
+                  <p className={`mb-8 text-sm leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                    {isAutoCreating 
+                      ? "We are automatically setting up your default workspace. Please wait a moment..." 
+                      : "You need an active workspace to use the platform's features. Please create your first workspace using the sidebar menu to get started."}
+                  </p>
+                  {!isAutoCreating && (
+                    <div className="inline-flex items-center justify-center gap-2 text-sm font-bold text-[#FF6A00] bg-[#FF6A00]/10 px-6 py-3 rounded-xl border border-[#FF6A00]/20">
+                      <Plus size={18} />
+                      <span>Click "Create New Workspace" in Sidebar</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <Outlet key={currentOrganization._id} />
+            )}
           </div>
         </main>
       </div>

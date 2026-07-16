@@ -45,6 +45,7 @@ const campaignRoutes = require('./routes/campaigns');
 const keywordRoutes = require('./routes/keywords');
 const flowRoutes = require('./routes/flows');
 const analyticsRoutes = require('./routes/analytics');
+const integrationsRoutes = require('./routes/integrations');
 
 const meetingRoutes = require('./routes/meetings');
 const sessionRoutes = require('./routes/sessions');
@@ -239,6 +240,7 @@ app.use('/api/campaigns', campaignRoutes);
 app.use('/api/keywords', keywordRoutes);
 app.use('/api/flows', flowRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/integrations', integrationsRoutes);
 // app.use('/api/prompts', require('./routes/prompts')); // TODO: Route file does not exist yet
 
 app.use('/api/feature-flags', featureFlagsRoutes);

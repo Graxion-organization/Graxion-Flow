@@ -58,7 +58,25 @@ api.interceptors.response.use(
     }
 
     const message = error.response?.data?.message || 'Something went wrong.';
-    if (error.response?.status !== 401) toast.error(message);
+    const isOrgError = message === 'Please select or create an organization to continue.';
+    
+    if (isOrgError) {
+      // Clear stale organization ID so DashboardLayout can auto-create a new one
+      localStorage.removeItem('organizationId');
+      if (window.location.pathname.startsWith('/app')) {
+        const lastReload = sessionStorage.getItem('orgErrorReloadTime');
+        const now = Date.now();
+        if (lastReload && now - parseInt(lastReload, 10) < 5000) {
+          // Loop detected, redirect to dashboard instead of reloading
+          window.location.href = '/app/dashboard';
+        } else {
+          sessionStorage.setItem('orgErrorReloadTime', now.toString());
+          window.location.reload();
+        }
+      }
+    } else if (error.response?.status !== 401) {
+      toast.error(message);
+    }
 
     return Promise.reject(error);
   }
@@ -182,7 +200,7 @@ export const billingAPI = {
   createOrder: (plan) => api.post('/billing/create-order', { plan }),
   verifyPayment: (data) => api.post('/billing/verify-payment', data),
   getHistory: () => api.get('/billing/history'),
-  getCreditsHistory: () => api.get('/billing/credits-history'),
+  getCreditsHistory: () => api.get('/billing/credits/history'),
   cancel: () => api.delete('/billing/cancel'),
 };
 

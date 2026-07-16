@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 const dealController = require('../controllers/dealController');
 const { protect } = require('../middleware/auth');
-const { requireOrganization } = require('../middleware/organizationMiddleware');
+const { injectOrganization, requireOrganization } = require('../middleware/organizationMiddleware');
 const { requireRole } = require('../middleware/permissions');
 const { validateBody, schemas } = require('../middleware/validation');
 
 // Use validation schema if available, else omit
 router.use(protect);
+router.use(injectOrganization);
 router.use(requireOrganization);
 
 router.route('/')

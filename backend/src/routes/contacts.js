@@ -1,11 +1,14 @@
 const express = require('express');
 const contactController = require('../controllers/contactController');
 const { protect } = require('../middleware/auth');
+const { injectOrganization, requireOrganization } = require('../middleware/organizationMiddleware');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
 const router = express.Router();
 router.use(protect);
+router.use(injectOrganization);
+router.use(requireOrganization);
 
 router.post('/import', upload.single('file'), contactController.importContacts);
 router.get('/export', contactController.exportContacts);

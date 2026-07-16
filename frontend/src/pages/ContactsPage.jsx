@@ -3,11 +3,13 @@ import { useCrmStore } from '../store/crmStore';
 import { PlusIcon, ArrowUpTrayIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import ImportModal from '../components/contacts/ImportModal';
 import GroupManager from '../components/contacts/GroupManager';
+import AddContactModal from '../components/contacts/AddContactModal';
 
 export default function ContactsPage() {
   const { contacts, fetchContacts, isLoading } = useCrmStore();
   const [isImportOpen, setImportOpen] = useState(false);
   const [isGroupsOpen, setGroupsOpen] = useState(false);
+  const [isAddOpen, setAddOpen] = useState(false);
 
   useEffect(() => {
     fetchContacts();
@@ -27,7 +29,7 @@ export default function ContactsPage() {
           <button onClick={() => setImportOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition">
             <ArrowUpTrayIcon className="w-5 h-5" /> Import CSV
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition shadow-lg shadow-blue-500/20">
+          <button onClick={() => setAddOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition shadow-lg shadow-blue-500/20">
             <PlusIcon className="w-5 h-5" /> Add Contact
           </button>
         </div>
@@ -72,6 +74,7 @@ export default function ContactsPage() {
 
       {isImportOpen && <ImportModal onClose={() => setImportOpen(false)} />}
       {isGroupsOpen && <GroupManager onClose={() => setGroupsOpen(false)} />}
+      {isAddOpen && <AddContactModal onClose={() => setAddOpen(false)} />}
     </div>
   );
 }
