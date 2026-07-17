@@ -16,6 +16,7 @@ export const useAuthStore = create(
         try {
           const res = await authAPI.login(credentials);
           const { data } = res.data;
+          useOrganizationStore.getState().clearOrganizations();
           set({ user: data.user, isAuthenticated: true, isLoading: false });
           return { success: true };
         } catch (err) {
@@ -43,6 +44,7 @@ export const useAuthStore = create(
             };
           }
           const { data } = res.data;
+          useOrganizationStore.getState().clearOrganizations();
           set({ user: data.user, isAuthenticated: true, isLoading: false });
           return { success: true };
         } catch (err) {
@@ -69,6 +71,7 @@ export const useAuthStore = create(
             };
           }
           const { data: { user } } = res.data;
+          useOrganizationStore.getState().clearOrganizations();
           set({ user, isAuthenticated: true, isLoading: false });
           return { success: true };
         } catch (err) {
@@ -85,6 +88,7 @@ export const useAuthStore = create(
         try {
           const res = await authAPI.register(data);
           const { data: { user } } = res.data;
+          useOrganizationStore.getState().clearOrganizations();
           set({ user, isAuthenticated: true, isLoading: false });
           return { success: true };
         } catch (err) {
@@ -100,7 +104,7 @@ export const useAuthStore = create(
 
       logout: async () => {
         try { await authAPI.logout(); } catch {}
-        localStorage.removeItem('organizationId');
+        useOrganizationStore.getState().clearOrganizations();
         set({ user: null, isAuthenticated: false });
       },
 
@@ -200,6 +204,10 @@ export const useOrganizationStore = create(
         set({ currentOrganization: org });
       },
       addOrganization: (org) => set((s) => ({ organizations: [...s.organizations, org] })),
+      clearOrganizations: () => {
+        localStorage.removeItem('organizationId');
+        set({ organizations: [], currentOrganization: null });
+      },
     }),
     { 
       name: 'org-store', 
