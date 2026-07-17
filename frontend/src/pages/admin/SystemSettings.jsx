@@ -104,7 +104,8 @@ const SystemSettings = () => {
         'branding_contact_phone',
         'branding_logo_url',
         'branding_favicon_url',
-        'branding_footer_text'
+        'branding_footer_text',
+        'branding_address'
       ]
     },
     {

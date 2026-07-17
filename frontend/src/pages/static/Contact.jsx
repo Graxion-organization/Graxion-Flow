@@ -1,10 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import StaticPageLayout from "./StaticPageLayout";
 import { Mail, Phone, MapPin, Send, MessageSquare, Clock } from "lucide-react";
+import { useBrandingStore } from "../../store";
 
 export default function Contact() {
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   const [status, setStatus] = useState("");
+  const { branding, fetchBranding } = useBrandingStore();
+
+  useEffect(() => {
+    fetchBranding().catch(() => {});
+  }, [fetchBranding]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -18,22 +24,22 @@ export default function Contact() {
   const contactInfo = [
     {
       title: "Email Us",
-      value: "support@zapiai.com",
+      value: branding?.branding_contact_email || "support@graxion.com",
       desc: "Our team usually responds within 24 hours.",
       icon: Mail,
       color: "#25D366"
     },
     {
       title: "Call Us",
-      value: "+91 98765 43210",
+      value: branding?.branding_contact_phone || "+1 (800) 123-4567",
       desc: "Mon-Fri from 9am to 6pm IST.",
       icon: Phone,
       color: "#1e90ff"
     },
     {
       title: "Our Office",
-      value: "Bengaluru, India",
-      desc: "The heart of India's Silicon Valley.",
+      value: branding?.branding_address || "Graxion HQ, Silicon Valley, CA",
+      desc: "The heart of innovation.",
       icon: MapPin,
       color: "#ff4757"
     }
@@ -41,7 +47,7 @@ export default function Contact() {
 
   return (
     <StaticPageLayout 
-      title="Get in Touch" 
+      title={`Contact ${branding?.branding_site_name || 'WhatsAgent'}`} 
       subtitle="Have questions? We're here to help you automate your business success."
     >
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "60px", alignItems: "start" }}>

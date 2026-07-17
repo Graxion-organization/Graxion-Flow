@@ -157,10 +157,21 @@ exports.processWebhookPayload = async (payload) => {
     try {
       logger.info(`Incoming message from ${from} on phone ${phoneNumberId}`);
 
-      // 0. Deduplicate webhook to prevent double processing (e.g. Meta retry after 20s timeout)
-      const existingMessage = await Conversation.findOne({ 'messages.waMessageId': messageId });
-      if (existingMessage) {
-        logger.info(`[DEDUPLICATION] Message ${messageId} already processed, skipping.`);
+      // 0. Deduplicate webhook using Redis atomic lock (prevents double replies on Meta retries)
+      let isDuplicate = false;
+      try {
+        const redis = require('../config/redis').redis;
+        const dedupKey = `wa_dedup:${messageId}`;
+        const isNew = await redis.set(dedupKey, '1', 'EX', 3600, 'NX');
+        if (!isNew) isDuplicate = true;
+      } catch (redisErr) {
+        logger.warn(`Redis deduplication failed, falling back to MongoDB: ${redisErr.message}`);
+        const existingMessage = await Conversation.findOne({ 'messages.waMessageId': messageId });
+        if (existingMessage) isDuplicate = true;
+      }
+      
+      if (isDuplicate) {
+        logger.info(`[DEDUPLICATION] Message ${messageId} is already processing/processed. Skipping.`);
         return;
       }
 
@@ -449,8 +460,7 @@ exports.processWebhookPayload = async (payload) => {
       }
 
       // 8a. Get recent context window
-      const contextMessages = await conversation
-        .getRecentMessages(20)
+      const contextMessages = (await conversation.getRecentMessages(20))
         .filter((m) => m.role !== 'system')
         .slice(-(agent.contextWindow * 2))
         .map((m) => ({ role: m.role, content: m.content }));

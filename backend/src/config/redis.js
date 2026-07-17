@@ -8,6 +8,10 @@ const redisConfig = {
   maxRetriesPerRequest: null,
 };
 
+if (process.env.REDIS_TLS === 'true' || (process.env.REDIS_HOST && process.env.REDIS_HOST.includes('upstash'))) {
+  redisConfig.tls = { rejectUnauthorized: false };
+}
+
 const redis = new Redis(redisConfig);
 
 redis.on('connect', () => {

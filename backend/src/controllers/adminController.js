@@ -399,7 +399,8 @@ exports.getPublicSettings = async (req, res, next) => {
       'branding_contact_phone',
       'branding_logo_url',
       'branding_favicon_url',
-      'branding_footer_text'
+      'branding_footer_text',
+      'branding_address'
     ];
     
     const settings = await SystemSetting.find({ key: { $in: keys } });

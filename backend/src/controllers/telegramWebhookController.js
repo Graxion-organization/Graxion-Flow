@@ -167,11 +167,21 @@ exports.receiveMessage = async (req, res) => {
           });
         }
 
-        // Deduplicate by messageId
-        const recentMsgs = await conversation.getRecentMessages();
-      const isDuplicate = recentMsgs?.some(m => m.waMessageId === messageId.toString());
+        // Deduplicate using Redis atomic lock to prevent double processing
+        let isDuplicate = false;
+        try {
+          const redis = require('../config/redis').redis;
+          const dedupKey = `tg_dedup:${messageId}`;
+          const isNew = await redis.set(dedupKey, '1', 'EX', 3600, 'NX');
+          if (!isNew) isDuplicate = true;
+        } catch (redisErr) {
+          logger.warn(`Redis deduplication failed for TG: ${redisErr.message}`);
+          const recentMsgs = await conversation.getRecentMessages();
+          isDuplicate = recentMsgs?.some(m => m.waMessageId === messageId.toString());
+        }
+        
         if (isDuplicate) {
-          logger.info(`Message ${messageId} from Telegram user ${fromId} already processed. Skipping duplicate webhook.`);
+          logger.info(`Message ${messageId} from Telegram user ${fromId} already processing/processed. Skipping duplicate webhook.`);
           return;
         }
 
@@ -280,7 +290,7 @@ exports.receiveMessage = async (req, res) => {
         });
 
         // 8. Get recent context window
-        const contextMessages = await conversation.getRecentMessages(20)
+        const contextMessages = (await conversation.getRecentMessages(20))
           .filter((m) => m.role !== 'system')
           .slice(-(agent.contextWindow * 2))
           .map((m) => ({ role: m.role, content: m.content }));

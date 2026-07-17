@@ -181,11 +181,21 @@ async function handleInstagramDM(event, igAccount, agent) {
         });
       }
 
-      // Deduplicate by messageId to prevent multiple replies for the same message/edit
-      const recentMsgs = await conversation.getRecentMessages();
-      const isDuplicate = recentMsgs?.some(m => m.waMessageId === messageId);
+      // Deduplicate using Redis atomic lock to prevent double replies on Meta retries
+      let isDuplicate = false;
+      try {
+        const redis = require('../config/redis').redis;
+        const dedupKey = `ig_dm_dedup:${messageId}`;
+        const isNew = await redis.set(dedupKey, '1', 'EX', 3600, 'NX');
+        if (!isNew) isDuplicate = true;
+      } catch (redisErr) {
+        logger.warn(`Redis deduplication failed, falling back to MongoDB: ${redisErr.message}`);
+        const recentMsgs = await conversation.getRecentMessages();
+        isDuplicate = recentMsgs?.some(m => m.waMessageId === messageId);
+      }
+      
       if (isDuplicate) {
-        logger.info(`Message ${messageId} from Instagram user ${senderId} already processed. Skipping duplicate webhook.`);
+        logger.info(`Message ${messageId} from Instagram user ${senderId} already processing/processed. Skipping duplicate webhook.`);
         return;
       }
 
@@ -309,7 +319,7 @@ async function handleInstagramDM(event, igAccount, agent) {
         timestamp: new Date(),
       });
 
-      const contextMessages = await conversation.getRecentMessages(20)
+      const contextMessages = (await conversation.getRecentMessages(20))
         .filter((m) => m.role !== 'system')
         .slice(-(agent.contextWindow * 2))
         .map((m) => ({ role: m.role, content: m.content }));
@@ -454,6 +464,23 @@ async function handleInstagramComment(commentData, igAccount, agent) {
 
         if (!enabled) {
           logger.info(`[COMMENT SKIP]: Bot is disabled in settings for account: ${igAccount.igUsername || igAccount.igAccountId}`);
+          return;
+        }
+
+        // 1.5 Deduplicate comments
+        let isDuplicate = false;
+        try {
+          const redis = require('../config/redis').redis;
+          const dedupKey = `ig_comment_dedup:${commentId}`;
+          const isNew = await redis.set(dedupKey, '1', 'EX', 3600, 'NX');
+          if (!isNew) isDuplicate = true;
+        } catch (redisErr) {
+          logger.warn(`Redis deduplication failed for IG comment: ${redisErr.message}`);
+          // Fallback: Proceed without deduplication since we don't save comments in DB
+        }
+        
+        if (isDuplicate) {
+          logger.info(`Comment ${commentId} from user ${commenterId} already processing/processed. Skipping duplicate webhook.`);
           return;
         }
 

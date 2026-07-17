@@ -5,15 +5,20 @@ const logger = require('../utils/logger');
 let rawUrl = process.env.REDIS_URL || '';
 if (rawUrl) {
   rawUrl = rawUrl.trim();
-  if (rawUrl.startsWith('REDIS_URL=')) {
-    rawUrl = rawUrl.replace(/^REDIS_URL=/, '');
-  }
+  if (rawUrl.startsWith('REDIS_URL=')) rawUrl = rawUrl.replace(/^REDIS_URL=/, '');
   rawUrl = rawUrl.replace(/^"|"$/g, '').replace(/^'|'$/g, '');
+  
+  // If user pasted a redis-cli command, extract just the URL
+  if (rawUrl.includes('redis://')) {
+    rawUrl = 'redis://' + rawUrl.split('redis://')[1].split(' ')[0];
+  } else if (rawUrl.includes('rediss://')) {
+    rawUrl = 'rediss://' + rawUrl.split('rediss://')[1].split(' ')[0];
+  }
 }
 
 const REDIS_URL = rawUrl || null;
 
-// Validate URL format gracefully to prevent ERR_INVALID_URL crashing the server
+// Validate URL format gracefully
 let isValidUrl = false;
 try {
   if (REDIS_URL) {
@@ -24,26 +29,48 @@ try {
   logger.error(`Provided REDIS_URL is fundamentally malformed: ${REDIS_URL}`);
 }
 
-// Configure Redis Client with a reconnect strategy
-const redisClient = createClient({
-  url: isValidUrl ? REDIS_URL : 'redis://127.0.0.1:6379',
+const isUpstash = (process.env.REDIS_HOST && process.env.REDIS_HOST.includes('upstash'));
+const useTls = process.env.REDIS_TLS === 'true' || isUpstash;
+
+let clientConfig = {
   socket: {
     reconnectStrategy: (retries) => {
       if (retries > 20) {
-        logger.error('Redis max reconnection attempts reached. Please check your REDIS_URL.');
+        logger.error('Redis max reconnection attempts reached.');
         return new Error('Max reconnection attempts reached');
       }
       return 5000;
     }
   }
-});
+};
+
+if (isValidUrl) {
+  clientConfig.url = REDIS_URL;
+  if (REDIS_URL.startsWith('rediss://') || REDIS_URL.includes('upstash')) {
+    clientConfig.socket.tls = true;
+    clientConfig.socket.rejectUnauthorized = false;
+  }
+} else if (process.env.REDIS_HOST) {
+  clientConfig.socket.host = process.env.REDIS_HOST;
+  clientConfig.socket.port = parseInt(process.env.REDIS_PORT || 6379);
+  if (process.env.REDIS_PASSWORD) clientConfig.password = process.env.REDIS_PASSWORD;
+  if (useTls) {
+    clientConfig.socket.tls = true;
+    clientConfig.socket.rejectUnauthorized = false;
+  }
+} else {
+  clientConfig.url = 'redis://127.0.0.1:6379';
+}
+
+// Configure Redis Client
+const redisClient = createClient(clientConfig);
 
 // Avoid logging connection errors repeatedly if we don't have a valid remote URL in prod
 redisClient.on('error', (err) => {
   if (err.code === 'ECONNREFUSED') {
     logger.error(`Redis connection refused. Ensure Redis is running and REDIS_URL is correctly set.`);
   } else {
-    logger.error('Redis Client Error:', err.message);
+    logger.error('Redis Client Error:', err);
   }
 });
 

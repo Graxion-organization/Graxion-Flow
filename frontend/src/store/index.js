@@ -218,12 +218,13 @@ export const useOrganizationStore = create(
 
 export const useBrandingStore = create((set, get) => ({
   branding: {
-    branding_site_name: 'Aggressive India',
-    branding_contact_email: 'support@aggressiveindia.com',
-    branding_contact_phone: '+919999999999',
+    branding_site_name: 'WhatsAgent',
+    branding_contact_email: 'support@graxion.com',
+    branding_contact_phone: '+1 (800) 123-4567',
     branding_logo_url: '',
     branding_favicon_url: '',
-    branding_footer_text: '© 2026 Aggressive India. All rights reserved.'
+    branding_address: 'Graxion HQ, Silicon Valley, CA',
+    branding_footer_text: '© 2026 Graxion Inc. All rights reserved. WhatsAgent is a product of Graxion.'
   },
   isLoading: false,
 

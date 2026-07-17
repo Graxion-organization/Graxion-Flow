@@ -88,6 +88,23 @@ async function handleFacebookMessage(event, fbAccount, agent) {
 
   if (!senderId || !messageId || !text) return;
 
+  // Deduplicate using Redis atomic lock
+  let isDuplicate = false;
+  try {
+    const redis = require('../config/redis').redis;
+    const dedupKey = `fb_dedup:${messageId}`;
+    const isNew = await redis.set(dedupKey, '1', 'EX', 3600, 'NX');
+    if (!isNew) isDuplicate = true;
+  } catch (redisErr) {
+    logger.warn(`Redis deduplication failed for FB: ${redisErr.message}`);
+    // Will naturally fallback to checking the DB later in the queue processing
+  }
+  
+  if (isDuplicate) {
+    logger.info(`Facebook message ${messageId} already processing/processed. Skipping duplicate webhook.`);
+    return;
+  }
+
   webhookQueue.enqueue(`facebook_${senderId}`, async () => {
     try {
       // Find or create conversation
@@ -187,7 +204,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
         timestamp: new Date(),
       });
 
-      const contextMessages = await conversation.getRecentMessages(20)
+      const contextMessages = (await conversation.getRecentMessages(20))
         .filter((m) => m.role !== 'system')
         .slice(-(agent.contextWindow * 2))
         .map((m) => ({ role: m.role, content: m.content }));

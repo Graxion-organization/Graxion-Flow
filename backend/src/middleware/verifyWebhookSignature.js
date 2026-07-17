@@ -66,6 +66,13 @@ exports.verifyMetaSignature = (req, res, next) => {
 
     if (!isValid) {
       logger.error(`Webhook signature validation failed for ${req.originalUrl}. Tested against ${appSecrets.length} secret(s).`);
+      // Add debug logging
+      const safeSecrets = appSecrets.map(s => s ? s.substring(0, 3) + '***' : 'null');
+      logger.error(`[DEBUG] Received Hash: ${signatureHash}`);
+      logger.error(`[DEBUG] Secrets tested (first 3 chars): ${safeSecrets.join(', ')}`);
+      logger.error(`[DEBUG] req.rawBody length: ${payload.length}`);
+      logger.error(`[DEBUG] Content-Type: ${req.headers['content-type']}`);
+      
       return next(new AppError('Unauthorized: Webhook signature mismatch.', 401));
     }
 

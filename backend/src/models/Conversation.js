@@ -97,7 +97,8 @@ conversationSchema.methods.addMessage = async function(data) {
 
 conversationSchema.methods.getRecentMessages = async function(limit = 50) {
   const Message = require('./Message');
-  return await Message.find({ conversationId: this._id }).sort({ timestamp: 1 }).limit(limit);
+  const msgs = await Message.find({ conversationId: this._id }).sort({ timestamp: -1 }).limit(limit);
+  return msgs.reverse();
 };
 
 module.exports = mongoose.model('Conversation', conversationSchema);
