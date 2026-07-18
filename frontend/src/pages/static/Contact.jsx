@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import StaticPageLayout from "./StaticPageLayout";
 import { Mail, Phone, MapPin, Send, MessageSquare, Clock } from "lucide-react";
 import { useBrandingStore } from "../../store";
+import api from "../../services/api";
 
 export default function Contact() {
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
@@ -12,13 +13,20 @@ export default function Contact() {
     fetchBranding().catch(() => {});
   }, [fetchBranding]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("sending");
-    setTimeout(() => {
-      setStatus("success");
-      setFormData({ name: "", email: "", subject: "", message: "" });
-    }, 1500);
+    try {
+      const response = await api.post('/public/contact', formData);
+      if (response.data.status === 'success') {
+        setStatus("success");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } else {
+        setStatus("error");
+      }
+    } catch (err) {
+      setStatus("error");
+    }
   };
 
   const contactInfo = [
@@ -38,8 +46,8 @@ export default function Contact() {
     },
     {
       title: "Our Office",
-      value: branding?.branding_address || "Graxion HQ, Silicon Valley, CA",
-      desc: "The heart of innovation.",
+      value: branding?.branding_address || "VPO Roopgarh JInd Haryana India",
+      desc: branding?.branding_address_desc || "The heart of innovation.",
       icon: MapPin,
       color: "#ff4757"
     }
@@ -47,7 +55,7 @@ export default function Contact() {
 
   return (
     <StaticPageLayout 
-      title={`Contact ${branding?.branding_site_name || 'WhatsAgent'}`} 
+      title={`Contact ${branding?.branding_site_name || 'Graxion'}`} 
       subtitle="Have questions? We're here to help you automate your business success."
     >
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "60px", alignItems: "start" }}>
@@ -110,7 +118,7 @@ export default function Contact() {
               type="submit" 
               disabled={status === "sending"}
               style={{ 
-                background: status === "success" ? "#1aab52" : "#25D366", 
+                background: status === "success" ? "#1aab52" : status === "error" ? "#ff4757" : "#25D366", 
                 color: "#060a0f", 
                 padding: "16px", 
                 borderRadius: "14px", 
@@ -124,7 +132,7 @@ export default function Contact() {
                 transition: "all 0.3s ease"
               }}
             >
-              {status === "sending" ? "Sending..." : status === "success" ? "Message Sent!" : <><Send size={20} /> Send Message</>}
+              {status === "sending" ? "Sending..." : status === "success" ? "Message Sent!" : status === "error" ? "Error! Try Again" : <><Send size={20} /> Send Message</>}
             </button>
           </form>
         </div>

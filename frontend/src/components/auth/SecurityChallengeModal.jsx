@@ -192,7 +192,7 @@ const SecurityChallengeModal = ({ isOpen, type, onVerify, onCancel, isLoading })
           <div className="mt-8 pt-6 border-t border-white/5 text-center">
             <p className="text-xs text-gray-500 flex items-center justify-center gap-2">
               <Shield className="w-3 h-3 text-emerald-500" />
-              Protected by WhatsAgent Security Engine
+              Protected by Graxion Security Engine
             </p>
           </div>
         </motion.div>

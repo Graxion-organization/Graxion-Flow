@@ -63,9 +63,9 @@ export default function About() {
       <section style={{ marginBottom: "100px" }}>
         <div style={{ display: "flex", gap: "60px", alignItems: "center", flexWrap: "wrap" }}>
           <div style={{ flex: "1 1 400px" }}>
-            <h2 style={{ fontFamily: "Syne, sans-serif", fontSize: "36px", fontWeight: 800, marginBottom: "20px" }}>The Story Behind <span style={{ color: "#25D366" }}>ZapiAI</span></h2>
+            <h2 style={{ fontFamily: "Syne, sans-serif", fontSize: "36px", fontWeight: 800, marginBottom: "20px" }}>The Story Behind <span style={{ color: "#25D366" }}>Graxion</span></h2>
             <p style={{ color: "#7a9b8a", lineHeight: 1.8, fontSize: "17px", marginBottom: "20px" }}>
-              Founded in 2024, ZapiAI started as a small project to help local businesses manage their WhatsApp inquiries. We quickly realized that the problem was much larger—businesses everywhere were struggling to keep up with the demand for instant, 24/7 communication.
+              Founded in 2024, Graxion started as a small project to help local businesses manage their WhatsApp inquiries. We quickly realized that the problem was much larger—businesses everywhere were struggling to keep up with the demand for instant, 24/7 communication.
             </p>
             <p style={{ color: "#7a9b8a", lineHeight: 1.8, fontSize: "17px" }}>
               Today, we're a team of passionate engineers and AI specialists dedicated to building the most powerful, yet accessible, automation platform for businesses of all sizes.

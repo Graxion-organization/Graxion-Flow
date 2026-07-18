@@ -78,7 +78,7 @@ function AuthShell({ children, subtitle, title }) {
                   <MessageSquare size={18} />
                 </div>
               )}
-              <span className="text-slate-100 font-bold tracking-tight">{branding?.branding_site_name || 'ZapiAI'}</span>
+              <span className="text-slate-100 font-bold tracking-tight">{branding?.branding_site_name || 'Graxion'}</span>
             </button>
 
             <h2 className="mt-10 text-3xl font-extrabold text-slate-100 leading-tight">

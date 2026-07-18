@@ -46,6 +46,7 @@ const AdminLayout = () => {
       items: [
         { name: "Overview", icon: LayoutDashboard, path: "/admin/dashboard" },
         { name: "Conversations", icon: MessageSquare, path: "/admin/conversations" },
+        { name: "Contact Messages", icon: Mail, path: "/admin/contact-messages" },
       ]
     },
     {

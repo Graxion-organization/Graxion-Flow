@@ -34,6 +34,7 @@ const AutomationHubPage = lazy(() => import("./pages/AutomationHubPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Home = lazy(() => import("./pages/Home"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
+const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
 
 // Phase 8 New Pages
 const ContactsPage = lazy(() => import("./pages/ContactsPage"));
@@ -72,6 +73,7 @@ const AdminRequests = lazy(() => import("./pages/admin/AdminRequests"));
 const AdminActivities = lazy(() => import("./pages/admin/AdminActivities"));
 const ApiExplorer = lazy(() => import("./pages/admin/ApiExplorer"));
 const InstagramTool = lazy(() => import("./pages/admin/InstagramTool"));
+const AdminContactMessages = lazy(() => import("./pages/admin/AdminContactMessages"));
 
 // Other pages
 const PendingDeletionPage = lazy(() => import("./pages/PendingDeletionPage"));
@@ -224,6 +226,11 @@ export default function App() {
           <Route path="/callback" element={<CallbackPage />} />
           <Route path="/youtube-callback" element={<YoutubeCallbackPage />} />
           <Route path="/linkedin-callback" element={<LinkedinCallbackPage />} />
+          <Route path="/onboarding" element={
+            <ProtectedRoute>
+              <OnboardingPage />
+            </ProtectedRoute>
+          } />
 
           {/* ❌ 404 */}
           <Route path="/not-found" element={<NotFound />} />
@@ -299,6 +306,7 @@ export default function App() {
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="users" element={<UserManagement />} />
             <Route path="signup-requests" element={<AdminRequests />} />
+            <Route path="contact-messages" element={<AdminContactMessages />} />
             <Route path="activities" element={<AdminActivities />} />
             <Route path="conversations" element={<ComingSoon />} />
             <Route path="subscriptions" element={<Subscriptions />} />

@@ -55,7 +55,7 @@ export default function ComingSoon() {
         }}
       >
         We're working hard to bring you this page. Please check back later or
-        explore other features of ZapiAI!
+        explore other features of Graxion!
       </p>
       <button
         onClick={() => navigate("/")}

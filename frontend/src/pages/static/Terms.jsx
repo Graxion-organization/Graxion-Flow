@@ -6,7 +6,7 @@ export default function Terms() {
   const sections = [
     {
       title: "1. Acceptance of Terms",
-      content: "By accessing and using ZapiAI, you agree to be bound by these Terms of Service and all applicable laws and regulations."
+      content: "By accessing and using Graxion, you agree to be bound by these Terms of Service and all applicable laws and regulations."
     },
     {
       title: "2. Use License",
@@ -18,7 +18,7 @@ export default function Terms() {
     },
     {
       title: "4. Limitations",
-      content: "ZapiAI shall not be held liable for any damages arising out of the use or inability to use the materials on ZapiAI's website."
+      content: "Graxion shall not be held liable for any damages arising out of the use or inability to use the materials on Graxion's website."
     }
   ];
 

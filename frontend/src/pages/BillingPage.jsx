@@ -48,7 +48,7 @@ export default function BillingPage() {
         key: keyId,
         amount,
         currency,
-        name: 'WhatsAgent',
+        name: 'Graxion',
         description: `${planLabel} Plan Subscription`,
         order_id: orderId,
         prefill,

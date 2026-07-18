@@ -105,7 +105,8 @@ const SystemSettings = () => {
         'branding_logo_url',
         'branding_favicon_url',
         'branding_footer_text',
-        'branding_address'
+        'branding_address',
+        'branding_address_desc'
       ]
     },
     {

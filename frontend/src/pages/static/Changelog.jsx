@@ -31,8 +31,8 @@ export default function Changelog() {
       version: "v1.0.0",
       date: "March 15, 2024",
       type: "Release",
-      title: "ZapiAI Public Launch",
-      desc: "The wait is over! ZapiAI is now open to the public with support for WhatsApp and Instagram.",
+      title: "Graxion Public Launch",
+      desc: "The wait is over! Graxion is now open to the public with support for WhatsApp and Instagram.",
       items: [
         { label: "New", text: "Public Beta access for all users", icon: Rocket },
         { label: "New", text: "Official WhatsApp Business integration", icon: Sparkles }

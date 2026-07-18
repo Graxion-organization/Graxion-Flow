@@ -21,15 +21,15 @@ export const useAuthStore = create(
           return { success: true };
         } catch (err) {
           set({ isLoading: false });
-          return { 
-            success: false, 
+          return {
+            success: false,
             message: err.response?.data?.message,
             action: err.response?.data?.action,
             otpToken: err.response?.data?.otpToken
           };
         }
       },
-      
+
       adminLogin: async (credentials) => {
         set({ isLoading: true });
         try {
@@ -49,8 +49,8 @@ export const useAuthStore = create(
           return { success: true };
         } catch (err) {
           set({ isLoading: false });
-          return { 
-            success: false, 
+          return {
+            success: false,
             message: err.response?.data?.message,
             action: err.response?.data?.action,
             otpToken: err.response?.data?.otpToken
@@ -76,8 +76,8 @@ export const useAuthStore = create(
           return { success: true };
         } catch (err) {
           set({ isLoading: false });
-          return { 
-            success: false, 
+          return {
+            success: false,
             message: err.response?.data?.message
           };
         }
@@ -93,8 +93,8 @@ export const useAuthStore = create(
           return { success: true };
         } catch (err) {
           set({ isLoading: false });
-          return { 
-            success: false, 
+          return {
+            success: false,
             message: err.response?.data?.message,
             action: err.response?.data?.action,
             otpToken: err.response?.data?.otpToken
@@ -103,7 +103,7 @@ export const useAuthStore = create(
       },
 
       logout: async () => {
-        try { await authAPI.logout(); } catch {}
+        try { await authAPI.logout(); } catch { }
         useOrganizationStore.getState().clearOrganizations();
         set({ user: null, isAuthenticated: false });
       },
@@ -209,22 +209,23 @@ export const useOrganizationStore = create(
         set({ organizations: [], currentOrganization: null });
       },
     }),
-    { 
-      name: 'org-store', 
-      partialize: (s) => ({ currentOrganization: s.currentOrganization }) 
+    {
+      name: 'org-store',
+      partialize: (s) => ({ currentOrganization: s.currentOrganization })
     }
   )
 );
 
 export const useBrandingStore = create((set, get) => ({
   branding: {
-    branding_site_name: 'WhatsAgent',
-    branding_contact_email: 'support@graxion.com',
-    branding_contact_phone: '+1 (800) 123-4567',
+    branding_site_name: 'Graxion',
     branding_logo_url: '',
+    branding_contact_email: 'Yogeshkaushik138@gmail.com',
+    branding_contact_phone: '+918685041359',
     branding_favicon_url: '',
-    branding_address: 'Graxion HQ, Silicon Valley, CA',
-    branding_footer_text: '© 2026 Graxion Inc. All rights reserved. WhatsAgent is a product of Graxion.'
+    branding_address: 'VPO Roopgarh JInd Haryana India',
+    branding_address_desc: 'The heart of innovation.',
+    branding_footer_text: '© 2026 Graxion Inc. All rights reserved.'
   },
   isLoading: false,
 
@@ -233,7 +234,7 @@ export const useBrandingStore = create((set, get) => ({
     try {
       const res = await adminAPI.getPublicSettings();
       const data = res.data.data;
-      
+
       // Dynamic favicon update
       if (data.branding_favicon_url) {
         const link = document.querySelector("link[rel~='icon']");
@@ -269,7 +270,7 @@ export const useBrandingStore = create((set, get) => ({
 
 export const useFeatureFlagStore = create((set, get) => ({
   flags: {},
-      flagsFetchedAt: null,
+  flagsFetchedAt: null,
   isLoading: false,
   error: null,
 

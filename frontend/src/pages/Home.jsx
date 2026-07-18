@@ -25,7 +25,7 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Dynamic branding variables from Admin Settings
-  const brandName = useMemo(() => branding?.branding_site_name || "WhatsAgent", [branding]);
+  const brandName = useMemo(() => branding?.branding_site_name || "Graxion", [branding]);
   const contactEmail = useMemo(() => branding?.branding_contact_email || "support@graxion.com", [branding]);
   const contactPhone = useMemo(() => branding?.branding_contact_phone || "+1 (800) 123-4567", [branding]);
   const footerText = useMemo(() => branding?.branding_footer_text || "© 2026 Graxion Inc. All rights reserved.", [branding]);
@@ -129,18 +129,20 @@ export default function Home() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-gray-300 mb-8 backdrop-blur-sm"
           >
             <span className="flex h-2 w-2 rounded-full bg-brand-500 animate-pulse"></span>
-            A Premium Product by <strong className="text-white">Graxion</strong>
+            Next-Gen AI Platform by <strong className="text-white">Graxion</strong>
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1]"
+            className="font-extrabold tracking-tight mb-8 leading-[1.1] flex flex-col gap-4"
           >
-            The Ultimate <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-emerald-300 to-blue-500">
-              Conversational OS
+            <span className="text-3xl md:text-5xl text-gray-200">
+              Revolutionize Engagement With
+            </span>
+            <span className="text-6xl md:text-[5.5rem] text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.5)] py-2">
+              Autonomous Intelligence
             </span>
           </motion.h1>
 
@@ -148,9 +150,9 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed"
+            className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-10 leading-relaxed"
           >
-            Supercharge your business with autonomous AI agents across WhatsApp, Instagram, and Telegram. Automate support, qualify leads, and sync with your CRM in real-time.
+            Transform your customer engagement across WhatsApp, Instagram, and Telegram. Deploy cognitive agents that sell, support, and scale your business effortlessly while syncing with your CRM in real-time.
           </motion.p>
 
           <motion.div
@@ -180,9 +182,10 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
+          animate={{ y: [0, -10, 0] }}
+          transition={{ duration: 0.8, ease: "easeOut", animate: { duration: 6, repeat: Infinity, ease: "easeInOut" } }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="relative rounded-2xl md:rounded-[2rem] border border-white/10 bg-black/50 p-2 md:p-4 backdrop-blur-xl shadow-2xl shadow-brand-500/10 overflow-hidden"
+          className="relative rounded-2xl md:rounded-[2rem] border border-white/10 bg-black/50 p-2 md:p-4 backdrop-blur-xl shadow-[0_0_50px_rgba(34,197,94,0.1)] overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
           <div className="rounded-xl overflow-hidden border border-white/5 relative bg-[#0f0f0f]">

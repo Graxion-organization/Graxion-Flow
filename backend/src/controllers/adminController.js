@@ -6,6 +6,8 @@ const InstagramAccount = require('../models/InstagramAccount');
 const SocialPostJob = require('../models/SocialPostJob');
 const Agent = require('../models/Agent');
 const SystemSetting = require('../models/SystemSetting');
+const Payment = require('../models/Payment');
+const ContactMessage = require('../models/ContactMessage');
 const AppError = require('../utils/AppError');
 const logger = require('../utils/logger');
 const cloudinary = require('cloudinary').v2;
@@ -400,7 +402,8 @@ exports.getPublicSettings = async (req, res, next) => {
       'branding_logo_url',
       'branding_favicon_url',
       'branding_footer_text',
-      'branding_address'
+      'branding_address',
+      'branding_address_desc'
     ];
     
     const settings = await SystemSetting.find({ key: { $in: keys } });
@@ -415,7 +418,7 @@ exports.getPublicSettings = async (req, res, next) => {
     if (!config.branding_site_name) config.branding_site_name = 'WhatsAgent';
     if (!config.branding_contact_email) config.branding_contact_email = 'support@whatsappsaas.com';
     if (!config.branding_contact_phone) config.branding_contact_phone = '+1234567890';
-    if (!config.branding_footer_text) config.branding_footer_text = '© 2026 WhatsAgent. All rights reserved.';
+    if (!config.branding_footer_text) config.branding_footer_text = ' 2026 WhatsAgent. All rights reserved.';
 
     res.status(200).json({
       status: 'success',
@@ -450,7 +453,7 @@ exports.getSystemSettings = async (req, res, next) => {
       { key: 'branding_contact_phone', value: '+1234567890', description: 'Support phone number' },
       { key: 'branding_logo_url', value: '', description: 'Custom logo image URL' },
       { key: 'branding_favicon_url', value: '', description: 'Custom favicon image URL' },
-      { key: 'branding_footer_text', value: '© 2026 WhatsAgent. All rights reserved.', description: 'Footer copyright label' },
+      { key: 'branding_footer_text', value: ' 2026 WhatsAgent. All rights reserved.', description: 'Footer copyright label' },
       { key: 'email_template_welcome_subject', value: 'Welcome to {{siteName}}, {{name}}!', description: 'Welcome email subject' },
       { key: 'email_template_welcome_body', value: 'Hi {{name}},\n\nWelcome to {{siteName}}! We are thrilled to help you automate your client messaging and scaling your operations.\n\nBest regards,\nThe {{siteName}} Team', description: 'Welcome email text body' },
       { key: 'email_template_forgot_password_subject', value: 'Reset your {{siteName}} Password', description: 'Forgot password email subject' },
@@ -1059,7 +1062,7 @@ exports.refundPayment = async (req, res, next) => {
         await sendEmail({
           to: targetUser.email,
           subject: 'Payment Refund Confirmation',
-          html: `<p>Hi ${targetUser.name},</p><p>We have processed a refund for your payment (Plan: ${payment.plan.toUpperCase()}) of ₹${payment.amount / 100}. Your subscription has been reverted to the Free plan. Please let us know if you have any questions.</p><p>Best regards,<br/>The Admin Team</p>`
+          html: `<p>Hi ${targetUser.name},</p><p>We have processed a refund for your payment (Plan: ${payment.plan.toUpperCase()}) of ${payment.amount / 100}. Your subscription has been reverted to the Free plan. Please let us know if you have any questions.</p><p>Best regards,<br/>The Admin Team</p>`
         });
       } catch (e) {
         logger.error('Error sending refund email:', e);
@@ -1070,7 +1073,7 @@ exports.refundPayment = async (req, res, next) => {
     await logAdminActivity(
       req, 
       'refund_payment', 
-      `Refunded payment ${payment.razorpayPaymentId || payment._id} of amount ₹${payment.amount / 100} for user ${targetUser.email} and revoked subscription`
+      `Refunded payment ${payment.razorpayPaymentId || payment._id} of amount ${payment.amount / 100} for user ${targetUser.email} and revoked subscription`
     );
 
     res.status(200).json({
@@ -1124,7 +1127,7 @@ exports.sendSignupRequestOTP = async (req, res, next) => {
     try {
       await sendEmail({
         to: req.user.email,
-        subject: '🔒 Admin Authorization Code',
+        subject: ' Admin Authorization Code',
         html: `
           <div style="font-family: sans-serif; max-width: 500px; margin: auto; padding: 24px; border: 1px solid #e4e4e7; border-radius: 12px; color: #18181b;">
             <h2 style="color: #ef4444; margin-top: 0;">Admin Approval Verification</h2>
@@ -1198,7 +1201,7 @@ exports.approveSignupRequest = async (req, res, next) => {
     try {
       await sendEmail({
         to: newAdmin.email,
-        subject: '🎉 Admin Enrollment Approved',
+        subject: ' Admin Enrollment Approved',
         html: `
           <div style="font-family: sans-serif; max-width: 500px; margin: auto; padding: 24px; border: 1px solid #e4e4e7; border-radius: 12px; color: #18181b;">
             <h2 style="color: #25D366; margin-top: 0;">Enrollment Approved!</h2>
@@ -1562,6 +1565,25 @@ exports.getApiUsage = async (req, res, next) => {
       ]
     };
     res.status(200).json({ status: 'success', data });
+  } catch (err) {
+    next(err);
+  }
+};
+ 
+exports.getContactMessages = async (req, res, next) => {
+  try {
+    const messages = await ContactMessage.find().sort({ createdAt: -1 });
+    res.status(200).json({ status: 'success', data: messages });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.markContactMessageRead = async (req, res, next) => {
+  try {
+    const msg = await ContactMessage.findByIdAndUpdate(req.params.id, { status: 'read' }, { new: true });
+    if (!msg) return res.status(404).json({ status: 'error', message: 'Message not found' });
+    res.status(200).json({ status: 'success', data: msg });
   } catch (err) {
     next(err);
   }

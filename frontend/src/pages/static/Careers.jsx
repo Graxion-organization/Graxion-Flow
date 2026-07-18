@@ -81,7 +81,7 @@ export default function Careers() {
       <section>
         <div style={{ marginBottom: "50px" }}>
           <h2 style={{ fontFamily: "Syne, sans-serif", fontSize: "36px", fontWeight: 800, marginBottom: "15px" }}>Open Positions</h2>
-          <p style={{ color: "#7a9b8a", fontSize: "17px" }}>Find your next challenge at ZapiAI.</p>
+          <p style={{ color: "#7a9b8a", fontSize: "17px" }}>Find your next challenge at Graxion.</p>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -148,9 +148,9 @@ export default function Careers() {
       }}>
         <h2 style={{ fontFamily: "Syne, sans-serif", fontSize: "32px", fontWeight: 800, marginBottom: "20px" }}>Don't see a role for you?</h2>
         <p style={{ color: "#7a9b8a", fontSize: "17px", marginBottom: "30px", maxWidth: "600px", margin: "0 auto 30px" }}>
-          We're always looking for great people. Send us your resume and tell us how you can help ZapiAI grow.
+          We're always looking for great people. Send us your resume and tell us how you can help Graxion grow.
         </p>
-        <a href="mailto:careers@zapiai.com" style={{ 
+        <a href="mailto:careers@Graxion.com" style={{ 
           color: "#25D366", 
           fontWeight: 700, 
           fontSize: "18px", 
@@ -159,7 +159,7 @@ export default function Careers() {
           alignItems: "center",
           gap: "10px"
         }}>
-          careers@zapiai.com <ArrowRight size={20} />
+          careers@Graxion.com <ArrowRight size={20} />
         </a>
       </div>
     </StaticPageLayout>

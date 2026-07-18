@@ -106,7 +106,7 @@ export function AdminAuthPage() {
                   {...register('email')}
                   type="email"
                   className="w-full pl-11 pr-4 py-3 bg-black/40 border border-white/10 rounded-lg text-white focus:outline-none focus:border-red-500/50 transition-all"
-                  placeholder="admin@zapiai.com"
+                  placeholder="admin@Graxion.com"
                 />
               </div>
               {errors.email && <p className="text-red-500 text-[10px] mt-1">{errors.email.message}</p>}

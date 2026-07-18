@@ -59,6 +59,10 @@ router.delete('/plans/:id', adminController.deletePlan);
 router.get('/payments', adminController.getAllPayments);
 router.patch('/payments/:id/status', adminController.updatePaymentStatus);
 
+// Contact Messages Management
+router.get('/contact-messages', adminController.getContactMessages);
+router.patch('/contact-messages/:id/read', adminController.markContactMessageRead);
+
 // Admin Analytics (Phase 10)
 router.get('/analytics/revenue', adminController.getRevenueMetrics);
 router.get('/analytics/webhook-health', adminController.getWebhookHealth);

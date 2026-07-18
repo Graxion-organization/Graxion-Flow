@@ -34,7 +34,7 @@ export default function Privacy() {
       <div style={{ maxWidth: "900px", margin: "0 auto" }}>
         <div style={{ marginBottom: "60px", padding: "40px", borderRadius: "32px", background: "rgba(37, 211, 102, 0.05)", border: "1px solid rgba(37, 211, 102, 0.2)" }}>
           <p style={{ fontSize: "17px", lineHeight: 1.8, color: "#e8f5ee", margin: 0 }}>
-            At ZapiAI, we take your privacy seriously. This policy describes how we collect, use, and protect your personal information and the data handled by our AI agents.
+            At Graxion, we take your privacy seriously. This policy describes how we collect, use, and protect your personal information and the data handled by our AI agents.
           </p>
         </div>
 
@@ -55,7 +55,7 @@ export default function Privacy() {
         <section style={{ padding: "50px", borderRadius: "32px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
           <h2 style={{ fontSize: "24px", fontWeight: 800, marginBottom: "20px", fontFamily: "Syne, sans-serif" }}>GDPR & Global Compliance</h2>
           <p style={{ color: "#7a9b8a", lineHeight: 1.7, marginBottom: "30px" }}>
-            ZapiAI is committed to complying with global data protection regulations, including the General Data Protection Regulation (GDPR). Our users have the following rights:
+            Graxion is committed to complying with global data protection regulations, including the General Data Protection Regulation (GDPR). Our users have the following rights:
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
             {[
@@ -75,7 +75,7 @@ export default function Privacy() {
 
         <div style={{ marginTop: "60px", textAlign: "center" }}>
           <p style={{ color: "#7a9b8a" }}>
-            If you have any questions about this Privacy Policy, please contact us at <a href="mailto:privacy@zapiai.com" style={{ color: "#25D366", textDecoration: "none", fontWeight: 600 }}>privacy@zapiai.com</a>.
+            If you have any questions about this Privacy Policy, please contact us at <a href="mailto:privacy@Graxion.com" style={{ color: "#25D366", textDecoration: "none", fontWeight: 600 }}>privacy@Graxion.com</a>.
           </p>
         </div>
       </div>

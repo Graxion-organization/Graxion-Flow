@@ -37,25 +37,12 @@ import OrganizationSwitcher from "./OrganizationSwitcher";
 import { useTranslation } from "react-i18next";
 
 const ALL_NAV_ITEMS = [
-  { to: "/app/dashboard", icon: LayoutDashboard, label: "Dashboard", minRole: "viewer" },
-  { to: "/app/contacts", icon: Target, label: "Contacts CRM", minRole: "viewer" },
-  { to: "/app/leads", icon: Users, label: "Leads", minRole: "viewer" },
+  { to: "/app/dashboard", icon: LayoutDashboard, label: "Home", minRole: "viewer" },
+  { to: "/app/agents", icon: Bot, label: "My AI Team", minRole: "admin" },
   { to: "/app/conversations", icon: MessageSquare, label: "Inbox", minRole: "viewer" },
-  { to: "/app/deals", icon: Briefcase, label: "Deals Pipeline", minRole: "viewer" },
-  { to: "/app/quality", icon: ShieldCheck, label: "Meta Quality & Compliance", minRole: "viewer" },
-  { to: "/app/agents", icon: Bot, label: "AI Agents", minRole: "admin" },
-  { to: "/app/ai-presenter", icon: Video, label: "AI Presenter", minRole: "admin" },
-  { to: "/social-hub", icon: Share2, label: "Social Hub (Auto Post)", minRole: "editor" },
-  { to: "/app/automation", icon: Sparkles, label: "Social AI Replies", minRole: "editor" },
-  { to: "/app/flow-builder", icon: Share2, label: "Flow Builder", minRole: "editor" },
-  { to: "/app/keyword-triggers", icon: Info, label: "Keyword Triggers", minRole: "editor" },
-  { to: "/app/templates", icon: Target, label: "Templates", minRole: "editor" },
-  { to: "/app/broadcast", icon: Share2, label: "Broadcasts", minRole: "editor" },
-  { to: "/app/campaigns", icon: MessageCircle, label: "Campaigns", minRole: "viewer" },
-  { to: "/app/analytics", icon: LayoutDashboard, label: "Analytics", minRole: "admin" },
-  { to: "/app/integrations", icon: Smartphone, label: "Integrations", minRole: "admin" },
-  { to: "/app/billing", icon: CreditCard, label: "Billing", minRole: "owner" },
-  { to: "/app/settings", icon: Settings, label: "Settings", minRole: "viewer" }, // Certain tabs in settings will be hidden
+  { to: "/app/contacts", icon: Users, label: "Customers", minRole: "viewer" },
+  { to: "/app/integrations", icon: Smartphone, label: "App Store", minRole: "admin" },
+  { to: "/app/settings", icon: Settings, label: "Settings", minRole: "viewer" },
 ];
 
 const notifTypeIcon = {
