@@ -26,23 +26,69 @@ import {
   ShieldCheck,
   Building2,
   Plus,
-  Users
+  Users,
+  Megaphone,
+  Workflow,
+  BarChart3,
+  Database,
+  PlayCircle,
+  Zap
 } from "lucide-react";
 import { io } from "socket.io-client";
 import { useAuthStore, useNotificationStore, useOrganizationStore, useBrandingStore } from "../../store";
-import { notificationAPI } from "../../services/api";
+import { notificationAPI, socialHubAPI } from "../../services/api";
 import toast from "react-hot-toast";
 import { formatDistanceToNow } from "date-fns";
 import OrganizationSwitcher from "./OrganizationSwitcher";
 import { useTranslation } from "react-i18next";
 
-const ALL_NAV_ITEMS = [
-  { to: "/app/dashboard", icon: LayoutDashboard, label: "Home", minRole: "viewer" },
-  { to: "/app/agents", icon: Bot, label: "My AI Team", minRole: "admin" },
-  { to: "/app/conversations", icon: MessageSquare, label: "Inbox", minRole: "viewer" },
-  { to: "/app/contacts", icon: Users, label: "Customers", minRole: "viewer" },
-  { to: "/app/integrations", icon: Smartphone, label: "App Store", minRole: "admin" },
-  { to: "/app/settings", icon: Settings, label: "Settings", minRole: "viewer" },
+const SIDEBAR_GROUPS = [
+  {
+    title: "Workspace",
+    items: [
+      { to: "/app/dashboard", icon: LayoutDashboard, label: "Home", minRole: "viewer" },
+      { to: "/app/analytics", icon: BarChart3, label: "Analytics", minRole: "viewer" },
+    ]
+  },
+  {
+    title: "AI Automation",
+    items: [
+      { to: "/app/agents", icon: Bot, label: "My AI Team", minRole: "admin" },
+      { to: "/app/flow-builder", icon: Workflow, label: "Flow Builder", minRole: "admin" },
+      { to: "/app/templates", icon: Database, label: "Knowledge Base", minRole: "admin" },
+    ]
+  },
+  {
+    title: "Messaging",
+    items: [
+      { to: "/app/conversations", icon: MessageSquare, label: "Inbox", minRole: "viewer" },
+      { to: "/app/quality", icon: ShieldCheck, label: "Meta Quality", minRole: "admin" },
+    ]
+  },
+  {
+    title: "CRM & Sales",
+    items: [
+      { to: "/app/contacts", icon: Users, label: "Customers", minRole: "viewer" },
+      { to: "/app/deals", icon: Briefcase, label: "Deals Pipeline", minRole: "viewer" },
+      { to: "/app/leads", icon: Target, label: "Leads", minRole: "viewer" },
+    ]
+  },
+  {
+    title: "Marketing",
+    items: [
+      { to: "/app/campaigns", icon: Megaphone, label: "Campaigns", minRole: "editor" },
+      { to: "/app/broadcast", icon: PlayCircle, label: "Broadcasts", minRole: "editor" },
+      { to: "/app/social-hub", icon: Share2, label: "Social Hub", minRole: "editor" },
+    ]
+  },
+  {
+    title: "Administration",
+    items: [
+      { to: "/app/integrations", icon: Smartphone, label: "App Store", minRole: "admin" },
+      { to: "/app/settings", icon: Settings, label: "Settings", minRole: "viewer" },
+      { to: "/app/billing", icon: CreditCard, label: "Billing", minRole: "admin" },
+    ]
+  }
 ];
 
 const notifTypeIcon = {
@@ -92,6 +138,7 @@ export default function DashboardLayout() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [theme, setTheme] = useState("dark");
+  const [socialConnectedCount, setSocialConnectedCount] = useState(0);
 
   const notifRef = useRef(null);
   const userMenuRef = useRef(null);
@@ -107,6 +154,16 @@ export default function DashboardLayout() {
     i18n.changeLanguage(newLang);
     localStorage.setItem('language', newLang);
   };
+
+  useEffect(() => {
+    if (location.pathname.includes("/social-hub")) {
+      socialHubAPI.getAccounts().then((res) => {
+        const data = res.data?.data || [];
+        const filteredData = data.filter(acc => acc.platform !== 'whatsapp' && acc.platform !== 'telegram');
+        setSocialConnectedCount(filteredData.length);
+      }).catch(() => {});
+    }
+  }, [location.pathname]);
 
   const isSidebarCollapsed = location.pathname.includes("/automation/");
 
@@ -200,11 +257,14 @@ export default function DashboardLayout() {
     }
   }
 
-  const navItems = ALL_NAV_ITEMS.filter(item => {
-    const requiredLevel = roleLevels[item.minRole] || 1;
-    const userLevel = roleLevels[currentRole] || 1;
-    return userLevel >= requiredLevel;
-  });
+  const filteredGroups = SIDEBAR_GROUPS.map(group => ({
+    ...group,
+    items: group.items.filter(item => {
+      const requiredLevel = roleLevels[item.minRole] || 1;
+      const userLevel = roleLevels[currentRole] || 1;
+      return userLevel >= requiredLevel;
+    })
+  })).filter(group => group.items.length > 0);
 
   useEffect(() => {
     const load = async () => {
@@ -273,7 +333,8 @@ export default function DashboardLayout() {
   const unread = notifications.filter((n) => !n.read);
   const read = notifications.filter((n) => n.read);
 
-  const pageTitle = navItems.find((item) => location.pathname.startsWith(item.to))?.label || "Workspace";
+  const allFilteredItems = filteredGroups.flatMap(g => g.items);
+  const pageTitle = allFilteredItems.find((item) => location.pathname.startsWith(item.to))?.label || "Workspace";
 
   return (
     <div className={`flex h-screen overflow-hidden transition-colors duration-300 ${isDark ? "bg-slate-950 text-slate-100" : "bg-slate-100 text-slate-900"}`}>
@@ -295,7 +356,7 @@ export default function DashboardLayout() {
                 {branding.branding_logo_url ? (
                   <img src={branding.branding_logo_url} alt={branding.branding_site_name} className={`h-10 object-contain rounded-lg ${isSidebarCollapsed ? 'max-w-[40px]' : 'max-w-[140px]'}`} />
                 ) : (
-                  <div className="w-10 h-10 rounded-xl bg-[#FF6A00] flex items-center justify-center shadow-lg shadow-orange-500/30 shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/30 shrink-0">
                     <MessageSquare size={19} className="text-white" />
                   </div>
                 )}
@@ -319,53 +380,62 @@ export default function DashboardLayout() {
               <OrganizationSwitcher isDark={isDark} primaryColor="#FF6A00" />
             ) : (
               <div className="flex justify-center">
-                <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-[#FF6A00] flex items-center justify-center font-bold" title="Current Workspace">
+                <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center font-bold" title="Current Workspace">
                   {branding.branding_site_name?.[0]?.toUpperCase() || 'W'}
                 </div>
               </div>
             )}
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1.5 custom-scrollbar">
-            {navItems.map(({ to, icon: Icon, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                onClick={() => setSidebarOpen(false)}
-                title={isSidebarCollapsed ? label : undefined}
-                className={({ isActive }) =>
-                  `group flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3.5'} py-3 rounded-2xl text-sm font-medium transition-all duration-200 ${
-                    isActive
-                      ? "bg-[#FF6A00] text-white shadow-lg shadow-orange-500/30"
-                      : isDark
-                      ? "text-slate-300 hover:text-white hover:bg-white/8"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                  }`
-                }
-              >
-                <Icon size={isSidebarCollapsed ? 22 : 17} />
-                {!isSidebarCollapsed && <span>{t(`nav.${label.toLowerCase().replace(/ /g, '')}`, label)}</span>}
-              </NavLink>
+          <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6 custom-scrollbar pb-10">
+            {filteredGroups.map((group, idx) => (
+              <div key={idx} className="space-y-1">
+                {!isSidebarCollapsed && (
+                  <p className="px-3 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-[0.16em]">
+                    {group.title}
+                  </p>
+                )}
+                {group.items.map(({ to, icon: Icon, label }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    onClick={() => setSidebarOpen(false)}
+                    title={isSidebarCollapsed ? label : undefined}
+                    className={({ isActive }) =>
+                      `group flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3.5'} py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        isActive
+                          ? "bg-accent/10 text-accent font-semibold"
+                          : isDark
+                          ? "text-slate-300 hover:text-white hover:bg-white/8"
+                          : "text-text/70 hover:text-text hover:bg-surface"
+                      }`
+                    }
+                  >
+                    <Icon size={isSidebarCollapsed ? 22 : 18} />
+                    {!isSidebarCollapsed && <span>{t(`nav.${label.toLowerCase().replace(/ /g, '')}`, label)}</span>}
+                  </NavLink>
+                ))}
+              </div>
             ))}
 
             {user?.role === "admin" && (
-              <div className={`mt-4 pt-4 border-t ${isDark ? "border-white/10" : "border-slate-200"}`}>
-                {!isSidebarCollapsed && <p className="px-3 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-[0.18em]">Administration</p>}
+              <div className={`mt-4 pt-4 border-t ${isDark ? "border-white/10" : "border-border"}`}>
+                {!isSidebarCollapsed && <p className="px-3 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-[0.16em]">Platform</p>}
                 <NavLink
                   to="/admin/dashboard"
                   onClick={() => setSidebarOpen(false)}
                   title={isSidebarCollapsed ? "Admin Panel" : undefined}
                   className={({ isActive }) =>
-                    `flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3.5'} py-3 rounded-2xl text-sm font-medium transition-all duration-200 ${
+                    `flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3.5'} py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? "bg-[#FF6A00] text-white shadow-lg shadow-orange-500/30"
+                        ? "bg-accent/10 text-accent font-semibold"
                         : isDark
                         ? "text-orange-300 hover:text-orange-100 hover:bg-orange-500/10"
-                        : "text-orange-700 hover:text-orange-800 hover:bg-orange-100"
+                        : "text-text/70 hover:text-text hover:bg-surface"
                     }`
                   }
                 >
-                  <LayoutDashboard size={isSidebarCollapsed ? 22 : 17} />
+                  <LayoutDashboard size={isSidebarCollapsed ? 22 : 18} />
                   {!isSidebarCollapsed && "Admin Panel"}
                 </NavLink>
               </div>
@@ -386,7 +456,7 @@ export default function DashboardLayout() {
                   <span>{limitMessages.toLocaleString()}</span>
                 </div>
                 <div className={`h-1.5 rounded-full overflow-hidden ${isDark ? "bg-white/10" : "bg-slate-200"}`}>
-                  <div className="h-full rounded-full transition-all duration-500" style={{ width: `${usagePercent}%`, background: "#FF6A00" }} />
+                  <div className="h-full rounded-full transition-all duration-500 bg-accent" style={{ width: `${usagePercent}%` }} />
                 </div>
               </div>
             </div>
@@ -407,6 +477,21 @@ export default function DashboardLayout() {
             </div>
 
             <div className="ml-auto flex items-center gap-2">
+              {location.pathname.includes("/social-hub") && (
+                <div className="hidden sm:flex items-center gap-3 mr-2">
+                  {user?.subscription && (
+                    <div className="px-2.5 py-1 bg-warning/10 text-warning rounded-full border border-warning/20 text-[10px] font-bold flex items-center gap-1.5">
+                      <Zap size={12} className="fill-warning" />
+                      <span>{Math.max(0, user.subscription.credits ?? 0).toLocaleString()} Credits</span>
+                    </div>
+                  )}
+                  <div className="px-2.5 py-1 bg-success/10 text-success rounded-full border border-success/20 text-[10px] font-semibold flex items-center gap-1.5">
+                    <ShieldCheck size={12} />
+                    {socialConnectedCount} Connected
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
                 className={`p-2.5 rounded-xl transition-all ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-slate-100 hover:bg-slate-200"}`}
@@ -429,9 +514,9 @@ export default function DashboardLayout() {
 
               <div className="relative" ref={notifRef}>
                 <button onClick={() => setNotifOpen((o) => !o)} className={`relative p-2.5 rounded-xl transition-colors ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-slate-100 hover:bg-slate-200"}`}>
-                  <Bell size={18} className={unreadCount > 0 ? "text-[#FF6A00]" : ""} />
+                  <Bell size={18} className={unreadCount > 0 ? "text-accent" : ""} />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-[#FF6A00] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-accent text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                       {unreadCount > 99 ? "99+" : unreadCount}
                     </span>
                   )}

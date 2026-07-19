@@ -61,28 +61,28 @@ export default function AICaptionWriter({ isDark, selectedPlatforms = [], onAppl
   };
 
   const inputCls = `w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 transition-all ${
-    isDark ? 'bg-slate-950 border-white/10 text-slate-100 placeholder:text-slate-500 focus:ring-violet-500/30' : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:ring-violet-300'
+    'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:ring-violet-300 dark:bg-slate-950 dark:border-white/10 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-violet-500/30'
   }`;
   const selectCls = `w-full rounded-xl border px-3 py-2 text-sm focus:outline-none transition-all ${
-    isDark ? 'bg-slate-950 border-white/10 text-slate-100' : 'bg-white border-slate-200 text-slate-900'
+    'bg-white border-slate-200 text-slate-900 dark:bg-slate-950 dark:border-white/10 dark:text-slate-100'
   }`;
 
   return (
-    <div className={`rounded-2xl border p-5 space-y-4 transition-all ${isDark ? 'bg-gradient-to-br from-violet-950/40 to-slate-900 border-violet-500/20' : 'bg-gradient-to-br from-violet-50 to-white border-violet-200'}`}>
+    <div className={`rounded-2xl border p-5 space-y-4 transition-all ${'bg-gradient-to-br from-violet-50 to-white border-violet-200 dark:bg-gradient-to-br dark:from-violet-950/40 dark:to-slate-900 dark:border-violet-500/20'}`}>
       {/* Header */}
       <div className="flex items-center gap-2.5">
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDark ? 'bg-violet-500/20' : 'bg-violet-100'}`}>
+        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${'bg-violet-100 dark:bg-violet-500/20'}`}>
           <Sparkles size={18} className="text-violet-500" />
         </div>
         <div>
-          <h3 className={`font-semibold text-sm ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>AI Caption Writer</h3>
-          <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Generate platform-optimized captions instantly</p>
+          <h3 className={`font-semibold text-sm ${'text-slate-800 dark:text-slate-100'}`}>AI Caption Writer</h3>
+          <p className={`text-xs ${'text-slate-500 dark:text-slate-400'}`}>Generate platform-optimized captions instantly</p>
         </div>
       </div>
 
       {/* Platform */}
       <div>
-        <label className={`block text-xs font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Platform</label>
+        <label className={`block text-xs font-semibold mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Platform</label>
         <div className="flex flex-wrap gap-2">
           {PLATFORMS.map(p => (
             <button
@@ -92,7 +92,7 @@ export default function AICaptionWriter({ isDark, selectedPlatforms = [], onAppl
               className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
                 platform === p
                   ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20'
-                  : (isDark ? 'bg-white/5 text-slate-400 hover:bg-white/10' : 'bg-slate-100 text-slate-600 hover:bg-slate-200')
+                  : ('bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10')
               }`}
             >
               {p}
@@ -104,13 +104,13 @@ export default function AICaptionWriter({ isDark, selectedPlatforms = [], onAppl
       {/* Genre + Tone row */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className={`block text-xs font-semibold mb-1.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Content Type</label>
+          <label className={`block text-xs font-semibold mb-1.5 ${'text-slate-600 dark:text-slate-300'}`}>Content Type</label>
           <select value={genre} onChange={e => setGenre(e.target.value)} className={selectCls}>
             {GENRES.map(g => <option key={g.id} value={g.id}>{g.label}</option>)}
           </select>
         </div>
         <div>
-          <label className={`block text-xs font-semibold mb-1.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Tone</label>
+          <label className={`block text-xs font-semibold mb-1.5 ${'text-slate-600 dark:text-slate-300'}`}>Tone</label>
           <select value={tone} onChange={e => setTone(e.target.value)} className={selectCls}>
             {TONES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
           </select>
@@ -119,7 +119,7 @@ export default function AICaptionWriter({ isDark, selectedPlatforms = [], onAppl
 
       {/* Context */}
       <div>
-        <label className={`block text-xs font-semibold mb-1.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>What's this post about? <span className="font-normal opacity-60">(optional)</span></label>
+        <label className={`block text-xs font-semibold mb-1.5 ${'text-slate-600 dark:text-slate-300'}`}>What's this post about? <span className="font-normal opacity-60">(optional)</span></label>
         <textarea
           value={context}
           onChange={e => setContext(e.target.value)}
@@ -133,7 +133,7 @@ export default function AICaptionWriter({ isDark, selectedPlatforms = [], onAppl
       <button
         type="button"
         onClick={() => setShowAdvanced(v => !v)}
-        className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+        className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'}`}
       >
         <ChevronDown size={13} className={`transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
         Advanced options
@@ -141,7 +141,7 @@ export default function AICaptionWriter({ isDark, selectedPlatforms = [], onAppl
 
       {showAdvanced && (
         <div>
-          <label className={`block text-xs font-semibold mb-1.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Brand / Business Name</label>
+          <label className={`block text-xs font-semibold mb-1.5 ${'text-slate-600 dark:text-slate-300'}`}>Brand / Business Name</label>
           <input
             type="text"
             value={brandName}
@@ -168,25 +168,25 @@ export default function AICaptionWriter({ isDark, selectedPlatforms = [], onAppl
 
       {/* Result */}
       {result && (
-        <div className={`rounded-xl border p-4 space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300 ${isDark ? 'bg-slate-950/80 border-violet-500/20' : 'bg-violet-50/80 border-violet-200'}`}>
+        <div className={`rounded-xl border p-4 space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300 ${'bg-violet-50/80 border-violet-200 dark:bg-slate-950/80 dark:border-violet-500/20'}`}>
           {/* Hook badge */}
           {result.hook && (
-            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold ${isDark ? 'bg-violet-500/20 text-violet-300' : 'bg-violet-100 text-violet-700'}`}>
+            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold ${'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300'}`}>
               <Sparkles size={10} />
               HOOK: {result.hook}
             </div>
           )}
 
           {/* Caption text */}
-          <p className={`text-sm leading-relaxed whitespace-pre-wrap ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+          <p className={`text-sm leading-relaxed whitespace-pre-wrap ${'text-slate-800 dark:text-slate-200'}`}>
             {result.caption}
           </p>
 
           {/* Char count */}
-          <div className={`flex items-center justify-between text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+          <div className={`flex items-center justify-between text-[10px] ${'text-slate-400 dark:text-slate-500'}`}>
             <span>{result.charCount} characters</span>
             {result.callToAction && (
-              <span className={`px-2 py-0.5 rounded-full ${isDark ? 'bg-green-500/10 text-green-400' : 'bg-green-50 text-green-600'}`}>
+              <span className={`px-2 py-0.5 rounded-full ${'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400'}`}>
                 CTA: {result.callToAction}
               </span>
             )}
@@ -205,7 +205,7 @@ export default function AICaptionWriter({ isDark, selectedPlatforms = [], onAppl
               type="button"
               onClick={handleCopy}
               className={`h-9 w-9 rounded-lg border flex items-center justify-center transition-all ${
-                copied ? 'bg-green-500 border-green-500 text-white' : (isDark ? 'border-white/10 hover:bg-white/5 text-slate-400' : 'border-slate-200 hover:bg-slate-100 text-slate-600')
+                copied ? 'bg-green-500 border-green-500 text-white' : ('border-slate-200 hover:bg-slate-100 text-slate-600 dark:border-white/10 dark:hover:bg-white/5 dark:text-slate-400')
               }`}
               title="Copy caption"
             >
@@ -215,7 +215,7 @@ export default function AICaptionWriter({ isDark, selectedPlatforms = [], onAppl
               type="button"
               onClick={handleGenerate}
               disabled={generating}
-              className={`h-9 w-9 rounded-lg border flex items-center justify-center transition-all ${isDark ? 'border-white/10 hover:bg-white/5 text-slate-400' : 'border-slate-200 hover:bg-slate-100 text-slate-600'}`}
+              className={`h-9 w-9 rounded-lg border flex items-center justify-center transition-all ${'border-slate-200 hover:bg-slate-100 text-slate-600 dark:border-white/10 dark:hover:bg-white/5 dark:text-slate-400'}`}
               title="Regenerate"
             >
               <RefreshCw size={14} className={generating ? 'animate-spin' : ''} />

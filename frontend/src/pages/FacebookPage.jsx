@@ -90,8 +90,8 @@ export default function FacebookPage() {
     <div className="space-y-6 animate-fade-in max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className={`text-lg font-bold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>Facebook Pages</h2>
-          <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Connect your Facebook Pages for messaging and posting</p>
+          <h2 className={`text-lg font-bold ${'text-gray-900 dark:text-slate-100'}`}>Facebook Pages</h2>
+          <p className={`text-sm mt-1 ${'text-gray-500 dark:text-slate-400'}`}>Connect your Facebook Pages for messaging and posting</p>
         </div>
         <button onClick={() => setShowAddPanel(!showAddPanel)} className="flex items-center gap-2 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors" style={{ background: '#FF6A00' }}>
           <Plus size={16} /> Add Page
@@ -99,10 +99,10 @@ export default function FacebookPage() {
       </div>
 
       {showAddPanel && (
-        <div className={`rounded-2xl border p-6 space-y-5 animate-slide-up ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-100 shadow-sm'}`}>
+        <div className={`rounded-2xl border p-6 space-y-5 animate-slide-up ${'bg-white border-gray-100 shadow-sm dark:bg-white/5 dark:border-white/10'}`}>
           <div className="flex items-center justify-between">
-            <h2 className={`font-semibold ${isDark ? 'text-slate-100' : 'text-gray-800'}`}>Connect Facebook Page</h2>
-            <button onClick={() => setShowAddPanel(false)} className={`p-1.5 rounded-lg ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}><X size={16} /></button>
+            <h2 className={`font-semibold ${'text-gray-800 dark:text-slate-100'}`}>Connect Facebook Page</h2>
+            <button onClick={() => setShowAddPanel(false)} className={`p-1.5 rounded-lg ${'hover:bg-gray-100 dark:hover:bg-white/10'}`}><X size={16} /></button>
           </div>
 
           <button onClick={launchFacebookLogin} disabled={autoConnecting} className="w-full flex items-center justify-center gap-3 text-white font-semibold py-4 rounded-2xl transition-all disabled:opacity-70" style={{ background: '#FF6A00' }}>
@@ -114,10 +114,10 @@ export default function FacebookPage() {
       {loading ? (
         <div className="flex items-center justify-center h-40"><div className="w-8 h-8 border-4 border-[#FF6A00] border-t-transparent rounded-full animate-spin" /></div>
       ) : accounts.length === 0 ? (
-        <div className={`rounded-2xl border border-dashed p-14 text-center ${isDark ? 'bg-white/5 border-white/20' : 'bg-white border-gray-300'}`}>
-          <Facebook size={48} className={`mx-auto mb-4 ${isDark ? 'text-slate-500' : 'text-gray-300'}`} />
-          <h3 className={`font-semibold ${isDark ? 'text-slate-200' : 'text-gray-700'}`}>No Facebook Pages connected</h3>
-          <p className={`text-sm mt-1 mb-4 ${isDark ? 'text-slate-400' : 'text-gray-400'}`}>Connect your first Facebook Page to start automating DMs and Posts.</p>
+        <div className={`rounded-2xl border border-dashed p-14 text-center ${'bg-white border-gray-300 dark:bg-white/5 dark:border-white/20'}`}>
+          <Facebook size={48} className={`mx-auto mb-4 ${'text-gray-300 dark:text-slate-500'}`} />
+          <h3 className={`font-semibold ${'text-gray-700 dark:text-slate-200'}`}>No Facebook Pages connected</h3>
+          <p className={`text-sm mt-1 mb-4 ${'text-gray-400 dark:text-slate-400'}`}>Connect your first Facebook Page to start automating DMs and Posts.</p>
           <button onClick={launchFacebookLogin} disabled={autoConnecting} className="inline-flex items-center gap-2 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-70" style={{ background: '#FF6A00' }}>
             {autoConnecting ? <><Loader2 size={16} className="animate-spin" /> Connecting...</> : <><Facebook size={16} /> Connect via Facebook</>}
           </button>
@@ -125,15 +125,15 @@ export default function FacebookPage() {
       ) : (
         <div className="space-y-4">
           {accounts.map((acc) => (
-            <div key={acc._id} className={`rounded-2xl border p-6 transition-shadow ${isDark ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-white border-gray-100 shadow-sm hover:shadow-md'}`}>
+            <div key={acc._id} className={`rounded-2xl border p-6 transition-shadow ${'bg-white border-gray-100 shadow-sm hover:shadow-md dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10'}`}>
               <div className="flex items-start justify-between mb-6">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: '#FF6A0022' }}>
                     <Facebook size={24} style={{ color: '#FF6A00' }} />
                   </div>
                   <div>
-                    <p className={`font-bold text-lg ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>{acc.pageName || 'Facebook Page'}</p>
-                    <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-gray-500'}`}>ID: {acc.pageId}</p>
+                    <p className={`font-bold text-lg ${'text-gray-900 dark:text-slate-100'}`}>{acc.pageName || 'Facebook Page'}</p>
+                    <p className={`text-sm ${'text-gray-500 dark:text-slate-300'}`}>ID: {acc.pageId}</p>
                   </div>
                 </div>
                 <button onClick={() => handleDisconnect(acc._id)} title="Disconnect" className="p-2.5 rounded-xl hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
@@ -142,8 +142,8 @@ export default function FacebookPage() {
               <div className="pt-6 border-t border-gray-100 space-y-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-gray-900'}`}>Messenger AI Bot</h3>
-                    <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Automatically reply to messages using AI</p>
+                    <h3 className={`text-sm font-bold ${'text-gray-900 dark:text-slate-200'}`}>Messenger AI Bot</h3>
+                    <p className={`text-xs ${'text-gray-500 dark:text-slate-400'}`}>Automatically reply to messages using AI</p>
                   </div>
                   <button onClick={() => handleUpdateBot(acc._id, { messengerBotEnabled: !acc.messengerBotEnabled })} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${acc.messengerBotEnabled ? 'bg-[#FF6A00]' : 'bg-gray-200'}`}>
                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${acc.messengerBotEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
@@ -152,12 +152,12 @@ export default function FacebookPage() {
 
                 {acc.messengerBotEnabled && (
                   <div className="space-y-3 animate-fade-in">
-                    <label className={`block text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-gray-400'}`}>Messenger Bot Prompt</label>
+                    <label className={`block text-[11px] font-bold uppercase tracking-wider ${'text-gray-400 dark:text-slate-400'}`}>Messenger Bot Prompt</label>
                     <textarea
                       defaultValue={acc.messengerBotPrompt}
                       onBlur={(e) => handleUpdateBot(acc._id, { messengerBotPrompt: e.target.value })}
                       placeholder="Enter instructions for the AI bot..."
-                      className={`w-full px-4 py-3 border rounded-2xl text-sm outline-none transition-all h-24 resize-none ${isDark ? 'border-white/10 bg-white/5 text-slate-100 focus:ring-2 focus:ring-orange-300' : 'border-gray-100 bg-gray-50/50 focus:ring-2 focus:ring-orange-200'}`}
+                      className={`w-full px-4 py-3 border rounded-2xl text-sm outline-none transition-all h-24 resize-none ${'border-gray-100 bg-gray-50/50 focus:ring-2 focus:ring-orange-200 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:focus:ring-2 dark:focus:ring-orange-300'}`}
                     />
                   </div>
                 )}

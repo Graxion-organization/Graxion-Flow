@@ -62,7 +62,7 @@ const TONE_OPTIONS = [
   { value: 'aesthetic', label: 'Aesthetic & Minimalist', desc: 'Inspirational, luxury, visual-first storytelling', icon: Sparkles }
 ];
 
-export default function BrandCopilotTab({ isDark }) {
+export default function BrandCopilotTab({}) {
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
   const [strategyGenerating, setStrategyGenerating] = useState(false);
@@ -321,7 +321,7 @@ export default function BrandCopilotTab({ isDark }) {
     return (
       <div className="py-20 flex flex-col justify-center items-center gap-3">
         <Loader2 className="animate-spin text-[#FF6A00]" size={40} />
-        <span className={`text-xs font-bold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Loading Brand Blueprint...</span>
+        <span className={`text-xs font-bold ${'text-slate-500 dark:text-slate-400'}`}>Loading Brand Blueprint...</span>
       </div>
     );
   }
@@ -330,7 +330,7 @@ export default function BrandCopilotTab({ isDark }) {
   if (!campaign || !campaign.strategy?.overallHook) {
     return (
       <div className={`max-w-4xl mx-auto rounded-3xl border p-8 md:p-12 transition-all duration-300 relative overflow-hidden backdrop-blur-md ${
-        isDark ? 'bg-slate-900/80 border-white/10 shadow-2xl' : 'bg-white border-slate-200 shadow-xl'
+        'bg-white border-slate-200 shadow-xl dark:bg-slate-900/80 dark:border-white/10 dark:shadow-2xl'
       }`}>
         {/* Background glow effects */}
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#FF6A00]/10 rounded-full blur-3xl pointer-events-none" />
@@ -342,11 +342,11 @@ export default function BrandCopilotTab({ isDark }) {
               <Sparkles size={28} className="animate-pulse" />
             </div>
             <div>
-              <h2 className={`text-2xl font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-800'}`}>AI Brand Copilot</h2>
-              <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Define your brand details, and AI will build your viral marketing plan & auto-schedule posts.</p>
+              <h2 className={`text-2xl font-black tracking-tight ${'text-slate-800 dark:text-white'}`}>AI Brand Copilot</h2>
+              <p className={`text-xs mt-0.5 ${'text-slate-500 dark:text-slate-400'}`}>Define your brand details, and AI will build your viral marketing plan & auto-schedule posts.</p>
             </div>
           </div>
-          <div className={`text-xs px-3 py-1 rounded-full font-bold border ${isDark ? 'bg-white/5 border-white/10 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-500'}`}>
+          <div className={`text-xs px-3 py-1 rounded-full font-bold border ${'bg-slate-50 border-slate-200 text-slate-500 dark:bg-white/5 dark:border-white/10 dark:text-slate-400'}`}>
             Wizard Step {activeStep} of 3
           </div>
         </div>
@@ -364,7 +364,7 @@ export default function BrandCopilotTab({ isDark }) {
                       ? 'bg-gradient-to-r from-orange-500 to-[#FF6A00] text-white shadow-xl shadow-orange-500/30 scale-110' 
                       : activeStep > step 
                       ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
-                      : isDark ? 'bg-slate-800/80 text-slate-500 border border-white/5' : 'bg-slate-100 text-slate-400 border border-slate-200'
+                      : 'bg-slate-100 text-slate-400 border border-slate-200 dark:bg-slate-800/80 dark:text-slate-500 dark:border dark:border-white/5'
                   }`}
                 >
                   {activeStep > step ? <Check size={20} /> : step}
@@ -389,7 +389,7 @@ export default function BrandCopilotTab({ isDark }) {
         </div>
 
         {/* Form Contents */}
-        <div className="space-y-6 min-h-[350px] relative z-10 pt-4">
+        <div className="space-y-6 min-h-[550px] relative z-10 pt-4">
           <AnimatePresence mode="wait">
             {activeStep === 1 && (
               <motion.div 
@@ -401,22 +401,20 @@ export default function BrandCopilotTab({ isDark }) {
                 className="space-y-6"
               >
                 <div>
-                  <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Business Name</label>
+                  <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${'text-slate-600 dark:text-slate-300'}`}>Business Name</label>
                   <input 
                     type="text" 
                     value={formData.name} 
                     onChange={e => handleFormChange('name', e.target.value)} 
                     placeholder="e.g. Mocha Magic Cafe"
                     className={`w-full p-4 text-sm font-semibold rounded-2xl outline-none border transition-all ${
-                      isDark 
-                        ? 'bg-slate-950 border-white/5 text-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20' 
-                        : 'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20'
+                      'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                     }`} 
                   />
                 </div>
 
                 <div>
-                  <label className={`block text-xs font-black uppercase tracking-widest mb-3 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Business Model</label>
+                  <label className={`block text-xs font-black uppercase tracking-widest mb-3 ${'text-slate-600 dark:text-slate-300'}`}>Business Model</label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {MODEL_OPTIONS.map(opt => {
                       const Icon = opt.icon;
@@ -429,17 +427,15 @@ export default function BrandCopilotTab({ isDark }) {
                           className={`p-5 rounded-2xl border text-left flex items-start gap-4 transition-all duration-300 ${
                             isSelected 
                               ? 'border-[#FF6A00] bg-[#FF6A00]/5 ring-2 ring-[#FF6A00]/20 shadow-md' 
-                              : isDark 
-                              ? 'bg-slate-950 border-white/5 text-slate-300 hover:bg-slate-800/50 hover:border-white/15' 
-                              : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/50 hover:border-slate-300'
+                              : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/50 hover:border-slate-300 dark:bg-slate-950 dark:border-white/5 dark:text-slate-300 dark:hover:bg-slate-800/50 dark:hover:border-white/15'
                           }`}
                         >
-                          <div className={`p-3 rounded-xl ${isSelected ? 'bg-[#FF6A00] text-white' : isDark ? 'bg-white/5 text-slate-400' : 'bg-slate-200 text-slate-600'}`}>
+                          <div className={`p-3 rounded-xl ${isSelected ? 'bg-[#FF6A00] text-white' : 'bg-slate-200 text-slate-600 dark:bg-white/5 dark:text-slate-400'}`}>
                             <Icon size={20} />
                           </div>
                           <div>
                             <h4 className="font-bold text-sm">{opt.label}</h4>
-                            <p className={`text-xs mt-1 leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{opt.desc}</p>
+                            <p className={`text-xs mt-1 leading-relaxed ${'text-slate-500 dark:text-slate-400'}`}>{opt.desc}</p>
                           </div>
                         </button>
                       );
@@ -449,30 +445,26 @@ export default function BrandCopilotTab({ isDark }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Business Category</label>
+                    <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${'text-slate-600 dark:text-slate-300'}`}>Business Category</label>
                     <input 
                       type="text" 
                       value={formData.category} 
                       onChange={e => handleFormChange('category', e.target.value)}
                       placeholder="e.g. Coffee shop, SaaS Software, Yoga Studio"
                       className={`w-full p-4 text-sm font-semibold rounded-2xl outline-none border transition-all ${
-                        isDark 
-                          ? 'bg-slate-950 border-white/5 text-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20' 
-                          : 'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20'
+                        'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                       }`}
                     />
                   </div>
                   <div>
-                    <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Hours & Timings</label>
+                    <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${'text-slate-600 dark:text-slate-300'}`}>Hours & Timings</label>
                     <input 
                       type="text" 
                       value={formData.timings} 
                       onChange={e => handleFormChange('timings', e.target.value)}
                       placeholder="e.g. Mon-Fri 9AM-6PM, Sat 10AM-4PM"
                       className={`w-full p-4 text-sm font-semibold rounded-2xl outline-none border transition-all ${
-                        isDark 
-                          ? 'bg-slate-950 border-white/5 text-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20' 
-                          : 'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20'
+                        'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                       }`}
                     />
                   </div>
@@ -490,103 +482,97 @@ export default function BrandCopilotTab({ isDark }) {
                 className="space-y-6"
               >
                 <div>
-                  <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Business / Brand Description</label>
+                  <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${'text-slate-600 dark:text-slate-300'}`}>Business / Brand Description</label>
                   <textarea 
                     rows={4}
                     value={formData.description} 
                     onChange={e => handleFormChange('description', e.target.value)}
                     placeholder="Describe your business model, brand values, story, and elevator pitch..."
                     className={`w-full p-4 text-sm font-semibold rounded-2xl outline-none border resize-none transition-all ${
-                      isDark 
-                        ? 'bg-slate-950 border-white/5 text-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20' 
-                        : 'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20'
+                      'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                     }`}
                   />
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Key Products / Services</label>
+                    <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${'text-slate-600 dark:text-slate-300'}`}>Key Products / Services</label>
                     <input 
                       type="text" 
                       value={formData.products} 
                       onChange={e => handleFormChange('products', e.target.value)}
                       placeholder="e.g. Espresso, Croissants, Coffee beans subscription"
                       className={`w-full p-4 text-sm font-semibold rounded-2xl outline-none border transition-all ${
-                        isDark 
-                          ? 'bg-slate-950 border-white/5 text-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20' 
-                          : 'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20'
+                        'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                       }`}
                     />
                   </div>
                   <div>
-                    <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Target Audience</label>
+                    <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${'text-slate-600 dark:text-slate-300'}`}>Target Audience</label>
                     <input 
                       type="text" 
                       value={formData.targetAudience} 
                       onChange={e => handleFormChange('targetAudience', e.target.value)}
                       placeholder="e.g. Working professionals, students, coffee enthusiasts"
                       className={`w-full p-4 text-sm font-semibold rounded-2xl outline-none border transition-all ${
-                        isDark 
-                          ? 'bg-slate-950 border-white/5 text-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20' 
-                          : 'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20'
+                        'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                       }`}
                     />
                   </div>
                 </div>
 
                 <div className="pt-6 border-t border-slate-200/10 space-y-4">
-                  <h4 className={`text-xs font-black uppercase tracking-wider ${isDark ? 'text-[#FF6A00]' : 'text-orange-600'} flex items-center gap-2`}>
+                  <h4 className={`text-xs font-black uppercase tracking-wider ${'text-orange-600 dark:text-[#FF6A00]'} flex items-center gap-2`}>
                     <Zap size={14} className="text-[#FF6A00]" />
                     Contact Info (AI will inject these into CTA captions)
                   </h4>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Phone Number</label>
+                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2 ${'text-slate-500 dark:text-slate-400'}`}>Phone Number</label>
                       <input 
                         type="text" 
                         value={formData.contactDetails?.phone || ''} 
                         onChange={e => handleContactDetailsChange('phone', e.target.value)}
                         placeholder="e.g. +91 98765 43210"
                         className={`w-full p-3.5 text-xs font-semibold rounded-xl outline-none border transition-all ${
-                          isDark ? 'bg-slate-950 border-white/5 text-white focus:border-[#FF6A00]' : 'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00]'
+                          'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
                         }`}
                       />
                     </div>
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Email Address</label>
+                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2 ${'text-slate-500 dark:text-slate-400'}`}>Email Address</label>
                       <input 
                         type="email" 
                         value={formData.contactDetails?.email || ''} 
                         onChange={e => handleContactDetailsChange('email', e.target.value)}
                         placeholder="e.g. contact@business.com"
                         className={`w-full p-3.5 text-xs font-semibold rounded-xl outline-none border transition-all ${
-                          isDark ? 'bg-slate-950 border-white/5 text-white focus:border-[#FF6A00]' : 'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00]'
+                          'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
                         }`}
                       />
                     </div>
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Website URL</label>
+                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2 ${'text-slate-500 dark:text-slate-400'}`}>Website URL</label>
                       <input 
                         type="text" 
                         value={formData.contactDetails?.website || ''} 
                         onChange={e => handleContactDetailsChange('website', e.target.value)}
                         placeholder="e.g. https://mybusiness.com"
                         className={`w-full p-3.5 text-xs font-semibold rounded-xl outline-none border transition-all ${
-                          isDark ? 'bg-slate-950 border-white/5 text-white focus:border-[#FF6A00]' : 'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00]'
+                          'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
                         }`}
                       />
                     </div>
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Physical Address</label>
+                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2 ${'text-slate-500 dark:text-slate-400'}`}>Physical Address</label>
                       <input 
                         type="text" 
                         value={formData.contactDetails?.address || ''} 
                         onChange={e => handleContactDetailsChange('address', e.target.value)}
                         placeholder="e.g. 1st Floor, Tech Hub, Mumbai"
                         className={`w-full p-3.5 text-xs font-semibold rounded-xl outline-none border transition-all ${
-                          isDark ? 'bg-slate-950 border-white/5 text-white focus:border-[#FF6A00]' : 'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00]'
+                          'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
                         }`}
                       />
                     </div>
@@ -605,7 +591,7 @@ export default function BrandCopilotTab({ isDark }) {
                 className="space-y-6"
               >
                 <div>
-                  <label className={`block text-xs font-black uppercase tracking-widest mb-3.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Brand Tone & Voice</label>
+                  <label className={`block text-xs font-black uppercase tracking-widest mb-3.5 ${'text-slate-600 dark:text-slate-300'}`}>Brand Tone & Voice</label>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {TONE_OPTIONS.map(opt => {
                       const Icon = opt.icon;
@@ -618,12 +604,10 @@ export default function BrandCopilotTab({ isDark }) {
                           className={`p-4 rounded-2xl border text-left flex items-start gap-3 transition-all duration-300 ${
                             isSelected 
                               ? 'border-[#FF6A00] bg-[#FF6A00]/5 ring-2 ring-[#FF6A00]/20 shadow-md' 
-                              : isDark 
-                              ? 'bg-slate-950 border-white/5 text-slate-300 hover:bg-slate-800/50 hover:border-white/15' 
-                              : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
+                              : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300 dark:bg-slate-950 dark:border-white/5 dark:text-slate-300 dark:hover:bg-slate-800/50 dark:hover:border-white/15'
                           }`}
                         >
-                          <div className={`p-2 rounded-lg shrink-0 ${isSelected ? 'bg-[#FF6A00] text-white' : isDark ? 'bg-white/5 text-slate-400' : 'bg-slate-200 text-slate-500'}`}>
+                          <div className={`p-2 rounded-lg shrink-0 ${isSelected ? 'bg-[#FF6A00] text-white' : 'bg-slate-200 text-slate-500 dark:bg-white/5 dark:text-slate-400'}`}>
                             <Icon size={16} />
                           </div>
                           <div>
@@ -637,7 +621,7 @@ export default function BrandCopilotTab({ isDark }) {
                 </div>
 
                 <div>
-                  <label className={`block text-xs font-black uppercase tracking-widest mb-3.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Focus Social Channels</label>
+                  <label className={`block text-xs font-black uppercase tracking-widest mb-3.5 ${'text-slate-600 dark:text-slate-300'}`}>Focus Social Channels</label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     {PLATFORMS_LIST.map(p => {
                       const isSelected = formData.platforms.includes(p.id);
@@ -649,7 +633,7 @@ export default function BrandCopilotTab({ isDark }) {
                           className={`p-5 rounded-2xl border flex flex-col items-center justify-between text-center gap-3 transition-all duration-300 ${
                             isSelected
                               ? `border-[#FF6A00] bg-[#FF6A00]/5 shadow-lg`
-                              : isDark ? 'border-white/5 bg-slate-950 text-slate-400 hover:bg-slate-800/50' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'
+                              : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 dark:border-white/5 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-800/50'
                           }`}
                         >
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm text-white bg-gradient-to-tr ${p.color} shadow-md`}>
@@ -679,7 +663,7 @@ export default function BrandCopilotTab({ isDark }) {
             className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl text-xs font-black transition-all ${
               activeStep === 1 
                 ? 'opacity-30 cursor-not-allowed' 
-                : isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-100'
+                : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5'
             }`}
           >
             <ChevronLeft size={16} /> Back
@@ -714,7 +698,7 @@ export default function BrandCopilotTab({ isDark }) {
     return (
       <div className="space-y-6 max-w-5xl mx-auto">
         <div className={`rounded-3xl p-8 border relative overflow-hidden backdrop-blur-md transition-all ${
-          isDark ? 'bg-slate-900 border-white/10 shadow-2xl' : 'bg-white border-slate-200 shadow-xl'
+          'bg-white border-slate-200 shadow-xl dark:bg-slate-900 dark:border-white/10 dark:shadow-2xl'
         }`}>
           {/* Background glow effects */}
           <div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -726,8 +710,8 @@ export default function BrandCopilotTab({ isDark }) {
                 <TrendingUp size={24} />
               </div>
               <div>
-                <h1 className={`text-xl font-black ${isDark ? 'text-white' : 'text-slate-800'}`}>Your AI Brand Strategy Blueprint</h1>
-                <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                <h1 className={`text-xl font-black ${'text-slate-800 dark:text-white'}`}>Your AI Brand Strategy Blueprint</h1>
+                <p className={`text-xs ${'text-slate-500 dark:text-slate-400'}`}>
                   Custom crafted for <strong className="text-[#FF6A00]">{campaign.businessDetails.name}</strong>
                 </p>
               </div>
@@ -736,7 +720,7 @@ export default function BrandCopilotTab({ isDark }) {
             <button 
               onClick={resetCampaign} 
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold border transition-all ${
-                isDark ? 'border-white/10 hover:bg-white/5 text-slate-400 hover:text-red-400' : 'border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-red-500'
+                'border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-red-500 dark:border-white/10 dark:hover:bg-white/5 dark:text-slate-400 dark:hover:text-red-400'
               }`}
             >
               <Trash2 size={14} /> Reset Profile
@@ -747,36 +731,36 @@ export default function BrandCopilotTab({ isDark }) {
             <div className="lg:col-span-2 space-y-6">
               {/* Campaign Concept */}
               <div className={`rounded-2xl p-6 border transition-all hover:-translate-y-0.5 duration-300 ${
-                isDark ? 'bg-slate-950/50 border-white/5' : 'bg-slate-50 border-slate-100 shadow-sm'
+                'bg-slate-50 border-slate-100 shadow-sm dark:bg-slate-950/50 dark:border-white/5'
               }`}>
                 <h3 className="text-xs font-black uppercase tracking-wider text-[#FF6A00] mb-3.5 flex items-center gap-2">
                   <Sparkles size={14} className="text-[#FF6A00]" /> Core Viral Hook & Campaign Theme
                 </h3>
-                <p className={`text-sm leading-relaxed font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                <p className={`text-sm leading-relaxed font-semibold ${'text-slate-700 dark:text-slate-300'}`}>
                   {campaign.strategy.overallHook}
                 </p>
               </div>
 
               {/* Posting Routine */}
               <div className={`rounded-2xl p-6 border transition-all hover:-translate-y-0.5 duration-300 ${
-                isDark ? 'bg-slate-950/50 border-white/5' : 'bg-slate-50 border-slate-100 shadow-sm'
+                'bg-slate-50 border-slate-100 shadow-sm dark:bg-slate-950/50 dark:border-white/5'
               }`}>
                 <h3 className="text-xs font-black uppercase tracking-wider text-purple-400 mb-3.5 flex items-center gap-2">
                   <Calendar size={14} className="text-purple-400" /> Recommended Posting Schedule
                 </h3>
-                <p className={`text-sm leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                <p className={`text-sm leading-relaxed ${'text-slate-700 dark:text-slate-300'}`}>
                   {campaign.strategy.postingRoutine}
                 </p>
               </div>
 
               {/* Ad Strategy */}
               <div className={`rounded-2xl p-6 border transition-all hover:-translate-y-0.5 duration-300 ${
-                isDark ? 'bg-slate-950/50 border-white/5' : 'bg-slate-50 border-slate-100 shadow-sm'
+                'bg-slate-50 border-slate-100 shadow-sm dark:bg-slate-950/50 dark:border-white/5'
               }`}>
                 <h3 className="text-xs font-black uppercase tracking-wider text-sky-400 mb-3.5 flex items-center gap-2">
                   <Sliders size={14} className="text-sky-400" /> Advertising & Keyword Targeting
                 </h3>
-                <p className={`text-sm leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                <p className={`text-sm leading-relaxed ${'text-slate-700 dark:text-slate-300'}`}>
                   {campaign.strategy.adStrategy}
                 </p>
               </div>
@@ -784,9 +768,9 @@ export default function BrandCopilotTab({ isDark }) {
 
             {/* Launch Checklist */}
             <div className={`rounded-2xl p-6 border h-fit transition-all hover:-translate-y-0.5 duration-300 ${
-              isDark ? 'bg-slate-950/50 border-white/5' : 'bg-slate-50/50 border-slate-100 shadow-sm'
+              'bg-slate-50/50 border-slate-100 shadow-sm dark:bg-slate-950/50 dark:border-white/5'
             }`}>
-              <h3 className={`text-sm font-black mb-5 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
+              <h3 className={`text-sm font-black mb-5 flex items-center gap-2 ${'text-slate-800 dark:text-white'}`}>
                 <Zap size={16} className="text-[#FF6A00]" /> Immediate Action Plan
               </h3>
               <div className="space-y-4">
@@ -795,7 +779,7 @@ export default function BrandCopilotTab({ isDark }) {
                     <div className="w-6 h-6 rounded-full bg-[#FF6A00]/10 flex items-center justify-center text-[#FF6A00] text-xs font-bold shrink-0 mt-0.5">
                       {idx + 1}
                     </div>
-                    <p className={`text-xs leading-relaxed font-semibold ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{step}</p>
+                    <p className={`text-xs leading-relaxed font-semibold ${'text-slate-600 dark:text-slate-400'}`}>{step}</p>
                   </div>
                 ))}
               </div>
@@ -870,7 +854,7 @@ export default function BrandCopilotTab({ isDark }) {
     <div className="space-y-6 max-w-7xl mx-auto pb-20">
       {/* Campaign Summary & Metrics Panel */}
       <div className={`rounded-3xl p-6 md:p-8 border relative overflow-hidden backdrop-blur-md ${
-        isDark ? 'bg-slate-900/90 border-white/10 shadow-2xl' : 'bg-white border-slate-200 shadow-xl'
+        'bg-white border-slate-200 shadow-xl dark:bg-slate-900/90 dark:border-white/10 dark:shadow-2xl'
       }`}>
         <div className="absolute -top-32 -right-32 w-80 h-80 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -890,7 +874,7 @@ export default function BrandCopilotTab({ isDark }) {
                   {campaign.status}
                 </span>
               </h1>
-              <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              <p className={`text-xs mt-0.5 ${'text-slate-500 dark:text-slate-400'}`}>
                 Plan: <strong className="text-[#FF6A00]">{campaign.businessDetails.name}</strong> • AI Powered Multi-Platform Posting
               </p>
             </div>
@@ -918,7 +902,7 @@ export default function BrandCopilotTab({ isDark }) {
             <button 
               onClick={resetCampaign} 
               className={`flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-black border transition-all ${
-                isDark ? 'border-white/10 hover:bg-white/5 text-slate-400 hover:text-red-400' : 'border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-red-500'
+                'border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-red-500 dark:border-white/10 dark:hover:bg-white/5 dark:text-slate-400 dark:hover:text-red-400'
               }`}
             >
               <Trash2 size={14} /> Reset Campaign
@@ -928,20 +912,20 @@ export default function BrandCopilotTab({ isDark }) {
 
         {/* Cohesive Stats Cards Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-slate-200/10 relative z-10">
-          <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-950/40 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
-            <span className={`text-[10px] uppercase font-black tracking-widest ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Total Blueprint Posts</span>
+          <div className={`p-4 rounded-2xl border ${'bg-slate-50 border-slate-100 dark:bg-slate-950/40 dark:border-white/5'}`}>
+            <span className={`text-[10px] uppercase font-black tracking-widest ${'text-slate-400 dark:text-slate-500'}`}>Total Blueprint Posts</span>
             <h4 className="text-xl font-black mt-1">{totalCount} Days</h4>
           </div>
-          <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-950/40 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
-            <span className={`text-[10px] uppercase font-black tracking-widest ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Ready to Schedule</span>
+          <div className={`p-4 rounded-2xl border ${'bg-slate-50 border-slate-100 dark:bg-slate-950/40 dark:border-white/5'}`}>
+            <span className={`text-[10px] uppercase font-black tracking-widest ${'text-slate-400 dark:text-slate-500'}`}>Ready to Schedule</span>
             <h4 className="text-xl font-black text-emerald-500 mt-1">{readyCount} Posts</h4>
           </div>
-          <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-950/40 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
-            <span className={`text-[10px] uppercase font-black tracking-widest ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Auto-Scheduled</span>
+          <div className={`p-4 rounded-2xl border ${'bg-slate-50 border-slate-100 dark:bg-slate-950/40 dark:border-white/5'}`}>
+            <span className={`text-[10px] uppercase font-black tracking-widest ${'text-slate-400 dark:text-slate-500'}`}>Auto-Scheduled</span>
             <h4 className="text-xl font-black text-purple-500 mt-1">{scheduledCount} Posts</h4>
           </div>
-          <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-950/40 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
-            <span className={`text-[10px] uppercase font-black tracking-widest ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Draft Queue</span>
+          <div className={`p-4 rounded-2xl border ${'bg-slate-50 border-slate-100 dark:bg-slate-950/40 dark:border-white/5'}`}>
+            <span className={`text-[10px] uppercase font-black tracking-widest ${'text-slate-400 dark:text-slate-500'}`}>Draft Queue</span>
             <h4 className="text-xl font-black text-orange-500 mt-1">{draftCount} Pending</h4>
           </div>
         </div>
@@ -949,10 +933,10 @@ export default function BrandCopilotTab({ isDark }) {
         {/* Progress Bar */}
         <div className="mt-6 pt-4 relative z-10">
           <div className="flex justify-between items-center text-xs mb-2">
-            <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>Campaign scheduling progress</span>
+            <span className={'text-slate-500 dark:text-slate-400'}>Campaign scheduling progress</span>
             <span className="font-extrabold text-[#FF6A00]">{scheduledCount} / {totalCount} Scheduled ({progressPercent}%)</span>
           </div>
-          <div className={`h-2.5 rounded-full overflow-hidden ${isDark ? 'bg-white/10' : 'bg-slate-100'}`}>
+          <div className={`h-2.5 rounded-full overflow-hidden ${'bg-slate-100 dark:bg-white/10'}`}>
             <div className="h-full bg-gradient-to-r from-orange-500 to-[#FF6A00] rounded-full transition-all duration-500" style={{ width: `${progressPercent}%` }} />
           </div>
         </div>
@@ -960,7 +944,7 @@ export default function BrandCopilotTab({ isDark }) {
 
       {/* Modern Filter Dashboard Controls */}
       <div className={`p-5 rounded-3xl border flex flex-col gap-4 ${
-        isDark ? 'bg-slate-900/50 border-white/5' : 'bg-white border-slate-200 shadow-md'
+        'bg-white border-slate-200 shadow-md dark:bg-slate-900/50 dark:border-white/5'
       }`}>
         <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
           
@@ -978,7 +962,7 @@ export default function BrandCopilotTab({ isDark }) {
                 onClick={() => setActiveWeek(tab.id)}
                 className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${
                   activeWeek === tab.id
-                    ? isDark ? 'bg-slate-800 text-white shadow-sm' : 'bg-white text-slate-800 shadow-sm'
+                    ? 'bg-white text-slate-800 shadow-sm dark:bg-slate-800 dark:text-white dark:shadow-sm'
                     : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
@@ -996,7 +980,7 @@ export default function BrandCopilotTab({ isDark }) {
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search post captions or themes..."
               className={`w-full pl-10 pr-4 py-2 text-xs font-semibold rounded-xl outline-none border transition-all ${
-                isDark ? 'bg-slate-950 border-white/5 text-white focus:border-[#FF6A00]' : 'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00]'
+                'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
               }`}
             />
             {searchQuery && (
@@ -1019,7 +1003,7 @@ export default function BrandCopilotTab({ isDark }) {
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
               className={`p-2 rounded-lg text-xs font-semibold border outline-none ${
-                isDark ? 'bg-slate-950 border-white/5 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
+                'bg-slate-50 border-slate-200 text-slate-800 dark:bg-slate-950 dark:border-white/5 dark:text-white'
               }`}
             >
               <option value="all">All Statuses</option>
@@ -1035,7 +1019,7 @@ export default function BrandCopilotTab({ isDark }) {
               value={platformFilter}
               onChange={e => setPlatformFilter(e.target.value)}
               className={`p-2 rounded-lg text-xs font-semibold border outline-none ${
-                isDark ? 'bg-slate-950 border-white/5 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
+                'bg-slate-50 border-slate-200 text-slate-800 dark:bg-slate-950 dark:border-white/5 dark:text-white'
               }`}
             >
               <option value="all">All Channels</option>
@@ -1064,9 +1048,9 @@ export default function BrandCopilotTab({ isDark }) {
 
       {/* Grid of days */}
       {filteredCalendar.length === 0 ? (
-        <div className={`text-center py-16 rounded-3xl border ${isDark ? 'bg-slate-900/30 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+        <div className={`text-center py-16 rounded-3xl border ${'bg-slate-50 border-slate-200 dark:bg-slate-900/30 dark:border-white/5'}`}>
           <AlertCircle className="mx-auto mb-3 text-slate-400" size={32} />
-          <h4 className={`font-black text-sm ${isDark ? 'text-white' : 'text-slate-800'}`}>No matching campaign posts found</h4>
+          <h4 className={`font-black text-sm ${'text-slate-800 dark:text-white'}`}>No matching campaign posts found</h4>
           <p className="text-xs text-slate-500 mt-1">Try resetting your filter parameters or checking another week.</p>
         </div>
       ) : (
@@ -1082,10 +1066,10 @@ export default function BrandCopilotTab({ isDark }) {
                 key={post.day}
                 className={`rounded-2xl border p-5 flex flex-col justify-between transition-all duration-300 relative overflow-hidden group ${
                   isScheduled 
-                    ? isDark ? 'bg-purple-950/10 border-purple-500/30 shadow-md shadow-purple-500/5' : 'bg-purple-50/40 border-purple-200 shadow-sm' 
+                    ? 'bg-purple-50/40 border-purple-200 shadow-sm dark:bg-purple-950/10 dark:border-purple-500/30 dark:shadow-md dark:shadow-purple-500/5' 
                     : isReady 
-                    ? isDark ? 'bg-emerald-950/10 border-emerald-500/30 shadow-md shadow-emerald-500/5' : 'bg-emerald-50/40 border-emerald-200 shadow-sm'
-                    : isDark ? 'bg-slate-900/60 border-white/5 hover:border-[#FF6A00]/40' : 'bg-white border-slate-100 shadow-sm hover:border-[#FF6A00]/40 hover:shadow-md'
+                    ? 'bg-emerald-50/40 border-emerald-200 shadow-sm dark:bg-emerald-950/10 dark:border-emerald-500/30 dark:shadow-md dark:shadow-emerald-500/5'
+                    : 'bg-white border-slate-100 shadow-sm hover:border-[#FF6A00]/40 hover:shadow-md dark:bg-slate-900/60 dark:border-white/5 dark:hover:border-[#FF6A00]/40'
                 }`}
               >
                 {/* Badge top-right */}
@@ -1097,7 +1081,7 @@ export default function BrandCopilotTab({ isDark }) {
                       ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                       : isGenerating
                       ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 animate-pulse'
-                      : isDark ? 'bg-white/5 text-slate-400 border-white/5' : 'bg-slate-100 text-slate-500 border-slate-200'
+                      : 'bg-slate-100 text-slate-500 border-slate-200 dark:bg-white/5 dark:text-slate-400 dark:border-white/5'
                   }`}>
                     {post.status || 'draft'}
                   </span>
@@ -1105,18 +1089,18 @@ export default function BrandCopilotTab({ isDark }) {
 
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-widest text-[#FF6A00]">Day {post.day}</span>
-                  <h3 className={`font-black text-sm mt-1.5 mb-2 line-clamp-1 ${isDark ? 'text-white' : 'text-slate-800'}`}>{post.theme}</h3>
+                  <h3 className={`font-black text-sm mt-1.5 mb-2 line-clamp-1 ${'text-slate-800 dark:text-white'}`}>{post.theme}</h3>
                   
                   {/* Media Icon & Post Type Info */}
                   <div className="flex items-center gap-3 mb-4">
-                    <div className={`p-1.5 rounded-lg border ${isDark ? 'bg-white/5 border-white/5' : 'bg-slate-100 border-slate-200'}`}>
+                    <div className={`p-1.5 rounded-lg border ${'bg-slate-100 border-slate-200 dark:bg-white/5 dark:border-white/5'}`}>
                       {post.type === 'reel' || post.type === 'video' ? (
                         <Video size={13} className="text-pink-500" />
                       ) : (
                         <ImageIcon size={13} className="text-blue-500" />
                       )}
                     </div>
-                    <span className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{post.type}</span>
+                    <span className={`text-[10px] uppercase font-bold tracking-wider ${'text-slate-500 dark:text-slate-400'}`}>{post.type}</span>
                     {post.slides && post.slides.length > 0 && (
                       <span className="text-[9px] font-black text-orange-500 bg-orange-500/10 px-1.5 py-0.5 rounded-md">
                         {post.slides.length} Slides
@@ -1143,7 +1127,7 @@ export default function BrandCopilotTab({ isDark }) {
                   </div>
 
                   {/* Caption Snippet */}
-                  <p className={`text-xs leading-relaxed line-clamp-3 mb-4 font-medium italic ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                  <p className={`text-xs leading-relaxed line-clamp-3 mb-4 font-medium italic ${'text-slate-600 dark:text-slate-400'}`}>
                     "{post.caption}"
                   </p>
 
@@ -1183,11 +1167,11 @@ export default function BrandCopilotTab({ isDark }) {
                   {/* Generation settings for videos */}
                   {(post.type === 'reel' || post.type === 'video') && !hasMedia && !isGenerating && (
                     <div className="flex items-center justify-between text-[10px] px-1 font-bold">
-                      <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>Generate with Stock Video:</span>
+                      <span className={'text-slate-500 dark:text-slate-400'}>Generate with Stock Video:</span>
                       <button 
                         onClick={() => setUseStockVideoMap(prev => ({ ...prev, [post.day]: !prev[post.day] }))}
                         className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                          useStockVideoMap[post.day] ? 'bg-[#FF6A00]' : isDark ? 'bg-white/10' : 'bg-slate-300'
+                          useStockVideoMap[post.day] ? 'bg-[#FF6A00]' : 'bg-slate-300 dark:bg-white/10'
                         }`}
                       >
                         <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
@@ -1206,7 +1190,7 @@ export default function BrandCopilotTab({ isDark }) {
                         defaultValue={new Date(post.scheduledAt).toISOString().slice(0, 16)}
                         onChange={e => setCustomScheduleTimes(prev => ({ ...prev, [post.day]: e.target.value }))}
                         className={`w-full p-2 text-[10px] rounded-lg outline-none border font-bold ${
-                          isDark ? 'bg-slate-950 border-white/5 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
+                          'bg-slate-50 border-slate-200 text-slate-800 dark:bg-slate-950 dark:border-white/5 dark:text-white'
                         }`}
                       />
                     </div>
@@ -1233,7 +1217,7 @@ export default function BrandCopilotTab({ isDark }) {
                         </button>
                         
                         <label className={`flex-1 h-9 flex items-center justify-center gap-1.5 rounded-xl text-[11px] font-black border transition-all cursor-pointer hover:scale-[1.02] ${
-                          isDark ? 'border-white/10 text-slate-300 hover:bg-white/5' : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                          'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5'
                         } ${uploadingDay === post.day ? 'opacity-50 cursor-not-allowed' : ''}`}>
                           {uploadingDay === post.day ? (
                             <>
@@ -1258,7 +1242,7 @@ export default function BrandCopilotTab({ isDark }) {
                         <button
                           onClick={() => openPreview(post)}
                           className={`px-3 h-9 rounded-xl border flex items-center justify-center transition-all ${
-                            isDark ? 'border-white/10 hover:bg-white/5 text-slate-300' : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+                            'border-slate-200 hover:bg-slate-50 text-slate-600 dark:border-white/10 dark:hover:bg-white/5 dark:text-slate-300'
                           }`}
                         >
                           <Eye size={14} />
@@ -1294,7 +1278,7 @@ export default function BrandCopilotTab({ isDark }) {
       {showPreviewModal && selectedPost && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
           <div className={`w-full max-w-4xl rounded-3xl overflow-hidden border flex flex-col md:flex-row relative transition-all duration-300 ${
-            isDark ? 'bg-slate-900 border-white/10 shadow-2xl' : 'bg-white border-slate-200 shadow-2xl'
+            'bg-white border-slate-200 shadow-2xl dark:bg-slate-900 dark:border-white/10 dark:shadow-2xl'
           }`} style={{ height: 'min(90vh, 700px)' }}>
             
             {/* Close Button */}
@@ -1304,7 +1288,7 @@ export default function BrandCopilotTab({ isDark }) {
                 setSelectedPost(null);
               }}
               className={`absolute top-4 right-4 z-20 p-2 rounded-full border transition-all ${
-                isDark ? 'bg-black/50 border-white/10 text-white hover:bg-white/10' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                'bg-white border-slate-200 text-slate-600 hover:bg-slate-100 dark:bg-black/50 dark:border-white/10 dark:text-white dark:hover:bg-white/10'
               }`}
             >
               <X size={16} />
@@ -1329,7 +1313,7 @@ export default function BrandCopilotTab({ isDark }) {
 
             {/* Right Hand Meta Details & Actions */}
             <div className={`w-full md:w-[400px] p-6 flex flex-col justify-between overflow-y-auto ${
-              isDark ? 'text-white bg-slate-900' : 'text-slate-800 bg-white'
+              'text-slate-800 bg-white dark:text-white dark:bg-slate-900'
             }`}>
               <div className="space-y-6">
                 <div>
@@ -1346,7 +1330,7 @@ export default function BrandCopilotTab({ isDark }) {
                       className={`text-[10px] font-bold flex items-center gap-1.5 px-2 py-1 rounded-md transition-all ${
                         copied 
                           ? 'bg-emerald-500/10 text-emerald-500' 
-                          : isDark ? 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                          : 'bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white'
                       }`}
                     >
                       {copied ? <Check size={11} /> : <Copy size={11} />}
@@ -1354,7 +1338,7 @@ export default function BrandCopilotTab({ isDark }) {
                     </button>
                   </div>
                   <div className={`p-4 rounded-2xl border text-xs leading-relaxed font-mono whitespace-pre-wrap max-h-48 overflow-y-auto ${
-                    isDark ? 'bg-slate-950 border-white/5 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+                    'bg-slate-50 border-slate-200 text-slate-700 dark:bg-slate-950 dark:border-white/5 dark:text-slate-300'
                   }`}>
                     {selectedPost.caption}
                   </div>
@@ -1366,7 +1350,7 @@ export default function BrandCopilotTab({ isDark }) {
                       <Play size={12} className="text-pink-500" /> Reel Script/Visuals
                     </h4>
                     <p className={`text-xs leading-relaxed p-4 rounded-xl border italic font-medium ${
-                      isDark ? 'bg-slate-950/60 border-white/5 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-600'
+                      'bg-slate-50 border-slate-200 text-slate-600 dark:bg-slate-950/60 dark:border-white/5 dark:text-slate-400'
                     }`}>
                       {selectedPost.videoScript}
                     </p>
@@ -1379,7 +1363,7 @@ export default function BrandCopilotTab({ isDark }) {
                       <ImageIcon size={12} className="text-blue-500" /> Creative AI Image Prompt
                     </h4>
                     <p className={`text-xs leading-relaxed p-4 rounded-xl border italic font-medium ${
-                      isDark ? 'bg-slate-950/60 border-white/5 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-600'
+                      'bg-slate-50 border-slate-200 text-slate-600 dark:bg-slate-950/60 dark:border-white/5 dark:text-slate-400'
                     }`}>
                       {selectedPost.imagePrompt}
                     </p>
@@ -1401,7 +1385,7 @@ export default function BrandCopilotTab({ isDark }) {
                           className={`p-1.5 rounded-md border text-[10px] transition-all ${
                             activeSlide === 1 
                               ? 'opacity-30 cursor-not-allowed' 
-                              : isDark ? 'border-white/10 hover:bg-white/5 text-slate-300' : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+                              : 'border-slate-200 hover:bg-slate-50 text-slate-600 dark:border-white/10 dark:hover:bg-white/5 dark:text-slate-300'
                           }`}
                         >
                           <ChevronLeft size={11} />
@@ -1415,7 +1399,7 @@ export default function BrandCopilotTab({ isDark }) {
                           className={`p-1.5 rounded-md border text-[10px] transition-all ${
                             activeSlide === selectedPost.slides.length 
                               ? 'opacity-30 cursor-not-allowed' 
-                              : isDark ? 'border-white/10 hover:bg-white/5 text-slate-300' : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+                              : 'border-slate-200 hover:bg-slate-50 text-slate-600 dark:border-white/10 dark:hover:bg-white/5 dark:text-slate-300'
                           }`}
                         >
                           <ChevronRight size={11} />
@@ -1424,7 +1408,7 @@ export default function BrandCopilotTab({ isDark }) {
                     </div>
 
                     <div className={`p-4 rounded-2xl border space-y-3 transition-all ${
-                      isDark ? 'bg-slate-950 border-white/5' : 'bg-slate-50 border-slate-200 text-slate-700'
+                      'bg-slate-50 border-slate-200 text-slate-700 dark:bg-slate-950 dark:border-white/5'
                     }`}>
                       {selectedPost.slides.map((slide) => {
                         if (slide.slideNumber !== activeSlide) return null;
@@ -1432,20 +1416,20 @@ export default function BrandCopilotTab({ isDark }) {
                           <div key={slide.slideNumber} className="space-y-2.5 text-left">
                             <div>
                               <span className="text-[9px] font-black uppercase tracking-wider text-[#FF6A00] bg-orange-500/10 px-2 py-0.5 rounded">Slide {slide.slideNumber} Heading</span>
-                              <p className={`text-xs font-extrabold mt-1.5 ${isDark ? 'text-white' : 'text-slate-800'}`}>{slide.heading || 'No text content'}</p>
+                              <p className={`text-xs font-extrabold mt-1.5 ${'text-slate-800 dark:text-white'}`}>{slide.heading || 'No text content'}</p>
                             </div>
                             
                             {slide.body && (
                               <div>
                                 <span className="text-[9px] font-black uppercase tracking-wider text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">Body Subtext</span>
-                                <p className={`text-[11px] leading-relaxed font-medium mt-1 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{slide.body}</p>
+                                <p className={`text-[11px] leading-relaxed font-medium mt-1 ${'text-slate-600 dark:text-slate-300'}`}>{slide.body}</p>
                               </div>
                             )}
 
                             {slide.imagePrompt && (
                               <div>
                                 <span className="text-[9px] font-black uppercase tracking-wider text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded">Background Prompt</span>
-                                <p className={`text-[10px] italic font-medium leading-relaxed mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>"{slide.imagePrompt}"</p>
+                                <p className={`text-[10px] italic font-medium leading-relaxed mt-1 ${'text-slate-500 dark:text-slate-400'}`}>"{slide.imagePrompt}"</p>
                               </div>
                             )}
                           </div>

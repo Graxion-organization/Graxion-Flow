@@ -498,8 +498,8 @@ export default function AgentsPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className={`text-2xl font-extrabold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>AI Agents</h1>
-          <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>{agents.length} agent{agents.length !== 1 ? 's' : ''} configured</p>
+          <h1 className={`text-2xl font-extrabold ${'text-gray-900 dark:text-slate-100'}`}>AI Agents</h1>
+          <p className={`text-sm mt-1 ${'text-gray-500 dark:text-slate-400'}`}>{agents.length} agent{agents.length !== 1 ? 's' : ''} configured</p>
         </div>
         <button
           onClick={() => { setEditingAgent(null); setShowForm(true); }}
@@ -511,16 +511,16 @@ export default function AgentsPage() {
       </div>
 
       {waAccounts.filter((a) => a.status === 'connected').length === 0 && tgAccounts.filter((a) => a.status === 'connected').length === 0 && igAccounts.filter((a) => a.status === 'connected').length === 0 && fbAccounts.filter((a) => a.status === 'connected').length === 0 && (
-        <div className={`rounded-2xl p-4 text-sm border ${isDark ? 'bg-amber-500/10 border-amber-500/30 text-amber-200' : 'bg-amber-50 border-amber-200 text-amber-700'}`}>
+        <div className={`rounded-2xl p-4 text-sm border ${'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-200'}`}>
           No connected messaging accounts. Please connect an account first before creating an agent.
         </div>
       )}
 
       {agents.length === 0 ? (
-        <div className={`rounded-2xl border border-dashed p-12 text-center ${isDark ? 'bg-white/5 border-white/20' : 'bg-white border-gray-300'}`}>
-          <Bot size={48} className={`mx-auto mb-4 ${isDark ? 'text-slate-500' : 'text-gray-300'}`} />
-          <h3 className={`font-semibold ${isDark ? 'text-slate-200' : 'text-gray-700'}`}>No agents yet</h3>
-          <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-gray-400'}`}>Create your first AI agent to start automating WhatsApp.</p>
+        <div className={`rounded-2xl border border-dashed p-12 text-center ${'bg-white border-gray-300 dark:bg-white/5 dark:border-white/20'}`}>
+          <Bot size={48} className={`mx-auto mb-4 ${'text-gray-300 dark:text-slate-500'}`} />
+          <h3 className={`font-semibold ${'text-gray-700 dark:text-slate-200'}`}>No agents yet</h3>
+          <p className={`text-sm mt-1 ${'text-gray-400 dark:text-slate-400'}`}>Create your first AI agent to start automating WhatsApp.</p>
           <button onClick={() => setShowForm(true)} className="mt-4 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02]" style={{ background: '#FF6A00' }}>
             Create Agent
           </button>
@@ -528,7 +528,7 @@ export default function AgentsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {agents.map((agent) => (
-            <div key={agent._id} className={`rounded-2xl border transition-all p-5 ${isDark ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:shadow-xl hover:shadow-black/20' : 'bg-white border-gray-100 shadow-sm hover:shadow-md'}`}>
+            <div key={agent._id} className={`rounded-2xl border transition-all p-5 ${'bg-white border-gray-100 shadow-sm hover:shadow-md dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10 dark:hover:shadow-xl dark:hover:shadow-black/20'}`}>
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-whatsapp/10 rounded-xl flex items-center justify-center">

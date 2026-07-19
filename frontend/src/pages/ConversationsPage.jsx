@@ -30,7 +30,7 @@ function MessageBubble({ msg, platform, isDark }) {
     return (
       <div className="flex justify-center mb-4 mt-2">
         <div className={`font-medium text-xs px-4 py-1.5 rounded-full border shadow-sm ${
-          isDark ? 'bg-red-500/15 text-red-300 border-red-500/20' : 'bg-red-50 text-red-600 border-red-100'
+          'bg-red-50 text-red-600 border-red-100 dark:bg-red-500/15 dark:text-red-300 dark:border-red-500/20'
         }`}>
           {msg.content}
         </div>
@@ -50,7 +50,7 @@ function MessageBubble({ msg, platform, isDark }) {
       transition={{ duration: 0.2, ease: 'easeOut' }}
       className={`flex ${isBot ? 'justify-end' : 'justify-start'} mb-2`}
     >
-      <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm ${isBot ? `${userBgClass} rounded-br-sm` : `${isDark ? 'bg-slate-800 text-slate-100 border border-white/10' : 'bg-gray-100 text-gray-800'} rounded-bl-sm`}`}>
+      <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm ${isBot ? `${userBgClass} rounded-br-sm` : `${'bg-gray-100 text-gray-800 dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-white/10'} rounded-bl-sm`}`}>
         <div className={`markdown-content text-sm leading-relaxed ${isBot ? 'prose-invert' : 'prose-gray'}`}>
           <ReactMarkdown
             components={{
@@ -58,18 +58,18 @@ function MessageBubble({ msg, platform, isDark }) {
               a: ({ node, ...props }) => <a className="underline decoration-2 underline-offset-2 opacity-90 hover:opacity-100" target="_blank" rel="noopener noreferrer" {...props} />,
               ul: ({ node, ...props }) => <ul className="list-disc ml-4 mb-2" {...props} />,
               ol: ({ node, ...props }) => <ol className="list-decimal ml-4 mb-2" {...props} />,
-              code: ({ node, ...props }) => <code className={`px-1.5 py-0.5 rounded text-[13px] font-mono ${isBot ? 'bg-white/20' : (isDark ? 'bg-white/10 text-slate-100' : 'bg-gray-200')}`} {...props} />,
-              pre: ({ node, ...props }) => <pre className={`p-3 rounded-lg overflow-x-auto mb-2 font-mono text-xs ${isBot ? 'bg-black/20' : (isDark ? 'bg-slate-900 text-slate-100' : 'bg-gray-800 text-white')}`} {...props} />,
+              code: ({ node, ...props }) => <code className={`px-1.5 py-0.5 rounded text-[13px] font-mono ${isBot ? 'bg-white/20' : ('bg-gray-200 dark:bg-white/10 dark:text-slate-100')}`} {...props} />,
+              pre: ({ node, ...props }) => <pre className={`p-3 rounded-lg overflow-x-auto mb-2 font-mono text-xs ${isBot ? 'bg-black/20' : ('bg-gray-800 text-white dark:bg-slate-900 dark:text-slate-100')}`} {...props} />,
               h1: ({ node, ...props }) => <h1 className="text-lg font-bold mb-2" {...props} />,
               h2: ({ node, ...props }) => <h2 className="text-base font-bold mb-1.5" {...props} />,
               h3: ({ node, ...props }) => <h3 className="text-sm font-bold mb-1" {...props} />,
-              blockquote: ({ node, ...props }) => <blockquote className={`border-l-4 pl-3 italic opacity-80 mb-2 ${isBot ? 'border-white/30' : (isDark ? 'border-white/20' : 'border-gray-300')}`} {...props} />,
+              blockquote: ({ node, ...props }) => <blockquote className={`border-l-4 pl-3 italic opacity-80 mb-2 ${isBot ? 'border-white/30' : ('border-gray-300 dark:border-white/20')}`} {...props} />,
             }}
           >
             {msg.content}
           </ReactMarkdown>
         </div>
-        <div className={`flex items-center justify-end gap-1 text-[10px] mt-1.5 ${isBot ? 'text-white/80' : (isDark ? 'text-slate-400' : 'text-gray-400')}`}>
+        <div className={`flex items-center justify-end gap-1 text-[10px] mt-1.5 ${isBot ? 'text-white/80' : ('text-gray-400 dark:text-slate-400')}`}>
           <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
           {msg.tokens && <span> · {msg.tokens} tokens</span>}
           {isBot && (
@@ -488,15 +488,15 @@ export default function ConversationsPage() {
   const isExpired = selected && selected.platform === 'whatsapp' && check24hWindow(selected);
   const theme = getTheme(selected?.platform);
   const searchTheme = getTheme(activePlatform);
-  const panelClass = isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-100 shadow-sm';
-  const sectionBorder = isDark ? 'border-white/10' : 'border-gray-100';
-  const titleClass = isDark ? 'text-white' : 'text-gray-900';
-  const mutedClass = isDark ? 'text-slate-300' : 'text-gray-600';
-  const subtleClass = isDark ? 'text-slate-400' : 'text-gray-400';
+  const panelClass = 'bg-white border-gray-100 shadow-sm dark:bg-white/5 dark:border-white/10';
+  const sectionBorder = 'border-gray-100 dark:border-white/10';
+  const titleClass = 'text-gray-900 dark:text-white';
+  const mutedClass = 'text-gray-600 dark:text-slate-300';
+  const subtleClass = 'text-gray-400 dark:text-slate-400';
 
   return (
     <div className={isFullScreen 
-      ? `fixed inset-0 z-[100] p-2 sm:p-4 flex flex-col animate-fade-in ${isDark ? 'bg-slate-950' : 'bg-gray-50'}` 
+      ? `fixed inset-0 z-[100] p-2 sm:p-4 flex flex-col animate-fade-in ${'bg-gray-50 dark:bg-slate-950'}` 
       : "h-[calc(100vh-10rem)] flex flex-col animate-fade-in"}>
       <div className="flex-1 flex gap-4 min-h-0 h-full w-full relative">
         {/* Sidebar list */}
@@ -506,9 +506,9 @@ export default function ConversationsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <h2 className={`font-bold text-lg tracking-tight ${titleClass}`}>Chats</h2>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isDark ? 'bg-white/10 text-slate-200' : 'bg-gray-100 text-gray-600'}`}>{total}</span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${'bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-slate-200'}`}>{total}</span>
               </div>
-              <button onClick={() => setIsFullScreen(!isFullScreen)} className={`p-1.5 rounded-lg transition-colors ${isDark ? 'text-slate-300 hover:bg-white/10' : 'text-gray-500 hover:bg-gray-100'}`} title="Toggle Full Screen">
+              <button onClick={() => setIsFullScreen(!isFullScreen)} className={`p-1.5 rounded-lg transition-colors ${'text-gray-500 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-white/10'}`} title="Toggle Full Screen">
                 {isFullScreen ? <Minimize size={16} /> : <Maximize size={16} />}
               </button>
             </div>
@@ -519,7 +519,7 @@ export default function ConversationsPage() {
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                 placeholder="Search by name or phone..."
-                className={`w-full pl-9 pr-4 py-2.5 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all ${isDark ? 'bg-white/10 text-slate-100 placeholder:text-slate-400' : 'bg-gray-50 text-gray-900'} ${searchTheme.ringPrimary}`}
+                className={`w-full pl-9 pr-4 py-2.5 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all ${'bg-gray-50 text-gray-900 dark:bg-white/10 dark:text-slate-100 dark:placeholder:text-slate-400'} ${searchTheme.ringPrimary}`}
               />
             </div>
 
@@ -545,7 +545,7 @@ export default function ConversationsPage() {
                   key={tab.key}
                   onClick={() => { setActiveTab(tab.key); setPage(1); }}
                   className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors
-                    ${activeTab === tab.key ? 'bg-[#FF6A00] text-white' : (isDark ? 'bg-white/10 text-slate-300 hover:bg-white/15' : 'bg-gray-100 text-gray-600 hover:bg-gray-200')}`}
+                    ${activeTab === tab.key ? 'bg-[#FF6A00] text-white' : ('bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-white/15')}`}
                 >
                   {tab.label}
                 </button>
@@ -574,29 +574,29 @@ export default function ConversationsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.18, delay: Math.min(index * 0.015, 0.18) }}
                     onClick={() => selectConversation(conv)}
-                    className={`w-full text-left px-4 py-3.5 border-b transition-all duration-200 ${isDark ? 'border-white/10 hover:bg-white/5' : 'border-gray-50 hover:bg-gray-50'}
+                    className={`w-full text-left px-4 py-3.5 border-b transition-all duration-200 ${'border-gray-50 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5'}
                       ${selected?._id === conv._id ? `${itemTheme.activeList} border-l-2` : 'border-l-2 border-l-transparent'}
-                      ${!conv.isRead ? (isDark ? 'font-semibold bg-white/5' : 'font-semibold bg-gray-50/50') : ''}`}
+                      ${!conv.isRead ? ('font-semibold bg-gray-50/50 dark:font-semibold dark:bg-white/5') : ''}`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className={`w-9 h-9 rounded-full ${selected?._id === conv._id ? itemTheme.btnPrimary : (isDark ? 'bg-white/10 text-slate-200' : 'bg-gray-200 text-gray-600')} flex items-center justify-center text-sm font-bold shrink-0 shadow-sm relative`}>
+                        <div className={`w-9 h-9 rounded-full ${selected?._id === conv._id ? itemTheme.btnPrimary : ('bg-gray-200 text-gray-600 dark:bg-white/10 dark:text-slate-200')} flex items-center justify-center text-sm font-bold shrink-0 shadow-sm relative`}>
                           {(conv.customerName || conv.customerPhone || conv.customerIgId || conv.customerTelegramId || 'U')[0]?.toUpperCase()}
                           {!conv.isRead && selected?._id !== conv._id && (
                             <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-red-500 border-2 border-white rounded-full"></span>
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className={`text-sm truncate ${selected?._id === conv._id ? (isDark ? 'text-white font-medium' : 'text-gray-900 font-medium') : (!conv.isRead ? (isDark ? 'text-slate-100 font-bold' : 'text-gray-900 font-bold') : (isDark ? 'text-slate-300' : 'text-gray-700'))}`}>
+                          <p className={`text-sm truncate ${selected?._id === conv._id ? ('text-gray-900 font-medium dark:text-white dark:font-medium') : (!conv.isRead ? ('text-gray-900 font-bold dark:text-slate-100 dark:font-bold') : ('text-gray-700 dark:text-slate-300'))}`}>
                             {conv.customerName || conv.customerPhone || conv.customerIgId || conv.customerTelegramId || 'Unknown'}
                           </p>
-                          <p className={`text-xs truncate ${selected?._id === conv._id ? itemTheme.iconColor : (!conv.isRead ? (isDark ? 'text-slate-300 font-medium' : 'text-gray-600 font-medium') : (isDark ? 'text-slate-400' : 'text-gray-400'))}`}>
+                          <p className={`text-xs truncate ${selected?._id === conv._id ? itemTheme.iconColor : (!conv.isRead ? ('text-gray-600 font-medium dark:text-slate-300 dark:font-medium') : ('text-gray-400 dark:text-slate-400'))}`}>
                             {conv.platform || 'whatsapp'} {conv.customerPhone ? ` - ${conv.customerPhone}` : ''}
                           </p>
                         </div>
                       </div>
                     <div className="flex flex-col items-end shrink-0 gap-1.5">
-                        <span className={`text-[10px] font-medium ${selected?._id === conv._id ? itemTheme.iconColor : (!conv.isRead ? 'text-[#FF6A00] font-bold' : (isDark ? 'text-slate-400' : 'text-gray-400'))}`}>
+                        <span className={`text-[10px] font-medium ${selected?._id === conv._id ? itemTheme.iconColor : (!conv.isRead ? 'text-[#FF6A00] font-bold' : ('text-gray-400 dark:text-slate-400'))}`}>
                           {formatDistanceToNow(new Date(conv.lastMessageAt || conv.updatedAt), { addSuffix: true })}
                         </span>
                         <div className="flex items-center gap-1.5">
@@ -604,7 +604,7 @@ export default function ConversationsPage() {
                         </div>
                       </div>
                     </div>
-                    <p className={`text-xs mt-1 ml-11 truncate ${selected?._id === conv._id ? mutedClass : subtleClass} ${!conv.isRead && selected?._id !== conv._id ? (isDark ? 'font-bold text-slate-200' : 'font-bold text-gray-800') : ''}`}>
+                    <p className={`text-xs mt-1 ml-11 truncate ${selected?._id === conv._id ? mutedClass : subtleClass} ${!conv.isRead && selected?._id !== conv._id ? ('font-bold text-gray-800 dark:font-bold dark:text-slate-200') : ''}`}>
                       {conv.agent?.name} - {conv.totalMessages} msgs
                     </p>
                   </motion.button>
@@ -629,9 +629,9 @@ export default function ConversationsPage() {
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
-                className={`px-5 py-4 backdrop-blur-md border-b flex items-center gap-3 shrink-0 z-10 ${isDark ? 'bg-slate-900/70 border-white/10' : 'bg-white/90 border-gray-100'}`}
+                className={`px-5 py-4 backdrop-blur-md border-b flex items-center gap-3 shrink-0 z-10 ${'bg-white/90 border-gray-100 dark:bg-slate-900/70 dark:border-white/10'}`}
               >
-                <button onClick={() => setShowDetail(false)} className={`lg:hidden p-1.5 rounded-lg ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'} ${theme.iconColor}`}>
+                <button onClick={() => setShowDetail(false)} className={`lg:hidden p-1.5 rounded-lg ${'hover:bg-gray-100 dark:hover:bg-white/10'} ${theme.iconColor}`}>
                   <ChevronLeft size={18} />
                 </button>
                 <div className={`w-10 h-10 rounded-full ${theme.btnPrimary} flex items-center justify-center font-bold shrink-0 shadow-sm`}>
@@ -647,13 +647,13 @@ export default function ConversationsPage() {
                 <div className="flex items-center gap-2">
                   {/* Status Toggle */}
                   {selected.status !== 'closed' && (
-                    <div className={`flex p-0.5 rounded-xl border ${isDark ? 'bg-white/10 border-white/10' : 'bg-gray-100 border-gray-200'}`}>
+                    <div className={`flex p-0.5 rounded-xl border ${'bg-gray-100 border-gray-200 dark:bg-white/10 dark:border-white/10'}`}>
                       <button
                         onClick={() => handleToggleStatus(selected._id, 'active')}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                           selected.status === 'active' 
-                            ? (isDark ? 'bg-slate-800 text-[#FF6A00] shadow-sm' : 'bg-white text-[#FF6A00] shadow-sm') 
-                            : (isDark ? 'text-slate-300 hover:text-white' : 'text-gray-500 hover:text-gray-700')
+                            ? ('bg-white text-[#FF6A00] shadow-sm dark:bg-slate-800 dark:text-[#FF6A00] dark:shadow-sm') 
+                            : ('text-gray-500 hover:text-gray-700 dark:text-slate-300 dark:hover:text-white')
                         }`}
                         title="AI Agent Mode"
                       >
@@ -664,8 +664,8 @@ export default function ConversationsPage() {
                         onClick={() => handleToggleStatus(selected._id, 'human_handoff')}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                           selected.status === 'human_handoff' 
-                            ? (isDark ? 'bg-slate-800 text-amber-400 shadow-sm' : 'bg-white text-amber-600 shadow-sm') 
-                            : (isDark ? 'text-slate-300 hover:text-white' : 'text-gray-500 hover:text-gray-700')
+                            ? ('bg-white text-amber-600 shadow-sm dark:bg-slate-800 dark:text-amber-400 dark:shadow-sm') 
+                            : ('text-gray-500 hover:text-gray-700 dark:text-slate-300 dark:hover:text-white')
                         }`}
                         title="Human Mode"
                       >
@@ -684,17 +684,17 @@ export default function ConversationsPage() {
                   {selected.status !== 'closed' && (
                     <button
                       onClick={() => handleClose(selected._id)}
-                      className={`flex items-center gap-1.5 text-xs px-3 py-1.5 border rounded-xl transition-colors ${isDark ? 'border-white/10 text-slate-200 hover:bg-white/10' : 'border-gray-200 hover:bg-gray-50'}`}
+                      className={`flex items-center gap-1.5 text-xs px-3 py-1.5 border rounded-xl transition-colors ${'border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/10'}`}
                     >
                       <CheckCircle2 size={13} /> Close
                     </button>
                   )}
-                  <button onClick={() => setIsFullScreen(!isFullScreen)} className={`p-1.5 rounded-lg transition-colors hidden sm:block ${isDark ? 'text-slate-300 hover:bg-white/10' : 'text-gray-500 hover:bg-gray-100'}`} title="Toggle Full Screen">
+                  <button onClick={() => setIsFullScreen(!isFullScreen)} className={`p-1.5 rounded-lg transition-colors hidden sm:block ${'text-gray-500 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-white/10'}`} title="Toggle Full Screen">
                     {isFullScreen ? <Minimize size={16} /> : <Maximize size={16} />}
                   </button>
                   <button 
                     onClick={() => setShowContactModal(true)} 
-                    className={`p-1.5 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-gray-100 text-gray-500'}`} 
+                    className={`p-1.5 rounded-lg transition-colors ${'hover:bg-gray-100 text-gray-500 dark:hover:bg-white/10 dark:text-slate-300'}`} 
                     title="Contact Information"
                   >
                     <Info size={18} />
@@ -710,19 +710,19 @@ export default function ConversationsPage() {
                   ref={messagesContainerRef}
                   onScroll={handleMessagesScroll}
                 >
-                  <div className={`pointer-events-none absolute inset-0 ${isDark ? 'bg-[radial-gradient(circle_at_top,rgba(255,106,0,0.08),transparent_55%)]' : 'bg-[radial-gradient(circle_at_top,rgba(255,106,0,0.05),transparent_55%)]'}`} />
+                  <div className={`pointer-events-none absolute inset-0 ${'bg-[radial-gradient(circle_at_top,rgba(255,106,0,0.05),transparent_55%)] dark:bg-[radial-gradient(circle_at_top,rgba(255,106,0,0.08),transparent_55%)]'}`} />
                   {selected.messages?.length === 0 ? (
-                  <p className={`text-center text-sm mt-8 ${isDark ? 'text-slate-400/70' : 'text-gray-500/50'}`}>No messages yet</p>
+                  <p className={`text-center text-sm mt-8 ${'text-gray-500/50 dark:text-slate-400/70'}`}>No messages yet</p>
                 ) : (
                   <>
                     {selected.messages?.length > visibleMessagesCount && (
                       <div className="flex justify-center mb-4">
-                        <span className={`text-xs px-3 py-1 rounded-full border backdrop-blur-sm ${isDark ? 'bg-slate-900/60 text-slate-400 border-white/10' : 'bg-white/60 text-gray-400 border-gray-100'}`}>
+                        <span className={`text-xs px-3 py-1 rounded-full border backdrop-blur-sm ${'bg-white/60 text-gray-400 border-gray-100 dark:bg-slate-900/60 dark:text-slate-400 dark:border-white/10'}`}>
                           Scroll up to load older messages
                         </span>
                       </div>
                     )}
-                    {selected.messages?.slice(-visibleMessagesCount).map((msg, i) => <MessageBubble key={i} msg={msg} platform={selected.platform || 'whatsapp'} isDark={isDark} />)}
+                    {selected.messages?.slice(-visibleMessagesCount).map((msg, i) => <MessageBubble key={i} msg={msg} platform={selected.platform || 'whatsapp'}  />)}
                     <div ref={messagesEndRef} />
                   </>
                 )}
@@ -730,7 +730,7 @@ export default function ConversationsPage() {
                 {showScrollButton && (
                   <button
                     onClick={scrollToBottom}
-                    className={`absolute bottom-4 right-6 p-2.5 rounded-full shadow-lg border transition-all z-20 flex items-center justify-center ${isDark ? 'bg-slate-900 text-slate-200 hover:bg-slate-800 border-white/10' : 'bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-gray-200'}`}
+                    className={`absolute bottom-4 right-6 p-2.5 rounded-full shadow-lg border transition-all z-20 flex items-center justify-center ${'bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-gray-200 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:border-white/10'}`}
                     title="Scroll to bottom"
                   >
                     <ArrowDown size={20} />
@@ -743,7 +743,7 @@ export default function ConversationsPage() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
-                className={`border-t shrink-0 z-10 ${isDark ? 'bg-slate-900/70 border-white/10' : 'bg-white border-gray-100'}`}
+                className={`border-t shrink-0 z-10 ${'bg-white border-gray-100 dark:bg-slate-900/70 dark:border-white/10'}`}
               >
                 <div className={`px-5 py-2 flex items-center justify-between text-[11px] ${subtleClass}`}>
                   <span>Messages: {selected.totalMessages} - Tokens: {selected.totalTokensUsed || 0}</span>
@@ -752,14 +752,14 @@ export default function ConversationsPage() {
                 
                 {selected.status !== 'closed' && (
                   isExpired ? (
-                    <div className={`mx-5 mb-4 p-4 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-4 backdrop-blur-md ${isDark ? 'bg-amber-500/10 border-amber-500/20' : 'bg-amber-50 border-amber-200'}`}>
+                    <div className={`mx-5 mb-4 p-4 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-4 backdrop-blur-md ${'bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20'}`}>
                       <div className="flex items-center gap-2.5">
                         <Clock className="text-amber-500 shrink-0" size={20} />
                         <div className="text-left">
-                          <p className={`text-xs font-bold ${isDark ? 'text-amber-300' : 'text-amber-800'}`}>
+                          <p className={`text-xs font-bold ${'text-amber-800 dark:text-amber-300'}`}>
                             24-Hour Customer Service Window Expired
                           </p>
-                          <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                          <p className={`text-[10px] mt-0.5 ${'text-slate-600 dark:text-slate-300'}`}>
                             ⚠️ You can only reply using a pre-approved template message.
                           </p>
                         </div>
@@ -818,10 +818,10 @@ export default function ConversationsPage() {
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 30 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                className={`relative w-full max-w-xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-[85vh] overflow-hidden border ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-white/20'}`}
+                className={`relative w-full max-w-xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-[85vh] overflow-hidden border ${'bg-white border-white/20 dark:bg-slate-900 dark:border-white/10'}`}
               >
                 {/* Header */}
-                <div className={`p-6 border-b flex items-center justify-between shrink-0 ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-gray-100'}`}>
+                <div className={`p-6 border-b flex items-center justify-between shrink-0 ${'bg-white border-gray-100 dark:bg-slate-900 dark:border-white/10'}`}>
                   <div className="flex items-center gap-4">
                     <div className={`p-3 rounded-2xl ${theme.bgChat} ${theme.iconColor} shadow-inner`}>
                       <User size={22} />
@@ -833,7 +833,7 @@ export default function ConversationsPage() {
                   </div>
                   <button 
                     onClick={() => setShowContactModal(false)} 
-                    className={`p-2.5 rounded-2xl transition-all ${isDark ? 'text-slate-400 hover:text-white hover:bg-white/10' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
+                    className={`p-2.5 rounded-2xl transition-all ${'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10'}`}
                   >
                     <X size={22} />
                   </button>
@@ -841,12 +841,12 @@ export default function ConversationsPage() {
                 
                 <div className="flex-1 overflow-y-auto p-8 space-y-10 scrollbar-hide">
                   {/* Profile Header Card */}
-                  <div className={`rounded-[2rem] p-6 border flex flex-col sm:flex-row items-center gap-6 shadow-sm ${isDark ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-white/10' : 'bg-gradient-to-br from-gray-50 via-white to-gray-50 border-gray-100'}`}>
+                  <div className={`rounded-[2rem] p-6 border flex flex-col sm:flex-row items-center gap-6 shadow-sm ${'bg-gradient-to-br from-gray-50 via-white to-gray-50 border-gray-100 dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dark:border-white/10'}`}>
                     <div className="relative shrink-0">
                       <div className={`w-28 h-28 rounded-[2.5rem] ${theme.btnPrimary} flex items-center justify-center text-4xl font-black shadow-2xl shadow-blue-500/20 rotate-3 ring-8 ring-white`}>
                         {(selected.customerName || selected.customerPhone || selected.customerIgId || selected.customerTelegramId || 'U')[0]?.toUpperCase()}
                       </div>
-                        <div className={`absolute -bottom-1 -right-1 w-10 h-10 rounded-2xl shadow-xl border flex items-center justify-center ${theme.iconColor} ${isDark ? 'bg-slate-800 border-white/10' : 'bg-white border-gray-50'}`}>
+                        <div className={`absolute -bottom-1 -right-1 w-10 h-10 rounded-2xl shadow-xl border flex items-center justify-center ${theme.iconColor} ${'bg-white border-gray-50 dark:bg-slate-800 dark:border-white/10'}`}>
                         {selected.platform === 'whatsapp' ? <Smartphone size={20} /> : selected.platform === 'instagram' ? <Bot size={20} /> : <MessageSquare size={20} />}
                       </div>
                     </div>
@@ -861,7 +861,7 @@ export default function ConversationsPage() {
                         }`}>
                           {selected.platform || 'whatsapp'}
                         </span>
-                        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-bold uppercase tracking-tight ${isDark ? 'bg-white/10 text-slate-300' : 'bg-gray-100 text-gray-500'}`}>
+                        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-bold uppercase tracking-tight ${'bg-gray-100 text-gray-500 dark:bg-white/10 dark:text-slate-300'}`}>
                           <Hash size={12} />
                           ID: {selected._id.slice(-8)}
                         </div>
@@ -873,11 +873,11 @@ export default function ConversationsPage() {
                     {/* Identity & Connection */}
                     <div className="space-y-4">
                       <p className={`text-[10px] font-black uppercase tracking-[0.2em] ml-2 ${subtleClass}`}>Identity & Comms</p>
-                      <div className={`rounded-[2rem] p-5 border space-y-5 ${isDark ? 'bg-slate-800/40 border-white/10' : 'bg-gray-50/50 border-gray-100'}`}>
+                      <div className={`rounded-[2rem] p-5 border space-y-5 ${'bg-gray-50/50 border-gray-100 dark:bg-slate-800/40 dark:border-white/10'}`}>
                         {/* Platform Handle */}
                         <div className="flex items-center justify-between group">
                           <div className="flex items-center gap-4">
-                            <div className={`w-10 h-10 rounded-2xl shadow-sm flex items-center justify-center ${isDark ? 'bg-slate-800 text-slate-300' : 'bg-white text-gray-400'}`}>
+                            <div className={`w-10 h-10 rounded-2xl shadow-sm flex items-center justify-center ${'bg-white text-gray-400 dark:bg-slate-800 dark:text-slate-300'}`}>
                               <Hash size={18} />
                             </div>
                             <div>
@@ -895,7 +895,7 @@ export default function ConversationsPage() {
                                 toast.success('Handle copied');
                               }
                             }}
-                            className={`p-2.5 rounded-xl shadow-sm transition-all ${isDark ? 'text-slate-400 hover:text-[#FF6A00] hover:bg-slate-800' : 'text-gray-400 hover:text-blue-500 hover:bg-white'}`}
+                            className={`p-2.5 rounded-xl shadow-sm transition-all ${'text-gray-400 hover:text-blue-500 hover:bg-white dark:text-slate-400 dark:hover:text-[#FF6A00] dark:hover:bg-slate-800'}`}
                           >
                             <Copy size={16} />
                           </button>
@@ -905,7 +905,7 @@ export default function ConversationsPage() {
                         {selected.customerPhone && (
                           <div className="flex items-center justify-between group">
                             <div className="flex items-center gap-4">
-                              <div className={`w-10 h-10 rounded-2xl shadow-sm flex items-center justify-center text-green-500 border ${isDark ? 'bg-slate-800 border-white/10' : 'bg-white border-green-50'}`}>
+                              <div className={`w-10 h-10 rounded-2xl shadow-sm flex items-center justify-center text-green-500 border ${'bg-white border-green-50 dark:bg-slate-800 dark:border-white/10'}`}>
                                 <Smartphone size={18} />
                               </div>
                               <div>
@@ -923,7 +923,7 @@ export default function ConversationsPage() {
                                 navigator.clipboard.writeText(selected.customerPhone);
                                 toast.success('Phone number copied');
                               }}
-                              className={`p-2.5 rounded-xl shadow-sm transition-all ${isDark ? 'text-slate-400 hover:text-[#FF6A00] hover:bg-slate-800' : 'text-gray-400 hover:text-blue-500 hover:bg-white'}`}
+                              className={`p-2.5 rounded-xl shadow-sm transition-all ${'text-gray-400 hover:text-blue-500 hover:bg-white dark:text-slate-400 dark:hover:text-[#FF6A00] dark:hover:bg-slate-800'}`}
                             >
                               <Copy size={16} />
                             </button>
@@ -932,7 +932,7 @@ export default function ConversationsPage() {
 
                         {/* Status */}
                         <div className={`flex items-center gap-4 border-t pt-4 ${sectionBorder}`}>
-                          <div className={`w-10 h-10 rounded-2xl shadow-sm flex items-center justify-center ${isDark ? 'bg-slate-800 text-slate-300' : 'bg-white text-gray-400'}`}>
+                          <div className={`w-10 h-10 rounded-2xl shadow-sm flex items-center justify-center ${'bg-white text-gray-400 dark:bg-slate-800 dark:text-slate-300'}`}>
                             <Activity size={18} />
                           </div>
                           <div>
@@ -954,18 +954,18 @@ export default function ConversationsPage() {
                     <div className="space-y-4">
                       <p className={`text-[10px] font-black uppercase tracking-[0.2em] ml-2 ${subtleClass}`}>Engagement</p>
                       <div className="grid grid-cols-1 gap-3">
-                        <div className={`p-5 rounded-[2rem] border flex items-center justify-between group ${isDark ? 'bg-gradient-to-br from-slate-800 to-slate-900 border-white/10' : 'bg-gradient-to-br from-blue-50/50 to-white border-blue-100/50'}`}>
+                        <div className={`p-5 rounded-[2rem] border flex items-center justify-between group ${'bg-gradient-to-br from-blue-50/50 to-white border-blue-100/50 dark:bg-gradient-to-br dark:from-slate-800 dark:to-slate-900 dark:border-white/10'}`}>
                           <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-2xl text-blue-500 shadow-sm group-hover:scale-110 transition-transform ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
+                            <div className={`p-3 rounded-2xl text-blue-500 shadow-sm group-hover:scale-110 transition-transform ${'bg-white dark:bg-slate-800'}`}>
                               <MessageSquare size={18} />
                             </div>
                             <span className={`text-[11px] font-black tracking-wider ${subtleClass}`}>TOTAL MESSAGES</span>
                           </div>
                           <p className={`text-2xl font-black ${titleClass}`}>{selected.totalMessages}</p>
                         </div>
-                        <div className={`p-5 rounded-[2rem] border flex items-center justify-between group ${isDark ? 'bg-gradient-to-br from-slate-800 to-slate-900 border-white/10' : 'bg-gradient-to-br from-purple-50/50 to-white border-purple-100/50'}`}>
+                        <div className={`p-5 rounded-[2rem] border flex items-center justify-between group ${'bg-gradient-to-br from-purple-50/50 to-white border-purple-100/50 dark:bg-gradient-to-br dark:from-slate-800 dark:to-slate-900 dark:border-white/10'}`}>
                           <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-2xl text-purple-500 shadow-sm group-hover:scale-110 transition-transform ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
+                            <div className={`p-3 rounded-2xl text-purple-500 shadow-sm group-hover:scale-110 transition-transform ${'bg-white dark:bg-slate-800'}`}>
                               <Zap size={18} />
                             </div>
                             <span className={`text-[11px] font-black tracking-wider ${subtleClass}`}>AI TOKENS USED</span>
@@ -979,9 +979,9 @@ export default function ConversationsPage() {
                   {/* Timeline section */}
                   <div className="space-y-4">
                     <p className={`text-[10px] font-black uppercase tracking-[0.2em] ml-2 ${subtleClass}`}>Interaction History</p>
-                    <div className={`rounded-[2.5rem] p-6 border flex flex-col md:flex-row gap-8 ${isDark ? 'bg-slate-800/30 border-white/10' : 'bg-gray-50/30 border-gray-100'}`}>
+                    <div className={`rounded-[2.5rem] p-6 border flex flex-col md:flex-row gap-8 ${'bg-gray-50/30 border-gray-100 dark:bg-slate-800/30 dark:border-white/10'}`}>
                       <div className="flex-1 flex items-start gap-4">
-                        <div className={`w-12 h-12 rounded-2xl shadow-sm flex items-center justify-center text-blue-500 shrink-0 border ${isDark ? 'bg-slate-800 border-white/10' : 'bg-white border-blue-50'}`}>
+                        <div className={`w-12 h-12 rounded-2xl shadow-sm flex items-center justify-center text-blue-500 shrink-0 border ${'bg-white border-blue-50 dark:bg-slate-800 dark:border-white/10'}`}>
                           <Calendar size={20} />
                         </div>
                         <div>
@@ -994,9 +994,9 @@ export default function ConversationsPage() {
                           </p>
                         </div>
                       </div>
-                      <div className={`w-px hidden md:block ${isDark ? 'bg-white/10' : 'bg-gray-100'}`} />
+                      <div className={`w-px hidden md:block ${'bg-gray-100 dark:bg-white/10'}`} />
                       <div className="flex-1 flex items-start gap-4">
-                        <div className={`w-12 h-12 rounded-2xl shadow-sm flex items-center justify-center text-amber-500 shrink-0 border ${isDark ? 'bg-slate-800 border-white/10' : 'bg-white border-amber-50'}`}>
+                        <div className={`w-12 h-12 rounded-2xl shadow-sm flex items-center justify-center text-amber-500 shrink-0 border ${'bg-white border-amber-50 dark:bg-slate-800 dark:border-white/10'}`}>
                           <Clock size={20} />
                         </div>
                         <div>
@@ -1022,12 +1022,12 @@ export default function ConversationsPage() {
                       <div className="flex flex-wrap gap-2">
                         {selected.tags && selected.tags.length > 0 ? (
                           selected.tags.map((tag, i) => (
-                            <span key={i} className={`px-4 py-2 border text-[11px] font-black rounded-2xl shadow-sm transition-all cursor-pointer ${isDark ? 'bg-slate-800 border-white/10 text-slate-200 hover:border-[#FF6A00]/40' : 'bg-white border-gray-100 text-gray-700 hover:border-blue-200'}`}>
+                            <span key={i} className={`px-4 py-2 border text-[11px] font-black rounded-2xl shadow-sm transition-all cursor-pointer ${'bg-white border-gray-100 text-gray-700 hover:border-blue-200 dark:bg-slate-800 dark:border-white/10 dark:text-slate-200 dark:hover:border-[#FF6A00]/40'}`}>
                               {tag}
                             </span>
                           ))
                         ) : (
-                          <div className={`w-full py-8 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center group transition-all cursor-pointer ${isDark ? 'border-white/10 text-slate-400 hover:border-white/20 hover:bg-slate-800/40' : 'border-gray-100 text-gray-400 hover:border-gray-200 hover:bg-gray-50/50'}`}>
+                          <div className={`w-full py-8 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center group transition-all cursor-pointer ${'border-gray-100 text-gray-400 hover:border-gray-200 hover:bg-gray-50/50 dark:border-white/10 dark:text-slate-400 dark:hover:border-white/20 dark:hover:bg-slate-800/40'}`}>
                             <Tag size={24} className="mb-2 opacity-20 group-hover:opacity-40" />
                             <span className="text-[10px] font-black uppercase tracking-wider">Add customer labels</span>
                           </div>
@@ -1042,7 +1042,7 @@ export default function ConversationsPage() {
                           <FileText size={10} /> Update
                         </button>
                       </div>
-                      <div className={`p-5 border rounded-3xl min-h-[100px] shadow-inner relative group ${isDark ? 'bg-gradient-to-br from-slate-800/80 to-slate-900 border-white/10' : 'bg-gradient-to-br from-amber-50/20 to-white border-amber-100/50'}`}>
+                      <div className={`p-5 border rounded-3xl min-h-[100px] shadow-inner relative group ${'bg-gradient-to-br from-amber-50/20 to-white border-amber-100/50 dark:bg-gradient-to-br dark:from-slate-800/80 dark:to-slate-900 dark:border-white/10'}`}>
                         {selected.notes ? (
                           <p className={`text-xs leading-relaxed font-bold italic ${mutedClass}`}>"{selected.notes}"</p>
                         ) : (
@@ -1056,7 +1056,7 @@ export default function ConversationsPage() {
                 </div>
 
                 {/* Footer Action */}
-                <div className={`p-6 border-t flex justify-center shrink-0 ${isDark ? 'bg-slate-900 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
+                <div className={`p-6 border-t flex justify-center shrink-0 ${'bg-gray-50 border-gray-100 dark:bg-slate-900 dark:border-white/10'}`}>
                   <button 
                     onClick={() => setShowContactModal(false)}
                     className="px-10 py-3.5 bg-[#FF6A00] text-white rounded-2xl text-sm font-black shadow-xl hover:bg-[#e35f00] transition-all transform hover:scale-105"
@@ -1088,10 +1088,10 @@ export default function ConversationsPage() {
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 30 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                className={`relative w-full max-w-2xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-[85vh] overflow-hidden border ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-white/20'}`}
+                className={`relative w-full max-w-2xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-[85vh] overflow-hidden border ${'bg-white border-white/20 dark:bg-slate-900 dark:border-white/10'}`}
               >
                 {/* Header */}
-                <div className={`p-6 border-b flex items-center justify-between shrink-0 ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-gray-100'}`}>
+                <div className={`p-6 border-b flex items-center justify-between shrink-0 ${'bg-white border-gray-100 dark:bg-slate-900 dark:border-white/10'}`}>
                   <div className="flex items-center gap-4">
                     <div className={`p-3 rounded-2xl ${theme.bgChat || 'bg-green-500/10'} ${theme.iconColor || 'text-green-500'} shadow-inner`}>
                       <Zap size={22} fill="currentColor" />
@@ -1110,9 +1110,7 @@ export default function ConversationsPage() {
                       <button
                         onClick={() => setViewMode('create')}
                         className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
-                          isDark 
-                            ? 'bg-[#FF6A00]/25 text-[#FF6A00] hover:bg-[#FF6A00]/35 border border-[#FF6A00]/30' 
-                            : 'bg-orange-50 text-[#FF6A00] hover:bg-orange-100 border border-orange-100 shadow-sm'
+                          'bg-orange-50 text-[#FF6A00] hover:bg-orange-100 border border-orange-100 shadow-sm dark:bg-[#FF6A00]/25 dark:text-[#FF6A00] dark:hover:bg-[#FF6A00]/35 dark:border dark:border-[#FF6A00]/30'
                         }`}
                       >
                         + Create Template
@@ -1121,7 +1119,7 @@ export default function ConversationsPage() {
                     <button 
                       onClick={() => setShowTemplateModal(false)}
                       disabled={sendingTemplate || creatingTemplate}
-                      className={`p-2.5 rounded-2xl transition-all ${isDark ? 'text-slate-400 hover:text-white hover:bg-white/10' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
+                      className={`p-2.5 rounded-2xl transition-all ${'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10'}`}
                     >
                       <X size={22} />
                     </button>
@@ -1138,7 +1136,7 @@ export default function ConversationsPage() {
                         </div>
                       ) : templates.length === 0 ? (
                         <div className="text-center py-16 space-y-3">
-                          <Bot size={48} className={`mx-auto opacity-25 ${isDark ? 'text-slate-400' : 'text-gray-400'}`} />
+                          <Bot size={48} className={`mx-auto opacity-25 ${'text-gray-400 dark:text-slate-400'}`} />
                           <p className={`text-sm font-bold ${mutedClass}`}>No templates available</p>
                           <p className={`text-xs max-w-sm mx-auto ${subtleClass}`}>
                             Make sure you have approved templates in your Meta WhatsApp Business Manager dashboard.
@@ -1149,7 +1147,7 @@ export default function ConversationsPage() {
                           {/* Left: Templates List */}
                           <div className="space-y-3">
                             <p className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 ${subtleClass}`}>Templates List</p>
-                            <div className={`border rounded-[2rem] p-3 max-h-[350px] overflow-y-auto space-y-2 ${isDark ? 'bg-slate-950/40 border-white/10' : 'bg-gray-50/50 border-gray-150'}`}>
+                            <div className={`border rounded-[2rem] p-3 max-h-[350px] overflow-y-auto space-y-2 ${'bg-gray-50/50 border-gray-150 dark:bg-slate-950/40 dark:border-white/10'}`}>
                               {templates.map((tpl) => {
                                 const isSelected = selectedTemplate?.name === tpl.name;
                                 return (
@@ -1162,9 +1160,7 @@ export default function ConversationsPage() {
                                     className={`w-full text-left p-3.5 rounded-2xl border transition-all text-xs font-bold flex flex-col gap-1.5 ${
                                       isSelected
                                         ? 'bg-[#FF6A00] text-white border-transparent shadow-md'
-                                        : (isDark 
-                                            ? 'bg-slate-900 border-white/5 text-slate-200 hover:bg-slate-800' 
-                                            : 'bg-white border-gray-100 text-gray-700 hover:bg-gray-50 shadow-sm')
+                                        : ('bg-white border-gray-100 text-gray-700 hover:bg-gray-50 shadow-sm dark:bg-slate-900 dark:border-white/5 dark:text-slate-200 dark:hover:bg-slate-800')
                                     }`}
                                   >
                                     <span className="font-black text-sm truncate max-w-full">{tpl.name.replace(/_/g, ' ')}</span>
@@ -1181,8 +1177,8 @@ export default function ConversationsPage() {
                           {/* Right: Personalization & Preview */}
                           <div className="space-y-4 flex flex-col justify-between">
                             {!selectedTemplate ? (
-                              <div className={`flex-1 border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center p-6 text-center ${isDark ? 'border-white/10 bg-slate-950/20' : 'border-gray-200 bg-gray-50/30'}`}>
-                                <Zap size={32} className={`mb-2 opacity-20 ${isDark ? 'text-slate-400' : 'text-gray-400'}`} />
+                              <div className={`flex-1 border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center p-6 text-center ${'border-gray-200 bg-gray-50/30 dark:border-white/10 dark:bg-slate-950/20'}`}>
+                                <Zap size={32} className={`mb-2 opacity-20 ${'text-gray-400 dark:text-slate-400'}`} />
                                 <p className={`text-xs font-black uppercase tracking-wider ${subtleClass}`}>Select template to customize</p>
                               </div>
                             ) : (
@@ -1194,7 +1190,7 @@ export default function ConversationsPage() {
                                     <div className="space-y-2.5 max-h-[140px] overflow-y-auto pr-1">
                                       {getTemplateVariables(selectedTemplate).map((v) => (
                                         <div key={v} className="flex items-center gap-2">
-                                          <span className={`text-[10px] font-bold w-12 text-center py-1.5 rounded-lg shrink-0 ${isDark ? 'bg-slate-800 text-slate-300' : 'bg-gray-100 text-gray-600'}`}>
+                                          <span className={`text-[10px] font-bold w-12 text-center py-1.5 rounded-lg shrink-0 ${'bg-gray-100 text-gray-600 dark:bg-slate-800 dark:text-slate-300'}`}>
                                             {`{{${v}}}`}
                                           </span>
                                           <input
@@ -1203,9 +1199,7 @@ export default function ConversationsPage() {
                                             onChange={(e) => handleVariableChange(v, e.target.value)}
                                             placeholder={`Value for var ${v}`}
                                             className={`flex-1 px-3 py-1.5 rounded-xl border-0 text-xs focus:outline-none focus:ring-2 transition-all ${
-                                              isDark 
-                                                ? 'bg-slate-950 text-slate-100 placeholder:text-slate-500 focus:ring-[#FF6A00]/50' 
-                                                : 'bg-gray-50 text-gray-900 placeholder:text-gray-450 focus:ring-[#FF6A00]/50 border border-gray-200'
+                                              'bg-gray-50 text-gray-900 placeholder:text-gray-450 focus:ring-[#FF6A00]/50 border border-gray-200 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-[#FF6A00]/50'
                                             }`}
                                           />
                                         </div>
@@ -1218,11 +1212,9 @@ export default function ConversationsPage() {
                                 <div className="space-y-2 flex-1 flex flex-col">
                                   <p className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 ${subtleClass}`}>Live Preview</p>
                                   <div className={`flex-1 p-4 rounded-3xl border text-xs leading-relaxed font-medium overflow-y-auto shadow-inner relative min-h-[100px] ${
-                                    isDark 
-                                      ? 'bg-slate-950/70 border-white/10 text-slate-200' 
-                                      : 'bg-green-50/20 border-green-100/50 text-gray-800'
+                                    'bg-green-50/20 border-green-100/50 text-gray-800 dark:bg-slate-950/70 dark:border-white/10 dark:text-slate-200'
                                   }`}>
-                                    <div className={`pointer-events-none absolute inset-0 ${isDark ? 'bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.06),transparent_55%)]' : 'bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.04),transparent_55%)]'}`} />
+                                    <div className={`pointer-events-none absolute inset-0 ${'bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.04),transparent_55%)] dark:bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.06),transparent_55%)]'}`} />
                                     <p className="relative z-10 whitespace-pre-wrap">{getTemplatePreview(selectedTemplate)}</p>
                                   </div>
                                 </div>
@@ -1234,15 +1226,13 @@ export default function ConversationsPage() {
                     </div>
 
                     {/* Footer Action */}
-                    <div className={`p-6 border-t flex items-center justify-end gap-3 shrink-0 ${isDark ? 'bg-slate-900 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
+                    <div className={`p-6 border-t flex items-center justify-end gap-3 shrink-0 ${'bg-gray-50 border-gray-100 dark:bg-slate-900 dark:border-white/10'}`}>
                       <button 
                         type="button"
                         onClick={() => setShowTemplateModal(false)}
                         disabled={sendingTemplate}
                         className={`px-6 py-3 rounded-2xl text-xs font-black transition-all ${
-                          isDark 
-                            ? 'bg-white/5 text-slate-300 hover:bg-white/10' 
-                            : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 shadow-sm'
+                          'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 shadow-sm dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10'
                         }`}
                       >
                         Cancel
@@ -1286,9 +1276,7 @@ export default function ConversationsPage() {
                           }}
                           placeholder="e.g. order_update (lowercase & underscores only)"
                           className={`w-full px-4 py-3 rounded-2xl border-0 text-sm focus:outline-none focus:ring-2 transition-all ${
-                            isDark 
-                              ? 'bg-slate-950 text-slate-100 placeholder:text-slate-500 focus:ring-[#FF6A00]/50' 
-                              : 'bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:ring-[#FF6A00]/50 border border-gray-200'
+                            'bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:ring-[#FF6A00]/50 border border-gray-200 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-[#FF6A00]/50'
                           }`}
                         />
                         <p className={`text-[10px] ${subtleClass}`}>
@@ -1304,9 +1292,7 @@ export default function ConversationsPage() {
                             value={newTemplate.category}
                             onChange={(e) => setNewTemplate((prev) => ({ ...prev, category: e.target.value }))}
                             className={`w-full px-4 py-3 rounded-2xl border-0 text-sm focus:outline-none focus:ring-2 transition-all ${
-                              isDark 
-                                ? 'bg-slate-950 text-slate-100 focus:ring-[#FF6A00]/50' 
-                                : 'bg-gray-50 text-gray-900 focus:ring-[#FF6A00]/50 border border-gray-250'
+                              'bg-gray-50 text-gray-900 focus:ring-[#FF6A00]/50 border border-gray-250 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-[#FF6A00]/50'
                             }`}
                           >
                             <option value="UTILITY">Utility (Transaction notifications, OTPs)</option>
@@ -1321,9 +1307,7 @@ export default function ConversationsPage() {
                             value={newTemplate.language}
                             onChange={(e) => setNewTemplate((prev) => ({ ...prev, language: e.target.value }))}
                             className={`w-full px-4 py-3 rounded-2xl border-0 text-sm focus:outline-none focus:ring-2 transition-all ${
-                              isDark 
-                                ? 'bg-slate-950 text-slate-100 focus:ring-[#FF6A00]/50' 
-                                : 'bg-gray-50 text-gray-900 focus:ring-[#FF6A00]/50 border border-gray-200'
+                              'bg-gray-50 text-gray-900 focus:ring-[#FF6A00]/50 border border-gray-200 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-[#FF6A00]/50'
                             }`}
                           >
                             <option value="en_US">English (US)</option>
@@ -1345,13 +1329,11 @@ export default function ConversationsPage() {
                           onChange={(e) => setNewTemplate((prev) => ({ ...prev, bodyText: e.target.value }))}
                           placeholder="Enter the template body text here... Use {{1}}, {{2}} to denote variables."
                           className={`w-full px-4 py-3 rounded-2xl border-0 text-sm focus:outline-none focus:ring-2 transition-all resize-none ${
-                            isDark 
-                              ? 'bg-slate-950 text-slate-100 placeholder:text-slate-500 focus:ring-[#FF6A00]/50' 
-                              : 'bg-gray-50 text-gray-900 placeholder:text-gray-450 focus:ring-[#FF6A00]/50 border border-gray-200'
+                            'bg-gray-50 text-gray-900 placeholder:text-gray-450 focus:ring-[#FF6A00]/50 border border-gray-200 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-[#FF6A00]/50'
                           }`}
                         />
                         <div className={`p-4 rounded-2xl border text-[11px] leading-relaxed ${
-                          isDark ? 'bg-slate-950/40 border-white/5 text-slate-300' : 'bg-gray-50/50 border-gray-100 text-gray-600'
+                          'bg-gray-50/50 border-gray-100 text-gray-600 dark:bg-slate-950/40 dark:border-white/5 dark:text-slate-300'
                         }`}>
                           <strong>Variable Guidelines:</strong> Add variables like {"{{1}}"}, {"{{2}}"} to personalize messages. Note that variables must be numbered sequentially starting at 1.
                         </div>
@@ -1359,15 +1341,13 @@ export default function ConversationsPage() {
                     </div>
 
                     {/* Footer Action */}
-                    <div className={`p-6 border-t flex items-center justify-end gap-3 shrink-0 ${isDark ? 'bg-slate-900 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
+                    <div className={`p-6 border-t flex items-center justify-end gap-3 shrink-0 ${'bg-gray-50 border-gray-100 dark:bg-slate-900 dark:border-white/10'}`}>
                       <button 
                         type="button"
                         onClick={() => setViewMode('list')}
                         disabled={creatingTemplate}
                         className={`px-6 py-3 rounded-2xl text-xs font-black transition-all ${
-                          isDark 
-                            ? 'bg-white/5 text-slate-300 hover:bg-white/10' 
-                            : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 shadow-sm'
+                          'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 shadow-sm dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10'
                         }`}
                       >
                         Back to Templates

@@ -254,8 +254,8 @@ export default function WhatsAppPage() {
     <div className="space-y-6 animate-fade-in max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className={`text-lg font-bold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>WhatsApp Accounts</h2>
-          <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Connect your WhatsApp Business numbers</p>
+          <h2 className={`text-lg font-bold ${'text-gray-900 dark:text-slate-100'}`}>WhatsApp Accounts</h2>
+          <p className={`text-sm mt-1 ${'text-gray-500 dark:text-slate-400'}`}>Connect your WhatsApp Business numbers</p>
         </div>
         <button onClick={() => { setShowAddPanel(!showAddPanel); setShowManual(false); }} className="flex items-center gap-2 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors" style={{ background: '#FF6A00' }}>
           <Plus size={16} /> Add Number
@@ -263,20 +263,20 @@ export default function WhatsAppPage() {
       </div>
 
       {showAddPanel && (
-        <div className={`rounded-2xl border p-6 space-y-5 animate-slide-up ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-100 shadow-sm'}`}>
+        <div className={`rounded-2xl border p-6 space-y-5 animate-slide-up ${'bg-white border-gray-100 shadow-sm dark:bg-white/5 dark:border-white/10'}`}>
           <div className="flex items-center justify-between">
-            <h2 className={`font-semibold ${isDark ? 'text-slate-100' : 'text-gray-800'}`}>Connect WhatsApp Number</h2>
-            <button onClick={() => setShowAddPanel(false)} className={`p-1.5 rounded-lg ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}><X size={16} /></button>
+            <h2 className={`font-semibold ${'text-gray-800 dark:text-slate-100'}`}>Connect WhatsApp Number</h2>
+            <button onClick={() => setShowAddPanel(false)} className={`p-1.5 rounded-lg ${'hover:bg-gray-100 dark:hover:bg-white/10'}`}><X size={16} /></button>
           </div>
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xs font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Recommended</span>
-              <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-gray-500'}`}>One-click via Facebook — no manual IDs needed</p>
+              <p className={`text-sm ${'text-gray-500 dark:text-slate-300'}`}>One-click via Facebook — no manual IDs needed</p>
             </div>
             <EmbeddedSignupButton onSuccess={handleNewAccount} />
           </div>
           <div className="flex items-center gap-3"><div className="flex-1 h-px bg-gray-200" /><span className="text-xs text-gray-400">ya manually</span><div className="flex-1 h-px bg-gray-200" /></div>
-          <button onClick={() => setShowManual(!showManual)} className={`flex items-center justify-between w-full text-sm ${isDark ? 'text-slate-300 hover:text-slate-100' : 'text-gray-600 hover:text-gray-800'}`}>
+          <button onClick={() => setShowManual(!showManual)} className={`flex items-center justify-between w-full text-sm ${'text-gray-600 hover:text-gray-800 dark:text-slate-300 dark:hover:text-slate-100'}`}>
             <span className="font-medium">Manual setup (advanced)</span>
             {showManual ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
@@ -287,16 +287,16 @@ export default function WhatsAppPage() {
       {loading ? (
         <div className="flex items-center justify-center h-40"><div className="w-8 h-8 border-4 border-[#FF6A00] border-t-transparent rounded-full animate-spin" /></div>
       ) : accounts.length === 0 ? (
-        <div className={`rounded-2xl border border-dashed p-14 text-center ${isDark ? 'bg-white/5 border-white/20' : 'bg-white border-gray-300'}`}>
-          <Smartphone size={48} className={`mx-auto mb-4 ${isDark ? 'text-slate-500' : 'text-gray-300'}`} />
-          <h3 className={`font-semibold ${isDark ? 'text-slate-200' : 'text-gray-700'}`}>No accounts connected</h3>
-          <p className={`text-sm mt-1 mb-4 ${isDark ? 'text-slate-400' : 'text-gray-400'}`}>Connect your first WhatsApp Business number.</p>
+        <div className={`rounded-2xl border border-dashed p-14 text-center ${'bg-white border-gray-300 dark:bg-white/5 dark:border-white/20'}`}>
+          <Smartphone size={48} className={`mx-auto mb-4 ${'text-gray-300 dark:text-slate-500'}`} />
+          <h3 className={`font-semibold ${'text-gray-700 dark:text-slate-200'}`}>No accounts connected</h3>
+          <p className={`text-sm mt-1 mb-4 ${'text-gray-400 dark:text-slate-400'}`}>Connect your first WhatsApp Business number.</p>
           <button onClick={() => setShowAddPanel(true)} className="inline-flex items-center gap-2 text-white px-5 py-2.5 rounded-xl text-sm font-semibold" style={{ background: '#FF6A00' }}><Zap size={15} /> Connect Number</button>
         </div>
       ) : (
         <div className="space-y-3">
           {accounts.map((acc) => (
-            <div key={acc._id} className={`rounded-2xl border p-5 transition-shadow ${isDark ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-white border-gray-100 shadow-sm hover:shadow-md'}`}>
+            <div key={acc._id} className={`rounded-2xl border p-5 transition-shadow ${'bg-white border-gray-100 shadow-sm hover:shadow-md dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10'}`}>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: '#FF6A0022' }}>
@@ -304,11 +304,11 @@ export default function WhatsAppPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className={`font-semibold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>{acc.displayPhoneNumber}</p>
-                      <StatusBadge status={acc.status} isDark={isDark} />
+                      <p className={`font-semibold ${'text-gray-900 dark:text-slate-100'}`}>{acc.displayPhoneNumber}</p>
+                      <StatusBadge status={acc.status}  />
                     </div>
-                    {acc.verifiedName && <p className={`text-sm mt-0.5 ${isDark ? 'text-slate-300' : 'text-gray-500'}`}>{acc.verifiedName}</p>}
-                    <p className={`text-xs font-mono mt-1 ${isDark ? 'text-slate-400' : 'text-gray-400'}`}>ID: {acc.phoneNumberId}</p>
+                    {acc.verifiedName && <p className={`text-sm mt-0.5 ${'text-gray-500 dark:text-slate-300'}`}>{acc.verifiedName}</p>}
+                    <p className={`text-xs font-mono mt-1 ${'text-gray-400 dark:text-slate-400'}`}>ID: {acc.phoneNumberId}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
@@ -323,12 +323,12 @@ export default function WhatsAppPage() {
         </div>
       )}
 
-      <div className={`rounded-2xl p-5 border ${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'}`}>
+      <div className={`rounded-2xl p-5 border ${'bg-gray-50 border-gray-200 dark:bg-white/5 dark:border-white/10'}`}>
         <div className="flex gap-3">
           <Info size={16} className="text-gray-400 mt-0.5 shrink-0" />
           <div>
-            <p className={`text-sm font-semibold mb-2 ${isDark ? 'text-slate-200' : 'text-gray-700'}`}>Embedded Signup setup (ek baar karna hai)</p>
-            <ol className={`text-xs space-y-1.5 list-decimal list-inside ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
+            <p className={`text-sm font-semibold mb-2 ${'text-gray-700 dark:text-slate-200'}`}>Embedded Signup setup (ek baar karna hai)</p>
+            <ol className={`text-xs space-y-1.5 list-decimal list-inside ${'text-gray-500 dark:text-slate-400'}`}>
               <li>Frontend .env: REACT_APP_META_APP_ID and REACT_APP_META_CONFIG_ID</li>
               <li>Backend .env: META_APP_ID and META_APP_SECRET</li>
               <li>Meta App -> Facebook Login for Business product enable</li>

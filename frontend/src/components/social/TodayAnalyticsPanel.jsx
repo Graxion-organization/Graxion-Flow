@@ -36,13 +36,13 @@ const formatToday = () => {
 
 function StatCard({ label, value, icon: Icon, color, isDark }) {
   return (
-    <div className={`flex items-center gap-3 rounded-xl p-3.5 border transition-all ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
+    <div className={`flex items-center gap-3 rounded-xl p-3.5 border transition-all ${'bg-white border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10'}`}>
       <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${color}`}>
         <Icon size={17} />
       </div>
       <div>
-        <p className={`text-xl font-bold leading-none ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>{value}</p>
-        <p className={`text-[11px] mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{label}</p>
+        <p className={`text-xl font-bold leading-none ${'text-slate-800 dark:text-slate-100'}`}>{value}</p>
+        <p className={`text-[11px] mt-1 ${'text-slate-500 dark:text-slate-400'}`}>{label}</p>
       </div>
     </div>
   );
@@ -77,11 +77,11 @@ function PostRow({ post, isDark, platform }) {
   return (
     <>
       <tr
-        className={`border-b transition-colors cursor-pointer ${isDark ? 'border-white/5 hover:bg-white/[0.03]' : 'border-slate-100 hover:bg-slate-50'}`}
+        className={`border-b transition-colors cursor-pointer ${'border-slate-100 hover:bg-slate-50 dark:border-white/5 dark:hover:bg-white/[0.03]'}`}
         onClick={() => setExpanded(v => !v)}
       >
         {/* Time */}
-        <td className={`py-3 pl-4 pr-2 text-xs whitespace-nowrap ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+        <td className={`py-3 pl-4 pr-2 text-xs whitespace-nowrap ${'text-slate-500 dark:text-slate-400'}`}>
           {post.mode === 'scheduled' && !post.publishedAt
             ? <span className="text-orange-500 font-medium">{formatTime(post.scheduledAt)}</span>
             : formatTime(post.publishedAt || post.createdAt)
@@ -89,22 +89,22 @@ function PostRow({ post, isDark, platform }) {
         </td>
         {/* Type */}
         <td className="py-3 px-2">
-          <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${isDark ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>
+          <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'}`}>
             {post.type || 'post'}
           </span>
         </td>
         {/* Caption */}
-        <td className={`py-3 px-2 max-w-[220px] text-sm ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+        <td className={`py-3 px-2 max-w-[220px] text-sm ${'text-slate-700 dark:text-slate-300'}`}>
           {post.mediaUrl && (
             <div className="inline-flex items-center gap-1 mr-1.5">
-              <ImageIcon size={11} className={isDark ? 'text-slate-500' : 'text-slate-400'} />
+              <ImageIcon size={11} className={'text-slate-400 dark:text-slate-500'} />
             </div>
           )}
           <span className="line-clamp-1">{post.caption || <span className="opacity-40 italic">No caption</span>}</span>
         </td>
         {/* Status */}
         <td className="py-3 px-2 text-center">
-          <StatusBadge status={post.status} isDark={isDark} />
+          <StatusBadge status={post.status}  />
         </td>
         {/* Expand */}
         <td className="py-3 pl-2 pr-4 text-center">
@@ -113,7 +113,7 @@ function PostRow({ post, isDark, platform }) {
       </tr>
       {/* Expanded detail row */}
       {expanded && (
-        <tr className={`border-b ${isDark ? 'border-white/5 bg-slate-950/50' : 'border-slate-100 bg-slate-50'}`}>
+        <tr className={`border-b ${'border-slate-100 bg-slate-50 dark:border-white/5 dark:bg-slate-950/50'}`}>
           <td colSpan={5} className="px-4 py-3">
             <div className="flex flex-wrap gap-4 items-start">
               {post.mediaUrl && (
@@ -121,16 +121,16 @@ function PostRow({ post, isDark, platform }) {
               )}
               <div className="flex-1 min-w-0 space-y-1.5">
                 {post.caption && (
-                  <p className={`text-xs leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{post.caption}</p>
+                  <p className={`text-xs leading-relaxed ${'text-slate-600 dark:text-slate-300'}`}>{post.caption}</p>
                 )}
                 {post.errorMessage && (
-                  <div className={`flex items-start gap-1.5 text-xs rounded-lg px-2.5 py-1.5 ${isDark ? 'bg-red-500/10 text-red-400' : 'bg-red-50 text-red-600'}`}>
+                  <div className={`flex items-start gap-1.5 text-xs rounded-lg px-2.5 py-1.5 ${'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'}`}>
                     <AlertTriangle size={11} className="shrink-0 mt-0.5" />
                     {post.errorMessage}
                   </div>
                 )}
                 {post.externalPostId && (
-                  <span className={`inline-flex items-center gap-1 text-[10px] ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                  <span className={`inline-flex items-center gap-1 text-[10px] ${'text-emerald-600 dark:text-emerald-400'}`}>
                     <ExternalLink size={10} /> Post ID: {post.externalPostId}
                   </span>
                 )}
@@ -151,20 +151,20 @@ function PlatformSection({ row, isDark }) {
   if (row.total === 0) return null;
 
   return (
-    <div className={`rounded-2xl border overflow-hidden ${isDark ? 'border-white/10 bg-slate-900' : 'border-slate-200 bg-white'}`}>
+    <div className={`rounded-2xl border overflow-hidden ${'border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900'}`}>
       {/* Platform header */}
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        className={`w-full flex items-center justify-between px-5 py-4 transition-colors ${isDark ? 'hover:bg-white/5' : 'hover:bg-slate-50'}`}
+        className={`w-full flex items-center justify-between px-5 py-4 transition-colors ${'hover:bg-slate-50 dark:hover:bg-white/5'}`}
       >
         <div className="flex items-center gap-3">
           <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${meta.bg}`}>
             <Icon size={18} className={meta.color} />
           </div>
           <div className="text-left">
-            <p className={`font-semibold text-sm ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>{meta.label}</p>
-            <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{row.total} post{row.total !== 1 ? 's' : ''} today</p>
+            <p className={`font-semibold text-sm ${'text-slate-800 dark:text-slate-100'}`}>{meta.label}</p>
+            <p className={`text-[11px] ${'text-slate-500 dark:text-slate-400'}`}>{row.total} post{row.total !== 1 ? 's' : ''} today</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -189,10 +189,10 @@ function PlatformSection({ row, isDark }) {
 
       {/* Table */}
       {open && row.posts.length > 0 && (
-        <div className={`border-t ${isDark ? 'border-white/10' : 'border-slate-100'}`}>
+        <div className={`border-t ${'border-slate-100 dark:border-white/10'}`}>
           <table className="w-full table-fixed">
             <thead>
-              <tr className={`text-[10px] uppercase tracking-widest font-bold ${isDark ? 'text-slate-500 bg-slate-950/50' : 'text-slate-400 bg-slate-50'}`}>
+              <tr className={`text-[10px] uppercase tracking-widest font-bold ${'text-slate-400 bg-slate-50 dark:text-slate-500 dark:bg-slate-950/50'}`}>
                 <th className="py-2 pl-4 pr-2 text-left w-20">Time</th>
                 <th className="py-2 px-2 text-left w-20">Type</th>
                 <th className="py-2 px-2 text-left">Caption</th>
@@ -202,7 +202,7 @@ function PlatformSection({ row, isDark }) {
             </thead>
             <tbody>
               {row.posts.map((post, i) => (
-                <PostRow key={`${post.jobId}-${i}`} post={post} isDark={isDark} platform={row.platform} />
+                <PostRow key={`${post.jobId}-${i}`} post={post}  platform={row.platform} />
               ))}
             </tbody>
           </table>
@@ -239,9 +239,9 @@ export default function TodayAnalyticsPanel({ isDark, onRefresh }) {
 
   if (loading && !analytics) {
     return (
-      <div className={`rounded-2xl border p-12 flex flex-col items-center justify-center gap-3 ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+      <div className={`rounded-2xl border p-12 flex flex-col items-center justify-center gap-3 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
         <Loader2 size={28} className="animate-spin text-violet-500" />
-        <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Loading today's activity...</p>
+        <p className={`text-sm ${'text-slate-500 dark:text-slate-400'}`}>Loading today's activity...</p>
       </div>
     );
   }
@@ -255,21 +255,21 @@ export default function TodayAnalyticsPanel({ isDark, onRefresh }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className={`text-lg font-bold ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>
+          <h2 className={`text-lg font-bold ${'text-slate-800 dark:text-slate-100'}`}>
             📅 Today's Publishing Activity
           </h2>
-          <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{formatToday()}</p>
+          <p className={`text-xs mt-0.5 ${'text-slate-500 dark:text-slate-400'}`}>{formatToday()}</p>
         </div>
         <div className="flex items-center gap-2">
           {lastUpdated && (
-            <span className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+            <span className={`text-[10px] ${'text-slate-400 dark:text-slate-500'}`}>
               Updated {lastUpdated.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
             </span>
           )}
           <button
             onClick={fetchAnalytics}
             disabled={loading}
-            className={`h-8 w-8 rounded-lg border flex items-center justify-center transition-all ${isDark ? 'border-white/10 hover:bg-white/5 text-slate-400' : 'border-slate-200 hover:bg-slate-50 text-slate-500'}`}
+            className={`h-8 w-8 rounded-lg border flex items-center justify-center transition-all ${'border-slate-200 hover:bg-slate-50 text-slate-500 dark:border-white/10 dark:hover:bg-white/5 dark:text-slate-400'}`}
             title="Refresh"
           >
             <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
@@ -283,50 +283,50 @@ export default function TodayAnalyticsPanel({ isDark, onRefresh }) {
           label="Total Posts"
           value={summary.totalJobs ?? 0}
           icon={BarChart2}
-          color={`${isDark ? 'bg-violet-500/20 text-violet-400' : 'bg-violet-100 text-violet-600'}`}
-          isDark={isDark}
+          color={`${'bg-violet-100 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400'}`}
+          
         />
         <StatCard
           label="Published"
           value={summary.successExecutions ?? 0}
           icon={CheckCircle2}
-          color={`${isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-600'}`}
-          isDark={isDark}
+          color={`${'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400'}`}
+          
         />
         <StatCard
           label="Failed"
           value={summary.failedExecutions ?? 0}
           icon={XCircle}
-          color={`${isDark ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-600'}`}
-          isDark={isDark}
+          color={`${'bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400'}`}
+          
         />
         <StatCard
           label="Scheduled"
           value={summary.scheduledJobs ?? 0}
           icon={Calendar}
-          color={`${isDark ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-100 text-orange-600'}`}
-          isDark={isDark}
+          color={`${'bg-orange-100 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400'}`}
+          
         />
       </div>
 
       {/* Success rate bar */}
       {summary.totalExecutions > 0 && (
-        <div className={`rounded-xl border p-4 ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+        <div className={`rounded-xl border p-4 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
           <div className="flex items-center justify-between mb-2">
-            <span className={`text-xs font-semibold flex items-center gap-1.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+            <span className={`text-xs font-semibold flex items-center gap-1.5 ${'text-slate-600 dark:text-slate-300'}`}>
               <TrendingUp size={13} /> Success Rate Today
             </span>
             <span className={`text-sm font-bold ${summary.successRate >= 80 ? 'text-emerald-500' : summary.successRate >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
               {summary.successRate}%
             </span>
           </div>
-          <div className={`h-2 rounded-full ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
+          <div className={`h-2 rounded-full ${'bg-slate-100 dark:bg-slate-800'}`}>
             <div
               className={`h-full rounded-full transition-all duration-700 ${summary.successRate >= 80 ? 'bg-emerald-500' : summary.successRate >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
               style={{ width: `${summary.successRate}%` }}
             />
           </div>
-          <p className={`text-[10px] mt-1.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+          <p className={`text-[10px] mt-1.5 ${'text-slate-400 dark:text-slate-500'}`}>
             {summary.successExecutions} of {summary.totalExecutions} executions succeeded
           </p>
         </div>
@@ -334,13 +334,13 @@ export default function TodayAnalyticsPanel({ isDark, onRefresh }) {
 
       {/* No activity today */}
       {platforms.length === 0 && (
-        <div className={`rounded-2xl border p-10 flex flex-col items-center justify-center gap-3 text-center ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
-            <Zap size={26} className={isDark ? 'text-slate-600' : 'text-slate-400'} />
+        <div className={`rounded-2xl border p-10 flex flex-col items-center justify-center gap-3 text-center ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${'bg-slate-100 dark:bg-slate-800'}`}>
+            <Zap size={26} className={'text-slate-400 dark:text-slate-600'} />
           </div>
           <div>
-            <p className={`font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>No posts today yet</p>
-            <p className={`text-sm mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Publish your first post and it will appear here in real time</p>
+            <p className={`font-semibold ${'text-slate-600 dark:text-slate-300'}`}>No posts today yet</p>
+            <p className={`text-sm mt-1 ${'text-slate-400 dark:text-slate-500'}`}>Publish your first post and it will appear here in real time</p>
           </div>
         </div>
       )}
@@ -348,11 +348,11 @@ export default function TodayAnalyticsPanel({ isDark, onRefresh }) {
       {/* Per-platform tables */}
       {platforms.length > 0 && (
         <div className="space-y-4">
-          <h3 className={`text-sm font-semibold flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+          <h3 className={`text-sm font-semibold flex items-center gap-2 ${'text-slate-600 dark:text-slate-300'}`}>
             <BarChart2 size={15} /> Posts by Platform
           </h3>
           {allPlatforms.map(row => (
-            <PlatformSection key={row.platform} row={row} isDark={isDark} />
+            <PlatformSection key={row.platform} row={row}  />
           ))}
         </div>
       )}

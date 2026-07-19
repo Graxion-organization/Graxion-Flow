@@ -186,8 +186,8 @@ export default function InstagramPage() {
     <div className="space-y-6 animate-fade-in max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className={`text-lg font-bold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>Instagram</h2>
-          <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Connect your Instagram Professional accounts</p>
+          <h2 className={`text-lg font-bold ${'text-gray-900 dark:text-slate-100'}`}>Instagram</h2>
+          <p className={`text-sm mt-1 ${'text-gray-500 dark:text-slate-400'}`}>Connect your Instagram Professional accounts</p>
         </div>
         <button onClick={() => setShowAddPanel(!showAddPanel)} className="flex items-center gap-2 text-white px-4 py-2.5 rounded-xl text-sm font-semibold" style={{ background: '#FF6A00' }}>
           <Plus size={16} /> Add Account
@@ -195,10 +195,10 @@ export default function InstagramPage() {
       </div>
 
       {showAddPanel && (
-        <div className={`rounded-2xl border p-6 space-y-5 animate-slide-up ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-100 shadow-sm'}`}>
+        <div className={`rounded-2xl border p-6 space-y-5 animate-slide-up ${'bg-white border-gray-100 shadow-sm dark:bg-white/5 dark:border-white/10'}`}>
           <div className="flex items-center justify-between">
-            <h2 className={`font-semibold ${isDark ? 'text-slate-100' : 'text-gray-800'}`}>Connect Instagram Account</h2>
-            <button onClick={() => { setShowAddPanel(false); setShowManual(false); }} className={`p-1.5 rounded-lg ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}><X size={16} /></button>
+            <h2 className={`font-semibold ${'text-gray-800 dark:text-slate-100'}`}>Connect Instagram Account</h2>
+            <button onClick={() => { setShowAddPanel(false); setShowManual(false); }} className={`p-1.5 rounded-lg ${'hover:bg-gray-100 dark:hover:bg-white/10'}`}><X size={16} /></button>
           </div>
 
           <button onClick={launchFacebookLogin} disabled={autoConnecting} className="w-full flex items-center justify-center gap-3 text-white font-semibold py-4 rounded-2xl transition-all disabled:opacity-70" style={{ background: '#FF6A00' }}>
@@ -207,7 +207,7 @@ export default function InstagramPage() {
 
           <div className="flex items-center gap-3"><div className="flex-1 h-px bg-gray-200" /><span className="text-xs text-gray-400">or manually</span><div className="flex-1 h-px bg-gray-200" /></div>
 
-          <button onClick={() => setShowManual(!showManual)} className={`flex items-center justify-between w-full text-sm ${isDark ? 'text-slate-300 hover:text-slate-100' : 'text-gray-600 hover:text-gray-800'}`}>
+          <button onClick={() => setShowManual(!showManual)} className={`flex items-center justify-between w-full text-sm ${'text-gray-600 hover:text-gray-800 dark:text-slate-300 dark:hover:text-slate-100'}`}>
             <span className="font-medium">Manual setup (advanced)</span>
             {showManual ? <X size={16} /> : <Plus size={16} />}
           </button>
@@ -219,10 +219,10 @@ export default function InstagramPage() {
       {loading ? (
         <div className="flex items-center justify-center h-40"><div className="w-8 h-8 border-4 border-[#FF6A00] border-t-transparent rounded-full animate-spin" /></div>
       ) : accounts.length === 0 ? (
-        <div className={`rounded-2xl border border-dashed p-14 text-center ${isDark ? 'bg-white/5 border-white/20' : 'bg-white border-gray-300'}`}>
-          <Camera size={48} className={`mx-auto mb-4 ${isDark ? 'text-slate-500' : 'text-gray-300'}`} />
-          <h3 className={`font-semibold ${isDark ? 'text-slate-200' : 'text-gray-700'}`}>No accounts connected</h3>
-          <p className={`text-sm mt-1 mb-4 ${isDark ? 'text-slate-400' : 'text-gray-400'}`}>Connect your first Instagram account to start automating DMs and Comments.</p>
+        <div className={`rounded-2xl border border-dashed p-14 text-center ${'bg-white border-gray-300 dark:bg-white/5 dark:border-white/20'}`}>
+          <Camera size={48} className={`mx-auto mb-4 ${'text-gray-300 dark:text-slate-500'}`} />
+          <h3 className={`font-semibold ${'text-gray-700 dark:text-slate-200'}`}>No accounts connected</h3>
+          <p className={`text-sm mt-1 mb-4 ${'text-gray-400 dark:text-slate-400'}`}>Connect your first Instagram account to start automating DMs and Comments.</p>
           <button onClick={launchFacebookLogin} disabled={autoConnecting} className="inline-flex items-center gap-2 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-70" style={{ background: '#FF6A00' }}>
             {autoConnecting ? <><Loader2 size={16} className="animate-spin" /> Connecting...</> : <><Camera size={16} /> Connect via Facebook</>}
           </button>
@@ -230,15 +230,15 @@ export default function InstagramPage() {
       ) : (
         <div className="space-y-3">
           {accounts.map((acc) => (
-            <div key={acc._id} className={`rounded-2xl border p-5 transition-shadow ${isDark ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-white border-gray-100 shadow-sm hover:shadow-md'}`}>
+            <div key={acc._id} className={`rounded-2xl border p-5 transition-shadow ${'bg-white border-gray-100 shadow-sm hover:shadow-md dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10'}`}>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: '#FF6A0022' }}>
                     <Camera size={22} style={{ color: '#FF6A00' }} />
                   </div>
                   <div>
-                    <p className={`font-semibold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>{acc.igUsername || 'Instagram Account'}</p>
-                    <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-gray-500'}`}>ID: {acc.igAccountId}</p>
+                    <p className={`font-semibold ${'text-gray-900 dark:text-slate-100'}`}>{acc.igUsername || 'Instagram Account'}</p>
+                    <p className={`text-sm ${'text-gray-500 dark:text-slate-300'}`}>ID: {acc.igAccountId}</p>
                   </div>
                 </div>
                 <button onClick={() => handleDisconnect(acc._id)} title="Disconnect" className="p-2 rounded-xl hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>

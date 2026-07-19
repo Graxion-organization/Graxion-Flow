@@ -27,14 +27,14 @@ export default function AutomationHubPage() {
     <div className="space-y-6 animate-fade-in pb-10">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className={`text-2xl font-extrabold flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>
+          <h1 className={`text-2xl font-extrabold flex items-center gap-2 ${'text-slate-800 dark:text-slate-100'}`}>
             <Sparkles className="text-[#FF6A00]" />
             Automation Hub
           </h1>
-          <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Manage AI auto-replies and comment history across all platforms</p>
+          <p className={`text-sm mt-1 ${'text-slate-500 dark:text-slate-400'}`}>Manage AI auto-replies and comment history across all platforms</p>
         </div>
 
-        <div className={`flex items-center gap-2 p-1.5 rounded-2xl border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
+        <div className={`flex items-center gap-2 p-1.5 rounded-2xl border ${'bg-white border-slate-200 shadow-sm dark:bg-white/5 dark:border-white/10'}`}>
           {PLATFORM_TABS.map(({ key, label, icon: Icon }) => (
             <button
               key={key}
@@ -42,9 +42,7 @@ export default function AutomationHubPage() {
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                 activePlatform === key
                   ? 'text-white shadow-lg shadow-orange-500/25'
-                  : isDark
-                  ? 'text-slate-400 hover:text-slate-200 hover:bg-white/10'
-                  : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'
+                  : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-white/10'
               }`}
               style={activePlatform === key ? { background: '#FF6A00' } : undefined}
             >

@@ -284,6 +284,7 @@ export default function App() {
             <Route path="deals" element={<DealsPipeline />} />
             <Route path="whatsapp" element={<WhatsAppPage />} />
             <Route path="quality" element={<QualityRatingPage />} />
+            <Route path="social-hub" element={<SocialPublishingPage />} />
             <Route path="billing" element={<BillingPage />} />
             <Route path="settings" element={<SettingsPage />} />
 
@@ -323,15 +324,7 @@ export default function App() {
             <Route path="settings/:tab" element={<SystemSettings />} />
           </Route>
 
-          {/* 🌟 Standalone Social Hub */}
-          <Route
-            path="/social-hub"
-            element={
-              <ProtectedRoute>
-                <SocialPublishingPage />
-              </ProtectedRoute>
-            }
-          />
+
 
           {/* 🌍 Global 404 */}
           <Route path="*" element={<Navigate to="/not-found" replace />} />

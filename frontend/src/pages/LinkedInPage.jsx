@@ -62,8 +62,8 @@ export default function LinkedInPage() {
     <div className="space-y-6 animate-fade-in max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className={`text-lg font-bold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>LinkedIn Profiles</h2>
-          <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Connect and publish content to your LinkedIn personal profile</p>
+          <h2 className={`text-lg font-bold ${'text-gray-900 dark:text-slate-100'}`}>LinkedIn Profiles</h2>
+          <p className={`text-sm mt-1 ${'text-gray-500 dark:text-slate-400'}`}>Connect and publish content to your LinkedIn personal profile</p>
         </div>
         <button 
           onClick={handleConnect} 
@@ -82,13 +82,13 @@ export default function LinkedInPage() {
         </div>
       ) : accounts.length === 0 ? (
         <div className={`rounded-3xl border border-dashed p-14 text-center ${
-          isDark ? 'bg-white/[0.02] border-white/10' : 'bg-white border-gray-200'
+          'bg-white border-gray-200 dark:bg-white/[0.02] dark:border-white/10'
         }`}>
           <div className="w-16 h-16 rounded-2xl bg-[#0077b5]/10 flex items-center justify-center mx-auto mb-4 border border-[#0077b5]/20">
             <Linkedin size={32} className="text-[#0077b5]" />
           </div>
-          <h3 className={`font-semibold text-base ${isDark ? 'text-slate-200' : 'text-gray-700'}`}>No LinkedIn profiles linked</h3>
-          <p className={`text-xs mt-1 mb-6 max-w-sm mx-auto ${isDark ? 'text-slate-400' : 'text-gray-400'}`}>
+          <h3 className={`font-semibold text-base ${'text-gray-700 dark:text-slate-200'}`}>No LinkedIn profiles linked</h3>
+          <p className={`text-xs mt-1 mb-6 max-w-sm mx-auto ${'text-gray-400 dark:text-slate-400'}`}>
             Link your personal LinkedIn profile to start posting content and schedule automated system activities.
           </p>
           <button 
@@ -107,7 +107,7 @@ export default function LinkedInPage() {
             <div 
               key={acc.id} 
               className={`rounded-2xl border p-5 transition-all flex items-center justify-between ${
-                isDark ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-white border-gray-100 shadow-sm hover:shadow-md'
+                'bg-white border-gray-100 shadow-sm hover:shadow-md dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10'
               }`}
             >
               <div className="flex items-center gap-4">
@@ -123,7 +123,7 @@ export default function LinkedInPage() {
                   </div>
                 )}
                 <div>
-                  <p className={`font-bold text-sm ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>{acc.name || 'LinkedIn User'}</p>
+                  <p className={`font-bold text-sm ${'text-gray-900 dark:text-slate-100'}`}>{acc.name || 'LinkedIn User'}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase bg-[#0077b5]/10 text-[#0077b5] border border-[#0077b5]/20">
                       {acc.type || 'Profile'}
@@ -138,7 +138,7 @@ export default function LinkedInPage() {
                 onClick={() => handleDisconnect(acc.modelId || acc.id)} 
                 title="Disconnect Account" 
                 className={`p-2.5 rounded-xl border transition-all ${
-                  isDark ? 'border-white/5 hover:bg-rose-500/10 text-slate-400 hover:text-rose-500' : 'border-gray-100 hover:bg-red-50 text-gray-400 hover:text-red-500'
+                  'border-gray-100 hover:bg-red-50 text-gray-400 hover:text-red-500 dark:border-white/5 dark:hover:bg-rose-500/10 dark:text-slate-400 dark:hover:text-rose-500'
                 }`}
               >
                 <Trash2 size={15} />
@@ -150,7 +150,7 @@ export default function LinkedInPage() {
 
       {/* Helpful Beta Alert */}
       <div className={`p-4 rounded-2xl border flex items-start gap-3 ${
-        isDark ? 'bg-purple-500/5 border-purple-500/20 text-purple-200' : 'bg-purple-50 border-purple-100 text-purple-800'
+        'bg-purple-50 border-purple-100 text-purple-800 dark:bg-purple-500/5 dark:border-purple-500/20 dark:text-purple-200'
       }`}>
         <AlertCircle size={18} className="shrink-0 mt-0.5 text-purple-500" />
         <div className="text-xs space-y-1">

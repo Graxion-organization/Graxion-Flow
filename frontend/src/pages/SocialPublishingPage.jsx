@@ -896,90 +896,18 @@ export default function SocialPublishingPage() {
 
   if (loading) {
     return (
-      <div className={`h-full min-h-[500px] flex items-center justify-center ${isDark ? 'bg-slate-950' : 'bg-slate-50'}`}>
+      <div className={`h-full min-h-[500px] flex items-center justify-center ${'bg-slate-50 dark:bg-slate-950'}`}>
         <Loader2 size={28} className="animate-spin text-slate-500" />
       </div>
     );
   }
 
   return (
-    <div className={`flex min-h-screen overflow-hidden w-full ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
-      {/* Sidebar - Similar to Admin Panel */}
-      <aside className={`w-64 border-r sticky top-0 h-screen flex-col justify-between hidden md:flex shrink-0 transition-all duration-300 ${isDark ? 'border-white/10 bg-[#030712]' : 'border-slate-200 bg-white'}`}>
-        <div className="p-6">
-          <div className="flex items-center gap-2 text-[#FF6A00] font-bold text-xl mb-8 group">
-            <Share2 className="w-8 h-8" />
-            <span>Social Hub</span>
-          </div>
-
-          <nav className="space-y-2">
-            {TABS.map((tab) => {
-              const active = activeTab === tab.id;
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
-                    active 
-                      ? "bg-[#FF6A00]/15 text-[#FF6A00] border border-[#FF6A00]/30" 
-                      : (isDark ? "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent")
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium text-sm">{tab.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        <div className="p-6 pb-8">
-          <button 
-            onClick={() => navigate('/app/dashboard')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"}`}
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium text-sm">Back to App</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 h-screen overflow-y-auto">
-        {/* Mobile Header */}
-        <div className={`md:hidden p-4 flex items-center justify-between sticky top-0 z-20 border-b transition-colors duration-300 ${
-          isDark 
-            ? 'bg-[#030712] text-white border-white/10' 
-            : 'bg-white text-slate-800 border-slate-200 shadow-sm'
-        }`}>
-          <div className="flex items-center gap-2 text-[#FF6A00] font-bold">
-            <Share2 size={20} />
-            Social Hub
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                const newTheme = isDark ? "light" : "dark";
-                localStorage.setItem("app-theme", newTheme);
-                document.documentElement.setAttribute("data-theme", newTheme);
-                window.dispatchEvent(new CustomEvent("app-theme-change", { detail: { theme: newTheme } }));
-              }}
-              className={`p-1 transition-colors duration-200 ${isDark ? 'text-gray-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}
-              aria-label="Toggle theme"
-            >
-              {isDark ? <SunMedium size={18} /> : <Moon size={18} />}
-            </button>
-            <button onClick={() => navigate('/app/dashboard')} className={`transition-colors duration-200 ${isDark ? 'text-gray-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}>
-              <X size={24} />
-            </button>
-          </div>
-        </div>
-        
-        {/* Mobile Tabs */}
-        <div className={`md:hidden px-4 py-2 flex gap-2 overflow-x-auto sticky top-[60px] z-20 border-b transition-colors duration-300 ${
-          isDark ? 'bg-[#030712] border-white/10' : 'bg-slate-50 border-slate-200'
-        }`}>
+    <div className="w-full h-full min-h-[calc(100vh-100px)] max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      {/* Horizontal Tabs & Header */}
+      <div className="flex flex-col gap-6">
+        {/* Horizontal Scrollable Tabs */}
+        <div className="flex flex-wrap gap-2 pb-2 border-b border-border">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -987,64 +915,31 @@ export default function SocialPublishingPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap transition-all duration-200 ${
+                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                   active 
-                    ? 'bg-[#FF6A00] text-white shadow-lg shadow-orange-500/20' 
-                    : (isDark ? 'bg-white/5 text-gray-400 hover:text-white' : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900')
+                    ? 'bg-accent text-white shadow-sm' 
+                    : 'text-text/70 hover:text-text hover:bg-surface'
                 }`}
               >
-                <Icon size={12} />
+                <Icon size={16} />
                 {tab.label}
               </button>
             );
           })}
         </div>
-
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-8 py-8 pb-24">
-          <header className="mb-8 hidden md:flex justify-between items-center">
-             <div>
-               <h1 className={`text-3xl font-bold ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>
-                  {TABS.find(t => t.id === activeTab)?.label}
-                </h1>
-                <p className={`${isDark ? 'text-slate-400' : 'text-slate-500'} mt-1`}>Manage your cross-platform social media presence</p>
-             </div>
-             <div className="flex items-center gap-3">
-               {user?.subscription && (
-                 <div className={`px-4 py-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-full border text-sm font-bold flex items-center gap-2 shadow-sm shadow-amber-500/5 ${isDark ? 'border-amber-500/30 text-amber-500' : 'border-amber-500/20 text-amber-600'}`}>
-                   <Zap size={16} className="text-amber-500 fill-amber-500" />
-                   <span>{Math.max(0, user.subscription.credits ?? 0).toLocaleString()} Credits Left</span>
-                 </div>
-               )}
-                <div className="px-4 py-2 bg-[#FF6A00]/10 text-[#FF6A00] rounded-full border border-[#FF6A00]/20 text-sm font-semibold flex items-center gap-2">
-                 <ShieldCheck size={16} />
-                 {connectedAccounts.length} Connected
-               </div>
-               <button
-                 onClick={() => {
-                   const newTheme = isDark ? "light" : "dark";
-                   localStorage.setItem("app-theme", newTheme);
-                   document.documentElement.setAttribute("data-theme", newTheme);
-                   window.dispatchEvent(new CustomEvent("app-theme-change", { detail: { theme: newTheme } }));
-                 }}
-                 className={`p-2.5 rounded-xl transition-all duration-200 ${isDark ? "bg-white/5 hover:bg-white/10 text-slate-100" : "bg-slate-100 hover:bg-slate-200 text-slate-900"}`}
-                 aria-label="Toggle theme"
-               >
-                 {isDark ? <SunMedium size={17} /> : <Moon size={17} />}
-               </button>
-             </div>
-          </header>
+      </div>
         {activeTab === 'today' && (
           <div className="pb-16">
-            <TodayAnalyticsPanel isDark={isDark} />
+            <TodayAnalyticsPanel  />
           </div>
         )}
         {activeTab === 'publish' && (
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
             <div className="xl:col-span-7">
-              <section className={`rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
-                <h2 className="text-lg font-semibold mb-4">Create Post</h2>
+              <section className="card">
+                <h2 className="text-lg font-semibold mb-6 text-text">Create Post</h2>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                   {POST_TYPES.map((t) => {
                     const Icon = t.icon;
                     const active = postType === t.id;
@@ -1069,9 +964,9 @@ export default function SocialPublishingPage() {
                         onClick={() => setPostType(t.id)}
                         className={`h-11 rounded-xl border text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 ${
                           active 
-                            ? (isDark ? 'bg-blue-500/10 border-blue-500 text-blue-400' : 'bg-blue-50 border-blue-300 text-blue-700') 
-                            : (isDark ? 'border-white/10 hover:bg-white/5 text-slate-300' : 'border-slate-200 hover:bg-slate-50 text-slate-700')
-                        } ${disabled ? 'opacity-40 cursor-not-allowed bg-slate-50 grayscale' : ''}`}
+                            ? 'bg-accent/10 border-accent text-accent' 
+                            : 'border-border hover:bg-surface text-text/80'
+                        } ${disabled ? 'opacity-40 cursor-not-allowed bg-surface grayscale' : ''}`}
                         title={tooltip}
                       >
                         <Icon size={15} />
@@ -1081,27 +976,27 @@ export default function SocialPublishingPage() {
                   })}
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className={`block text-xs font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Caption</label>
+                      <label className="label mb-0">Caption</label>
                       <button
                         type="button"
                         onClick={() => setShowAICaptionWriter(v => !v)}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                           showAICaptionWriter
                             ? 'bg-violet-600 text-white'
-                            : (isDark ? 'bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 border border-violet-500/20' : 'bg-violet-50 text-violet-600 hover:bg-violet-100 border border-violet-200')
+                            : 'bg-violet-500/10 text-violet-600 hover:bg-violet-500/20 border border-violet-500/20'
                         }`}
                       >
-                        <Sparkles size={11} />
+                        <Sparkles size={13} />
                         {showAICaptionWriter ? 'Close AI Writer' : '✨ AI Caption'}
                       </button>
                     </div>
                     {showAICaptionWriter && (
-                      <div className="mb-3">
+                      <div className="mb-4">
                         <AICaptionWriter
-                          isDark={isDark}
+                          
                           selectedPlatforms={selectedAccounts.map(a => a.platform)}
                           onApply={(generatedCaption) => {
                             setCaption(generatedCaption);
@@ -1113,80 +1008,72 @@ export default function SocialPublishingPage() {
                     <textarea
                       value={caption}
                       onChange={(e) => setCaption(e.target.value)}
-                      className={`w-full h-36 resize-none rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all ${
-                        isDark ? 'bg-slate-950 border-white/10 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400'
-                      }`}
+                      className="input h-36 resize-none"
                       placeholder="Write your post content... or use ✨ AI Caption above"
                     />
-                    <div className={`flex justify-end mt-1 text-[10px] ${caption.length > 2000 ? 'text-red-400' : (isDark ? 'text-slate-500' : 'text-slate-400')}`}>
+                    <div className={`flex justify-end mt-1 text-xs ${caption.length > 2000 ? 'text-error' : 'text-text/50'}`}>
                       {caption.length} chars
                     </div>
                   </div>
 
                   {/* YouTube Specific Options */}
                   {selectedAccounts.some(a => a.platform === 'youtube') && (
-                    <div className={`p-4 rounded-2xl border space-y-4 transition-all duration-300 ${isDark ? 'bg-rose-950/20 border-rose-500/20' : 'bg-red-50 border-red-100'}`}>
-                      <div className={`flex items-center gap-2 font-semibold text-sm ${isDark ? 'text-rose-400' : 'text-red-600'}`}>
+                    <div className="p-4 rounded-2xl border border-red-500/20 bg-red-500/5 space-y-4">
+                      <div className="flex items-center gap-2 font-semibold text-sm text-red-500">
                         <Youtube size={16} />
                         <span>YouTube Shorts Settings</span>
                       </div>
                       
                       <div className="space-y-3">
                         <div>
-                          <label className={`block text-[11px] font-bold uppercase tracking-tight mb-1 ${isDark ? 'text-rose-300' : 'text-red-800'}`}>Short Title (max 100)</label>
+                          <label className="label text-[11px] uppercase tracking-wider text-red-500/80">Short Title (max 100)</label>
                           <input 
                             type="text"
                             value={youtubeOptions.title}
                             onChange={(e) => setYoutubeOptions(prev => ({ ...prev, title: e.target.value }))}
                             placeholder={caption.substring(0, 50) || "Video Title"}
-                            className={`w-full h-9 rounded-lg border px-3 text-xs focus:outline-none focus:ring-2 transition-all ${
-                              isDark ? 'bg-slate-900 border-white/10 text-slate-100 placeholder:text-slate-500 focus:ring-rose-500/30' : 'bg-white border-red-200 text-slate-900 placeholder:text-red-400 focus:ring-red-300'
-                            }`}
+                            className="input h-11"
                           />
                         </div>
                         
                         <div>
-                          <label className={`block text-[11px] font-bold uppercase tracking-tight mb-1 ${isDark ? 'text-rose-300' : 'text-red-800'}`}>Description</label>
+                          <label className="label text-[11px] uppercase tracking-wider text-red-500/80">Description</label>
                           <textarea 
                             value={youtubeOptions.description}
                             onChange={(e) => setYoutubeOptions(prev => ({ ...prev, description: e.target.value }))}
                             placeholder="Detailed description for YouTube..."
-                            className={`w-full h-20 resize-none rounded-lg border px-3 py-2 text-xs focus:outline-none focus:ring-2 transition-all ${
-                              isDark ? 'bg-slate-900 border-white/10 text-slate-100 placeholder:text-slate-500 focus:ring-rose-500/30' : 'bg-white border-red-200 text-slate-900 placeholder:text-red-400 focus:ring-red-300'
-                            }`}
+                            className="input h-20 resize-none"
                           />
                         </div>
 
                         <div>
-                          <label className={`block text-[11px] font-bold uppercase tracking-tight mb-1 ${isDark ? 'text-rose-300' : 'text-red-800'}`}>First Comment</label>
+                          <label className="label text-[11px] uppercase tracking-wider text-red-500/80">First Comment</label>
                           <input 
                             type="text"
                             value={youtubeOptions.firstComment}
                             onChange={(e) => setYoutubeOptions(prev => ({ ...prev, firstComment: e.target.value }))}
                             placeholder="Write a comment to be pinned or added first..."
-                            className={`w-full h-9 rounded-lg border px-3 text-xs focus:outline-none focus:ring-2 transition-all ${
-                              isDark ? 'bg-slate-900 border-white/10 text-slate-100 placeholder:text-slate-500 focus:ring-rose-500/30' : 'bg-white border-red-200 text-slate-900 placeholder:text-red-400 focus:ring-red-300'
-                            }`}
+                            className="input h-11"
                           />
-                          <p className={`text-[10px] mt-1 italic ${isDark ? 'text-rose-400' : 'text-red-600'}`}>* Comment will be added automatically after upload.</p>
+                          <p className="text-[10px] mt-1 italic text-red-500/60">* Comment will be added automatically after upload.</p>
                         </div>
                       </div>
                     </div>
                   )}
 
                   <div>
-                    <label className={`block text-xs font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Media</label>
-                    <div className={`rounded-xl border p-3 sm:p-4 space-y-3 transition-all duration-300 ${isDark ? 'bg-slate-950 border-white/10' : 'bg-white border-slate-200'}`}>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <label className="label mb-2">Media</label>
+                    <div className="rounded-2xl border border-border bg-surface p-4 space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {MEDIA_INPUT_TYPES.map((item) => (
                           <button
                             key={item.id}
                             type="button"
                             onClick={() => setMediaInputType(item.id)}
-                            className={`h-10 rounded-lg border text-xs font-semibold transition-all duration-200 ${
+                            className={`h-11 rounded-xl border text-sm font-medium transition-all duration-200 ${
                               mediaInputType === item.id
-                                ? (isDark ? 'border-blue-500 bg-blue-500/10 text-blue-400' : 'border-blue-500 bg-blue-50 text-blue-700')
-                                : (isDark ? 'border-white/10 text-slate-300 hover:bg-white/5 bg-slate-900/50' : 'border-slate-200 text-slate-700 hover:bg-slate-50 bg-white')
+                                ? 'border-accent bg-accent/10 text-accent'
+                                : 'border-border text-text/70 hover:bg-background'
                             }`}
                           >
                             {item.label}
@@ -1195,16 +1082,16 @@ export default function SocialPublishingPage() {
                       </div>
 
                       {mediaInputType === 'upload' && (
-                        <label className={`h-11 px-4 rounded-xl border border-dashed flex items-center justify-center gap-2 text-sm font-medium cursor-pointer transition-all duration-200 ${isDark ? 'border-white/20 text-slate-300 hover:bg-white/5 bg-slate-900/50' : 'border-slate-300 text-slate-700 hover:bg-slate-50 bg-white'}`}>
-                          {uploading ? <Loader2 size={16} className="animate-spin" /> : <ImageIcon size={16} />}
-                          Upload
+                        <label className="h-12 px-4 rounded-xl border border-dashed border-border bg-background flex items-center justify-center gap-2 text-sm font-medium cursor-pointer hover:border-accent hover:text-accent transition-all duration-200">
+                          {uploading ? <Loader2 size={18} className="animate-spin" /> : <ImageIcon size={18} />}
+                          Upload Media
                           <input type="file" className="hidden" onChange={handleFileUpload} accept="image/*,video/*" />
                         </label>
                       )}
 
                       {mediaInputType === 'link' && (
                         <div className="relative">
-                          <LinkIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                          <LinkIcon size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text/40" />
                           <input
                             value={mediaUrl}
                             onChange={(e) => {
@@ -1212,30 +1099,26 @@ export default function SocialPublishingPage() {
                               setMediaUrl(val);
                               setMediaType(/\.(mp4|mov|avi|wmv|webm)$/i.test(val) ? 'video' : 'image');
                             }}
-                            className={`w-full h-11 rounded-xl border pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all ${
-                              isDark ? 'bg-slate-900 border-white/10 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400'
-                            }`}
+                            className="input pl-10 h-12"
                             placeholder="Paste media URL"
                           />
                         </div>
                       )}
 
                       {mediaInputType === 'ai' && (
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                           <textarea
                             value={aiPrompt}
                             onChange={(e) => setAiPrompt(e.target.value)}
                             placeholder="Describe the image you want to generate..."
-                            className={`w-full h-24 resize-none rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all ${
-                              isDark ? 'bg-slate-900 border-white/10 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400'
-                            }`}
+                            className="input h-24 resize-none"
                           />
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <select
                               value={aiStyle}
                               onChange={(e) => setAiStyle(e.target.value)}
                               className={`h-10 rounded-xl border px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all ${
-                                isDark ? 'bg-slate-900 border-white/10 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
+                                'bg-white border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-slate-100'
                               }`}
                             >
                               {AI_STYLE_OPTIONS.map((style) => (
@@ -1248,7 +1131,7 @@ export default function SocialPublishingPage() {
                               value={aiAspectRatio}
                               onChange={(e) => setAiAspectRatio(e.target.value)}
                               className={`h-10 rounded-xl border px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all ${
-                                isDark ? 'bg-slate-900 border-white/10 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
+                                'bg-white border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-slate-100'
                               }`}
                             >
                               {AI_ASPECT_OPTIONS.map((ratio) => (
@@ -1269,11 +1152,11 @@ export default function SocialPublishingPage() {
                           </button>
 
                           {generatedImage?.url && (
-                            <div className={`rounded-xl border p-3 transition-all ${isDark ? 'border-white/10 bg-slate-950' : 'border-slate-200 bg-slate-50'}`}>
+                            <div className={`rounded-xl border p-3 transition-all ${'border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-slate-950'}`}>
                               <img
                                 src={generatedImage.url}
                                 alt="Generated with AI"
-                                className={`w-full max-h-64 object-cover rounded-lg border ${isDark ? 'border-white/10' : 'border-slate-200'}`}
+                                className={`w-full max-h-64 object-cover rounded-lg border ${'border-slate-200 dark:border-white/10'}`}
                               />
                               <div className="mt-3 grid grid-cols-2 gap-2">
                                 <button
@@ -1287,7 +1170,7 @@ export default function SocialPublishingPage() {
                                   type="button"
                                   onClick={handleGenerateAiImage}
                                   disabled={aiGenerating}
-                                  className={`h-9 rounded-lg border text-xs font-semibold transition-all ${isDark ? 'border-white/10 hover:bg-white/5 text-slate-300 bg-slate-900' : 'border-slate-300 hover:bg-slate-100 text-slate-700 bg-white'}`}
+                                  className={`h-9 rounded-lg border text-xs font-semibold transition-all ${'border-slate-300 hover:bg-slate-100 text-slate-700 bg-white dark:border-white/10 dark:hover:bg-white/5 dark:text-slate-300 dark:bg-slate-900'}`}
                                 >
                                   Regenerate
                                 </button>
@@ -1306,13 +1189,13 @@ export default function SocialPublishingPage() {
                             setCarouselMediaUrls((prev) => [...prev, mediaUrl.trim()]);
                             setMediaUrl('');
                           }}
-                          className={`h-9 px-3 rounded-lg border text-xs font-semibold transition-all ${isDark ? 'border-white/10 hover:bg-white/5 text-slate-300 bg-slate-900' : 'border-slate-300 hover:bg-slate-50 text-slate-700 bg-white'}`}
+                          className={`h-9 px-3 rounded-lg border text-xs font-semibold transition-all ${'border-slate-300 hover:bg-slate-50 text-slate-700 bg-white dark:border-white/10 dark:hover:bg-white/5 dark:text-slate-300 dark:bg-slate-900'}`}
                         >
                           Add URL to Carousel
                         </button>
                         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                           {carouselMediaUrls.map((url, idx) => (
-                            <div key={`${url}-${idx}`} className={`relative aspect-square rounded-lg border overflow-hidden ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
+                            <div key={`${url}-${idx}`} className={`relative aspect-square rounded-lg border overflow-hidden ${'border-slate-200 dark:border-white/10'}`}>
                               {isVideoUrl(url) ? (
                                 <video src={url} className="w-full h-full object-cover" />
                               ) : (
@@ -1333,20 +1216,20 @@ export default function SocialPublishingPage() {
                   </div>
 
                   {/* Scheduling Section */}
-                  <div className={`pt-4 border-t ${isDark ? 'border-white/10' : 'border-slate-100'}`}>
+                  <div className={`pt-4 border-t ${'border-slate-100 dark:border-white/10'}`}>
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <Calendar size={16} className="text-slate-400" />
                         <span className="text-sm font-medium">Publishing Schedule</span>
                       </div>
-                      <div className={`flex p-1 rounded-lg transition-all ${isDark ? 'bg-slate-950' : 'bg-slate-100'}`}>
+                      <div className={`flex p-1 rounded-lg transition-all ${'bg-slate-100 dark:bg-slate-950'}`}>
                         <button
                           type="button"
                           onClick={() => setPublishMode('instant')}
                           className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all duration-200 ${
                             publishMode === 'instant' 
-                              ? (isDark ? 'bg-slate-800 text-blue-400 shadow-sm' : 'bg-white text-blue-600 shadow-sm') 
-                              : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500')
+                              ? ('bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400 dark:shadow-sm') 
+                              : ('text-slate-500 dark:text-slate-400 dark:hover:text-white')
                           }`}
                         >
                           NOW
@@ -1356,8 +1239,8 @@ export default function SocialPublishingPage() {
                           onClick={() => setPublishMode('scheduled')}
                           className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all duration-200 ${
                             publishMode === 'scheduled' 
-                              ? (isDark ? 'bg-slate-800 text-blue-400 shadow-sm' : 'bg-white text-blue-600 shadow-sm') 
-                              : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500')
+                              ? ('bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400 dark:shadow-sm') 
+                              : ('text-slate-500 dark:text-slate-400 dark:hover:text-white')
                           }`}
                         >
                           SCHEDULE
@@ -1367,7 +1250,7 @@ export default function SocialPublishingPage() {
 
                     {publishMode === 'scheduled' && (
                       <div className="mb-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <label className={`block text-[11px] font-semibold uppercase mb-1.5 ml-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                        <label className={`block text-[11px] font-semibold uppercase mb-1.5 ml-1 ${'text-slate-500 dark:text-slate-400'}`}>
                           Select Date & Time
                         </label>
                         <input
@@ -1375,7 +1258,7 @@ export default function SocialPublishingPage() {
                           value={scheduledAt}
                           onChange={(e) => setScheduledAt(e.target.value)}
                           className={`w-full h-11 px-4 rounded-xl border focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm outline-none ${
-                            isDark ? 'bg-slate-950 border-white/10 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'
+                            'bg-slate-50 border-slate-200 text-slate-900 dark:bg-slate-950 dark:border-white/10 dark:text-slate-100'
                           }`}
                           min={new Date().toISOString().slice(0, 16)}
                         />
@@ -1387,9 +1270,7 @@ export default function SocialPublishingPage() {
                     onClick={handlePostSubmit}
                     disabled={publishing || selectedAccountIds.length === 0 || (publishMode === 'scheduled' && !scheduledAt)}
                     className={`w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:cursor-not-allowed text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all ${
-                      isDark 
-                        ? 'disabled:bg-slate-850 disabled:text-slate-600' 
-                        : 'disabled:bg-slate-200 disabled:text-slate-400 shadow-lg shadow-blue-200'
+                      'disabled:bg-slate-200 disabled:text-slate-400 shadow-lg shadow-blue-200 dark:disabled:bg-slate-850 dark:disabled:text-slate-600'
                     }`}
                   >
                     {publishing ? <Loader2 size={16} className="animate-spin" /> : publishMode === 'scheduled' ? <Calendar size={16} /> : <Send size={16} />}
@@ -1400,7 +1281,7 @@ export default function SocialPublishingPage() {
             </div>
 
             <div className="xl:col-span-5 space-y-6 xl:sticky xl:top-6">
-              <section className={`rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+              <section className={`rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-base font-semibold">{showSidebarPreview ? 'Preview (iPhone 15 Pro)' : 'Select Platforms'}</h3>
                   <div className="flex items-center gap-2">
@@ -1437,7 +1318,7 @@ export default function SocialPublishingPage() {
                           className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
                             previewPlatform === p 
                               ? 'bg-blue-600 text-white' 
-                              : (isDark ? 'bg-white/5 text-slate-400 hover:bg-white/10' : 'bg-slate-100 text-slate-600 hover:bg-slate-200')
+                              : ('bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10')
                           }`}
                         >
                           {p}
@@ -1461,20 +1342,20 @@ export default function SocialPublishingPage() {
                           }}
                           className={`w-full rounded-xl border p-3 text-left transition-all ${
                             selected
-                              ? (isDark ? 'border-blue-500 bg-blue-500/10' : 'border-blue-300 bg-blue-50')
-                              : (isDark ? 'border-white/10 hover:bg-white/5 bg-slate-900/50' : 'border-slate-200 hover:bg-slate-50 bg-white')
+                              ? ('border-blue-300 bg-blue-50 dark:border-blue-500 dark:bg-blue-500/10')
+                              : ('border-slate-200 hover:bg-slate-50 bg-white dark:border-white/10 dark:hover:bg-white/5 dark:bg-slate-900/50')
                           }`}
                         >
                           <div className="flex items-center gap-3">
-                            <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${isDark ? 'border-white/20 bg-slate-950' : 'border-slate-300 bg-white'}`}>
+                            <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${'border-slate-300 bg-white dark:border-white/20 dark:bg-slate-950'}`}>
                               {selected && <CheckCircle2 size={13} className="text-blue-600" />}
                             </div>
-                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${isDark ? 'bg-slate-950' : 'bg-slate-100'}`}>
+                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${'bg-slate-100 dark:bg-slate-950'}`}>
                               {PLATFORM_ICON[acc.platform]}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className={`text-sm font-medium truncate ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{acc.name}</p>
-                              <p className={`text-[11px] uppercase ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{acc.platform}</p>
+                              <p className={`text-sm font-medium truncate ${'text-slate-800 dark:text-slate-200'}`}>{acc.name}</p>
+                              <p className={`text-[11px] uppercase ${'text-slate-500 dark:text-slate-400'}`}>{acc.platform}</p>
                             </div>
                           </div>
                         </button>
@@ -1489,11 +1370,11 @@ export default function SocialPublishingPage() {
         )}
 
         {activeTab === 'copilot' && (
-          <BrandCopilotTab isDark={isDark} />
+          <BrandCopilotTab  />
         )}
 
         {activeTab === 'feed' && (
-          <div className={`rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+          <div className={`rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5">
               <h2 className="text-lg font-semibold">Content Library</h2>
               <div className="flex flex-wrap gap-2">
@@ -1504,7 +1385,7 @@ export default function SocialPublishingPage() {
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all duration-200 ${
                       feedFilter === tab 
                         ? 'bg-blue-600 text-white' 
-                        : (isDark ? 'bg-white/5 text-slate-300 hover:bg-white/10' : 'bg-slate-100 text-slate-700 hover:bg-slate-200')
+                        : ('bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10')
                     }`}
                   >
                     {tab}
@@ -1514,7 +1395,7 @@ export default function SocialPublishingPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className={`h-8 rounded-lg border px-3 text-xs transition-all ${
-                    isDark ? 'bg-slate-950 border-white/10 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400'
+                    'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 dark:bg-slate-950 dark:border-white/10 dark:text-slate-100 dark:placeholder:text-slate-500'
                   }`}
                   placeholder="Search caption"
                 />
@@ -1529,31 +1410,31 @@ export default function SocialPublishingPage() {
               <>
                 {/* Analytics Summary */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className={`p-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${isDark ? 'bg-slate-950 border-white/10' : 'bg-white border-slate-200'}`}>
+                  <div className={`p-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-950 dark:border-white/10'}`}>
                     <div>
-                      <p className={`text-xs font-semibold uppercase ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Facebook Posts</p>
-                      <p className={`text-2xl font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>{filteredFeed.filter(p => p.platform === 'facebook').length}</p>
+                      <p className={`text-xs font-semibold uppercase ${'text-slate-500 dark:text-slate-400'}`}>Facebook Posts</p>
+                      <p className={`text-2xl font-bold ${'text-slate-900 dark:text-slate-100'}`}>{filteredFeed.filter(p => p.platform === 'facebook').length}</p>
                     </div>
                     <Facebook className="text-blue-500" size={24} />
                   </div>
-                  <div className={`p-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${isDark ? 'bg-slate-950 border-white/10' : 'bg-white border-slate-200'}`}>
+                  <div className={`p-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-950 dark:border-white/10'}`}>
                     <div>
-                      <p className={`text-xs font-semibold uppercase ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Instagram Posts</p>
-                      <p className={`text-2xl font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>{filteredFeed.filter(p => p.platform === 'instagram').length}</p>
+                      <p className={`text-xs font-semibold uppercase ${'text-slate-500 dark:text-slate-400'}`}>Instagram Posts</p>
+                      <p className={`text-2xl font-bold ${'text-slate-900 dark:text-slate-100'}`}>{filteredFeed.filter(p => p.platform === 'instagram').length}</p>
                     </div>
                     <Instagram className="text-pink-500" size={24} />
                   </div>
-                  <div className={`p-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${isDark ? 'bg-slate-950 border-white/10' : 'bg-white border-slate-200'}`}>
+                  <div className={`p-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-950 dark:border-white/10'}`}>
                     <div>
-                      <p className={`text-xs font-semibold uppercase ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>YouTube Videos</p>
-                      <p className={`text-2xl font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>{filteredFeed.filter(p => p.platform === 'youtube').length}</p>
+                      <p className={`text-xs font-semibold uppercase ${'text-slate-500 dark:text-slate-400'}`}>YouTube Videos</p>
+                      <p className={`text-2xl font-bold ${'text-slate-900 dark:text-slate-100'}`}>{filteredFeed.filter(p => p.platform === 'youtube').length}</p>
                     </div>
                     <Youtube className="text-red-600" size={24} />
                   </div>
-                  <div className={`p-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${isDark ? 'bg-rose-950/20 border-rose-500/20 text-rose-200' : 'bg-red-50 border-red-200 text-red-900'}`}>
+                  <div className={`p-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${'bg-red-50 border-red-200 text-red-900 dark:bg-rose-950/20 dark:border-rose-500/20 dark:text-rose-200'}`}>
                     <div>
-                      <p className={`text-xs font-semibold uppercase ${isDark ? 'text-rose-400' : 'text-red-600'}`}>Duplicates Detected</p>
-                      <p className={`text-2xl font-bold ${isDark ? 'text-rose-300' : 'text-red-700'}`}>{duplicateAlerts.length}</p>
+                      <p className={`text-xs font-semibold uppercase ${'text-red-600 dark:text-rose-400'}`}>Duplicates Detected</p>
+                      <p className={`text-2xl font-bold ${'text-red-700 dark:text-rose-300'}`}>{duplicateAlerts.length}</p>
                     </div>
                     <AlertCircle className="text-red-500" size={24} />
                   </div>
@@ -1567,8 +1448,8 @@ export default function SocialPublishingPage() {
                     </h3>
                     <div className="space-y-3">
                       {duplicateAlerts.map((dup, idx) => (
-                        <div key={idx} className={`border rounded-xl p-4 flex flex-col md:flex-row gap-4 items-start md:items-center shadow-sm transition-all duration-300 ${isDark ? 'bg-rose-950/10 border-rose-500/10 text-rose-200' : 'bg-red-50 border-red-200'}`}>
-                          <div className={`w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border ${isDark ? 'bg-slate-900 border-white/10' : 'bg-slate-200 border-slate-200'}`}>
+                        <div key={idx} className={`border rounded-xl p-4 flex flex-col md:flex-row gap-4 items-start md:items-center shadow-sm transition-all duration-300 ${'bg-red-50 border-red-200 dark:bg-rose-950/10 dark:border-rose-500/10 dark:text-rose-200'}`}>
+                          <div className={`w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border ${'bg-slate-200 border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
                             {dup.mediaUrl ? (
                               /\.(mp4|mov|webm)/i.test(dup.mediaUrl) ? <video src={dup.mediaUrl} className="w-full h-full object-cover" /> : <img src={dup.mediaUrl} className="w-full h-full object-cover" />
                             ) : <ImageIcon className="w-full h-full p-4 text-slate-400" />}
@@ -1576,12 +1457,12 @@ export default function SocialPublishingPage() {
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <span className="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase border border-red-200">{dup.platform}</span>
-                              <span className={`text-sm font-semibold ${isDark ? 'text-rose-300' : 'text-red-900'}`}>{dup.originalPosts.length} Duplicates Found</span>
+                              <span className={`text-sm font-semibold ${'text-red-900 dark:text-rose-300'}`}>{dup.originalPosts.length} Duplicates Found</span>
                             </div>
-                            <p className={`text-xs line-clamp-1 max-w-lg mb-2 ${isDark ? 'text-rose-400' : 'text-red-700'}`}>{dup.caption || 'No caption'}</p>
+                            <p className={`text-xs line-clamp-1 max-w-lg mb-2 ${'text-red-700 dark:text-rose-400'}`}>{dup.caption || 'No caption'}</p>
                             <div className="flex gap-2 flex-wrap">
                               {dup.originalPosts.map((p, i) => (
-                                <div key={i} className={`text-[10px] border px-2 py-1 rounded flex items-center gap-1.5 shadow-sm ${isDark ? 'bg-slate-950 border-rose-500/20 text-rose-300' : 'bg-white border-red-200 text-slate-600'}`}>
+                                <div key={i} className={`text-[10px] border px-2 py-1 rounded flex items-center gap-1.5 shadow-sm ${'bg-white border-red-200 text-slate-600 dark:bg-slate-950 dark:border-rose-500/20 dark:text-rose-300'}`}>
                                   <span className="font-medium capitalize">{p.platform} ({p.source === 'dashboard' ? 'Dashboard' : 'Manual'}) - {new Date(p.timestamp).toLocaleString(undefined, { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' })}</span>
                                   {i === 0 && <span className="text-emerald-600 font-bold ml-1">(Latest)</span>}
                                   {i !== 0 && (
@@ -1599,7 +1480,7 @@ export default function SocialPublishingPage() {
                                 const toDelete = dup.originalPosts.slice(1);
                                 toDelete.forEach(p => handleDeletePostGroup({ platforms: [p.platform], originalPosts: [p] }));
                               }}
-                              className={`border text-xs font-semibold px-3 py-2 rounded-lg transition-all shadow-sm ${isDark ? 'bg-rose-950/30 border-rose-500/30 text-rose-400 hover:bg-rose-950/50' : 'bg-white border-red-300 text-red-600 hover:bg-red-50'}`}
+                              className={`border text-xs font-semibold px-3 py-2 rounded-lg transition-all shadow-sm ${'bg-white border-red-300 text-red-600 hover:bg-red-50 dark:bg-rose-950/30 dark:border-rose-500/30 dark:text-rose-400 dark:hover:bg-rose-950/50'}`}
                             >
                               Keep Latest Only
                             </button>
@@ -1610,15 +1491,15 @@ export default function SocialPublishingPage() {
                   </div>
                 )}
 
-                <h3 className={`text-base font-semibold mb-4 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>Unified Published Posts</h3>
+                <h3 className={`text-base font-semibold mb-4 ${'text-slate-800 dark:text-slate-200'}`}>Unified Published Posts</h3>
 
                 {groupedFeed.length === 0 ? (
-                  <div className={`py-16 text-center text-sm rounded-xl border border-dashed transition-all duration-300 ${isDark ? 'text-slate-400 bg-slate-950 border-white/10' : 'text-slate-500 bg-slate-50 border-slate-200'}`}>No unified posts found.</div>
+                  <div className={`py-16 text-center text-sm rounded-xl border border-dashed transition-all duration-300 ${'text-slate-500 bg-slate-50 border-slate-200 dark:text-slate-400 dark:bg-slate-950 dark:border-white/10'}`}>No unified posts found.</div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {groupedFeed.map((post, idx) => (
-                  <div key={post.id || idx} className={`rounded-2xl border hover:z-10 relative cursor-pointer hover:shadow-lg transition-all duration-300 ${isDark ? 'border-white/10 bg-slate-900' : 'border-slate-200 bg-white'}`} onClick={() => setViewingInsights(post)}>
-                    <div className={`aspect-[4/5] overflow-hidden relative rounded-t-[15px] transition-all duration-300 ${isDark ? 'bg-slate-950' : 'bg-slate-100'}`}>
+                  <div key={post.id || idx} className={`rounded-2xl border hover:z-10 relative cursor-pointer hover:shadow-lg transition-all duration-300 ${'border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900'}`} onClick={() => setViewingInsights(post)}>
+                    <div className={`aspect-[4/5] overflow-hidden relative rounded-t-[15px] transition-all duration-300 ${'bg-slate-100 dark:bg-slate-950'}`}>
                       {post.mediaUrl ? (
                         (post.platform === 'youtube' || (post.type !== 'VIDEO' && post.type !== 'video' && post.type !== 'reel')) ? (
                           <img src={post.mediaUrl} className="w-full h-full object-cover" alt="post" />
@@ -1645,10 +1526,10 @@ export default function SocialPublishingPage() {
                             return (
                               <div key={p} className="relative group">
                                 <span className={`flex items-center justify-center w-7 h-7 rounded-full border-2 transition ${
-                                  isSuccess ? (isDark ? 'bg-emerald-500/10 border-emerald-500/30 shadow-sm shadow-emerald-950/20' : 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-100') : 
-                                  isFailed ? (isDark ? 'bg-red-500/10 border-red-500/30 shadow-sm shadow-red-950/20' : 'bg-red-50 border-red-500 shadow-sm shadow-red-100') : 
-                                  isWorking ? (isDark ? 'bg-blue-500/10 border-blue-500/30 animate-pulse' : 'bg-blue-50 border-blue-500 animate-pulse') :
-                                  (isDark ? 'bg-slate-800 border-white/10' : 'bg-slate-100 border-slate-200')
+                                  isSuccess ? ('bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:shadow-sm dark:shadow-emerald-950/20') : 
+                                  isFailed ? ('bg-red-50 border-red-500 shadow-sm shadow-red-100 dark:bg-red-500/10 dark:border-red-500/30 dark:shadow-sm dark:shadow-red-950/20') : 
+                                  isWorking ? ('bg-blue-50 border-blue-500 animate-pulse dark:bg-blue-500/10 dark:border-blue-500/30 dark:animate-pulse') :
+                                  ('bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-white/10')
                                 }`} title={`${p}: ${execution?.humanMessage || execution?.status || (isSuccess ? 'Published' : 'Waiting...')}`}>
                                   {PLATFORM_ICON[p]}
                                   {isFailed && (
@@ -1677,7 +1558,7 @@ export default function SocialPublishingPage() {
                                   </button>
                                 )}                               {/* Status Pipeline Tooltip */}
                                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-20">
-                                  <div className={`p-3 rounded-xl shadow-xl w-48 border transition-all ${isDark ? 'bg-slate-900 text-white border-slate-700' : 'bg-slate-900 text-white border-slate-700'}`}>
+                                  <div className={`p-3 rounded-xl shadow-xl w-48 border transition-all ${'bg-slate-900 text-white border-slate-700 dark:bg-slate-900 dark:text-white dark:border-slate-700'}`}>
                                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 border-b border-slate-700 pb-1">
                                       {p} {isJob ? 'Status Pipeline' : 'Status'}
                                     </p>
@@ -1721,12 +1602,12 @@ export default function SocialPublishingPage() {
                             );
                           })}
                           {(post.mode === 'scheduled' || post.overallStatus === 'queued') && (
-                            <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold uppercase transition-all duration-200 ${isDark ? 'bg-blue-500/10 text-blue-400' : 'bg-blue-50 text-blue-600'}`}>
+                            <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold uppercase transition-all duration-200 ${'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400'}`}>
                               Scheduled
                             </span>
                           )}
                           {(post.overallStatus === 'failed' || post.overallStatus === 'partially_failed') && (
-                            <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold uppercase transition-all duration-200 ${isDark ? 'bg-red-500/10 text-red-400' : 'bg-red-50 text-red-600'}`}>
+                            <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold uppercase transition-all duration-200 ${'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'}`}>
                               {post.overallStatus.replace('_', ' ')}
                             </span>
                           )}
@@ -1735,20 +1616,20 @@ export default function SocialPublishingPage() {
                           {(post.mode === 'scheduled' || post.overallStatus === 'queued') ? (
                             <button
                               onClick={(e) => { e.stopPropagation(); handleEditJob(post); }}
-                              className={`p-1.5 rounded-md transition-all duration-200 ${isDark ? 'bg-blue-500/10 text-blue-400 hover:bg-blue-500/20' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}
+                              className={`p-1.5 rounded-md transition-all duration-200 ${'bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20'}`}
                               title="Edit Scheduled Post"
                             >
                               <Share2 size={14} className="rotate-90" />
                             </button>
                           ) : post.permalink ? (
-                            <a href={post.permalink} onClick={e => e.stopPropagation()} target="_blank" rel="noopener noreferrer" className={`p-1.5 rounded-md transition-all duration-200 ${isDark ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'}`}>
+                            <a href={post.permalink} onClick={e => e.stopPropagation()} target="_blank" rel="noopener noreferrer" className={`p-1.5 rounded-md transition-all duration-200 ${'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}>
                               <Eye size={14} />
                             </a>
                           ) : null}
                           
                           <button
                             onClick={(e) => { e.stopPropagation(); handleCrossPost(post); }}
-                            className={`p-1.5 rounded-md transition-all duration-200 ${isDark ? 'bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'}`}
+                            className={`p-1.5 rounded-md transition-all duration-200 ${'bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20'}`}
                             title="Cross-post to other platforms"
                           >
                             <RefreshCw size={14} />
@@ -1757,22 +1638,22 @@ export default function SocialPublishingPage() {
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDeletePostGroup(post); }}
                             disabled={deletingPostId === (post.id || post.originalPosts?.[0]?.id)}
-                            className={`p-1.5 rounded-md transition-all duration-200 ${isDark ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-red-50 text-red-600 hover:bg-red-100'}`}
+                            className={`p-1.5 rounded-md transition-all duration-200 ${'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20'}`}
                           >
                             {deletingPostId === (post.id || post.originalPosts?.[0]?.id) ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                           </button>
                         </div>
                       </div>
-                      <p className={`text-xs line-clamp-2 mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{post.caption}</p>
+                      <p className={`text-xs line-clamp-2 mb-2 ${'text-slate-600 dark:text-slate-300'}`}>{post.caption}</p>
                       
                       {/* Warnings & Fallbacks */}
                       {post.compatibility?.warnings?.length > 0 && (
-                        <div className={`mb-2 p-2 rounded-lg border transition-all duration-300 ${isDark ? 'bg-amber-950/20 border-amber-500/20' : 'bg-amber-50 border-amber-100'}`}>
+                        <div className={`mb-2 p-2 rounded-lg border transition-all duration-300 ${'bg-amber-50 border-amber-100 dark:bg-amber-950/20 dark:border-amber-500/20'}`}>
                           <div className="flex items-start gap-1.5">
                             <Info size={12} className="text-amber-600 mt-0.5 flex-shrink-0" />
                             <div className="space-y-0.5">
                               {post.compatibility.warnings.map((w, i) => (
-                                <p key={i} className={`text-[9px] leading-tight ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>
+                                <p key={i} className={`text-[9px] leading-tight ${'text-amber-700 dark:text-amber-400'}`}>
                                   <span className="font-bold uppercase tracking-tighter mr-1">{w.platform}:</span>
                                   {w.message}
                                 </p>
@@ -1784,20 +1665,20 @@ export default function SocialPublishingPage() {
 
                       {/* Error & Retry Feedback */}
                       {post.executions?.some(e => e.status === 'failed') && (
-                        <div className={`mb-2 p-2 rounded-lg border transition-all duration-300 ${isDark ? 'bg-rose-950/20 border-rose-500/20' : 'bg-red-50 border-red-100'}`}>
+                        <div className={`mb-2 p-2 rounded-lg border transition-all duration-300 ${'bg-red-50 border-red-100 dark:bg-rose-950/20 dark:border-rose-500/20'}`}>
                           <div className="flex items-start gap-1.5">
                             <AlertCircle size={12} className="text-red-600 mt-0.5 flex-shrink-0" />
                             <div className="space-y-1">
                               {post.executions.filter(e => e.status === 'failed').map((e, i) => (
                                 <div key={i}>
-                                  <p className={`text-[10px] font-bold uppercase tracking-tight leading-none mb-0.5 ${isDark ? 'text-rose-400' : 'text-red-600'}`}>
+                                  <p className={`text-[10px] font-bold uppercase tracking-tight leading-none mb-0.5 ${'text-red-600 dark:text-rose-400'}`}>
                                     {e.platform} Failed
                                   </p>
-                                  <p className={`text-[10px] leading-snug ${isDark ? 'text-rose-300' : 'text-red-500'}`}>
+                                  <p className={`text-[10px] leading-snug ${'text-red-500 dark:text-rose-300'}`}>
                                     {e.humanMessage || 'Temporary issue, please retry.'}
                                   </p>
                                   {e.attempts > 1 && (
-                                    <p className={`text-[9px] italic ${isDark ? 'text-rose-500/80' : 'text-red-400'}`}>
+                                    <p className={`text-[9px] italic ${'text-red-400 dark:text-rose-500/80'}`}>
                                       Tried {e.attempts} times before stopping.
                                     </p>
                                   )}
@@ -1808,7 +1689,7 @@ export default function SocialPublishingPage() {
                         </div>
                       )}
 
-                      <p className={`text-[11px] flex items-center gap-1 transition-all ${isDark ? 'text-slate-400' : 'text-slate-400'}`}>
+                      <p className={`text-[11px] flex items-center gap-1 transition-all ${'text-slate-400 dark:text-slate-400'}`}>
                         <Calendar size={12} />
                         {(post.mode === 'scheduled' || post.overallStatus === 'queued') ? 'Scheduled: ' : 'Posted: '}
                         {new Date(post.timestamp).toLocaleString()}
@@ -1824,17 +1705,17 @@ export default function SocialPublishingPage() {
         )}
 
         {activeTab === 'accounts' && (
-          <div className={`rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+          <div className={`rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
             <h2 className="text-lg font-semibold mb-5">Connected Accounts</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {connectedAccounts.map((acc) => (
-                <div key={acc.id} className={`rounded-xl border p-4 transition-all duration-300 ${isDark ? 'border-white/10 bg-slate-950/45' : 'border-slate-200 bg-white'}`}>
+                <div key={acc.id} className={`rounded-xl border p-4 transition-all duration-300 ${'border-slate-200 bg-white dark:border-white/10 dark:bg-slate-950/45'}`}>
                   <div className="flex items-center justify-between">
-                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${isDark ? 'bg-slate-900' : 'bg-slate-100'}`}>{PLATFORM_ICON[acc.platform]}</div>
-                    <span className={`text-[10px] uppercase font-semibold px-2 py-1 rounded-md transition-all duration-300 ${isDark ? 'bg-emerald-500/10 text-emerald-400' : 'bg-emerald-50 text-emerald-700'}`}>Connected</span>
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${'bg-slate-100 dark:bg-slate-900'}`}>{PLATFORM_ICON[acc.platform]}</div>
+                    <span className={`text-[10px] uppercase font-semibold px-2 py-1 rounded-md transition-all duration-300 ${'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400'}`}>Connected</span>
                   </div>
-                  <p className={`mt-3 text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{acc.name}</p>
-                  <p className={`text-xs uppercase mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{acc.platform} · {acc.type}</p>
+                  <p className={`mt-3 text-sm font-semibold ${'text-slate-800 dark:text-slate-200'}`}>{acc.name}</p>
+                  <p className={`text-xs uppercase mt-0.5 ${'text-slate-500 dark:text-slate-400'}`}>{acc.platform} · {acc.type}</p>
                 </div>
               ))}
             </div>
@@ -1847,57 +1728,51 @@ export default function SocialPublishingPage() {
               </div>
             )}
 
-            <div className={`mt-8 pt-8 border-t transition-colors duration-300 ${isDark ? 'border-white/10' : 'border-slate-100'}`}>
-              <h3 className={`text-sm font-bold mb-4 uppercase tracking-wider transition-colors duration-300 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>Add New Connection</h3>
+            <div className={`mt-8 pt-8 border-t transition-colors duration-300 ${'border-slate-100 dark:border-white/10'}`}>
+              <h3 className={`text-sm font-bold mb-4 uppercase tracking-wider transition-colors duration-300 ${'text-slate-800 dark:text-slate-200'}`}>Add New Connection</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                  <button onClick={() => navigate('/app/integrations')} className={`flex items-center gap-3 p-4 rounded-xl border border-dashed transition-all duration-300 group ${
-                   isDark 
-                     ? 'border-slate-800 hover:border-blue-500 hover:bg-blue-500/10' 
-                     : 'border-slate-300 hover:border-blue-400 hover:bg-blue-50'
+                   'border-slate-300 hover:border-blue-400 hover:bg-blue-50 dark:border-slate-800 dark:hover:border-blue-500 dark:hover:bg-blue-500/10'
                  }`}>
                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-300 ${
-                     isDark ? 'bg-blue-500/10 group-hover:bg-blue-500/20' : 'bg-blue-50 group-hover:bg-blue-100'
+                     'bg-blue-50 group-hover:bg-blue-100 dark:bg-blue-500/10 dark:group-hover:bg-blue-500/20'
                    }`}><Facebook className="text-blue-600" size={20} /></div>
                    <div className="text-left">
-                     <p className={`text-sm font-bold transition-colors duration-300 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>Meta</p>
-                     <p className={`text-[10px] transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Facebook & Instagram</p>
+                     <p className={`text-sm font-bold transition-colors duration-300 ${'text-slate-800 dark:text-slate-200'}`}>Meta</p>
+                     <p className={`text-[10px] transition-colors duration-300 ${'text-slate-500 dark:text-slate-400'}`}>Facebook & Instagram</p>
                    </div>
                  </button>
                  
                  <button onClick={handleYoutubeConnect} className={`flex items-center gap-3 p-4 rounded-xl border border-dashed transition-all duration-300 group ${
-                   isDark 
-                     ? 'border-red-900 hover:border-red-500 hover:bg-red-500/10' 
-                     : 'border-red-300 hover:border-red-400 hover:bg-red-50'
+                   'border-red-300 hover:border-red-400 hover:bg-red-50 dark:border-red-900 dark:hover:border-red-500 dark:hover:bg-red-500/10'
                  }`}>
                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-300 ${
-                     isDark ? 'bg-red-500/10 group-hover:bg-red-500/20' : 'bg-red-50 group-hover:bg-red-100'
+                     'bg-red-50 group-hover:bg-red-100 dark:bg-red-500/10 dark:group-hover:bg-red-500/20'
                    }`}><Youtube className="text-red-600" size={20} /></div>
                    <div className="text-left">
-                     <p className={`text-sm font-bold transition-colors duration-300 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>YouTube</p>
-                     <p className={`text-[10px] transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Connect YouTube Shorts</p>
+                     <p className={`text-sm font-bold transition-colors duration-300 ${'text-slate-800 dark:text-slate-200'}`}>YouTube</p>
+                     <p className={`text-[10px] transition-colors duration-300 ${'text-slate-500 dark:text-slate-400'}`}>Connect YouTube Shorts</p>
                    </div>
                  </button>
                  
                  <button onClick={handleLinkedinConnect} className={`flex items-center gap-3 p-4 rounded-xl border border-dashed transition-all duration-300 group ${
-                   isDark 
-                     ? 'border-blue-900/50 hover:border-blue-500 hover:bg-blue-500/10' 
-                     : 'border-blue-400 hover:border-blue-600 hover:bg-blue-50'
+                   'border-blue-400 hover:border-blue-600 hover:bg-blue-50 dark:border-blue-900/50 dark:hover:border-blue-500 dark:hover:bg-blue-500/10'
                  }`}>
                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-300 ${
-                     isDark ? 'bg-blue-500/10 group-hover:bg-blue-500/20' : 'bg-blue-50 group-hover:bg-blue-100'
+                     'bg-blue-50 group-hover:bg-blue-100 dark:bg-blue-500/10 dark:group-hover:bg-blue-500/20'
                    }`}><Linkedin className="text-[#0077b5]" size={20} /></div>
                    <div className="text-left">
-                     <p className={`text-sm font-bold transition-colors duration-300 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>LinkedIn</p>
-                     <p className={`text-[10px] transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Connect Personal Profile</p>
+                     <p className={`text-sm font-bold transition-colors duration-300 ${'text-slate-800 dark:text-slate-200'}`}>LinkedIn</p>
+                     <p className={`text-[10px] transition-colors duration-300 ${'text-slate-500 dark:text-slate-400'}`}>Connect Personal Profile</p>
                    </div>
                  </button>
 
                  <div className={`flex items-center gap-3 p-4 rounded-xl border border-dashed opacity-50 cursor-not-allowed grayscale transition-colors duration-300 ${
-                   isDark ? 'border-slate-800 bg-slate-900/50' : 'border-slate-200 bg-slate-50'
+                   'border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50'
                  }`}>
-                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-300 ${isDark ? 'bg-slate-850' : 'bg-slate-100'}`}><Share2 className="text-slate-400" size={20} /></div>
+                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-300 ${'bg-slate-100 dark:bg-slate-850'}`}><Share2 className="text-slate-400" size={20} /></div>
                    <div className="text-left">
-                     <p className={`text-sm font-bold transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-750'}`}>Coming Soon</p>
+                     <p className={`text-sm font-bold transition-colors duration-300 ${'text-slate-750 dark:text-slate-400'}`}>Coming Soon</p>
                      <p className="text-[10px] text-slate-500">Twitter & TikTok</p>
                    </div>
                  </div>
@@ -1907,19 +1782,19 @@ export default function SocialPublishingPage() {
         )}
 
         {activeTab === 'yt_automation' && (
-          <div className={`rounded-3xl border p-12 text-center max-w-2xl mx-auto shadow-sm transition-all duration-300 ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
-            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 ${isDark ? 'bg-red-500/10' : 'bg-red-50'}`}>
+          <div className={`rounded-3xl border p-12 text-center max-w-2xl mx-auto shadow-sm transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
+            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 ${'bg-red-50 dark:bg-red-500/10'}`}>
               <Youtube size={40} className="text-red-600" />
             </div>
-            <h2 className={`text-2xl font-black mb-3 ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>YouTube Automation Moved</h2>
-            <p className={`mb-8 leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            <h2 className={`text-2xl font-black mb-3 ${'text-slate-800 dark:text-slate-100'}`}>YouTube Automation Moved</h2>
+            <p className={`mb-8 leading-relaxed ${'text-slate-500 dark:text-slate-400'}`}>
               We've moved the YouTube Comment AI & Auto-Reply system to the 
               <strong> Integrations</strong> dashboard for better management and focus.
             </p>
             <button 
               onClick={() => navigate('/app/integrations')}
               className={`px-8 py-4 bg-red-600 text-white rounded-2xl font-bold hover:bg-red-700 transition-all flex items-center justify-center gap-2 mx-auto ${
-                isDark ? 'shadow-none' : 'shadow-lg shadow-red-100'
+                'shadow-lg shadow-red-100 dark:shadow-none'
               }`}
             >
               Go to Automation Dashboard
@@ -1929,27 +1804,27 @@ export default function SocialPublishingPage() {
         )}
 
         {activeTab === 'profile' && (
-          <form onSubmit={handleProfileUpdate} className={`rounded-2xl border p-5 sm:p-6 max-w-3xl transition-all duration-300 ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+          <form onSubmit={handleProfileUpdate} className={`rounded-2xl border p-5 sm:p-6 max-w-3xl transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
             <h2 className="text-lg font-semibold mb-5">Profile Sync</h2>
             <div className="space-y-4">
               <div>
-                <label className={`block text-xs font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Business Name</label>
+                <label className={`block text-xs font-semibold mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Business Name</label>
                 <input
                   value={profileData.name}
                   onChange={(e) => setProfileData((prev) => ({ ...prev, name: e.target.value }))}
                   className={`w-full h-11 rounded-xl border px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all ${
-                    isDark ? 'bg-slate-950 border-white/10 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400'
+                    'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 dark:bg-slate-950 dark:border-white/10 dark:text-slate-100 dark:placeholder:text-slate-500'
                   }`}
                   placeholder="Your brand name"
                 />
               </div>
               <div>
-                <label className={`block text-xs font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Description</label>
+                <label className={`block text-xs font-semibold mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Description</label>
                 <textarea
                   value={profileData.description}
                   onChange={(e) => setProfileData((prev) => ({ ...prev, description: e.target.value }))}
                   className={`w-full h-32 resize-none rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all ${
-                    isDark ? 'bg-slate-950 border-white/10 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400'
+                    'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 dark:bg-slate-950 dark:border-white/10 dark:text-slate-100 dark:placeholder:text-slate-500'
                   }`}
                   placeholder="Short business description"
                 />
@@ -1959,28 +1834,25 @@ export default function SocialPublishingPage() {
               type="submit"
               disabled={publishing || selectedAccounts.length === 0}
               className={`mt-5 h-11 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-all ${
-                isDark 
-                  ? 'disabled:bg-slate-850 disabled:text-slate-600' 
-                  : 'disabled:bg-slate-300'
+                'disabled:bg-slate-300 dark:disabled:bg-slate-850 dark:disabled:text-slate-600'
               }`}
             >
               {publishing ? 'Syncing...' : 'Sync Across Selected Platforms'}
             </button>
           </form>
         )}
-      </div>
 
       {/* Insights Modal */}
       {viewingInsights && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm" onClick={() => setViewingInsights(null)}>
-          <div className={`rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl transition-all duration-300 ${isDark ? 'bg-slate-900 text-slate-100 border border-white/10' : 'bg-white text-slate-800'}`} onClick={e => e.stopPropagation()}>
-            <div className={`sticky top-0 backdrop-blur-md px-6 py-4 border-b flex items-center justify-between z-10 transition-all duration-300 ${isDark ? 'bg-slate-900/80 border-white/10' : 'bg-white/80 border-slate-100'}`}>
-              <h3 className={`text-lg font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>Post Insights</h3>
-              <button onClick={() => setViewingInsights(null)} className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500'}`}><X size={20}/></button>
+          <div className={`rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl transition-all duration-300 ${'bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:border dark:border-white/10'}`} onClick={e => e.stopPropagation()}>
+            <div className={`sticky top-0 backdrop-blur-md px-6 py-4 border-b flex items-center justify-between z-10 transition-all duration-300 ${'bg-white/80 border-slate-100 dark:bg-slate-900/80 dark:border-white/10'}`}>
+              <h3 className={`text-lg font-bold ${'text-slate-900 dark:text-slate-100'}`}>Post Insights</h3>
+              <button onClick={() => setViewingInsights(null)} className={`p-2 rounded-full transition-colors ${'hover:bg-slate-100 text-slate-500 dark:hover:bg-slate-800 dark:text-slate-400 dark:hover:text-white'}`}><X size={20}/></button>
             </div>
             <div className="p-6">
-              <div className={`flex gap-4 mb-6 p-4 rounded-xl border transition-all duration-300 ${isDark ? 'bg-slate-950 border-white/10' : 'bg-slate-50 border-slate-100'}`}>
-                 <div className={`w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`}>
+              <div className={`flex gap-4 mb-6 p-4 rounded-xl border transition-all duration-300 ${'bg-slate-50 border-slate-100 dark:bg-slate-950 dark:border-white/10'}`}>
+                 <div className={`w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 ${'bg-slate-200 dark:bg-slate-800'}`}>
                     {viewingInsights.mediaUrl ? (
                       viewingInsights.type === 'VIDEO' || viewingInsights.type === 'video' || viewingInsights.type === 'reel' ? (
                         <video src={viewingInsights.mediaUrl} className="w-full h-full object-cover" />
@@ -1990,7 +1862,7 @@ export default function SocialPublishingPage() {
                     ) : <div className="w-full h-full flex items-center justify-center p-2 text-[8px] text-slate-500">{viewingInsights.caption}</div>}
                  </div>
                  <div className="flex-1 overflow-hidden">
-                    <p className={`text-sm line-clamp-3 mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{viewingInsights.caption}</p>
+                    <p className={`text-sm line-clamp-3 mb-2 ${'text-slate-700 dark:text-slate-300'}`}>{viewingInsights.caption}</p>
                     <p className="text-xs font-semibold text-slate-500">{new Date(viewingInsights.timestamp).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</p>
                  </div>
               </div>
@@ -1998,7 +1870,7 @@ export default function SocialPublishingPage() {
               {loadingInsights ? (
                 <div className="py-12 flex flex-col items-center justify-center">
                    <Loader2 className="animate-spin text-emerald-500 mb-2" size={28} />
-                   <p className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Fetching analytics from platforms...</p>
+                   <p className={`text-sm font-medium ${'text-slate-500 dark:text-slate-400'}`}>Fetching analytics from platforms...</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -2006,29 +1878,29 @@ export default function SocialPublishingPage() {
                     const data = insightsData[p];
                     if (!data) return null;
                     return (
-                      <div key={p} className={`border rounded-xl p-4 shadow-sm transition-all duration-300 ${isDark ? 'border-white/10 bg-slate-950' : 'border-slate-200 bg-white'}`}>
+                      <div key={p} className={`border rounded-xl p-4 shadow-sm transition-all duration-300 ${'border-slate-200 bg-white dark:border-white/10 dark:bg-slate-950'}`}>
                          <div className="flex items-center gap-2 mb-4">
                            <span className="w-6 h-6">{PLATFORM_ICON[p]}</span>
-                           <span className={`font-bold capitalize ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{p} Analytics</span>
+                           <span className={`font-bold capitalize ${'text-slate-800 dark:text-slate-200'}`}>{p} Analytics</span>
                            {data.error && <span className="text-[10px] uppercase font-bold text-red-600 ml-auto bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">Data unavailable</span>}
                          </div>
                          {!data.error && (
                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                              <div className={`rounded-lg p-3 text-center border transition-all duration-300 ${isDark ? 'bg-slate-900/60 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                              <div className={`rounded-lg p-3 text-center border transition-all duration-300 ${'bg-slate-50 border-slate-100 dark:bg-slate-900/60 dark:border-white/5'}`}>
                                 <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Likes</div>
-                                <div className={`text-xl font-black ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>{data.likes ?? '-'}</div>
+                                <div className={`text-xl font-black ${'text-slate-800 dark:text-slate-100'}`}>{data.likes ?? '-'}</div>
                               </div>
-                              <div className={`rounded-lg p-3 text-center border transition-all duration-300 ${isDark ? 'bg-slate-900/60 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                              <div className={`rounded-lg p-3 text-center border transition-all duration-300 ${'bg-slate-50 border-slate-100 dark:bg-slate-900/60 dark:border-white/5'}`}>
                                 <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Comments</div>
-                                <div className={`text-xl font-black ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>{data.comments ?? '-'}</div>
+                                <div className={`text-xl font-black ${'text-slate-800 dark:text-slate-100'}`}>{data.comments ?? '-'}</div>
                               </div>
-                              <div className={`rounded-lg p-3 text-center border transition-all duration-300 ${isDark ? 'bg-slate-900/60 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                              <div className={`rounded-lg p-3 text-center border transition-all duration-300 ${'bg-slate-50 border-slate-100 dark:bg-slate-900/60 dark:border-white/5'}`}>
                                 <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Shares</div>
-                                <div className={`text-xl font-black ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>{data.shares ?? '-'}</div>
+                                <div className={`text-xl font-black ${'text-slate-800 dark:text-slate-100'}`}>{data.shares ?? '-'}</div>
                               </div>
-                              <div className={`rounded-lg p-3 text-center border transition-all duration-300 ${isDark ? 'bg-slate-900/60 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                              <div className={`rounded-lg p-3 text-center border transition-all duration-300 ${'bg-slate-50 border-slate-100 dark:bg-slate-900/60 dark:border-white/5'}`}>
                                 <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Views</div>
-                                <div className={`text-xl font-black ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>{data.views ?? '-'}</div>
+                                <div className={`text-xl font-black ${'text-slate-800 dark:text-slate-100'}`}>{data.views ?? '-'}</div>
                               </div>
                            </div>
                          )}
@@ -2041,7 +1913,6 @@ export default function SocialPublishingPage() {
           </div>
         </div>
       )}
-      </main>
     </div>
   );
 }

@@ -5,7 +5,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --brand-primary: #ff6a00;
+  --brand-primary: #2563EB;
+  --color-primary: 15 23 42;
+  --color-accent: 37 99 235;
+  --color-hover: 59 130 246;
+  --color-background: 255 255 255;
+  --color-surface: 255 255 255;
+  --color-border: 226 232 240;
+  --color-text: 30 41 59;
+  --color-success: 34 197 94;
+  --color-warning: 245 158 11;
+  --color-error: 239 68 68;
+}
+
+[data-theme='dark'] {
+  --color-primary: 248 250 252;
+  --color-accent: 59 130 246;
+  --color-hover: 96 165 250;
+  --color-background: 2 6 23;
+  --color-surface: 15 23 42;
+  --color-border: 30 41 59;
+  --color-text: 244 244 245;
+  --color-success: 34 197 94;
+  --color-warning: 245 158 11;
+  --color-error: 239 68 68;
 }
 
 @layer base {
@@ -58,28 +81,23 @@
 
 @layer components {
   .input {
-    @apply w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none transition-all duration-200;
+    @apply w-full px-4 py-3 bg-background border border-border rounded-xl text-sm text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all duration-200 shadow-sm placeholder:text-text/40;
   }
 
   .label {
-    @apply block text-sm font-medium text-gray-700 mb-1.5;
+    @apply block text-sm font-medium text-text/80 mb-1.5;
   }
 
   .err {
-    @apply text-red-500 text-xs mt-1;
+    @apply text-error text-xs mt-1;
   }
 
   .btn-primary {
-    @apply flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white transition-all duration-200;
-    background: var(--brand-primary);
-  }
-
-  .btn-primary:hover {
-    filter: brightness(0.95);
+    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-accent hover:bg-hover transition-all duration-200 shadow-sm hover:shadow active:scale-[0.98];
   }
 
   .card {
-    @apply rounded-2xl border shadow-sm p-6;
+    @apply bg-surface rounded-2xl border border-border shadow-sm p-6;
   }
 
   .nav-fade-up {
