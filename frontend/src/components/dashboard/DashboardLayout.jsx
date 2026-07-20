@@ -38,10 +38,11 @@ import {
 } from "lucide-react";
 import { io } from "socket.io-client";
 import { useAuthStore, useNotificationStore, useOrganizationStore, useBrandingStore } from "../../store";
-import { notificationAPI, socialHubAPI } from "../../services/api";
+import { notificationAPI, socialHubAPI, authAPI } from "../../services/api";
 import toast from "react-hot-toast";
 import { formatDistanceToNow } from "date-fns";
 import OrganizationSwitcher from "./OrganizationSwitcher";
+import OnboardingGateway from "./OnboardingGateway";
 import { useTranslation } from "react-i18next";
 
 const SIDEBAR_GROUPS = [
@@ -142,6 +143,9 @@ export default function DashboardLayout() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [theme, setTheme] = useState("dark");
   const [socialConnectedCount, setSocialConnectedCount] = useState(0);
+  const [onboardingStatus, setOnboardingStatus] = useState({ isCompleted: true, hasIntegration: false, hasAgent: false });
+  const [isOnboardingLoading, setIsOnboardingLoading] = useState(true);
+  
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     const stored = localStorage.getItem("sidebar-collapsed");
     return stored !== null ? stored === "true" : false;
@@ -184,6 +188,26 @@ export default function DashboardLayout() {
     markRead,
     markAllRead,
   } = useNotificationStore();
+
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      try {
+        const res = await authAPI.getOnboardingStatus();
+        if (res.data?.data) {
+          setOnboardingStatus(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch onboarding status', err);
+      } finally {
+        setIsOnboardingLoading(false);
+      }
+    };
+    if (currentOrganization) {
+      checkOnboarding();
+    } else {
+      setIsOnboardingLoading(false);
+    }
+  }, [currentOrganization, location.pathname]);
 
   useEffect(() => {
     const storedTheme = localStorage.getItem("app-theme");
@@ -271,7 +295,12 @@ export default function DashboardLayout() {
     items: group.items.filter(item => {
       const requiredLevel = roleLevels[item.minRole] || 1;
       const userLevel = roleLevels[currentRole] || 1;
-      return userLevel >= requiredLevel;
+      if (userLevel < requiredLevel) return false;
+      
+      if (!onboardingStatus.isCompleted && !['/app/integrations', '/app/agents', '/app/settings'].includes(item.to)) {
+        return false;
+      }
+      return true;
     })
   })).filter(group => group.items.length > 0);
 
@@ -352,12 +381,24 @@ export default function DashboardLayout() {
       )}
 
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 transform transition-all duration-300 ease-out flex flex-col ${
+        className={`fixed lg:relative inset-y-0 left-0 z-40 transform transition-all duration-300 ease-out flex flex-col ${
           isSidebarCollapsed ? "w-[80px]" : "w-72"
         } ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         } ${isDark ? "bg-slate-900 border-r border-white/10" : "bg-white border-r border-slate-200"}`}
       >
+        <button
+          onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          className={`hidden lg:flex absolute -right-3 bottom-10 items-center justify-center w-6 h-6 rounded-full border shadow-sm z-50 transition-colors ${
+            isDark 
+              ? "bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700" 
+              : "bg-white border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+          }`}
+          title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+        >
+          {isSidebarCollapsed ? <ChevronRight size={14} strokeWidth={3} /> : <ChevronLeft size={14} strokeWidth={3} />}
+        </button>
+
         <div className="h-full flex flex-col">
           <div className={`p-5 border-b flex justify-center ${isDark ? "border-white/10" : "border-slate-200"}`}>
             <div className="flex items-center justify-between w-full">
@@ -470,18 +511,6 @@ export default function DashboardLayout() {
               </div>
             </div>
           )}
-
-          <div className={`p-3 border-t mt-auto ${isDark ? "border-white/10" : "border-slate-200"}`}>
-            <button
-              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className={`flex items-center ${isSidebarCollapsed ? 'justify-center w-full' : 'gap-3 w-full px-3'} py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
-              }`}
-              title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-            >
-              {isSidebarCollapsed ? <ChevronRight size={18} /> : <><ChevronLeft size={18} /> <span>Collapse</span></>}
-            </button>
-          </div>
         </div>
       </aside>
 
@@ -644,6 +673,12 @@ export default function DashboardLayout() {
                   )}
                 </div>
               </div>
+            ) : isOnboardingLoading ? (
+              <div className="flex h-full items-center justify-center min-h-[60vh]">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+              </div>
+            ) : !onboardingStatus.isCompleted && !['/app/integrations', '/app/agents', '/app/settings'].some(p => location.pathname.startsWith(p)) ? (
+              <OnboardingGateway status={onboardingStatus} isDark={isDark} />
             ) : (
               <Outlet key={currentOrganization._id} />
             )}

@@ -27,6 +27,17 @@ const agentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'FacebookAccount',
   },
+  youtubeAccount: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'YoutubeAccount', // Assuming YoutubeAccount model exists
+  },
+  linkedinAccount: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'LinkedInAccount',
+  },
+  platforms: [{
+    type: String
+  }],
   platform: {
     type: String,
     enum: ['whatsapp', 'telegram', 'both', 'instagram', 'facebook', 'all'],
@@ -133,6 +144,10 @@ const agentSchema = new mongoose.Schema({
     totalMessages: { type: Number, default: 0 },
     avgResponseTime: { type: Number, default: 0 }, // ms
     satisfactionScore: { type: Number, default: 0 },
+  },
+  repliedLinkedinComments: {
+    type: [String],
+    default: []
   },
 }, {
   timestamps: true,

@@ -21,6 +21,7 @@ router.use(protect);
 router.get('/me', authController.getMe);
 router.patch('/update-profile', authController.updateProfile);
 router.patch('/change-password', authController.changePassword);
+router.get('/onboarding-status', authController.getOnboardingStatus);
 router.post('/request-deletion', authController.requestDeletion);
 router.post('/send-deletion-otp', authController.sendDeletionOTPs);
 router.post('/confirm-deletion', authController.confirmDeletionRequest);

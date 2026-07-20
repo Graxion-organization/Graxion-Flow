@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useNavigate } from 'react-router-dom';
 import {
   Bot, Plus, Pencil, Trash2, Play, ToggleLeft, ToggleRight,
-  Loader2, Zap, MessageSquare, X, Send, ChevronDown
+  Loader2, MessageSquare, X, Send, Lock, ChevronRight, Activity, Cpu
 } from 'lucide-react';
 import { agentAPI, whatsappAPI, telegramAPI, instagramAPI, facebookAPI, youtubeAPI } from '../services/api';
 import toast from 'react-hot-toast';
@@ -18,6 +19,7 @@ const agentSchema = z.object({
   instagramAccountId:  z.string().optional(),
   facebookAccountId:   z.string().optional(),
   youtubeAccountId:    z.string().optional(),
+  linkedinAccountId:   z.string().optional(),
   aiProvider:          z.enum(['openai', 'anthropic']),
   model:               z.string().min(1, 'Select a model'),
   systemPrompt:        z.string().min(10, 'Min 10 chars').max(4000),
@@ -30,11 +32,12 @@ const agentSchema = z.object({
 });
 
 const PLATFORMS = [
-  { id: 'whatsapp',  label: 'WhatsApp',  color: 'bg-green-50 border-green-200 text-green-700',  active: 'bg-green-500 border-green-500 text-white', emoji: '📱' },
-  { id: 'telegram',  label: 'Telegram',  color: 'bg-blue-50 border-blue-200 text-blue-700',    active: 'bg-[#229ED9] border-[#229ED9] text-white', emoji: '✈️' },
-  { id: 'instagram', label: 'Instagram', color: 'bg-pink-50 border-pink-200 text-pink-700',    active: 'bg-gradient-to-r from-purple-500 to-pink-500 border-pink-500 text-white', emoji: '📷' },
-  { id: 'facebook',  label: 'Messenger', color: 'bg-blue-50 border-blue-200 text-blue-700',    active: 'bg-[#0084FF] border-[#0084FF] text-white', emoji: '💬' },
-  { id: 'youtube',   label: 'YouTube',   color: 'bg-red-50 border-red-200 text-red-700',       active: 'bg-[#FF0000] border-[#FF0000] text-white', emoji: '▶️' },
+  { id: 'whatsapp',  label: 'WhatsApp',  color: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400', active: 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/30', emoji: '📱' },
+  { id: 'telegram',  label: 'Telegram',  color: 'bg-[#229ED9]/10 border-[#229ED9]/20 text-[#229ED9] dark:text-[#229ED9]', active: 'bg-[#229ED9] border-[#229ED9] text-white shadow-lg shadow-[#229ED9]/30', emoji: '✈️' },
+  { id: 'instagram', label: 'Instagram', color: 'bg-pink-500/10 border-pink-500/20 text-pink-600 dark:text-pink-400', active: 'bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-500 border-transparent text-white shadow-lg shadow-pink-500/30', emoji: '📷' },
+  { id: 'facebook',  label: 'Messenger', color: 'bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400', active: 'bg-[#0084FF] border-[#0084FF] text-white shadow-lg shadow-[#0084FF]/30', emoji: '💬' },
+  { id: 'linkedin',  label: 'LinkedIn',  color: 'bg-[#0A66C2]/10 border-[#0A66C2]/20 text-[#0A66C2] dark:text-[#0A66C2]', active: 'bg-[#0A66C2] border-[#0A66C2] text-white shadow-lg shadow-[#0A66C2]/30', emoji: '💼' },
+  { id: 'youtube',   label: 'YouTube',   color: 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400', active: 'bg-[#FF0000] border-[#FF0000] text-white shadow-lg shadow-[#FF0000]/30', emoji: '▶️' },
 ];
 
 const PROVIDER_MODELS = {
@@ -48,23 +51,37 @@ const DEFAULT_PROMPTS = {
   booking:          'You are an appointment booking assistant. Help customers schedule, reschedule, or cancel appointments. Always confirm details before finalizing.',
 };
 
-function AgentFormModal({ onClose, onSave, editingAgent, waAccounts, tgAccounts, igAccounts, fbAccounts, ytAccounts }) {
+function AgentFormModal({ onClose, onSave, editingAgent, connectedPlatforms, waAccounts, tgAccounts, igAccounts, fbAccounts, ytAccounts, lnAccounts, isDark }) {
   const [selectedProvider, setSelectedProvider] = useState(editingAgent?.aiProvider || 'openai');
 
-  // Derive initial platforms from editingAgent's old platform field or new platforms array
   const getInitialPlatforms = () => {
-    if (editingAgent?.platforms?.length) return editingAgent.platforms;
-    if (editingAgent?.platform) {
+    if (!editingAgent) return [];
+    
+    if (editingAgent.platforms && editingAgent.platforms.length > 0) {
+      return editingAgent.platforms;
+    }
+
+    const plats = [];
+    if (editingAgent.whatsappAccount) plats.push('whatsapp');
+    if (editingAgent.telegramAccount) plats.push('telegram');
+    if (editingAgent.instagramAccount) plats.push('instagram');
+    if (editingAgent.facebookAccount) plats.push('facebook');
+    if (editingAgent.youtubeAccount) plats.push('youtube');
+    if (editingAgent.linkedinAccount) plats.push('linkedin');
+    
+    if (plats.length > 0) return plats;
+
+    if (editingAgent.platform) {
       if (editingAgent.platform === 'both') return ['whatsapp', 'telegram'];
-      if (editingAgent.platform === 'all') return ['whatsapp', 'telegram', 'instagram'];
+      if (editingAgent.platform === 'all') return ['whatsapp', 'telegram', 'instagram', 'facebook'];
       return [editingAgent.platform];
     }
-    return ['whatsapp'];
+    return [];
   };
 
   const [selectedPlatforms, setSelectedPlatforms] = useState(getInitialPlatforms);
 
-  const { register, handleSubmit, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(agentSchema),
     defaultValues: editingAgent ? {
       ...editingAgent,
@@ -74,25 +91,25 @@ function AgentFormModal({ onClose, onSave, editingAgent, waAccounts, tgAccounts,
       instagramAccountId: editingAgent.instagramAccount?._id || editingAgent.instagramAccount,
       facebookAccountId: editingAgent.facebookAccount?._id || editingAgent.facebookAccount,
       youtubeAccountId: editingAgent.youtubeAccount?._id || editingAgent.youtubeAccount,
+      linkedinAccountId: editingAgent.linkedinAccount?._id || editingAgent.linkedinAccount,
       humanHandoffKeywords: editingAgent.humanHandoffKeywords?.join(', ') || '',
     } : {
-      platforms: ['whatsapp'],
+      platforms: [],
       aiProvider: 'openai', model: 'gpt-4o', temperature: 0.7,
       maxTokens: 500, contextWindow: 10,
     },
   });
 
   const togglePlatform = (id) => {
+    if (!connectedPlatforms[id]) return; // Block disconnected platforms
     const next = selectedPlatforms.includes(id)
       ? selectedPlatforms.filter(p => p !== id)
       : [...selectedPlatforms, id];
-    if (next.length === 0) return; // at least one
     setSelectedPlatforms(next);
     setValue('platforms', next, { shouldValidate: true });
   };
 
   const provider = watch('aiProvider');
-
   useEffect(() => {
     setSelectedProvider(provider);
     if (!editingAgent) setValue('model', PROVIDER_MODELS[provider][0]);
@@ -100,44 +117,36 @@ function AgentFormModal({ onClose, onSave, editingAgent, waAccounts, tgAccounts,
 
   const onSubmit = async (data) => {
     const plats = selectedPlatforms;
-    if (plats.includes('whatsapp') && !data.whatsappAccountId) {
-      toast.error('Please select a WhatsApp account'); return;
+    if (plats.length === 0) {
+      toast.error('Please select at least one platform.'); return;
     }
-    if (plats.includes('telegram') && !data.telegramAccountId) {
-      toast.error('Please select a Telegram account'); return;
-    }
-    if (plats.includes('instagram') && !data.instagramAccountId) {
-      toast.error('Please select an Instagram account'); return;
-    }
-    if (plats.includes('facebook') && !data.facebookAccountId) {
-      toast.error('Please select a Facebook page'); return;
-    }
-    if (plats.includes('youtube') && !data.youtubeAccountId) {
-      toast.error('Please select a YouTube channel'); return;
-    }
+    if (plats.includes('whatsapp') && !data.whatsappAccountId) { toast.error('Please select a WhatsApp account'); return; }
+    if (plats.includes('telegram') && !data.telegramAccountId) { toast.error('Please select a Telegram account'); return; }
+    if (plats.includes('instagram') && !data.instagramAccountId) { toast.error('Please select an Instagram account'); return; }
+    if (plats.includes('facebook') && !data.facebookAccountId) { toast.error('Please select a Facebook page'); return; }
+    if (plats.includes('youtube') && !data.youtubeAccountId) { toast.error('Please select a YouTube channel'); return; }
+    if (plats.includes('linkedin') && !data.linkedinAccountId) { toast.error('Please select a LinkedIn account'); return; }
 
     const payload = {
       ...data,
       platforms: plats,
-      // Keep legacy platform field for backward compat
       platform: plats.length === 1 ? plats[0] : plats.includes('whatsapp') && plats.includes('telegram') ? 'both' : 'all',
       whatsappAccount:  plats.includes('whatsapp')  ? data.whatsappAccountId  : null,
       telegramAccount:  plats.includes('telegram')  ? data.telegramAccountId  : null,
       instagramAccount: plats.includes('instagram') ? data.instagramAccountId : null,
       facebookAccount:  plats.includes('facebook')  ? data.facebookAccountId  : null,
       youtubeAccount:   plats.includes('youtube')   ? data.youtubeAccountId   : null,
-      humanHandoffKeywords: data.humanHandoffKeywords
-        ? data.humanHandoffKeywords.split(',').map((k) => k.trim()).filter(Boolean)
-        : [],
+      linkedinAccount:  plats.includes('linkedin')  ? data.linkedinAccountId  : null,
+      humanHandoffKeywords: data.humanHandoffKeywords ? data.humanHandoffKeywords.split(',').map((k) => k.trim()).filter(Boolean) : [],
     };
     try {
       let res;
       if (editingAgent) {
         res = await agentAPI.update(editingAgent._id, payload);
-        toast.success('Agent updated!');
+        toast.success('Agent updated successfully!');
       } else {
         res = await agentAPI.create(payload);
-        toast.success('Agent created!');
+        toast.success('Agent created successfully!');
       }
       onSave(res.data.data.agent, !!editingAgent);
       onClose();
@@ -147,202 +156,193 @@ function AgentFormModal({ onClose, onSave, editingAgent, waAccounts, tgAccounts,
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-slide-up">
-        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
-          <h2 className="text-lg font-bold text-gray-900">{editingAgent ? 'Edit Agent' : 'Create AI Agent'}</h2>
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 transition-colors"><X size={18} /></button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className={`relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl animate-in zoom-in-95 duration-200 border ${isDark ? 'bg-slate-900 border-white/10 shadow-black' : 'bg-white border-slate-200 shadow-slate-300'}`}>
+        <div className={`sticky top-0 z-10 flex items-center justify-between px-8 py-5 border-b backdrop-blur-md ${isDark ? 'bg-slate-900/90 border-white/10' : 'bg-white/90 border-slate-100'}`}>
+          <div>
+            <h2 className="text-xl font-bold">{editingAgent ? 'Edit AI Agent' : 'Create New AI Agent'}</h2>
+            <p className={`text-sm mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Configure your agent's personality and connections.</p>
+          </div>
+          <button onClick={onClose} className={`p-2 rounded-xl transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-100'}`}>
+            <X size={20} />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
-          {/* Basic info */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="sm:col-span-2">
-              <label className="label">Agent Name</label>
-              <input {...register('name')} placeholder="e.g. Customer Support Bot" className="input" />
-              {errors.name && <p className="err">{errors.name.message}</p>}
+        <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-8">
+          {/* Platform Selection */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center"><Bot size={18} /></div>
+              <h3 className="text-lg font-bold">1. Select Platforms</h3>
             </div>
-
-          {/* Platform — visual card selector */}
-          <div className="sm:col-span-2">
-            <label className="label">Platform <span className="text-gray-400 font-normal">(select one or more)</span></label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               {PLATFORMS.map(({ id, label, color, active, emoji }) => {
                 const isSelected = selectedPlatforms.includes(id);
+                const isConnected = connectedPlatforms[id];
                 return (
                   <button
                     key={id}
                     type="button"
                     onClick={() => togglePlatform(id)}
-                    className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 font-semibold text-sm transition-all
-                      ${isSelected ? active : color + ' hover:opacity-80'}`}
+                    disabled={!isConnected}
+                    className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all font-semibold text-sm
+                      ${!isConnected ? 'opacity-40 grayscale cursor-not-allowed border-transparent bg-slate-100 dark:bg-slate-800' 
+                      : isSelected ? active : `${color} hover:scale-105 hover:shadow-md`}`}
                   >
-                    <span className="text-2xl">{emoji}</span>
+                    {!isConnected && (
+                      <div className="absolute top-2 right-2 text-slate-500"><Lock size={14} /></div>
+                    )}
+                    <span className="text-3xl mb-1">{emoji}</span>
                     {label}
-                    {isSelected && <span className="text-[10px] opacity-80">✓ Selected</span>}
                   </button>
                 );
               })}
             </div>
-            {errors.platforms && <p className="err">{errors.platforms.message}</p>}
+            {errors.platforms && <p className="text-red-500 text-sm mt-2">{errors.platforms.message}</p>}
           </div>
 
-          {/* WhatsApp account picker */}
-          {selectedPlatforms.includes('whatsapp') && (
-            <div>
-              <label className="label">WhatsApp Number</label>
-              <select {...register('whatsappAccountId')} className="input">
-                <option value="">Select number...</option>
-                {waAccounts.map((a) => (
-                  <option key={a._id} value={a._id}>{a.displayPhoneNumber} {a.verifiedName ? `(${a.verifiedName})` : ''}</option>
-                ))}
-              </select>
+          {/* Account Pickers - Only show if platform is selected */}
+          {selectedPlatforms.length > 0 && (
+            <div className={`p-5 rounded-2xl border ${isDark ? 'bg-slate-800/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+              <div className="grid md:grid-cols-2 gap-4">
+                {selectedPlatforms.includes('whatsapp') && (
+                  <div>
+                    <label className="text-sm font-semibold mb-1 block">WhatsApp Account</label>
+                    <select {...register('whatsappAccountId')} className={`w-full p-2.5 rounded-xl border text-sm focus:ring-2 focus:ring-[#FF6A00]/50 outline-none ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+                      <option value="">Select number...</option>
+                      {waAccounts.map((a) => <option key={a._id} value={a._id}>{a.displayPhoneNumber} {a.verifiedName ? `(${a.verifiedName})` : ''}</option>)}
+                    </select>
+                  </div>
+                )}
+                {selectedPlatforms.includes('telegram') && (
+                  <div>
+                    <label className="text-sm font-semibold mb-1 block">Telegram Bot</label>
+                    <select {...register('telegramAccountId')} className={`w-full p-2.5 rounded-xl border text-sm focus:ring-2 focus:ring-[#FF6A00]/50 outline-none ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+                      <option value="">Select bot...</option>
+                      {tgAccounts.map((a) => <option key={a._id} value={a._id}>@{a.botUsername}</option>)}
+                    </select>
+                  </div>
+                )}
+                {selectedPlatforms.includes('instagram') && (
+                  <div>
+                    <label className="text-sm font-semibold mb-1 block">Instagram Account</label>
+                    <select {...register('instagramAccountId')} className={`w-full p-2.5 rounded-xl border text-sm focus:ring-2 focus:ring-[#FF6A00]/50 outline-none ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+                      <option value="">Select account...</option>
+                      {igAccounts.map((a) => <option key={a._id} value={a._id}>@{a.igUsername}</option>)}
+                    </select>
+                  </div>
+                )}
+                {selectedPlatforms.includes('facebook') && (
+                  <div>
+                    <label className="text-sm font-semibold mb-1 block">Facebook Page</label>
+                    <select {...register('facebookAccountId')} className={`w-full p-2.5 rounded-xl border text-sm focus:ring-2 focus:ring-[#FF6A00]/50 outline-none ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+                      <option value="">Select page...</option>
+                      {fbAccounts.map((a) => <option key={a._id} value={a._id}>{a.pageName}</option>)}
+                    </select>
+                  </div>
+                )}
+                {selectedPlatforms.includes('youtube') && (
+                  <div>
+                    <label className="text-sm font-semibold mb-1 block">YouTube Channel</label>
+                    <select {...register('youtubeAccountId')} className={`w-full p-2.5 rounded-xl border text-sm focus:ring-2 focus:ring-[#FF6A00]/50 outline-none ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+                      <option value="">Select channel...</option>
+                      {ytAccounts.map((a) => <option key={a._id} value={a._id}>{a.channelName}</option>)}
+                    </select>
+                  </div>
+                )}
+                {selectedPlatforms.includes('linkedin') && (
+                  <div>
+                    <label className="text-sm font-semibold mb-1 block">LinkedIn Account</label>
+                    <select {...register('linkedinAccountId')} className={`w-full p-2.5 rounded-xl border text-sm focus:ring-2 focus:ring-[#FF6A00]/50 outline-none ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+                      <option value="">Select account...</option>
+                      {lnAccounts.map((a) => <option key={a._id} value={a._id}>{a.name || a.urn}</option>)}
+                    </select>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
-          {/* Telegram account picker */}
-          {selectedPlatforms.includes('telegram') && (
-            <div>
-              <label className="label">Telegram Bot</label>
-              <select {...register('telegramAccountId')} className="input">
-                <option value="">Select bot...</option>
-                {tgAccounts.map((a) => (
-                  <option key={a._id} value={a._id}>@{a.botUsername} {a.botName ? `(${a.botName})` : ''}</option>
-                ))}
-              </select>
-            </div>
-          )}
+          <hr className={isDark ? 'border-white/10' : 'border-slate-100'} />
 
-          {/* Instagram account picker */}
-          {selectedPlatforms.includes('instagram') && (
-            <div>
-              <label className="label">Instagram Account</label>
-              <select {...register('instagramAccountId')} className="input">
-                <option value="">Select account...</option>
-                {igAccounts.map((a) => (
-                  <option key={a._id} value={a._id}>@{a.igUsername || a.igAccountId}</option>
-                ))}
-              </select>
+          {/* Basic Info */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center"><Cpu size={18} /></div>
+              <h3 className="text-lg font-bold">2. Agent Details</h3>
             </div>
-          )}
-
-          {/* Facebook account picker */}
-          {selectedPlatforms.includes('facebook') && (
-            <div>
-              <label className="label">Facebook Page</label>
-              <select {...register('facebookAccountId')} className="input">
-                <option value="">Select page...</option>
-                {fbAccounts.map((a) => (
-                  <option key={a._id} value={a._id}>{a.pageName || a.pageId}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* YouTube account picker */}
-          {selectedPlatforms.includes('youtube') && (
-            <div>
-              <label className="label">YouTube Channel</label>
-              <select {...register('youtubeAccountId')} className="input">
-                <option value="">Select channel...</option>
-                {ytAccounts.map((a) => (
-                  <option key={a._id} value={a._id}>{a.channelName || a.channelId}</option>
-                ))}
-              </select>
-              {ytAccounts.length === 0 && (
-                <p className="text-xs text-amber-600 mt-1">⚠️ No YouTube channels connected. Go to Integrations → YouTube first.</p>
-              )}
-            </div>
-          )}
-
-            <div>
-              <label className="label">Description</label>
-              <input {...register('description')} placeholder="What does this agent do?" className="input" />
-            </div>
-          </div>
-
-          {/* AI Config */}
-          <div className="bg-gray-50 rounded-xl p-4 space-y-4">
-            <p className="text-sm font-semibold text-gray-700">AI Configuration</p>
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-5">
               <div>
-                <label className="label">AI Provider</label>
-                <select {...register('aiProvider')} className="input">
+                <label className="text-sm font-semibold mb-1.5 block">Agent Name</label>
+                <input {...register('name')} placeholder="e.g. Sales Assistant" className={`w-full p-3 rounded-xl border focus:ring-2 focus:ring-[#FF6A00]/50 outline-none ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`} />
+                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+              </div>
+              <div>
+                <label className="text-sm font-semibold mb-1.5 block">Short Description</label>
+                <input {...register('description')} placeholder="What does it do?" className={`w-full p-3 rounded-xl border focus:ring-2 focus:ring-[#FF6A00]/50 outline-none ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`} />
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold mb-1.5 block">AI Provider</label>
+                <select {...register('aiProvider')} className={`w-full p-3 rounded-xl border focus:ring-2 focus:ring-[#FF6A00]/50 outline-none ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
                   <option value="openai">OpenAI</option>
                   <option value="anthropic">Anthropic (Claude)</option>
                 </select>
               </div>
               <div>
-                <label className="label">Model</label>
-                <select {...register('model')} className="input">
-                  {PROVIDER_MODELS[selectedProvider].map((m) => (
-                    <option key={m} value={m}>{m}</option>
-                  ))}
+                <label className="text-sm font-semibold mb-1.5 block">AI Model</label>
+                <select {...register('model')} className={`w-full p-3 rounded-xl border focus:ring-2 focus:ring-[#FF6A00]/50 outline-none ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+                  {PROVIDER_MODELS[selectedProvider].map((m) => <option key={m} value={m}>{m}</option>)}
                 </select>
-              </div>
-              <div>
-                <label className="label">Temperature ({watch('temperature')})</label>
-                <input {...register('temperature')} type="range" min="0" max="2" step="0.1" className="w-full accent-whatsapp" />
-                <div className="flex justify-between text-xs text-gray-400 mt-1"><span>Precise</span><span>Creative</span></div>
-              </div>
-              <div>
-                <label className="label">Max Response Tokens ({watch('maxTokens')})</label>
-                <input {...register('maxTokens')} type="range" min="50" max="2000" step="50" className="w-full accent-whatsapp" />
-                <div className="flex justify-between text-xs text-gray-400 mt-1"><span>50</span><span>2000</span></div>
               </div>
             </div>
           </div>
 
-          {/* System Prompt */}
+          <hr className={isDark ? 'border-white/10' : 'border-slate-100'} />
+
+          {/* Prompting */}
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="label !mb-0">System Prompt</label>
-              <div className="flex gap-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center"><MessageSquare size={18} /></div>
+                <h3 className="text-lg font-bold">3. System Prompt & Behavior</h3>
+              </div>
+              <div className="hidden sm:flex gap-2">
                 {Object.entries({ 'Support': 'customer_support', 'Sales': 'sales', 'Booking': 'booking' }).map(([label, key]) => (
                   <button key={key} type="button" onClick={() => setValue('systemPrompt', DEFAULT_PROMPTS[key])}
-                    className="text-xs px-2 py-1 bg-gray-100 hover:bg-whatsapp/10 hover:text-whatsapp rounded-lg transition-colors">
-                    {label}
+                    className={`text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}>
+                    {label} Template
                   </button>
                 ))}
               </div>
             </div>
+
             <textarea
               {...register('systemPrompt')}
-              rows={5}
+              rows={4}
               placeholder="You are a helpful assistant for [Business Name]..."
-              className="input resize-none font-mono text-xs"
+              className={`w-full p-4 rounded-xl border focus:ring-2 focus:ring-[#FF6A00]/50 outline-none font-mono text-sm leading-relaxed ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}
             />
-            {errors.systemPrompt && <p className="err">{errors.systemPrompt.message}</p>}
-          </div>
+            {errors.systemPrompt && <p className="text-red-500 text-xs mt-1">{errors.systemPrompt.message}</p>}
 
-          {/* Behavior */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="label">Greeting Message</label>
-              <textarea {...register('greetingMessage')} rows={2} placeholder="Hi! How can I help you today?" className="input resize-none text-sm" />
-            </div>
-            <div>
-              <label className="label">Fallback Message</label>
-              <textarea {...register('fallbackMessage')} rows={2} placeholder="Sorry, I didn't understand. Please rephrase." className="input resize-none text-sm" />
-            </div>
-            <div>
-              <label className="label">Human Handoff Keywords</label>
-              <input {...register('humanHandoffKeywords')} placeholder="human, agent, support, help" className="input text-sm" />
-              <p className="text-xs text-gray-400 mt-1">Comma-separated. Message that triggers human takeover.</p>
-            </div>
-            <div>
-              <label className="label">Context Window ({watch('contextWindow')} messages)</label>
-              <input {...register('contextWindow')} type="range" min="1" max="50" className="w-full accent-whatsapp mt-2" />
-              <p className="text-xs text-gray-400 mt-1">How many past messages AI remembers.</p>
+            <div className="grid md:grid-cols-2 gap-5 mt-5">
+              <div>
+                <label className="text-sm font-semibold mb-1.5 block">Greeting Message <span className="text-xs font-normal opacity-50">(Optional)</span></label>
+                <textarea {...register('greetingMessage')} rows={2} placeholder="Hi! How can I help you today?" className={`w-full p-3 rounded-xl border focus:ring-2 focus:ring-[#FF6A00]/50 outline-none text-sm resize-none ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`} />
+              </div>
+              <div>
+                <label className="text-sm font-semibold mb-1.5 block">Human Handoff Keywords</label>
+                <input {...register('humanHandoffKeywords')} placeholder="e.g. human, agent, support" className={`w-full p-3 rounded-xl border focus:ring-2 focus:ring-[#FF6A00]/50 outline-none text-sm ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`} />
+                <p className={`text-xs mt-1.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Keywords that trigger human takeover.</p>
+              </div>
             </div>
           </div>
 
-          <div className="flex gap-3 pt-2">
-            <button type="submit" disabled={isSubmitting}
-              className="flex-1 flex items-center justify-center gap-2 bg-whatsapp text-white py-3 rounded-xl font-medium hover:bg-whatsapp-dark disabled:opacity-60 transition-colors">
-              {isSubmitting ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : editingAgent ? 'Update Agent' : 'Create Agent'}
+          <div className="flex gap-4 pt-4 sticky bottom-0 bg-inherit z-10 pb-2">
+            <button type="submit" disabled={isSubmitting} className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white py-3.5 rounded-xl font-bold text-lg hover:shadow-lg hover:shadow-[#FF6A00]/30 transition-all disabled:opacity-60">
+              {isSubmitting ? <><Loader2 size={20} className="animate-spin" /> Saving...</> : editingAgent ? 'Update Agent' : 'Launch Agent'}
             </button>
-            <button type="button" onClick={onClose} className="px-6 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+            <button type="button" onClick={onClose} className={`px-8 py-3.5 rounded-xl font-bold transition-colors ${isDark ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
               Cancel
             </button>
           </div>
@@ -352,7 +352,7 @@ function AgentFormModal({ onClose, onSave, editingAgent, waAccounts, tgAccounts,
   );
 }
 
-function TestModal({ agent, onClose }) {
+function TestModal({ agent, onClose, isDark }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -372,42 +372,52 @@ function TestModal({ agent, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl animate-slide-up flex flex-col" style={{ height: '560px' }}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-whatsapp/10 rounded-full flex items-center justify-center">
-              <Bot size={16} className="text-whatsapp" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className={`relative w-full max-w-md h-[600px] flex flex-col rounded-3xl shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden border ${isDark ? 'bg-slate-900 border-white/10' : 'bg-slate-50 border-slate-200'}`}>
+        {/* Header */}
+        <div className={`flex items-center justify-between px-5 py-4 border-b backdrop-blur-md ${isDark ? 'bg-slate-900/80 border-white/10' : 'bg-white/80 border-slate-200'}`}>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="w-10 h-10 bg-gradient-to-tr from-[#FF6A00] to-[#FF4500] rounded-full flex items-center justify-center text-white shadow-md">
+                <Bot size={20} />
+              </div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></div>
             </div>
             <div>
-              <p className="font-semibold text-sm text-gray-800">{agent.name}</p>
-              <p className="text-xs text-gray-400">{agent.model}</p>
+              <p className="font-bold text-sm">{agent.name}</p>
+              <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{agent.model}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100"><X size={16} /></button>
+          <button onClick={onClose} className={`p-2 rounded-xl transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-100'}`}><X size={20} /></button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {/* Chat Area */}
+        <div className={`flex-1 overflow-y-auto p-5 space-y-4 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
           {messages.length === 0 && (
-            <div className="text-center text-gray-400 text-sm mt-8">
-              <MessageSquare size={32} className="mx-auto mb-2 opacity-30" />
-              <p>Send a message to test your agent</p>
+            <div className="h-full flex flex-col items-center justify-center text-center opacity-50">
+              <MessageSquare size={48} className="mb-4" />
+              <p className="font-medium">Say hello to {agent.name}!</p>
+              <p className="text-xs mt-1">This is a safe sandbox environment.</p>
             </div>
           )}
           {messages.map((m, i) => (
-            <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${m.role === 'user' ? 'bg-whatsapp text-white rounded-br-sm' : 'bg-gray-100 text-gray-800 rounded-bl-sm'}`}>
-                <p className="text-sm">{m.content}</p>
-                {m.meta && <p className="text-xs opacity-60 mt-1">{m.meta}</p>}
+            <div key={i} className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
+              <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl shadow-sm text-[15px] leading-relaxed
+                ${m.role === 'user' 
+                  ? 'bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white rounded-br-sm' 
+                  : isDark ? 'bg-slate-800 text-slate-100 rounded-bl-sm border border-white/5' : 'bg-white text-slate-800 rounded-bl-sm border border-slate-100'}`}
+              >
+                {m.content}
               </div>
+              {m.meta && <span className={`text-[10px] mt-1.5 px-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{m.meta}</span>}
             </div>
           ))}
           {loading && (
             <div className="flex justify-start">
-              <div className="bg-gray-100 rounded-2xl rounded-bl-sm px-4 py-3">
-                <div className="flex gap-1">
+              <div className={`px-4 py-3 rounded-2xl rounded-bl-sm border ${isDark ? 'bg-slate-800 border-white/5' : 'bg-white border-slate-100'}`}>
+                <div className="flex gap-1.5">
                   {[0, 150, 300].map((d) => (
-                    <div key={d} className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: `${d}ms` }} />
+                    <div key={d} className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: `${d}ms` }} />
                   ))}
                 </div>
               </div>
@@ -415,18 +425,19 @@ function TestModal({ agent, onClose }) {
           )}
         </div>
 
-        <div className="p-4 border-t border-gray-100">
+        {/* Input Area */}
+        <div className={`p-4 border-t ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
           <div className="flex gap-2">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-              placeholder="Type a test message..."
-              className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-whatsapp/30 focus:border-whatsapp"
+              placeholder="Type your message..."
+              className={`flex-1 px-4 py-3 border rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6A00]/50 ${isDark ? 'bg-slate-800 border-white/10' : 'bg-slate-50 border-slate-200'}`}
             />
             <button onClick={sendMessage} disabled={loading || !input.trim()}
-              className="p-2.5 bg-whatsapp text-white rounded-xl hover:bg-whatsapp-dark disabled:opacity-50 transition-colors">
-              <Send size={16} />
+              className="p-3 bg-[#FF6A00] text-white rounded-2xl hover:bg-[#FF4500] disabled:opacity-50 transition-colors flex items-center justify-center shadow-lg shadow-[#FF6A00]/20">
+              <Send size={18} />
             </button>
           </div>
         </div>
@@ -443,10 +454,12 @@ export default function AgentsPage() {
   const [igAccounts, setIgAccounts] = useState([]);
   const [fbAccounts, setFbAccounts] = useState([]);
   const [ytAccounts, setYtAccounts] = useState([]);
+  const [lnAccounts, setLnAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingAgent, setEditingAgent] = useState(null);
   const [testingAgent, setTestingAgent] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const sync = () => setIsDark((localStorage.getItem('app-theme') || 'dark') === 'dark');
@@ -461,13 +474,8 @@ export default function AgentsPage() {
       telegramAPI.getAll().then(r => setTgAccounts(r.data.data.accounts)).catch(() => {}),
       instagramAPI.getAll().then(r => setIgAccounts(r.data.data.accounts)).catch(() => {}),
       facebookAPI.getAll().then(r => setFbAccounts(r.data.data.accounts)).catch(() => {}),
-      youtubeAPI.getAutomationSettings().then(r => {
-        // If YouTube channel connected, add it as a selectable account
-        const d = r.data?.data;
-        if (d?.isConnected && d?.channelId) {
-          setYtAccounts([{ _id: d.channelId, channelId: d.channelId, channelName: d.channelName || d.channelId }]);
-        }
-      }).catch(() => {}),
+      youtubeAPI.getAll().then(r => setYtAccounts(r.data.data.accounts)).catch(() => {}),
+      api.getAllLinkedInAccounts().then(r => setLnAccounts(r.data.data.accounts || r.data.accounts)).catch(() => {}),
     ]).finally(() => setLoading(false));
   }, []);
 
@@ -484,7 +492,7 @@ export default function AgentsPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this agent?')) return;
+    if (!window.confirm('Are you sure you want to delete this agent? This cannot be undone.')) return;
     try {
       await agentAPI.delete(id);
       setAgents((prev) => prev.filter((a) => a._id !== id));
@@ -492,80 +500,149 @@ export default function AgentsPage() {
     } catch { toast.error('Delete failed'); }
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-whatsapp border-t-transparent rounded-full animate-spin" /></div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="w-10 h-10 border-4 border-[#FF6A00] border-t-transparent rounded-full animate-spin shadow-lg shadow-[#FF6A00]/20" />
+    </div>
+  );
+
+  // Determine connected platforms
+  const connectedPlatforms = {
+    whatsapp: waAccounts.some(a => a.status === 'connected'),
+    telegram: tgAccounts.some(a => a.status === 'connected'),
+    instagram: igAccounts.some(a => a.status === 'connected'),
+    facebook: fbAccounts.some(a => a.status === 'connected'),
+    youtube: ytAccounts.length > 0,
+    linkedin: lnAccounts.length > 0
+  };
+
+  const hasAnyConnected = Object.values(connectedPlatforms).some(Boolean);
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+    <div className={`space-y-8 animate-fade-in ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+      
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className={`text-2xl font-extrabold ${'text-gray-900 dark:text-slate-100'}`}>AI Agents</h1>
-          <p className={`text-sm mt-1 ${'text-gray-500 dark:text-slate-400'}`}>{agents.length} agent{agents.length !== 1 ? 's' : ''} configured</p>
+          <h1 className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+            AI Agents
+          </h1>
+          <p className={`text-sm mt-1.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            Manage your intelligent assistants across all connected platforms.
+          </p>
         </div>
-        <button
-          onClick={() => { setEditingAgent(null); setShowForm(true); }}
-          className="flex items-center gap-2 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02]"
-          style={{ background: '#FF6A00' }}
-        >
-          <Plus size={16} /> New Agent
-        </button>
+        
+        {hasAnyConnected && (
+          <button
+            onClick={() => { setEditingAgent(null); setShowForm(true); }}
+            className="flex items-center justify-center gap-2 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-xl shadow-[#FF6A00]/20 hover:shadow-[#FF6A00]/40 transition-all hover:-translate-y-0.5 bg-gradient-to-r from-[#FF6A00] to-[#FF4500]"
+          >
+            <Plus size={18} /> Create New Agent
+          </button>
+        )}
       </div>
 
-      {waAccounts.filter((a) => a.status === 'connected').length === 0 && tgAccounts.filter((a) => a.status === 'connected').length === 0 && igAccounts.filter((a) => a.status === 'connected').length === 0 && fbAccounts.filter((a) => a.status === 'connected').length === 0 && (
-        <div className={`rounded-2xl p-4 text-sm border ${'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-200'}`}>
-          No connected messaging accounts. Please connect an account first before creating an agent.
+      {/* Main Content Area */}
+      {!hasAnyConnected ? (
+        <div className={`flex flex-col items-center justify-center p-12 text-center rounded-3xl border shadow-2xl ${isDark ? 'bg-slate-900/50 border-white/10 shadow-black/50' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+          <div className="w-20 h-20 bg-[#FF6A00]/10 text-[#FF6A00] rounded-3xl flex items-center justify-center mb-6 shadow-inner">
+            <Lock size={36} />
+          </div>
+          <h3 className="text-2xl font-bold mb-3">No Platforms Connected</h3>
+          <p className={`max-w-md mb-8 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            Before you can create an AI agent, you must connect at least one social media account (WhatsApp, Instagram, etc.).
+          </p>
+          <button 
+            onClick={() => navigate('/app/integrations')}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-[#FF6A00]/20 hover:scale-105 transition-all"
+          >
+            Go to Integrations <ChevronRight size={18} />
+          </button>
         </div>
-      )}
-
-      {agents.length === 0 ? (
-        <div className={`rounded-2xl border border-dashed p-12 text-center ${'bg-white border-gray-300 dark:bg-white/5 dark:border-white/20'}`}>
-          <Bot size={48} className={`mx-auto mb-4 ${'text-gray-300 dark:text-slate-500'}`} />
-          <h3 className={`font-semibold ${'text-gray-700 dark:text-slate-200'}`}>No agents yet</h3>
-          <p className={`text-sm mt-1 ${'text-gray-400 dark:text-slate-400'}`}>Create your first AI agent to start automating WhatsApp.</p>
-          <button onClick={() => setShowForm(true)} className="mt-4 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02]" style={{ background: '#FF6A00' }}>
-            Create Agent
+      ) : agents.length === 0 ? (
+        <div className={`flex flex-col items-center justify-center p-16 text-center rounded-3xl border border-dashed ${isDark ? 'bg-slate-900/30 border-white/20' : 'bg-slate-50 border-slate-300'}`}>
+          <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-sm ${isDark ? 'bg-slate-800 text-slate-400' : 'bg-white text-slate-400'}`}>
+            <Bot size={40} />
+          </div>
+          <h3 className="text-xl font-bold mb-2">No Agents Active</h3>
+          <p className={`mb-8 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            Your workspace is quiet. Deploy your first AI agent to start automating responses.
+          </p>
+          <button 
+            onClick={() => { setEditingAgent(null); setShowForm(true); }}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-[#FF6A00]/20 hover:scale-105 transition-all"
+          >
+            <Plus size={18} /> Build First Agent
           </button>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {agents.map((agent) => (
-            <div key={agent._id} className={`rounded-2xl border transition-all p-5 ${'bg-white border-gray-100 shadow-sm hover:shadow-md dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10 dark:hover:shadow-xl dark:hover:shadow-black/20'}`}>
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-whatsapp/10 rounded-xl flex items-center justify-center">
-                    <Bot size={20} className="text-whatsapp" />
+            <div key={agent._id} className={`group relative rounded-3xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${isDark ? 'bg-slate-900/40 border-white/10 hover:border-white/20 hover:bg-slate-900/80 hover:shadow-black/60 backdrop-blur-sm' : 'bg-white border-slate-200 hover:shadow-slate-200/80 hover:border-slate-300'}`}>
+              
+              {/* Header */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#FF6A00] to-[#FF4500] flex items-center justify-center text-white shadow-md">
+                      <Bot size={24} />
+                    </div>
+                    {/* Glowing status dot */}
+                    <div className="absolute -bottom-1 -right-1 flex h-4 w-4">
+                      {agent.isActive && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>}
+                      <span className={`relative inline-flex rounded-full h-4 w-4 border-2 ${isDark ? 'border-slate-900' : 'border-white'} ${agent.isActive ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
+                    </div>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 text-sm">{agent.name}</p>
-                    <p className="text-xs text-gray-400">{agent.model}</p>
+                    <h3 className="font-bold text-lg leading-tight truncate max-w-[140px]">{agent.name}</h3>
+                    <p className={`text-xs mt-0.5 font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{agent.model}</p>
                   </div>
                 </div>
-                <button onClick={() => handleToggle(agent._id)} className={`transition-colors ${agent.isActive ? 'text-whatsapp' : 'text-gray-300'}`}>
-                  {agent.isActive ? <ToggleRight size={26} /> : <ToggleLeft size={26} />}
+                
+                <button 
+                  onClick={() => handleToggle(agent._id)} 
+                  className={`transition-all duration-300 hover:scale-110 ${agent.isActive ? 'text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-slate-300 dark:text-slate-600'}`}
+                  title={agent.isActive ? "Deactivate" : "Activate"}
+                >
+                  {agent.isActive ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
                 </button>
               </div>
 
-              {agent.description && <p className="text-xs text-gray-500 mb-3 line-clamp-2">{agent.description}</p>}
+              {agent.description && (
+                <p className={`text-sm mb-5 line-clamp-2 h-10 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  {agent.description}
+                </p>
+              )}
 
-              <div className="text-xs text-gray-400 space-y-1 mb-4">
-                <p>📱 {agent.platform === 'all' ? 'WA, TG & IG' : (agent.platform === 'both' ? 'WhatsApp & Telegram' : (agent.platform === 'telegram' ? (agent.telegramAccount?.botUsername ? `@${agent.telegramAccount.botUsername}` : 'No bot') : (agent.platform === 'instagram' ? `@${agent.instagramAccount?.igUsername || 'IG'}` : (agent.platform === 'facebook' ? agent.facebookAccount?.pageName || 'Facebook' : (agent.whatsappAccount?.displayPhoneNumber || 'No number')))))}</p>
-                <p>🤖 {agent.aiProvider === 'openai' ? 'OpenAI' : 'Anthropic'} · Temp {agent.temperature}</p>
-                <p>💬 {agent.stats?.totalMessages || 0} messages sent</p>
+              {/* Stats & Info */}
+              <div className={`p-4 rounded-2xl space-y-3 mb-5 border ${isDark ? 'bg-slate-800/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                <div className="flex items-center gap-3 text-sm">
+                  <Activity size={16} className={isDark ? 'text-slate-500' : 'text-slate-400'} />
+                  <span className="font-medium">{agent.stats?.totalMessages || 0}</span> messages sent
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {(agent.platforms || []).map(p => {
+                    const platformMeta = PLATFORMS.find(pl => pl.id === p);
+                    if(!platformMeta) return null;
+                    return (
+                      <span key={p} className={`text-xs px-2 py-1 rounded-lg border font-medium flex items-center gap-1 ${isDark ? 'bg-slate-900 border-white/10 text-slate-300' : 'bg-white border-slate-200 text-slate-600 shadow-sm'}`}>
+                        <span>{platformMeta.emoji}</span> {platformMeta.label}
+                      </span>
+                    )
+                  })}
+                </div>
               </div>
 
-              <div className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full mb-4 ${agent.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${agent.isActive ? 'bg-green-500' : 'bg-gray-400'}`} />
-                {agent.isActive ? 'Active' : 'Inactive'}
-              </div>
-
-              <div className="flex gap-2 pt-3 border-t border-gray-50">
-                <button onClick={() => setTestingAgent(agent)} className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium text-whatsapp hover:bg-whatsapp/5 rounded-lg transition-colors">
-                  <Play size={13} /> Test
+              {/* Actions */}
+              <div className="grid grid-cols-3 gap-2 mt-auto">
+                <button onClick={() => setTestingAgent(agent)} className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold transition-all ${isDark ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'}`}>
+                  <Play size={16} /> Test
                 </button>
-                <button onClick={() => { setEditingAgent(agent); setShowForm(true); }} className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
-                  <Pencil size={13} /> Edit
+                <button onClick={() => { setEditingAgent(agent); setShowForm(true); }} className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold transition-all ${isDark ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
+                  <Pencil size={16} /> Edit
                 </button>
-                <button onClick={() => handleDelete(agent._id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                  <Trash2 size={13} /> Delete
+                <button onClick={() => handleDelete(agent._id)} className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold transition-all ${isDark ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-red-50 text-red-600 hover:bg-red-100'}`}>
+                  <Trash2 size={16} /> Delete
                 </button>
               </div>
             </div>
@@ -575,17 +652,20 @@ export default function AgentsPage() {
 
       {showForm && (
         <AgentFormModal
+          isDark={isDark}
           onClose={() => { setShowForm(false); setEditingAgent(null); }}
           onSave={handleSave}
           editingAgent={editingAgent}
-          waAccounts={waAccounts.filter((a) => a.status === 'connected')}
-          tgAccounts={tgAccounts.filter((a) => a.status === 'connected')}
-          igAccounts={igAccounts.filter((a) => a.status === 'connected')}
-          fbAccounts={fbAccounts.filter((a) => a.status === 'connected')}
+          connectedPlatforms={connectedPlatforms}
+          waAccounts={waAccounts.filter(a => a.status === 'connected')}
+          tgAccounts={tgAccounts.filter(a => a.status === 'connected')}
+          igAccounts={igAccounts.filter(a => a.status === 'connected')}
+          fbAccounts={fbAccounts.filter(a => a.status === 'connected')}
           ytAccounts={ytAccounts}
+          lnAccounts={lnAccounts}
         />
       )}
-      {testingAgent && <TestModal agent={testingAgent} onClose={() => setTestingAgent(null)} />}
+      {testingAgent && <TestModal isDark={isDark} agent={testingAgent} onClose={() => setTestingAgent(null)} />}
     </div>
   );
 }

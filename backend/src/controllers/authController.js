@@ -2,6 +2,12 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/User');
 const AdminSignupRequest = require('../models/AdminSignupRequest');
+const Agent = require('../models/Agent');
+const WhatsappAccount = require('../models/WhatsappAccount');
+const FacebookAccount = require('../models/FacebookAccount');
+const InstagramAccount = require('../models/InstagramAccount');
+const TelegramAccount = require('../models/TelegramAccount');
+const Integration = require('../models/Integration');
 const AppError = require('../utils/AppError');
 const { sendEmail, emailTemplates } = require('../services/emailService');
 const fraudDetectionService = require('../services/fraudDetectionService');
@@ -40,6 +46,45 @@ const sendTokens = (user, statusCode, res) => {
     status: 'success',
     data: { user },
   });
+};
+
+exports.getOnboardingStatus = async (req, res, next) => {
+  try {
+    const orgId = req.user.currentOrganization;
+    if (!orgId) {
+      return res.status(200).json({ status: 'success', data: { hasIntegration: false, hasAgent: false, isCompleted: false } });
+    }
+
+    const [
+      agentsCount,
+      waCount,
+      fbCount,
+      igCount,
+      tgCount,
+      intCount
+    ] = await Promise.all([
+      Agent.countDocuments({ organization: orgId }),
+      WhatsappAccount.countDocuments({ organization: orgId }),
+      FacebookAccount.countDocuments({ organization: orgId }),
+      InstagramAccount.countDocuments({ organization: orgId }),
+      TelegramAccount.countDocuments({ organization: orgId }),
+      Integration.countDocuments({ organization: orgId })
+    ]);
+
+    const hasIntegration = (waCount + fbCount + igCount + tgCount + intCount) > 0;
+    const hasAgent = agentsCount > 0;
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        hasIntegration,
+        hasAgent,
+        isCompleted: hasIntegration && hasAgent
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.getCsrfToken = (req, res) => {

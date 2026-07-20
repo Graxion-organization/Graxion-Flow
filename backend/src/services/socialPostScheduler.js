@@ -75,7 +75,9 @@ const startSocialPostScheduler = () => {
   cron.schedule('*/5 * * * *', async () => {
     try {
       const YoutubeAutomationService = require('./youtubeAutomationService');
+      const LinkedinAutomationService = require('./linkedinAutomationService');
       await YoutubeAutomationService.runAutomation();
+      await LinkedinAutomationService.runAutomation();
     } catch (err) {
       logger.error(`[YouTube Automation] Scheduler error: ${err.message}`);
     }

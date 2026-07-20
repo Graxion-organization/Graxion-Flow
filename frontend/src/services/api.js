@@ -101,6 +101,7 @@ export const authAPI = {
   sendDeletionOTP: () => api.post('/auth/send-deletion-otp'),
   confirmDeletion: (data) => api.post('/auth/confirm-deletion', data),
   cancelDeletionRequest: () => api.post('/auth/cancel-deletion-request'),
+  getOnboardingStatus: () => api.get('/auth/onboarding-status'),
 };
 
 // WhatsApp 
@@ -208,6 +209,7 @@ export const billingAPI = {
 
 // YouTube
 export const youtubeAPI = {
+  getAll: () => api.get('/youtube/manual/accounts'),
   getAuthUrl: () => api.get('/youtube/auth-url'),
   callback: (code) => api.post('/youtube/callback', { code }),
   disconnect: () => api.post('/youtube/disconnect'),
@@ -227,6 +229,7 @@ export const socialHubAPI = {
   publish: (data) => api.post('/social-hub/publish', data),
   getHistory: () => api.get('/social-hub/history'),
   getAnalytics: () => api.get('/social-hub/analytics'),
+  getAllLinkedInAccounts: () => api.get('/social-hub/linkedin/manual/accounts'),
   retryPlatform: (data) => api.post('/social-hub/retry', data),
   updateProfile: (data) => api.post('/social-hub/profile', data),
   upload: (formData) => api.post('/social-hub/upload', formData, { 
