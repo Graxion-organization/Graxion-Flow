@@ -28,10 +28,13 @@ router.delete('/linkedin/:id', socialHubController.disconnectLinkedInAccount);
 
 // Manual Automation Hub Endpoints (LinkedIn)
 router.get('/linkedin/manual/accounts', socialHubController.getAllLinkedInAccounts);
+router.get('/linkedin/manual/:id/stats', socialHubController.getLinkedInStats);
 router.get('/linkedin/manual/:id/media', socialHubController.getLinkedInMedia);
 router.get('/linkedin/manual/:id/media/:mediaId/comments', socialHubController.getLinkedInMediaComments);
 router.get('/linkedin/manual/:id/comments/:commentId/reply', socialHubController.replyToLinkedInComment);
 router.post('/linkedin/manual/:id/comments/:commentId/reply', socialHubController.replyToLinkedInComment);
+router.post('/linkedin/manual/trigger-worker', socialHubController.triggerLinkedInWorker);
+router.post('/linkedin/manual/auto-reply-post', socialHubController.autoReplyLinkedInPost);
 
 // AI-powered endpoints
 router.post('/ai/caption', socialHubController.generateAICaption);

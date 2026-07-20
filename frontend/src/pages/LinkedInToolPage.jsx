@@ -15,7 +15,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import api from '../services/api';
 import { io } from "socket.io-client";
 
 export default function LinkedInTool() {
@@ -74,12 +74,8 @@ export default function LinkedInTool() {
   const fetchAccounts = async () => {
     setLoadingAccounts(true);
     try {
-      // JWT via cookies
-      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-      const res = await axios.get(`${baseURL}/social-hub/linkedin/manual/accounts`, {
-        withCredentials: true
-      });
-      const fetchedAccounts = res.data.data.accounts || [];
+      const res = await api.get('/social-hub/linkedin/manual/accounts');
+      const fetchedAccounts = res.data.data.accounts || res.data.accounts || [];
       setAccounts(fetchedAccounts);
       if (fetchedAccounts.length > 0) {
         fetchMedia(fetchedAccounts[0]);
@@ -101,21 +97,14 @@ export default function LinkedInTool() {
     setLoadingStats(true);
     
     try {
-      // JWT via cookies
-      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-      
       // Fetch stats in parallel
-      axios.get(`${baseURL}/social-hub/linkedin/manual/${account._id}/stats`, {
-        withCredentials: true
-      }).then(res => {
+      api.get(`/social-hub/linkedin/manual/${account._id}/stats`).then(res => {
         setAccountStats(res.data.data);
       }).catch(err => console.error("Failed stats:", err))
       .finally(() => setLoadingStats(false));
 
-      const res = await axios.get(`${baseURL}/social-hub/linkedin/manual/${account._id}/media`, {
-        withCredentials: true
-      });
-      setMediaItems(res.data.data.media || []);
+      const res = await api.get(`/social-hub/linkedin/manual/${account._id}/media`);
+      setMediaItems(res.data.data.media || res.data.posts || []);
     } catch (err) {
       toast.error('Failed to fetch media for this account');
     } finally {
@@ -129,12 +118,8 @@ export default function LinkedInTool() {
     setAutoReplyProgress(null);
     setLoadingComments(true);
     try {
-      // JWT via cookies
-      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-      const res = await axios.get(`${baseURL}/social-hub/linkedin/manual/${selectedAccount._id}/media/${media.id}/comments`, {
-        withCredentials: true
-      });
-      setComments(res.data.data.comments || []);
+      const res = await api.get(`/social-hub/linkedin/manual/${selectedAccount._id}/media/${media.id}/comments`);
+      setComments(res.data.data.comments || res.data.comments || []);
     } catch (err) {
       toast.error('Failed to fetch comments for this post');
     } finally {
@@ -149,15 +134,10 @@ export default function LinkedInTool() {
 
     setIsSending(true);
     try {
-      // JWT via cookies
-      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-      
       const targetId = selectedComment ? selectedComment.id : selectedMedia.id;
       const type = selectedComment ? 'comment' : 'media';
 
-      await axios.post(`${baseURL}/social-hub/linkedin/manual/${selectedAccount._id}/comments/${targetId}/reply`, { text: messageText }, {
-        withCredentials: true
-      });
+      await api.post(`/social-hub/linkedin/manual/${selectedAccount._id}/comments/${targetId}/reply`, { text: messageText });
       
       toast.success(type === 'comment' ? 'Reply sent successfully!' : 'Comment posted successfully!');
       setMessageText('');
@@ -196,11 +176,7 @@ export default function LinkedInTool() {
             <button 
               onClick={async () => {
                 try {
-                  // JWT via cookies
-                  const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-                  await axios.post(`${baseURL}/social-hub/linkedin/manual/trigger-worker`, {}, {
-                    withCredentials: true
-                  });
+                  await api.post('/social-hub/linkedin/manual/trigger-worker', {});
                   toast.success('Sync started in background');
                 } catch(e) {
                   toast.error('Failed to start sync');
@@ -287,7 +263,7 @@ export default function LinkedInTool() {
                 <div className="flex-1 min-w-0">
                   <div className="text-xs text-gray-400 capitalize mb-1">{media.media_type}</div>
                   <div className="text-sm text-gray-200 line-clamp-2 leading-tight">
-                    {media.specificContent?.["com.linkedin.ugc.ShareContent"]?.shareCommentary?.text || 'No caption'}
+                    {media.commentary || media.specificContent?.["com.linkedin.ugc.ShareContent"]?.shareCommentary?.text || 'No caption'}
                   </div>
                 </div>
               </button>
@@ -307,13 +283,9 @@ export default function LinkedInTool() {
             <button
               onClick={async () => {
                 try {
-                  // JWT via cookies
-                  const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-                  await axios.post(`${baseURL}/social-hub/linkedin/manual/auto-reply-post`, {
+                  await api.post('/social-hub/linkedin/manual/auto-reply-post', {
                     accountId: selectedAccount._id,
                     mediaId: selectedMedia.id
-                  }, {
-                    withCredentials: true
                   });
                   toast.success('AI is replying to all unanswered comments in background!');
                 } catch(e) {

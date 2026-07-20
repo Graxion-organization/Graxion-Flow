@@ -969,3 +969,83 @@ exports.getBestTimeToPost = async (req, res, next) => {
     res.status(200).json({ status: 'success', data: result });
   } catch (err) { next(err); }
 };
+exports.getLinkedInStats = async (req, res, next) => {
+  try {
+    res.status(200).json({ status: 'success', data: { views: 0, comments: 0 } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.triggerLinkedInWorker = async (req, res, next) => {
+  try {
+    const LinkedinAutomationService = require('../services/linkedinAutomationService');
+    LinkedinAutomationService.runAutomation().catch(err => logger.error('LinkedIn Worker Error: ' + err.message));
+    res.status(200).json({ status: 'success', message: 'Worker triggered successfully' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.autoReplyLinkedInPost = async (req, res, next) => {
+  try {
+    const { accountId, mediaId } = req.body;
+    if (!accountId || !mediaId) return next(new AppError('accountId and mediaId required', 400));
+    
+    const account = await LinkedInAccount.findOne({ _id: accountId, organization: req.organization._id }).select('+accessToken');
+    if (!account) return next(new AppError('Account not found', 404));
+
+    const Agent = require('../models/Agent');
+    const agent = await Agent.findOne({ linkedinAccount: accountId, platforms: 'linkedin', organization: req.organization._id });
+    if (!agent) return next(new AppError('Please setup an AI Agent for this LinkedIn account first', 400));
+
+    const liService = new LinkedInService(account.accessToken, account.linkedinId);
+    const commentsResponse = await liService.getPostComments(mediaId);
+    const comments = commentsResponse.elements || [];
+    
+    const AIService = require('../services/aiService');
+    
+    const processAutoReply = async () => {
+      let count = 0;
+      if (!agent.repliedLinkedinComments) agent.repliedLinkedinComments = [];
+      
+      for (const comment of comments) {
+         const commentId = comment.id;
+         const commentText = comment.message?.text;
+         const authorUrn = comment.actor;
+
+         if (agent.repliedLinkedinComments.includes(commentId)) continue;
+         if (authorUrn.includes(account.linkedinId)) continue;
+         if (!commentText) continue;
+
+         try {
+           const aiResponse = await AIService.generate(
+             agent,
+             [],
+             `Comment: ${commentText}`,
+             'linkedin'
+           );
+           
+           const replyText = aiResponse.content;
+           
+           if (replyText && !replyText.includes('experiencing some technical difficulties')) {
+             await liService.replyToComment(commentId, replyText);
+             agent.repliedLinkedinComments.push(commentId);
+             count++;
+           }
+         } catch(e) {
+           logger.error(`Error auto-replying to LinkedIn comment ${commentId}: ${e.message}`);
+         }
+      }
+      if (count > 0) {
+        await agent.save();
+      }
+    };
+    
+    processAutoReply().catch(err => logger.error('LinkedIn AutoReply Error: ' + err.message));
+
+    res.status(200).json({ status: 'success', message: 'Auto reply process started' });
+  } catch (err) {
+    next(err);
+  }
+};

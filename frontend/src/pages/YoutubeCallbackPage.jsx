@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { youtubeAPI } from '../services/api';
+import { youtubeAPI, fetchCsrfToken } from '../services/api';
 import toast from 'react-hot-toast';
 import { Loader2, Youtube, CheckCircle2, AlertCircle } from 'lucide-react';
 
@@ -21,6 +21,7 @@ export default function YoutubeCallbackPage() {
       }
 
       try {
+        await fetchCsrfToken();
         await youtubeAPI.callback(code);
         setStatus('success');
         toast.success('YouTube channel connected successfully!');

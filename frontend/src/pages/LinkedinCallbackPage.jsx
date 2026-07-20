@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, Linkedin, CheckCircle2, XCircle } from 'lucide-react';
-import { socialHubAPI } from '../services/api';
+import { socialHubAPI, fetchCsrfToken } from '../services/api';
 import toast from 'react-hot-toast';
 
 const LinkedinCallbackPage = () => {
@@ -28,6 +28,7 @@ const LinkedinCallbackPage = () => {
       }
 
       try {
+        await fetchCsrfToken(); // Ensure CSRF token is loaded before POST
         await socialHubAPI.linkedinCallback(code);
         setStatus('success');
         toast.success('LinkedIn account connected successfully!');

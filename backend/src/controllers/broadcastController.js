@@ -28,7 +28,14 @@ exports.createBroadcast = catchAsync(async (req, res, next) => {
     status: scheduledAt ? 'SCHEDULED' : 'IN_PROGRESS'
   });
  
-  if (!scheduledAt) {
+  if (scheduledAt) {
+    const delayMs = new Date(scheduledAt).getTime() - Date.now();
+    if (delayMs > 0) {
+      await enqueueBroadcast(broadcast._id, template, contactGroup, whatsappAccountId, delayMs);
+    } else {
+      await enqueueBroadcast(broadcast._id, template, contactGroup, whatsappAccountId);
+    }
+  } else {
     // Fire immediately if not scheduled
     await enqueueBroadcast(broadcast._id, template, contactGroup, whatsappAccountId);
   }

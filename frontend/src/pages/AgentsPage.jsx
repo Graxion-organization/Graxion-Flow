@@ -7,7 +7,7 @@ import {
   Bot, Plus, Pencil, Trash2, Play, ToggleLeft, ToggleRight,
   Loader2, MessageSquare, X, Send, Lock, ChevronRight, Activity, Cpu
 } from 'lucide-react';
-import { agentAPI, whatsappAPI, telegramAPI, instagramAPI, facebookAPI, youtubeAPI } from '../services/api';
+import { agentAPI, whatsappAPI, telegramAPI, instagramAPI, facebookAPI, youtubeAPI, socialHubAPI } from '../services/api';
 import toast from 'react-hot-toast';
 
 const agentSchema = z.object({
@@ -475,7 +475,7 @@ export default function AgentsPage() {
       instagramAPI.getAll().then(r => setIgAccounts(r.data.data.accounts)).catch(() => {}),
       facebookAPI.getAll().then(r => setFbAccounts(r.data.data.accounts)).catch(() => {}),
       youtubeAPI.getAll().then(r => setYtAccounts(r.data.data.accounts)).catch(() => {}),
-      api.getAllLinkedInAccounts().then(r => setLnAccounts(r.data.data.accounts || r.data.accounts)).catch(() => {}),
+      socialHubAPI.getAllLinkedInAccounts().then(r => setLnAccounts(r.data.data.accounts || r.data.accounts)).catch(() => {}),
     ]).finally(() => setLoading(false));
   }, []);
 

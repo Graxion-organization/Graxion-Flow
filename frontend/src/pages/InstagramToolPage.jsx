@@ -15,7 +15,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import { api } from '../services/api';
 import { io } from "socket.io-client";
 
 export default function InstagramTool() {
@@ -75,10 +75,7 @@ export default function InstagramTool() {
     setLoadingAccounts(true);
     try {
       // JWT via cookies
-      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-      const res = await axios.get(`${baseURL}/instagram/manual/accounts`, {
-        withCredentials: true
-      });
+      const res = await api.get(`/instagram/manual/accounts`);
       const fetchedAccounts = res.data.data.accounts || [];
       setAccounts(fetchedAccounts);
       if (fetchedAccounts.length > 0) {
@@ -102,19 +99,13 @@ export default function InstagramTool() {
     
     try {
       // JWT via cookies
-      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-      
       // Fetch stats in parallel
-      axios.get(`${baseURL}/instagram/manual/${account._id}/stats`, {
-        withCredentials: true
-      }).then(res => {
+      api.get(`/instagram/manual/${account._id}/stats`).then(res => {
         setAccountStats(res.data.data);
       }).catch(err => console.error("Failed stats:", err))
       .finally(() => setLoadingStats(false));
 
-      const res = await axios.get(`${baseURL}/instagram/manual/${account._id}/media`, {
-        withCredentials: true
-      });
+      const res = await api.get(`/instagram/manual/${account._id}/media`);
       setMediaItems(res.data.data.media || []);
     } catch (err) {
       toast.error('Failed to fetch media for this account');
@@ -130,10 +121,7 @@ export default function InstagramTool() {
     setLoadingComments(true);
     try {
       // JWT via cookies
-      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-      const res = await axios.get(`${baseURL}/instagram/manual/${selectedAccount._id}/media/${media.id}/comments`, {
-        withCredentials: true
-      });
+      const res = await api.get(`/instagram/manual/${selectedAccount._id}/media/${media.id}/comments`);
       setComments(res.data.data.comments || []);
     } catch (err) {
       toast.error('Failed to fetch comments for this post');
@@ -150,18 +138,14 @@ export default function InstagramTool() {
     setIsSending(true);
     try {
       // JWT via cookies
-      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-      
       const targetId = selectedComment ? selectedComment.id : selectedMedia.id;
       const type = selectedComment ? 'comment' : 'media';
 
-      await axios.post(`${baseURL}/instagram/manual/comment`, {
+      await api.post(`/instagram/manual/comment`, {
         accountId: selectedAccount._id,
         targetId,
         type,
         text: messageText
-      }, {
-        withCredentials: true
       });
       
       toast.success(type === 'comment' ? 'Reply sent successfully!' : 'Comment posted successfully!');
@@ -202,10 +186,7 @@ export default function InstagramTool() {
               onClick={async () => {
                 try {
                   // JWT via cookies
-                  const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-                  await axios.post(`${baseURL}/instagram/manual/trigger-worker`, {}, {
-                    withCredentials: true
-                  });
+                  await api.post(`/instagram/manual/trigger-worker`, {});
                   toast.success('Sync started in background');
                 } catch(e) {
                   toast.error('Failed to start sync');
@@ -313,12 +294,9 @@ export default function InstagramTool() {
               onClick={async () => {
                 try {
                   // JWT via cookies
-                  const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-                  await axios.post(`${baseURL}/instagram/manual/auto-reply-post`, {
+                  await api.post(`/instagram/manual/auto-reply-post`, {
                     accountId: selectedAccount._id,
                     mediaId: selectedMedia.id
-                  }, {
-                    withCredentials: true
                   });
                   toast.success('AI is replying to all unanswered comments in background!');
                 } catch(e) {

@@ -11,13 +11,13 @@ const broadcastQueue = new Queue(BROADCAST_QUEUE_NAME, {
   connection: redisConfig,
 });
 
-const enqueueBroadcast = async (broadcastId, templateId, contactGroupId, whatsappAccountId) => {
+const enqueueBroadcast = async (broadcastId, templateId, contactGroupId, whatsappAccountId, delayMs = 0) => {
   await broadcastQueue.add('send-broadcast', {
     broadcastId,
     templateId,
     contactGroupId,
     whatsappAccountId,
-  });
+  }, { delay: delayMs });
 };
 
 const broadcastWorker = new Worker(BROADCAST_QUEUE_NAME, async (job) => {

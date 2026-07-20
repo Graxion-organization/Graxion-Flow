@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { whatsappAPI } from "../services/api";
+import { whatsappAPI, fetchCsrfToken } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { Loader2, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
@@ -34,6 +34,7 @@ export default function Callback() {
 
       try {
         const redirectUri = window.location.origin + "/callback";
+        await fetchCsrfToken();
         const res = await whatsappAPI.embeddedSignupCallback(code, redirectUri);
 
         localStorage.setItem("wa_data", JSON.stringify(res.data.data));

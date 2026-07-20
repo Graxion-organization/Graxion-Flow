@@ -190,19 +190,21 @@ class LinkedInService {
   async getMemberPosts(limit = 20) {
     try {
       const response = await axios.get(
-        `${this.baseUrl}/ugcPosts`,
+        `https://api.linkedin.com/rest/posts`,
         {
           params: {
-            q: 'authors',
-            authors: `List(urn:li:person:${this.linkedinId})`,
+            q: 'author',
+            author: `urn:li:person:${this.linkedinId}`,
             count: limit,
           },
           headers: {
             'Authorization': `Bearer ${this.accessToken}`,
             'X-Restli-Protocol-Version': '2.0.0',
+            'LinkedIn-Version': '202401'
           }
         }
       );
+      // Map the new posts format to the old expected format if necessary, or just return elements
       return response.data.elements || [];
     } catch (error) {
       const errDetail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
@@ -217,11 +219,12 @@ class LinkedInService {
   async getPostComments(postUrn) {
     try {
       const response = await axios.get(
-        `${this.baseUrl}/socialActions/${encodeURIComponent(postUrn)}/comments`,
+        `https://api.linkedin.com/rest/socialActions/${encodeURIComponent(postUrn)}/comments`,
         {
           headers: {
             'Authorization': `Bearer ${this.accessToken}`,
             'X-Restli-Protocol-Version': '2.0.0',
+            'LinkedIn-Version': '202401'
           }
         }
       );
@@ -239,7 +242,7 @@ class LinkedInService {
   async replyToComment(targetUrn, message) {
     try {
       const response = await axios.post(
-        `${this.baseUrl}/socialActions/${encodeURIComponent(targetUrn)}/comments`,
+        `https://api.linkedin.com/rest/socialActions/${encodeURIComponent(targetUrn)}/comments`,
         {
           actor: `urn:li:person:${this.linkedinId}`,
           message: {
@@ -250,6 +253,7 @@ class LinkedInService {
           headers: {
             'Authorization': `Bearer ${this.accessToken}`,
             'X-Restli-Protocol-Version': '2.0.0',
+            'LinkedIn-Version': '202401',
             'Content-Type': 'application/json'
           }
         }

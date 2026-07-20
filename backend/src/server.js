@@ -27,6 +27,7 @@ const instagramRoutes = require('./routes/instagramRoutes');
 const instagramWebhookRoutes = require('./routes/instagramWebhookRoutes');
 const facebookRoutes = require('./routes/facebookRoutes');
 const facebookWebhookRoutes = require('./routes/facebookWebhookRoutes');
+const linkedinWebhookRoutes = require('./routes/linkedinWebhookRoutes');
 const socialHubRoutes = require('./routes/socialHub');
 const aiRoutes = require('./routes/ai');
 const notificationRoutes = require('./routes/notifications');
@@ -259,6 +260,8 @@ app.use('/api/webhooks/telegram', telegramWebhookRoutes);
 
 // Ecommerce Webhooks (public for external services)
 app.use('/api/webhooks/ecommerce', ecommerceRoutes);
+
+app.use('/api/webhooks/linkedin', linkedinWebhookRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────
 app.all('*', (req, res, next) => {

@@ -153,3 +153,103 @@ exports.replyToComment = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getStats = async (req, res, next) => {
+  try {
+    const account = await YoutubeAccount.findOne({ _id: req.params.id, organization: req.organization._id }).select("+accessToken +refreshToken");
+    if (!account) return next(new AppError('YouTube account not found', 404));
+
+    const ytProvider = new YoutubeProvider(account.accessToken, account.refreshToken, account.tokenExpiry, account.channelId);
+    if (new Date(account.tokenExpiry) < new Date(Date.now() + 5 * 60000)) {
+      await ytProvider.refreshYouTubeTokenForAccount(account);
+    }
+    
+    const channelDetails = await ytProvider.fetchChannelDetails();
+    const stats = channelDetails.statistics || { viewCount: 0, commentCount: 0 };
+    
+    res.status(200).json({ 
+      status: 'success', 
+      data: { 
+        views: stats.viewCount, 
+        comments: stats.commentCount 
+      } 
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.triggerWorker = async (req, res, next) => {
+  try {
+    const YoutubeAutomationService = require('../services/youtubeAutomationService');
+    YoutubeAutomationService.runAutomation().catch(err => logger.error('Background YouTube Worker Error: ' + err.message));
+    res.status(200).json({ status: 'success', message: 'Worker triggered successfully' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.autoReplyPost = async (req, res, next) => {
+  try {
+    const { accountId, mediaId } = req.body;
+    if (!accountId || !mediaId) return next(new AppError('accountId and mediaId required', 400));
+    
+    const account = await YoutubeAccount.findOne({ _id: accountId, organization: req.organization._id }).select("+accessToken +refreshToken");
+    if (!account) return next(new AppError('Account not found', 404));
+
+    const YoutubeAutomation = require('../models/YoutubeAutomation');
+    const automation = await YoutubeAutomation.findOne({ organization: req.organization._id });
+    if (!automation) return next(new AppError('Please setup YouTube automation settings first', 400));
+
+    const ytProvider = new YoutubeProvider(account.accessToken, account.refreshToken, account.tokenExpiry, account.channelId);
+    if (new Date(account.tokenExpiry) < new Date(Date.now() + 5 * 60000)) {
+      await ytProvider.refreshYouTubeTokenForAccount(account);
+    }
+
+    const comments = await ytProvider.fetchVideoComments(mediaId, 50);
+    const AIService = require('../services/aiService');
+    
+    const processAutoReply = async () => {
+      let count = 0;
+      for (const comment of comments) {
+         const topComment = comment.snippet.topLevelComment;
+         const commentId = topComment.id;
+         const commentText = topComment.snippet.textOriginal;
+         const authorName = topComment.snippet.authorDisplayName;
+
+         if (automation.repliedCommentIds.includes(commentId)) continue;
+         if (topComment.snippet.authorChannelId?.value === account.channelId) continue;
+
+         try {
+           const aiResponse = await AIService.generate(
+             { _id: 'youtube_auto', systemPrompt: automation.aiPrompt, model: 'gemini-1.5-flash', temperature: 0.7 },
+             [],
+             `Comment from ${authorName}: ${commentText}`,
+             'youtube'
+           );
+           
+           const replyText = aiResponse.content;
+           
+           if (replyText && !replyText.includes("experiencing some technical difficulties")) {
+             const success = await ytProvider.replyToCommentThread(commentId, replyText);
+             if (success) {
+               automation.repliedCommentIds.push(commentId);
+               count++;
+             }
+           }
+         } catch(e) {
+           logger.error(`Error auto-replying to ${commentId}: ${e.message}`);
+         }
+      }
+      if (count > 0) {
+        await automation.save();
+      }
+    };
+    
+    processAutoReply().catch(err => logger.error('AutoReply Error: ' + err.message));
+
+    res.status(200).json({ status: 'success', message: 'Auto reply process started' });
+  } catch (err) {
+    next(err);
+  }
+};
