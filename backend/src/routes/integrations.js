@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const integrationsController = require('../controllers/integrationsController');
 const { protect } = require('../middleware/auth');
-const { requireOrganization } = require('../middleware/organizationMiddleware');
+const { injectOrganization, requireOrganization } = require('../middleware/organizationMiddleware');
 
 router.use(protect);
+router.use(injectOrganization);
 router.use(requireOrganization);
 
 router.get('/', integrationsController.getIntegrations);

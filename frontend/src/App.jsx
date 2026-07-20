@@ -26,7 +26,6 @@ const SocialPublishingPage = lazy(() => import("./pages/SocialPublishingPage"));
 const LeadsDashboardPage = lazy(() => import("./pages/LeadsDashboardPage"));
 const CallbackPage = lazy(() => import("./pages/CallbackPage"));
 const WhatsAppSignup = lazy(() => import("./pages/watsapphd"));
-const WhatsAppPage = lazy(() => import("./pages/WhatsAppPage"));
 const AIPresenterPage = lazy(() => import("./pages/AIPresenterPage"));
 const YoutubeCallbackPage = lazy(() => import("./pages/YoutubeCallbackPage"));
 const LinkedinCallbackPage = lazy(() => import("./pages/LinkedinCallbackPage"));
@@ -282,7 +281,7 @@ export default function App() {
             <Route path="ai-presenter" element={<AIPresenterPage />} />
             <Route path="leads" element={<LeadsDashboardPage />} />
             <Route path="deals" element={<DealsPipeline />} />
-            <Route path="whatsapp" element={<WhatsAppPage />} />
+            <Route path="whatsapp" element={<Navigate to="integrations" replace />} />
             <Route path="quality" element={<QualityRatingPage />} />
             <Route path="social-hub" element={<SocialPublishingPage />} />
             <Route path="billing" element={<BillingPage />} />

@@ -127,23 +127,30 @@ class AIService {
   }
 
   // WA-011: Redis Caching & WA-009: Memory Summarization
-  static async generate(agent, contextMessages, userMessageText, platform, wantsVoice = false) {
+  static async generate(agent, contextMessages, userMessageText, platform, wantsVoice = false, ragContext = '', memoryContext = '') {
     try {
       const cacheKey = `ai_cache:${agent._id}:${Buffer.from(userMessageText.toLowerCase().trim()).toString('base64')}`;
       const cached = await redis.get(cacheKey);
-
+ 
       if (cached) {
         logger.info(`[AI Cache Hit] Returned instant response for ${userMessageText}`);
         return { content: cached, isVoiceResponse: wantsVoice, tokensUsed: 0 };
       }
-
+ 
       // If context is too long, summarize it
       let effectiveContext = contextMessages;
       if (contextMessages.length > 10) {
         effectiveContext = await this.summarizeContext(contextMessages);
       }
-
+ 
       let systemPrompt = agent.systemPrompt || 'You are a helpful AI assistant.';
+      if (ragContext) {
+        systemPrompt += `\n\n[Relevant Knowledge Base Context]:\n${ragContext}`;
+      }
+      if (memoryContext) {
+        systemPrompt += `\n\n[Context Memory/Learned Profile]:\n${memoryContext}`;
+      }
+ 
       const modelName = agent.model || 'gemini-1.5-flash';
       let responseText = '';
 

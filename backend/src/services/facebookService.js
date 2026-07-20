@@ -9,23 +9,67 @@ class FacebookService {
     this.baseUrl = `https://graph.facebook.com/${this.apiVersion}`;
   }
 
-  /**
-   * Send a text message to a user on Messenger
-   */
+  static splitMessage(text, maxLength = 950) {
+    if (!text) return [];
+    if (text.length <= maxLength) return [text];
+    
+    const chunks = [];
+    let currentChunk = '';
+    
+    const lines = text.split('\n');
+    for (const line of lines) {
+      if ((currentChunk + '\n' + line).length > maxLength) {
+        if (currentChunk) {
+          chunks.push(currentChunk.trim());
+          currentChunk = '';
+        }
+        
+        if (line.length > maxLength) {
+          let remaining = line;
+          while (remaining.length > maxLength) {
+            chunks.push(remaining.substring(0, maxLength));
+            remaining = remaining.substring(maxLength);
+          }
+          currentChunk = remaining;
+        } else {
+          currentChunk = line;
+        }
+      } else {
+        currentChunk = currentChunk ? currentChunk + '\n' + line : line;
+      }
+    }
+    
+    if (currentChunk) {
+      chunks.push(currentChunk.trim());
+    }
+    
+    return chunks;
+  }
+
   async sendTextMessage(recipientId, text) {
     try {
-      const response = await axios.post(
-        `${this.baseUrl}/me/messages`,
-        {
-          messaging_type: 'RESPONSE',
-          recipient: { id: recipientId },
-          message: { text },
-        },
-        {
-          params: { access_token: this.accessToken },
-        }
-      );
-      return response.data;
+      const chunks = FacebookService.splitMessage(text, 950);
+      let lastResponse = null;
+
+      for (const chunk of chunks) {
+        if (!chunk.trim()) continue;
+        
+        lastResponse = await axios.post(
+          `${this.baseUrl}/me/messages`,
+          {
+            messaging_type: 'RESPONSE',
+            recipient: { id: recipientId },
+            message: { text: chunk },
+          },
+          {
+            params: { access_token: this.accessToken },
+          }
+        );
+        // Small delay to ensure sequential delivery on Meta's servers
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      return lastResponse ? lastResponse.data : null;
     } catch (error) {
       const errDetail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
       logger.error(`Facebook sendTextMessage error: ${errDetail}`);

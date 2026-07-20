@@ -63,6 +63,8 @@ api.interceptors.response.use(
     if (isOrgError) {
       // Clear stale organization ID so DashboardLayout can auto-create a new one
       localStorage.removeItem('organizationId');
+      localStorage.removeItem('org-store');
+
       if (window.location.pathname.startsWith('/app')) {
         const lastReload = sessionStorage.getItem('orgErrorReloadTime');
         const now = Date.now();

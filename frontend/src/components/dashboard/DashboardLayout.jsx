@@ -12,6 +12,8 @@ import {
   X,
   Bell,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Share2,
   CheckCheck,
   MessageCircle,
@@ -79,6 +81,7 @@ const SIDEBAR_GROUPS = [
       { to: "/app/campaigns", icon: Megaphone, label: "Campaigns", minRole: "editor" },
       { to: "/app/broadcast", icon: PlayCircle, label: "Broadcasts", minRole: "editor" },
       { to: "/app/social-hub", icon: Share2, label: "Social Hub", minRole: "editor" },
+      { to: "/app/automation/instagram", icon: MessageCircle, label: "Auto Comments", minRole: "editor" },
     ]
   },
   {
@@ -139,6 +142,14 @@ export default function DashboardLayout() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [theme, setTheme] = useState("dark");
   const [socialConnectedCount, setSocialConnectedCount] = useState(0);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    const stored = localStorage.getItem("sidebar-collapsed");
+    return stored !== null ? stored === "true" : false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("sidebar-collapsed", String(isSidebarCollapsed));
+  }, [isSidebarCollapsed]);
 
   const notifRef = useRef(null);
   const userMenuRef = useRef(null);
@@ -164,8 +175,6 @@ export default function DashboardLayout() {
       }).catch(() => {});
     }
   }, [location.pathname]);
-
-  const isSidebarCollapsed = location.pathname.includes("/automation/");
 
   const {
     notifications,
@@ -461,6 +470,18 @@ export default function DashboardLayout() {
               </div>
             </div>
           )}
+
+          <div className={`p-3 border-t mt-auto ${isDark ? "border-white/10" : "border-slate-200"}`}>
+            <button
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className={`flex items-center ${isSidebarCollapsed ? 'justify-center w-full' : 'gap-3 w-full px-3'} py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+              }`}
+              title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            >
+              {isSidebarCollapsed ? <ChevronRight size={18} /> : <><ChevronLeft size={18} /> <span>Collapse</span></>}
+            </button>
+          </div>
         </div>
       </aside>
 

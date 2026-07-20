@@ -11,6 +11,7 @@ const broadcastSchema = new mongoose.Schema({
   readCount: { type: Number, default: 0 },
   failedCount: { type: Number, default: 0 },
   scheduledAt: Date,
+  whatsappAccountId: { type: mongoose.Schema.Types.ObjectId, ref: 'WhatsappAccount', required: true }
 }, { timestamps: true });
-
+ 
 module.exports = mongoose.model('Broadcast', broadcastSchema);

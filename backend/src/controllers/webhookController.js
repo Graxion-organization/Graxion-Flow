@@ -192,26 +192,24 @@ exports.processWebhookPayload = async (payload) => {
         return;
       }
 
-      // 2. Find active agent for this account
-      const agent = await Agent.findOne({
-        whatsappAccount: waAccount._id,
-        isActive: true,
-      });
+      // 2. Find active agents for this organization
+      const agent = await Agent.findOne({ organization: waAccount.organization, isActive: true }) ||
+                    await Agent.findOne({ whatsappAccount: waAccount._id, isActive: true });
       if (!agent) {
-        logger.warn(`No active agent for account: ${waAccount._id}`);
+        logger.warn(`No active agent found for organization: ${waAccount.organization}`);
         return;
       }
-
+ 
       // 3. Find or create conversation
       let conversation = await Conversation.findOne({
         whatsappAccount: waAccount._id,
         customerPhone: from,
       }).sort({ createdAt: -1 });
-
+ 
       if (!conversation) {
         conversation = await Conversation.create({
           user: waAccount.user,
-          organization: waAccount.organization, // ← CRITICAL: was missing
+          organization: waAccount.organization,
           agent: agent._id,
           whatsappAccount: waAccount._id,
           customerPhone: from,
@@ -357,15 +355,11 @@ exports.processWebhookPayload = async (payload) => {
         return;
       }
 
-      // 4. Check business hours
-      const withinHours = AIService.isWithinBusinessHours(agent.businessHours);
-      if (!withinHours && agent.outOfHoursMessage) {
-        await waService.sendTextMessage(from, agent.outOfHoursMessage);
-        return;
-      }
-
-      // 5. Check human handoff keywords
-      if (AIService.shouldHandoffToHuman(userMessageText, agent.humanHandoffKeywords)) {
+      // 5. Check human handoff keywords across all active agents
+      const activeAgents = await Agent.find({ organization: waAccount.organization, isActive: true });
+      const combinedHandoffKeywords = [...new Set(activeAgents.flatMap(a => a.humanHandoffKeywords || []))];
+ 
+      if (AIService.shouldHandoffToHuman(userMessageText, combinedHandoffKeywords)) {
         conversation.status = 'human_handoff';
         await conversation.addMessage({
           role: 'user',
@@ -383,12 +377,12 @@ exports.processWebhookPayload = async (payload) => {
         conversation.lastMessageAt = new Date();
         conversation.isRead = false;
         await conversation.save();
-
+ 
         emitToUser(waAccount.user.toString(), 'conversation_updated', {
           conversationId: conversation._id,
           messages: await conversation.getRecentMessages(),
         });
-
+ 
         emitNotification(waAccount.user.toString(), {
           type: 'human_handoff',
           title: '🔴 Human Handoff Requested',
@@ -396,7 +390,7 @@ exports.processWebhookPayload = async (payload) => {
           conversationId: conversation._id,
           platform: 'whatsapp',
         });
-
+ 
         // Send real email alert instead of just logging
         const { sendEmail } = require('../services/emailService');
         if (waAccount.user) {
@@ -410,8 +404,8 @@ exports.processWebhookPayload = async (payload) => {
           }
         }
         logger.info(`Human handoff triggered for WA conversation: ${conversation._id}`);
-
-        await waService.sendTextMessage(from, agent.humanHandoffMessage);
+ 
+        await waService.sendTextMessage(from, agent.humanHandoffMessage || 'Connecting you to a human agent...');
         return;
       }
 
@@ -462,20 +456,20 @@ exports.processWebhookPayload = async (payload) => {
       // 8a. Get recent context window
       const contextMessages = (await conversation.getRecentMessages(20))
         .filter((m) => m.role !== 'system')
-        .slice(-(agent.contextWindow * 2))
+        .slice(-((agent.contextWindow || 10) * 2))
         .map((m) => ({ role: m.role, content: m.content }));
-
+ 
       // 8b. Check if it's a voice request (or if they sent an audio note)
       const wantsVoice = isVoiceRequest(userMessageText) || isAudioRequest;
-
+ 
       // 8c. Check for Keyword Triggers (WA-011)
       const matchedTrigger = await checkKeywordMatch(waAccount.organization, userMessageText);
       if (matchedTrigger) {
         logger.info(`[KEYWORD TRIGGER] Matched trigger ${matchedTrigger._id} for ${from}`);
-
+ 
         if (matchedTrigger.action === 'SEND_MESSAGE') {
           const sentMsg = await waService.sendTextMessage(from, matchedTrigger.response);
-
+ 
           await conversation.addMessage({
             role: 'assistant',
             content: matchedTrigger.response,
@@ -483,26 +477,37 @@ exports.processWebhookPayload = async (payload) => {
             type: 'text',
             status: 'sent',
           });
-
+ 
           await waService.markAsRead(messageId);
           return; // Skip AI entirely
         }
         // START_FLOW and ASSIGN_AGENT to be implemented in their respective phases
       }
-
-      // 9. Generate AI response (platform='whatsapp' for proper formatting instructions)
-      const aiResult = await AIService.generate(
-        agent,
-        contextMessages.slice(0, -1),
+ 
+      // 9. Generate AI response using OrchestrationEngine
+      const OrchestrationEngine = require('../services/orchestrationEngine');
+      const aiResult = await OrchestrationEngine.execute({
+        organizationId: waAccount.organization,
+        conversation,
         userMessageText,
-        'whatsapp',
+        contextMessages: contextMessages.slice(0, -1),
+        from,
         wantsVoice
-      );
-
-      // 9a. Sanitize response - remove markdown symbols not supported by WhatsApp
+      });
+ 
+      const targetAgent = aiResult.agent;
+ 
+      // 9b. Check business hours of the target routed agent
+      const withinHours = AIService.isWithinBusinessHours(targetAgent.businessHours);
+      if (!withinHours && targetAgent.outOfHoursMessage) {
+        await waService.sendTextMessage(from, targetAgent.outOfHoursMessage);
+        return;
+      }
+ 
+      // 9c. Sanitize response - remove markdown symbols not supported by WhatsApp
       let cleanReply = AIService.sanitizeForWhatsApp(aiResult.content) || 'Sorry, something went wrong.';
       let detectedLanguage = 'hi-IN'; // default
-
+ 
       // Extract [LANG: xx-XX] tag if present
       const langMatch = cleanReply.match(/\[LANG:\s*([a-zA-Z-]+)\]/i);
       if (langMatch) {
@@ -510,32 +515,32 @@ exports.processWebhookPayload = async (payload) => {
         cleanReply = cleanReply.replace(langMatch[0], '').trim();
         aiResult.content = aiResult.content.replace(langMatch[0], '').trim();
       }
-
+ 
       // 10. Mark incoming as read
       await waService.markAsRead(messageId);
-
+ 
       let sentMsg;
       let audioSent = false;
-
+ 
       // 11. Send Voice Message if requested
-      if (wantsVoice) {
+      if (wantsVoice && targetAgent.elevenLabsVoiceId) {
         try {
           logger.info(`Voice intent detected for ${from}. Generating audio with language ${detectedLanguage}...`);
-
+ 
           // Generate local MP3
           const localAudioPath = await generateSpeech(cleanReply, detectedLanguage);
-
+ 
           // Upload to Cloudinary
           const uploadResult = await CloudinaryService.upload(localAudioPath, {
             resource_type: 'video', // Audio is uploaded as video in Cloudinary
             folder: 'whatsapp_tts',
           });
-
+ 
           // Send audio message via WhatsApp
           sentMsg = await waService.sendAudioMessage(from, uploadResult.url);
           logger.info(`Audio message sent to ${from}`);
           audioSent = true;
-
+ 
           // Cleanup local file
           await deleteTempAudio(localAudioPath);
         } catch (audioError) {
@@ -543,12 +548,12 @@ exports.processWebhookPayload = async (payload) => {
           // Fallback: Text response will be sent below since audioSent is false
         }
       }
-
+ 
       // 11b. Send Text if voice was not requested, or if voice generation failed
       if (!wantsVoice || !audioSent) {
         sentMsg = await waService.sendTextMessage(from, cleanReply);
       }
-
+ 
       // 12. Save assistant message
       await conversation.addMessage({
         role: 'assistant',
@@ -558,9 +563,11 @@ exports.processWebhookPayload = async (payload) => {
         media: mediaData,
         status: 'sent',
         tokens: aiResult.tokensUsed,
-        responseTime: aiResult.responseTime,
+        responseTime: 0,
       });
-
+ 
+      // Bind conversation sticky agent to target agent dynamically
+      conversation.agent = targetAgent._id;
       conversation.totalMessages += 2;
       conversation.totalTokensUsed += aiResult.tokensUsed;
       conversation.lastMessageAt = new Date();

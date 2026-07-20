@@ -80,9 +80,34 @@ const startSocialPostScheduler = () => {
       logger.error(`[YouTube Automation] Scheduler error: ${err.message}`);
     }
   });
-
+ 
+  // 4. WhatsApp Scheduled Broadcasts: Process scheduled broadcasts every 30 seconds
+  cron.schedule('*/30 * * * * *', async () => {
+    try {
+      const Broadcast = require('../models/Broadcast');
+      const { enqueueBroadcast } = require('../workers/broadcastWorker');
+      
+      const broadcast = await Broadcast.findOneAndUpdate(
+        {
+          status: 'SCHEDULED',
+          scheduledAt: { $lte: new Date() }
+        },
+        { $set: { status: 'IN_PROGRESS' } },
+        { new: true, sort: { scheduledAt: 1 } }
+      );
+ 
+      if (broadcast) {
+        logger.info(`[Broadcast Scheduler] Found scheduled broadcast ${broadcast._id} (${broadcast.name}). Queueing for execution.`);
+        await enqueueBroadcast(broadcast._id, broadcast.template, broadcast.contactGroup, broadcast.whatsappAccountId);
+      }
+    } catch (err) {
+      logger.error(`[Broadcast Scheduler] Error processing scheduled broadcast: ${err.message}`);
+    }
+  });
+ 
   logger.info('Reliable Social Post Scheduler initialized (30s tick).');
   logger.info('YouTube Comment Automation initialized (5m tick).');
+  logger.info('WhatsApp Broadcast Scheduler initialized (30s tick).');
 };
-
+ 
 module.exports = { startSocialPostScheduler };
