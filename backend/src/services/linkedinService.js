@@ -189,18 +189,14 @@ class LinkedInService {
    */
   async getMemberPosts(limit = 20) {
     try {
+      const encodedAuthor = encodeURIComponent(`urn:li:person:${this.linkedinId}`);
       const response = await axios.get(
-        `https://api.linkedin.com/rest/posts`,
+        `https://api.linkedin.com/rest/posts?q=author&author=${encodedAuthor}&count=${limit}`,
         {
-          params: {
-            q: 'author',
-            author: `urn:li:person:${this.linkedinId}`,
-            count: limit,
-          },
           headers: {
             'Authorization': `Bearer ${this.accessToken}`,
             'X-Restli-Protocol-Version': '2.0.0',
-            'LinkedIn-Version': '202401'
+            'LinkedIn-Version': '202606'
           }
         }
       );
@@ -224,7 +220,7 @@ class LinkedInService {
           headers: {
             'Authorization': `Bearer ${this.accessToken}`,
             'X-Restli-Protocol-Version': '2.0.0',
-            'LinkedIn-Version': '202401'
+            'LinkedIn-Version': '202606'
           }
         }
       );
@@ -253,7 +249,7 @@ class LinkedInService {
           headers: {
             'Authorization': `Bearer ${this.accessToken}`,
             'X-Restli-Protocol-Version': '2.0.0',
-            'LinkedIn-Version': '202401',
+            'LinkedIn-Version': '202606',
             'Content-Type': 'application/json'
           }
         }

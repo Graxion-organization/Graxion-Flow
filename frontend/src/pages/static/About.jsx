@@ -1,6 +1,6 @@
 import React from "react";
 import StaticPageLayout from "./StaticPageLayout";
-import { Users, Globe, Target, Shield, Zap, Heart } from "lucide-react";
+import { Users, Globe, Target, Shield, Zap, Heart, ArrowRight } from "lucide-react";
 
 export default function About() {
   const stats = [
@@ -63,12 +63,12 @@ export default function About() {
       <section style={{ marginBottom: "100px" }}>
         <div style={{ display: "flex", gap: "60px", alignItems: "center", flexWrap: "wrap" }}>
           <div style={{ flex: "1 1 400px" }}>
-            <h2 style={{ fontFamily: "Syne, sans-serif", fontSize: "36px", fontWeight: 800, marginBottom: "20px" }}>The Story Behind <span style={{ color: "#25D366" }}>Graxion</span></h2>
+            <h2 style={{ fontFamily: "Syne, sans-serif", fontSize: "36px", fontWeight: 800, marginBottom: "20px" }}>The Story Behind <span style={{ color: "#25D366" }}>Graxion Flow</span></h2>
             <p style={{ color: "#7a9b8a", lineHeight: 1.8, fontSize: "17px", marginBottom: "20px" }}>
-              Founded in 2024, Graxion started as a small project to help local businesses manage their WhatsApp inquiries. We quickly realized that the problem was much larger—businesses everywhere were struggling to keep up with the demand for instant, 24/7 communication.
+              Founded in 2024, Graxion started with a simple vision: to revolutionize how businesses manage customer interactions. We quickly realized that traditional support pipelines were too slow, rigid, and disconnected from modern channels like WhatsApp and Instagram.
             </p>
             <p style={{ color: "#7a9b8a", lineHeight: 1.8, fontSize: "17px" }}>
-              Today, we're a team of passionate engineers and AI specialists dedicated to building the most powerful, yet accessible, automation platform for businesses of all sizes.
+              That's why we built <strong>Graxion Flow</strong>. As our flagship enterprise-grade product, it brings together Cognitive AI Agents, an Omnichannel Inbox, and a Visual Flow Builder. Today, we're a team of passionate engineers dedicated to making high-end AI automation accessible to modern businesses everywhere.
             </p>
           </div>
           <div style={{ flex: "1 1 400px", position: "relative" }}>

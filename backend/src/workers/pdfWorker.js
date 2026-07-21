@@ -64,7 +64,11 @@ const useRedis = process.env.USE_REDIS === 'true';
 let pdfWorker = null;
 
 if (useRedis) {
-  pdfWorker = new Worker('pdf-processing', processPdf, { connection });
+  pdfWorker = new Worker('pdf-processing', processPdf, { 
+    connection,
+    stalledInterval: 300000,
+    metrics: { maxDataPoints: 0 }
+  });
 
   pdfWorker.on('completed', job => {
     logger.info(`Job ${job.id} has completed!`);

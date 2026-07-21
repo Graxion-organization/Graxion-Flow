@@ -16,8 +16,11 @@ router.delete('/accounts/:id', facebookController.disconnectAccount);
 
 // Manual Automation Hub Endpoints
 router.get('/manual/accounts', facebookController.getAllAccounts);
+router.get('/manual/:id/stats', facebookController.getStats);
 router.get('/manual/:id/media', facebookController.getMedia);
 router.get('/manual/:id/media/:mediaId/comments', facebookController.getMediaComments);
 router.post('/manual/:id/comments/:commentId/reply', facebookController.replyToComment);
+router.post('/manual/trigger-worker', facebookController.triggerWorker);
+router.post('/manual/auto-reply-post', facebookController.autoReplyPost);
 
 module.exports = router;

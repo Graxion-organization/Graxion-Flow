@@ -85,7 +85,9 @@ const webhookWorker = new Worker(WEBHOOK_QUEUE_NAME, async (job) => {
   }
 }, { 
   connection: redisConfig,
-  concurrency: 5 // Process 5 webhooks concurrently
+  concurrency: 5, // Process 5 webhooks concurrently
+  stalledInterval: 300000, // Reduced for Upstash limits
+  metrics: { maxDataPoints: 0 }
 });
 
 webhookWorker.on('failed', (job, err) => {

@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, MoreHorizontal, DollarSign, Calendar, User, X, TrendingUp, Activity, Target, Inbox } from 'lucide-react';
+import { Plus, MoreHorizontal, DollarSign, Calendar, User, X, TrendingUp, Activity, Target, Inbox, GripVertical } from 'lucide-react';
 import { dealAPI, contactAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
 const INITIAL_STAGES = [
-  { id: 'LEAD', label: 'Lead', color: 'bg-indigo-500', border: 'border-indigo-500/50', bgLight: 'bg-indigo-500/10' },
-  { id: 'CONTACTED', label: 'Contacted', color: 'bg-blue-500', border: 'border-blue-500/50', bgLight: 'bg-blue-500/10' },
-  { id: 'NEGOTIATION', label: 'Negotiation', color: 'bg-orange-500', border: 'border-orange-500/50', bgLight: 'bg-orange-500/10' },
-  { id: 'WON', label: 'Won', color: 'bg-emerald-500', border: 'border-emerald-500/50', bgLight: 'bg-emerald-500/10' },
-  { id: 'LOST', label: 'Lost', color: 'bg-rose-500', border: 'border-rose-500/50', bgLight: 'bg-rose-500/10' }
+  { id: 'LEAD', label: 'Lead', color: 'bg-indigo-500', text: 'text-indigo-500' },
+  { id: 'CONTACTED', label: 'Contacted', color: 'bg-blue-500', text: 'text-blue-500' },
+  { id: 'NEGOTIATION', label: 'Negotiation', color: 'bg-orange-500', text: 'text-orange-500' },
+  { id: 'WON', label: 'Won', color: 'bg-emerald-500', text: 'text-emerald-500' },
+  { id: 'LOST', label: 'Lost', color: 'bg-rose-500', text: 'text-rose-500' }
 ];
 
 export default function DealsPipeline() {
@@ -125,21 +125,21 @@ export default function DealsPipeline() {
 
   return (
     <>
-      <div className="p-4 sm:p-6 h-full flex flex-col relative overflow-hidden">
+      <div className="p-4 sm:p-6 h-[calc(100vh-80px)] flex flex-col relative overflow-hidden bg-background">
         
         {/* Background Premium Glows */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-500/10 blur-[150px] rounded-full pointer-events-none -z-10"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-success/5 blur-[150px] rounded-full pointer-events-none -z-10"></div>
 
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 z-10">
           <div>
-            <h1 className="text-2xl font-black text-white tracking-tight">Deals Pipeline</h1>
-            <p className="text-slate-400 text-sm mt-1">Manage your sales opportunities and track revenue.</p>
+            <h1 className="text-2xl font-bold text-text tracking-tight">Deals Pipeline</h1>
+            <p className="text-text/60 text-sm mt-1">Manage your sales opportunities and track revenue.</p>
           </div>
           <button 
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl transition-all font-semibold shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] shrink-0 w-full sm:w-auto justify-center"
+            className="btn-primary shrink-0 w-full sm:w-auto"
           >
             <Plus className="w-5 h-5" />
             New Deal
@@ -147,54 +147,54 @@ export default function DealsPipeline() {
         </div>
 
         {/* Metrics Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8 z-10">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg">
-                <DollarSign className="w-5 h-5" />
-              </div>
-              <span className="text-slate-400 text-xs sm:text-sm font-medium">Total Pipeline Value</span>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 z-10 shrink-0">
+          <div className="card flex items-center justify-between group hover:border-accent/50 transition-colors">
+            <div>
+              <p className="text-sm font-medium text-text/60 mb-1">Total Pipeline</p>
+              <h3 className="text-2xl font-bold text-text">${totalValue.toLocaleString()}</h3>
             </div>
-            <p className="text-xl sm:text-2xl font-bold text-white">${totalValue.toLocaleString()}</p>
+            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
+              <DollarSign className="w-6 h-6" />
+            </div>
           </div>
           
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-indigo-500/20 text-indigo-400 rounded-lg">
-                <Activity className="w-5 h-5" />
-              </div>
-              <span className="text-slate-400 text-xs sm:text-sm font-medium">Active Deals</span>
+          <div className="card flex items-center justify-between group hover:border-accent/50 transition-colors">
+            <div>
+              <p className="text-sm font-medium text-text/60 mb-1">Active Deals</p>
+              <h3 className="text-2xl font-bold text-text">{activeDealsCount}</h3>
             </div>
-            <p className="text-xl sm:text-2xl font-bold text-white">{activeDealsCount}</p>
+            <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
+              <Activity className="w-6 h-6" />
+            </div>
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg">
-                <TrendingUp className="w-5 h-5" />
-              </div>
-              <span className="text-slate-400 text-xs sm:text-sm font-medium">Deals Won</span>
+          <div className="card flex items-center justify-between group hover:border-success/50 transition-colors">
+            <div>
+              <p className="text-sm font-medium text-text/60 mb-1">Deals Won</p>
+              <h3 className="text-2xl font-bold text-text">{wonDealsCount}</h3>
             </div>
-            <p className="text-xl sm:text-2xl font-bold text-white">{wonDealsCount}</p>
+            <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center text-success group-hover:scale-110 transition-transform">
+              <TrendingUp className="w-6 h-6" />
+            </div>
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-purple-500/20 text-purple-400 rounded-lg">
-                <Target className="w-5 h-5" />
-              </div>
-              <span className="text-slate-400 text-xs sm:text-sm font-medium">Win Rate</span>
+          <div className="card flex items-center justify-between group hover:border-warning/50 transition-colors">
+            <div>
+              <p className="text-sm font-medium text-text/60 mb-1">Win Rate</p>
+              <h3 className="text-2xl font-bold text-text">{winRate}%</h3>
             </div>
-            <p className="text-xl sm:text-2xl font-bold text-white">{winRate}%</p>
+            <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center text-warning group-hover:scale-110 transition-transform">
+              <Target className="w-6 h-6" />
+            </div>
           </div>
         </div>
 
         {loading ? (
           <div className="flex-1 flex items-center justify-center z-10">
-            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
+            <div className="w-10 h-10 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
-          <div className="flex-1 flex gap-4 sm:gap-6 overflow-x-auto pb-4 custom-scrollbar items-start z-10 snap-x sm:snap-none">
+          <div className="flex-1 flex gap-6 overflow-x-auto pb-4 custom-scrollbar items-start z-10 snap-x sm:snap-none">
             {INITIAL_STAGES.map((stage) => {
               const stageDeals = deals.filter(d => d.stage === stage.id);
               const stageValue = stageDeals.reduce((acc, deal) => acc + (Number(deal.amount) || 0), 0);
@@ -202,33 +202,34 @@ export default function DealsPipeline() {
               return (
                 <div 
                   key={stage.id} 
-                  className="min-w-[85vw] w-[85vw] sm:min-w-[320px] sm:w-[320px] shrink-0 flex flex-col bg-[#0f1522]/80 backdrop-blur-xl rounded-2xl border border-white/5 shadow-2xl snap-center"
+                  className="min-w-[85vw] w-[85vw] sm:min-w-[340px] sm:w-[340px] shrink-0 flex flex-col h-full bg-surface/50 border border-border rounded-2xl snap-center"
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, stage.id)}
                 >
-                  <div className={`p-4 border-b border-white/5 flex justify-between items-center rounded-t-2xl bg-gradient-to-r from-transparent to-${stage.color.replace('bg-', '')}/5`}>
-                    <div className="flex items-center gap-2.5">
-                      <div className={`w-2.5 h-2.5 rounded-full ${stage.color} shadow-[0_0_10px_currentColor]`} />
-                      <h3 className="font-bold text-slate-100 tracking-wide">{stage.label}</h3>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${stage.border} ${stage.bgLight} text-slate-200`}>
+                  {/* Stage Header */}
+                  <div className="p-4 border-b border-border flex justify-between items-center bg-surface rounded-t-2xl">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-3 h-3 rounded-full ${stage.color}`} />
+                      <h3 className="font-semibold text-text">{stage.label}</h3>
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-background border border-border text-text/60">
                         {stageDeals.length}
                       </span>
                     </div>
                     {stageValue > 0 && (
-                      <span className="text-xs font-bold text-slate-400 bg-white/5 px-2 py-1 rounded-md border border-white/5">
+                      <span className="text-xs font-bold text-text/80">
                         ${stageValue.toLocaleString()}
                       </span>
                     )}
                   </div>
 
-                  <div className="p-3 flex-1 overflow-y-auto space-y-3 min-h-[250px] custom-scrollbar">
+                  {/* Stage Content / Drop Zone */}
+                  <div className="p-3 flex-1 overflow-y-auto space-y-3 custom-scrollbar">
                     {stageDeals.length === 0 ? (
-                      <div className="h-full min-h-[200px] flex flex-col items-center justify-center text-center p-4 border-2 border-dashed border-white/5 rounded-xl bg-white/[0.01]">
-                        <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mb-3">
-                          <Inbox className="w-6 h-6 text-slate-500" />
+                      <div className="h-full min-h-[150px] flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-border rounded-xl bg-background/50">
+                        <div className="w-12 h-12 bg-surface rounded-full flex items-center justify-center mb-3 shadow-sm">
+                          <Inbox className="w-6 h-6 text-text/40" />
                         </div>
-                        <p className="text-sm font-medium text-slate-400">No deals yet</p>
-                        <p className="text-xs text-slate-500 mt-1">Drag and drop a deal here</p>
+                        <p className="text-sm font-medium text-text/60">Drop deals here</p>
                       </div>
                     ) : (
                       stageDeals.map(deal => (
@@ -238,38 +239,35 @@ export default function DealsPipeline() {
                           draggable
                           onDragStart={(e) => handleDragStart(e, deal._id)}
                           onDragEnd={handleDragEnd}
-                          className="bg-white/[0.03] p-4 rounded-xl border border-white/10 cursor-grab active:cursor-grabbing hover:border-white/20 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50 group relative overflow-hidden backdrop-blur-sm"
+                          className="bg-surface p-4 rounded-xl border border-border cursor-grab active:cursor-grabbing hover:border-accent/40 transition-all hover:-translate-y-1 hover:shadow-md group relative"
                         >
-                          {/* Decorative stage color line */}
-                          <div className={`absolute left-0 top-0 bottom-0 w-1 ${stage.color} opacity-50 group-hover:opacity-100 transition-opacity`} />
+                          <div className={`absolute left-0 top-0 bottom-0 w-1 ${stage.color} opacity-0 group-hover:opacity-100 transition-opacity rounded-l-xl`} />
                           
-                          <div className="flex justify-between items-start mb-2 pl-2">
-                            <h4 className="font-bold text-slate-100 group-hover:text-blue-400 transition-colors leading-tight pr-4">{deal.title}</h4>
-                            <button className="text-slate-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100">
-                              <MoreHorizontal className="w-4 h-4" />
-                            </button>
+                          <div className="flex justify-between items-start mb-3">
+                            <h4 className="font-semibold text-text group-hover:text-accent transition-colors leading-snug">{deal.title}</h4>
+                            <GripVertical className="w-4 h-4 text-text/20 group-hover:text-text/40" />
                           </div>
                           
-                          <div className="flex flex-col gap-2 pl-2">
-                            <div className="flex items-center gap-2 text-xs text-slate-400">
-                              <User className="w-3.5 h-3.5 text-slate-500" />
-                              <span className="truncate">{deal.contact?.name || deal.contact?.phone || 'Unknown Contact'}</span>
+                          <div className="flex flex-col gap-2 mb-4">
+                            <div className="flex items-center gap-2 text-xs text-text/60 bg-background px-2 py-1.5 rounded-lg border border-border w-fit">
+                              <User className="w-3.5 h-3.5" />
+                              <span className="truncate max-w-[150px]">{deal.contact?.name || deal.contact?.phone || 'Unknown Contact'}</span>
                             </div>
 
                             {deal.expectedCloseDate && (
-                              <div className="flex items-center gap-2 text-xs text-slate-400">
-                                <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                              <div className="flex items-center gap-2 text-xs text-text/60 bg-background px-2 py-1.5 rounded-lg border border-border w-fit">
+                                <Calendar className="w-3.5 h-3.5" />
                                 <span>{format(new Date(deal.expectedCloseDate), 'MMM d, yyyy')}</span>
                               </div>
                             )}
                           </div>
 
-                          <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between pl-2">
-                            <div className="flex items-center text-emerald-400 font-bold text-sm bg-emerald-400/10 px-2 py-1 rounded-md border border-emerald-400/20">
+                          <div className="pt-3 border-t border-border flex items-center justify-between">
+                            <div className="flex items-center text-success font-semibold text-sm bg-success/10 px-2.5 py-1 rounded-lg">
                               <DollarSign className="w-3.5 h-3.5 mr-0.5" />
                               {deal.amount?.toLocaleString() || '0'}
                             </div>
-                            <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+                            <div className="text-[10px] text-text/40 font-medium uppercase">
                               ID: {deal._id.slice(-4)}
                             </div>
                           </div>
@@ -289,105 +287,105 @@ export default function DealsPipeline() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-primary/40 backdrop-blur-sm"
             >
               <motion.div 
                 initial={{ scale: 0.95, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 20 }}
-                className="bg-[#0f1522] rounded-2xl w-full max-w-md border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[90vh]"
+                className="bg-surface rounded-2xl w-full max-w-md border border-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
               >
-                <div className="flex justify-between items-center p-5 border-b border-white/5 bg-white/5">
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                <div className="flex justify-between items-center p-5 border-b border-border bg-background/50">
+                  <h2 className="text-lg font-bold text-text flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
                       <Plus className="w-4 h-4" />
                     </div>
                     Create New Deal
                   </h2>
-                  <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-xl">
+                  <button onClick={() => setShowModal(false)} className="text-text/40 hover:text-text transition-colors p-2 hover:bg-background rounded-xl">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <form onSubmit={handleCreateDeal} className="p-5 space-y-5 overflow-y-auto custom-scrollbar">
+                <form onSubmit={handleCreateDeal} className="p-5 space-y-4 overflow-y-auto custom-scrollbar bg-surface">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Deal Title *</label>
+                    <label className="label">Deal Title *</label>
                     <input 
                       type="text" 
                       required
                       value={newDeal.title}
                       onChange={(e) => setNewDeal({...newDeal, title: e.target.value})}
                       placeholder="e.g. Enterprise Upgrade"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all placeholder:text-slate-600"
+                      className="input"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Contact *</label>
+                    <label className="label">Contact *</label>
                     <select
                       required
                       value={newDeal.contactId}
                       onChange={(e) => setNewDeal({...newDeal, contactId: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none"
+                      className="input cursor-pointer"
                     >
-                      <option value="" className="bg-[#0f1522]">Select a contact</option>
+                      <option value="">Select a contact</option>
                       {contacts.map(c => (
-                        <option key={c._id} value={c._id} className="bg-[#0f1522]">{c.name || c.phone}</option>
+                        <option key={c._id} value={c._id}>{c.name || c.phone}</option>
                       ))}
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Amount ($)</label>
+                      <label className="label">Amount ($)</label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text/40" />
                         <input 
                           type="number" 
                           min="0"
                           value={newDeal.amount}
                           onChange={(e) => setNewDeal({...newDeal, amount: e.target.value})}
                           placeholder="0"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-600"
+                          className="input pl-9"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Initial Stage</label>
+                      <label className="label">Initial Stage</label>
                       <select
                         value={newDeal.stage}
                         onChange={(e) => setNewDeal({...newDeal, stage: e.target.value})}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none"
+                        className="input cursor-pointer"
                       >
                         {INITIAL_STAGES.map(s => (
-                          <option key={s.id} value={s.id} className="bg-[#0f1522]">{s.label}</option>
+                          <option key={s.id} value={s.id}>{s.label}</option>
                         ))}
                       </select>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Expected Close Date</label>
+                    <label className="label">Expected Close Date</label>
                     <input 
                       type="date" 
                       value={newDeal.expectedCloseDate}
                       onChange={(e) => setNewDeal({...newDeal, expectedCloseDate: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all [color-scheme:dark]"
+                      className="input [color-scheme:dark]"
                     />
                   </div>
 
-                  <div className="pt-4 flex justify-end gap-3 border-t border-white/5">
+                  <div className="pt-4 flex justify-end gap-3 border-t border-border mt-6">
                     <button 
                       type="button" 
                       onClick={() => setShowModal(false)}
-                      className="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                      className="px-5 py-2.5 rounded-xl text-sm font-semibold text-text/60 hover:text-text hover:bg-background transition-colors"
                     >
                       Cancel
                     </button>
                     <button 
                       type="submit" 
                       disabled={creating}
-                      className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                      className="btn-primary"
                     >
                       {creating ? 'Creating...' : 'Create Deal'}
                     </button>

@@ -44,8 +44,8 @@ export default function Roadmap() {
 
   return (
     <StaticPageLayout 
-      title="Product Roadmap" 
-      subtitle="Transparently building the future of business automation. See what's coming next."
+      title="Graxion Flow Roadmap" 
+      subtitle="Transparently building the future of enterprise automation. See what's coming next."
     >
       <div style={{ maxWidth: "1000px", margin: "0 auto", position: "relative", padding: "40px 0" }}>
         {/* Vertical Line */}

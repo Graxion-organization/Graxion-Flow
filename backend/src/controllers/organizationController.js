@@ -120,11 +120,39 @@ exports.inviteMember = async (req, res, next) => {
     req.organization.members.push({ user: invitedUser._id, role });
     await req.organization.save();
     
-    logger.info(`Mock Email: \${email} added to organization \${organizationId} as \${role}`);
+    logger.info(`Mock Email: ${email} added to organization ${organizationId} as ${role}`);
     
     res.status(200).json({
       status: 'success',
-      message: 'User added successfully'
+      message: 'User added successfully',
+      data: { member: { id: invitedUser._id, name: invitedUser.name, email: invitedUser.email, role, status: 'active' } }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.removeMember = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const organization = req.organization;
+    
+    // Prevent owner from being removed
+    if (organization.owner.toString() === userId.toString()) {
+      return next(new AppError('Cannot remove the organization owner', 400));
+    }
+    
+    const memberIndex = organization.members.findIndex(m => m.user.toString() === userId.toString());
+    if (memberIndex === -1) {
+      return next(new AppError('User is not a member of this organization', 404));
+    }
+    
+    organization.members.splice(memberIndex, 1);
+    await organization.save();
+    
+    res.status(200).json({
+      status: 'success',
+      message: 'Member removed successfully'
     });
   } catch (err) {
     next(err);

@@ -23,7 +23,7 @@ export default function AnalyticsPage() {
         const mappedVolume = (volRes.data?.data?.volume || []).map(d => ({
           name: d.date,
           messages: d.sent + d.received,
-          aiCalls: Math.floor((d.sent + d.received) * 0.7) // Mocking AI calls as a subset
+          aiCalls: d.sent // 'sent' represents assistant messages from the backend
         }));
         setVolumeData(mappedVolume);
         

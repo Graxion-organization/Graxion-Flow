@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { useCrmStore } from '../store/crmStore';
 import { ArrowPathIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
+import { templateAPI } from '../services/api';
 
 export default function TemplatesPage() {
   const { templates, fetchTemplates, isLoading } = useCrmStore();
@@ -16,7 +18,15 @@ export default function TemplatesPage() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Message Templates</h1>
           <p className="text-gray-400 mt-1">Manage your WhatsApp approved templates</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition">
+        <button onClick={async () => {
+          try {
+            await templateAPI.sync();
+            toast.success('Templates synced successfully');
+            fetchTemplates();
+          } catch (err) {
+            toast.error('Failed to sync templates');
+          }
+        }} className="flex items-center gap-2 px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition">
           <ArrowPathIcon className="w-5 h-5" /> Sync from Meta
         </button>
       </div>

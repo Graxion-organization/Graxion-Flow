@@ -48,7 +48,7 @@ export default function Integrations() {
   return (
     <StaticPageLayout 
       title="Infinite Integrations" 
-      subtitle="Connect Graxion with the tools you already use. Scale your business without switching platforms."
+      subtitle="Connect Graxion Flow with the tools you already use. Scale your enterprise without switching platforms."
     >
       {/* Platform Cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: "30px", marginBottom: "100px" }}>
@@ -142,7 +142,7 @@ export default function Integrations() {
           </div>
           <h2 style={{ fontFamily: "Syne, sans-serif", fontSize: "36px", fontWeight: 800, marginBottom: "20px" }}>Power Your Own Apps with <span style={{ color: "#25D366" }}>Graxion API</span></h2>
           <p style={{ color: "#7a9b8a", fontSize: "17px", lineHeight: 1.8, marginBottom: "30px" }}>
-            Our robust REST API allows you to integrate Graxion's automation engine directly into your custom applications, CRMs, or ERPs. Send and receive messages, manage contacts, and trigger workflows programmatically.
+            Our robust REST API allows you to integrate Graxion Flow's automation engine directly into your custom applications, CRMs, or ERPs. Send and receive messages, manage contacts, and trigger workflows programmatically.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "40px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "#fff" }}>
@@ -195,7 +195,7 @@ export default function Integrations() {
 
       {/* Coming Soon Section */}
       <section style={{ textAlign: "center" }}>
-        <h3 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "40px", color: "#7a9b8a" }}>Coming Soon to Graxion</h3>
+        <h3 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "40px", color: "#7a9b8a" }}>Coming Soon to Graxion Flow</h3>
         <div style={{ display: "flex", justifyContent: "center", gap: "40px", flexWrap: "wrap" }}>
           {comingSoon.map((item, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px", opacity: 0.6 }}>

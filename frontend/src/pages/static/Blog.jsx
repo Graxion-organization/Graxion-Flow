@@ -14,7 +14,7 @@ export default function Blog() {
     },
     {
       title: "The Future of Omni-channel Customer Support",
-      excerpt: "Learn why a unified approach to customer communication is essential for modern brands and how Graxion makes it easy.",
+      excerpt: "Learn why a unified approach to customer communication is essential for modern brands and how Graxion Flow makes it easy.",
       date: "April 15, 2024",
       author: "Sarah Chen",
       category: "Technology",
@@ -22,7 +22,7 @@ export default function Blog() {
     },
     {
       title: "5 Tips for Training Your AI Agent for Better Conversions",
-      excerpt: "Technical guide on how to optimize your Graxion agent's knowledge base and personality for maximum sales performance.",
+      excerpt: "Technical guide on how to optimize your Graxion Flow agent's knowledge base and personality for maximum sales performance.",
       date: "April 10, 2024",
       author: "Michael Ross",
       category: "Guide",
@@ -32,7 +32,7 @@ export default function Blog() {
 
   return (
     <StaticPageLayout 
-      title="Graxion Blog" 
+      title="Graxion Flow Blog" 
       subtitle="Insights, guides, and news from the forefront of business automation."
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "60px", flexWrap: "wrap", gap: "20px" }}>

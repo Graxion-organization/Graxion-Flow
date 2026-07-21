@@ -85,6 +85,7 @@ const LinkedInToolPage = lazy(() => import("./pages/LinkedInToolPage"));
 const DealsPipeline = lazy(() => import("./pages/DealsPipeline"));
 const CustomerPortal = lazy(() => import("./pages/CustomerPortal"));
 const QualityRatingPage = lazy(() => import("./pages/QualityRatingPage"));
+const TeamManagementPage = lazy(() => import("./pages/TeamManagementPage"));
 
 // Centered loading fallback design
 const LoadingFallback = () => (
@@ -278,13 +279,14 @@ export default function App() {
               <Route path="facebook" element={<FacebookToolPage />} />
               <Route path="linkedin" element={<LinkedInToolPage />} />
             </Route>
-            <Route path="ai-presenter" element={<AIPresenterPage />} />
+            {/* <Route path="ai-presenter" element={<AIPresenterPage />} /> */}
             <Route path="leads" element={<LeadsDashboardPage />} />
             <Route path="deals" element={<DealsPipeline />} />
             <Route path="whatsapp" element={<Navigate to="integrations" replace />} />
             <Route path="quality" element={<QualityRatingPage />} />
             <Route path="social-hub" element={<SocialPublishingPage />} />
             <Route path="billing" element={<BillingPage />} />
+            <Route path="team" element={<TeamManagementPage />} />
             <Route path="settings" element={<SettingsPage />} />
 
             {/* 🔥 Nested 404 */}

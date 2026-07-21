@@ -1,35 +1,88 @@
 import React, { useState, useEffect } from 'react';
 import { UserPlusIcon, TrashIcon, ArrowDownTrayIcon, ClockIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { useAuthStore } from '../../store';
+import { organizationAPI } from '../../services/api';
 
 export default function TeamMembers() {
-  const [members, setMembers] = useState([
-    { id: 1, name: 'You', email: 'you@example.com', role: 'owner', status: 'active' },
-    { id: 2, name: 'Alice Admin', email: 'alice@example.com', role: 'admin', status: 'active' },
-    { id: 3, name: 'Jane Doe', email: 'jane@example.com', role: 'editor', status: 'invited' },
-  ]);
+  const { user } = useAuthStore();
+  const [members, setMembers] = useState([]);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [newInvite, setNewInvite] = useState({ email: '', role: 'viewer' });
   const [auditLogs, setAuditLogs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const orgId = user?.currentOrganization;
 
   useEffect(() => {
-    // In production, fetch members and logs via API
-    setAuditLogs([
-      { id: 1, action: 'FLOW_PUBLISHED', user: 'Jane Doe', timestamp: '1 hour ago' },
-      { id: 2, action: 'BROADCAST_SENT', user: 'You', timestamp: '3 hours ago' }
-    ]);
-  }, []);
+    if (orgId) {
+      fetchTeamData();
+    }
+  }, [orgId]);
 
-  const handleInvite = () => {
-    if (!newInvite.email) return toast.error('Email is required');
-    setMembers([...members, { id: Date.now(), name: 'Pending', email: newInvite.email, role: newInvite.role, status: 'invited' }]);
-    toast.success('Invitation sent');
-    setIsInviteOpen(false);
-    setNewInvite({ email: '', role: 'viewer' });
+  const fetchTeamData = async () => {
+    try {
+      setIsLoading(true);
+      const [orgRes, logRes] = await Promise.all([
+        organizationAPI.getOne(orgId),
+        organizationAPI.getActivity(orgId).catch(() => ({ data: { data: { logs: [] } } }))
+      ]);
+      
+      const org = orgRes.data.data.organization;
+      
+      const formattedMembers = org.members.map(m => ({
+        id: m.user._id,
+        name: m.user.name,
+        email: m.user.email,
+        role: m.role,
+        status: m.user.isActive ? 'active' : 'invited'
+      }));
+      
+      setMembers(formattedMembers);
+      setAuditLogs(logRes.data.data.logs || []);
+    } catch (err) {
+      toast.error('Failed to load team data');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleExport = () => {
-    toast.success('Export started. You will receive an email shortly.');
+  const handleInvite = async () => {
+    if (!newInvite.email) return toast.error('Email is required');
+    try {
+      const res = await organizationAPI.inviteMember(newInvite);
+      if (res.data.data?.member) {
+        setMembers([...members, res.data.data.member]);
+      } else {
+        // Fallback if the user wasn't registered yet and it only sent a mock email
+        setMembers([...members, { id: Date.now(), name: 'Pending', email: newInvite.email, role: newInvite.role, status: 'invited' }]);
+      }
+      toast.success('Invitation sent');
+      setIsInviteOpen(false);
+      setNewInvite({ email: '', role: 'viewer' });
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to send invite');
+    }
+  };
+  
+  const handleRemove = async (userId) => {
+    if (!window.confirm("Are you sure you want to remove this member?")) return;
+    try {
+      await organizationAPI.removeMember(orgId, userId);
+      setMembers(members.filter(m => m.id !== userId));
+      toast.success('Member removed');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to remove member');
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      await organizationAPI.exportData(orgId);
+      toast.success('Export started. You will receive an email shortly.');
+    } catch (err) {
+      toast.error('Failed to request export');
+    }
   };
 
   return (
@@ -56,10 +109,14 @@ export default function TeamMembers() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-800">
-            {members.map(member => (
+            {isLoading ? (
+              <tr>
+                <td colSpan="4" className="p-4 text-center text-gray-400">Loading...</td>
+              </tr>
+            ) : members.map(member => (
               <tr key={member.id} className="hover:bg-gray-800/30 transition">
                 <td className="p-4">
-                  <div className="font-semibold">{member.name}</div>
+                  <div className="font-semibold">{member.name} {member.id === user?._id && '(You)'}</div>
                   <div className="text-xs text-gray-400">{member.email}</div>
                 </td>
                 <td className="p-4">
@@ -73,8 +130,8 @@ export default function TeamMembers() {
                   </span>
                 </td>
                 <td className="p-4">
-                  {member.role !== 'owner' && (
-                    <button className="text-red-400 hover:text-red-300 p-2 hover:bg-red-400/10 rounded transition">
+                  {member.role !== 'owner' && member.id !== user?._id && (
+                    <button onClick={() => handleRemove(member.id)} className="text-red-400 hover:text-red-300 p-2 hover:bg-red-400/10 rounded transition">
                       <TrashIcon className="w-5 h-5" />
                     </button>
                   )}
@@ -90,12 +147,16 @@ export default function TeamMembers() {
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-xl text-white">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><ClockIcon className="w-5 h-5 text-blue-400"/> Activity Audit Log</h2>
           <div className="space-y-4">
-            {auditLogs.map(log => (
-              <div key={log.id} className="border-l-2 border-blue-500 pl-4 py-1">
-                <p className="text-sm font-semibold">{log.action}</p>
-                <p className="text-xs text-gray-400">by {log.user} • {log.timestamp}</p>
-              </div>
-            ))}
+            {auditLogs.length === 0 ? (
+              <p className="text-gray-500 text-sm">No recent activity.</p>
+            ) : (
+              auditLogs.map((log, index) => (
+                <div key={index} className="border-l-2 border-blue-500 pl-4 py-1">
+                  <p className="text-sm font-semibold">{log.action}</p>
+                  <p className="text-xs text-gray-400">by {log.user} • {new Date(log.timestamp).toLocaleString()}</p>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

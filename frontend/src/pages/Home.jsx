@@ -129,7 +129,7 @@ export default function Home() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-gray-300 mb-8 backdrop-blur-sm"
           >
             <span className="flex h-2 w-2 rounded-full bg-brand-500 animate-pulse"></span>
-            Next-Gen AI Platform by <strong className="text-white">Graxion</strong>
+            Meet <strong className="text-white">Graxion Flow</strong> - The Next-Gen Platform
           </motion.div>
 
           <motion.h1
@@ -139,10 +139,10 @@ export default function Home() {
             className="font-extrabold tracking-tight mb-8 leading-[1.1] flex flex-col gap-4"
           >
             <span className="text-3xl md:text-5xl text-gray-200">
-              Revolutionize Engagement With
+              Transform Engagement With
             </span>
             <span className="text-6xl md:text-[5.5rem] text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.5)] py-2">
-              Autonomous Intelligence
+              Graxion Flow
             </span>
           </motion.h1>
 
@@ -152,7 +152,7 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-10 leading-relaxed"
           >
-            Transform your customer engagement across WhatsApp, Instagram, and Telegram. Deploy cognitive agents that sell, support, and scale your business effortlessly while syncing with your CRM in real-time.
+            Deploy cognitive AI agents across WhatsApp, Instagram, and Telegram. Support customers, close deals, and scale your operations effortlessly while syncing with your CRM in real-time.
           </motion.p>
 
           <motion.div
@@ -197,7 +197,7 @@ export default function Home() {
                 <div className="w-3 h-3 rounded-full bg-green-500"></div>
               </div>
               <div className="mx-auto px-4 py-1 rounded bg-black/50 text-xs text-gray-500 flex items-center gap-2 border border-white/5">
-                <Shield className="w-3 h-3" /> {brandName} Mission Control
+                <Shield className="w-3 h-3" /> Graxion Flow Mission Control
               </div>
             </div>
             <div className="flex h-[400px] md:h-[600px]">
@@ -240,7 +240,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Enterprise-Grade <span className="text-brand-400">Intelligence</span></h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">Everything you need to automate your social pipelines, built by Graxion.</p>
+            <p className="text-gray-400 max-w-2xl mx-auto">Everything you need to automate your social pipelines, powered by Graxion Flow.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -295,7 +295,7 @@ export default function Home() {
                 <span className="text-lg font-bold text-white">{brandName}</span>
               </div>
               <p className="text-gray-500 max-w-sm">
-                A premium product crafted by Graxion. Empowering businesses to automate communications intelligently.
+                Graxion Flow is a premium product crafted by Graxion. Empowering modern businesses to automate omnichannel communications intelligently.
               </p>
             </div>
             

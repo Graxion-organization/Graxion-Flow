@@ -34,7 +34,10 @@ import {
   BarChart3,
   Database,
   PlayCircle,
-  Zap
+  Zap,
+  FileText,
+  Shield,
+  Trash2
 } from "lucide-react";
 import { io } from "socket.io-client";
 import { useAuthStore, useNotificationStore, useOrganizationStore, useBrandingStore } from "../../store";
@@ -628,15 +631,60 @@ export default function DashboardLayout() {
                     <div className={`px-4 py-2 border-b ${isDark ? "border-white/10" : "border-slate-100"}`}>
                       <p className="text-xs text-slate-400 truncate">{user?.email}</p>
                     </div>
-                    <button
-                      onClick={() => {
-                        setUserMenuOpen(false);
-                        navigate("/app/settings");
-                      }}
-                      className={`flex items-center gap-2 w-full px-4 py-2.5 text-sm ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}
-                    >
-                      <Settings size={15} /> Settings
-                    </button>
+
+                    <div className={`py-1 border-b ${isDark ? "border-white/10" : "border-slate-100"}`}>
+                      <button
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          navigate("/app/team");
+                        }}
+                        className={`flex items-center gap-2 w-full px-4 py-2 text-sm ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}
+                      >
+                        <Users size={15} /> Team Management
+                      </button>
+                      <button
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          navigate("/app/settings");
+                        }}
+                        className={`flex items-center gap-2 w-full px-4 py-2.5 text-sm ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}
+                      >
+                        <Settings size={15} /> Settings
+                      </button>
+                    </div>
+
+                    <div className={`py-1.5 flex justify-center gap-3 border-b ${isDark ? "border-white/10" : "border-slate-100"}`}>
+                      <button
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          window.open("/terms-of-service", "_blank");
+                        }}
+                        className={`text-[11px] font-medium transition-colors ${isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-400 hover:text-slate-600"}`}
+                      >
+                        Terms
+                      </button>
+                      <span className={`text-[11px] ${isDark ? "text-slate-700" : "text-slate-300"}`}>•</span>
+                      <button
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          window.open("/privacy-policy", "_blank");
+                        }}
+                        className={`text-[11px] font-medium transition-colors ${isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-400 hover:text-slate-600"}`}
+                      >
+                        Privacy
+                      </button>
+                      <span className={`text-[11px] ${isDark ? "text-slate-700" : "text-slate-300"}`}>•</span>
+                      <button
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          window.open("/data-deletion-policy", "_blank");
+                        }}
+                        className={`text-[11px] font-medium transition-colors ${isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-400 hover:text-slate-600"}`}
+                      >
+                        Data Deletion
+                      </button>
+                    </div>
+
                     <button onClick={handleLogout} className={`flex items-center gap-2 w-full px-4 py-2.5 text-sm text-rose-500 ${isDark ? "hover:bg-rose-500/10" : "hover:bg-rose-50"}`}>
                       <LogOut size={15} /> Logout
                     </button>

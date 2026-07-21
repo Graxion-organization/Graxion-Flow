@@ -203,3 +203,88 @@ exports.replyToComment = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getStats = async (req, res, next) => {
+  try {
+    res.status(200).json({ status: 'success', data: { views: 0, comments: 0 } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.triggerWorker = async (req, res, next) => {
+  try {
+    // Placeholder for triggering background sync for Facebook
+    res.status(200).json({ status: 'success', message: 'Facebook worker triggered successfully' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.autoReplyPost = async (req, res, next) => {
+  try {
+    const { accountId, mediaId } = req.body;
+    if (!accountId || !mediaId) return res.status(400).json({status: 'fail', message: 'accountId and mediaId required'});
+    
+    const FacebookService = require('../services/facebookService');
+    const AIService = require('../services/aiService');
+    const User = require('../models/User');
+    const { getIo } = require('../utils/socket');
+    const FacebookAccount = require('../models/FacebookAccount');
+    const logger = require('../utils/logger');
+    
+    const account = await FacebookAccount.findOne({
+      _id: accountId,
+      organization: req.organization._id
+    }).select('+pageAccessToken');
+    if (!account) return res.status(404).json({status:'fail', message:'Account not found'});
+
+    const user = await User.findById(account.user);
+    if (!user || user.subscription.credits <= 0) return res.status(400).json({status:'fail', message:'Insufficient credits'});
+
+    const fbService = new FacebookService(account.pageAccessToken, account.pageId);
+    const comments = await fbService.getPostComments(mediaId);
+
+    const pendingComments = comments.filter(c => 
+      c.from?.id !== account.pageId && (!c.comments || !c.comments.data || c.comments.data.length === 0)
+    );
+
+    const total = pendingComments.length;
+    let processed = 0;
+
+    try { getIo().emit('fb_auto_reply_progress', { mediaId, processed, total, status: 'started' }); } catch(e){}
+
+    (async () => {
+      for (const comment of pendingComments) {
+        try {
+          const agentMock = {
+            systemPrompt: account.messengerBotPrompt || "You are a helpful assistant.",
+            aiProvider: 'openai',
+            model: 'gpt-4o-mini',
+            temperature: 0.7,
+            maxTokens: 500
+          };
+
+          const textToReply = comment.message || "";
+          if (textToReply) {
+            const aiResponse = await AIService.generate(agentMock, [], textToReply, 'facebook');
+            if (aiResponse && aiResponse.content) {
+              await new Promise(r => setTimeout(r, 1500));
+              await fbService.replyToComment(comment.id, aiResponse.content);
+              await User.findByIdAndUpdate(account.user, { $inc: { 'subscription.credits': -1, 'usage.totalMessages': 1 } });
+            }
+          }
+        } catch(e) {
+          logger.error('FB AI Auto Reply Comment Error: ' + e.message);
+        }
+        processed++;
+        try { getIo().emit('fb_auto_reply_progress', { mediaId, processed, total, status: 'processing' }); } catch(e){}
+      }
+      try { getIo().emit('fb_auto_reply_progress', { mediaId, processed, total, status: 'completed' }); } catch(e){}
+    })();
+
+    res.status(200).json({ status: 'success', message: 'Facebook AI Auto-Reply process started', totalPending: total });
+  } catch (err) {
+    next(err);
+  }
+};

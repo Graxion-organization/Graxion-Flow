@@ -45,14 +45,14 @@ const StaticNavbar = ({ dark, setDark }) => {
       <div style={{ maxWidth: "1200px", width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Link to="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
           {branding.branding_logo_url ? (
-            <img src={branding.branding_logo_url} alt={branding.branding_site_name} style={{ height: "36px", maxWidth: "120px", objectFit: "contain", borderRadius: "6px" }} />
+            <img src={branding.branding_logo_url} alt={branding.branding_site_name || "Graxion"} style={{ height: "36px", maxWidth: "120px", objectFit: "contain", borderRadius: "6px" }} />
           ) : (
             <>
               <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "linear-gradient(135deg, #25D366, #1aab52)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Zap size={20} color="#060a0f" />
               </div>
               <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "22px", color: dark ? "#e8f5ee" : "#0d1f14" }}>
-                {branding.branding_site_name}
+                {branding.branding_site_name || "Graxion"}
               </span>
             </>
           )}
@@ -194,20 +194,20 @@ const StaticFooter = ({ dark }) => {
           <div>
             <Link to="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none", marginBottom: "20px" }}>
               {branding.branding_logo_url ? (
-                <img src={branding.branding_logo_url} alt={branding.branding_site_name} style={{ height: "30px", maxWidth: "120px", objectFit: "contain", borderRadius: "6px" }} />
+                <img src={branding.branding_logo_url} alt={branding.branding_site_name || "Graxion"} style={{ height: "30px", maxWidth: "120px", objectFit: "contain", borderRadius: "6px" }} />
               ) : (
                 <>
                   <div style={{ width: "30px", height: "30px", borderRadius: "8px", background: "#25D366", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <Zap size={16} color="#060a0f" />
                   </div>
                   <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "20px", color: dark ? "#e8f5ee" : "#0d1f14" }}>
-                    {branding.branding_site_name}
+                    {branding.branding_site_name || "Graxion"}
                   </span>
                 </>
               )}
             </Link>
             <p style={{ color: dark ? "#7a9b8a" : "#4a7260", fontSize: "14px", lineHeight: 1.6, marginBottom: "24px" }}>
-              The all-in-one AI automation platform for modern businesses. Streamline your customer communication with {branding.branding_site_name}.
+              The all-in-one AI automation platform for modern businesses. Power your support pipelines with <strong>Graxion Flow</strong>.
             </p>
             <div style={{ display: "flex", gap: "15px" }}>
               {[Twitter, Github, Linkedin, Instagram].map((Icon, i) => (
@@ -236,7 +236,7 @@ const StaticFooter = ({ dark }) => {
 
         <div style={{ borderTop: `1px solid ${dark ? "rgba(37, 211, 102, 0.05)" : "rgba(37, 211, 102, 0.1)"}`, paddingTop: "30px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "20px" }}>
           <p style={{ color: dark ? "#7a9b8a" : "#4a7260", fontSize: "14px" }}>
-            {branding.branding_footer_text || `© ${currentYear} ${branding.branding_site_name}. All rights reserved.`}
+            {branding.branding_footer_text || `© ${currentYear} Graxion. All rights reserved.`}
           </p>
           <div style={{ display: "flex", gap: "20px" }}>
             <span style={{ color: dark ? "#7a9b8a" : "#4a7260", fontSize: "14px" }}>Made with ❤️ in India</span>

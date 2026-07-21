@@ -87,7 +87,9 @@ const broadcastWorker = new Worker(BROADCAST_QUEUE_NAME, async (job) => {
   }
 }, {
   connection: redisConfig,
-  concurrency: 2 // Max 2 concurrent broadcasts
+  concurrency: 2, // Max 2 concurrent broadcasts
+  stalledInterval: 300000, // Reduced for Upstash limits
+  metrics: { maxDataPoints: 0 }
 });
 
 module.exports = {

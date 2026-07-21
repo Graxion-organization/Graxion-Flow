@@ -3,10 +3,7 @@ const Contact = require('../models/Contact');
 const WhatsAppService = require('./whatsappService');
 const logger = require('../utils/logger');
 const { decrypt } = require('../utils/encryption');
-
-// Temporary in-memory state store for flow execution.
-// In production, this should be in Redis to survive server restarts.
-const flowStateStore = new Map(); // Key: `${organizationId}_${contactPhone}`, Value: { flowId, currentNodeId }
+const redisClient = require('../config/redisClient');
 
 class FlowEngine {
   
@@ -18,10 +15,11 @@ class FlowEngine {
    */
   static async handleIncomingMessage(waAccount, contactPhone, userMessageText) {
     const orgId = waAccount.organization.toString();
-    const stateKey = `${orgId}_${contactPhone}`;
+    const stateKey = `flow_state:${orgId}_${contactPhone}`;
 
     // 1. Check if user is already in a flow
-    let activeState = flowStateStore.get(stateKey);
+    let activeStateStr = await redisClient.get(stateKey);
+    let activeState = activeStateStr ? JSON.parse(activeStateStr) : null;
 
     if (activeState) {
       logger.info(`[FlowEngine] Contact ${contactPhone} is in active flow ${activeState.flowId}`);
@@ -52,26 +50,30 @@ class FlowEngine {
     const startNode = flow.nodes.find(n => n.type === 'start');
     if (!startNode) return;
 
-    flowStateStore.set(`${orgId}_${contactPhone}`, {
+    const stateKey = `flow_state:${orgId}_${contactPhone}`;
+    const activeState = {
       flowId: flow._id.toString(),
       currentNodeId: startNode.id,
       flow: flow // Cache the flow definition to avoid repeated DB calls
-    });
+    };
+
+    await redisClient.setEx(stateKey, 86400, JSON.stringify(activeState)); // 24 hours expiry
 
     // Advance to the first actual node
-    await this.advanceFlow(waAccount, contactPhone, null, flowStateStore.get(`${orgId}_${contactPhone}`));
+    await this.advanceFlow(waAccount, contactPhone, null, activeState);
   }
 
   static async advanceFlow(waAccount, contactPhone, userMessageText, activeState) {
     const { flow, currentNodeId } = activeState;
     const orgId = waAccount.organization.toString();
+    const stateKey = `flow_state:${orgId}_${contactPhone}`;
     const waService = new WhatsAppService(decrypt(waAccount.accessToken), waAccount.phoneNumberId);
 
     // Find the current node
     const currentNode = flow.nodes.find(n => n.id === currentNodeId);
     if (!currentNode) {
       // Reached the end or invalid node
-      flowStateStore.delete(`${orgId}_${contactPhone}`);
+      await redisClient.del(stateKey);
       return;
     }
 
@@ -119,12 +121,15 @@ class FlowEngine {
     // --- PROCEED TO NEXT NODE ---
     if (nextNodeId) {
       activeState.currentNodeId = nextNodeId;
+      // Save state before advancing, in case it stops
+      await redisClient.setEx(stateKey, 86400, JSON.stringify(activeState));
+      
       // Recursively advance to execute the next node immediately (unless it's a condition that needs to wait)
       // Passing userMessageText = null because the next node should evaluate fresh
       await this.advanceFlow(waAccount, contactPhone, null, activeState);
     } else {
       // Reached a terminal node
-      flowStateStore.delete(`${orgId}_${contactPhone}`);
+      await redisClient.del(stateKey);
       logger.info(`[FlowEngine] Contact ${contactPhone} completed flow ${flow._id}`);
     }
   }

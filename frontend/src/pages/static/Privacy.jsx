@@ -34,7 +34,7 @@ export default function Privacy() {
       <div style={{ maxWidth: "900px", margin: "0 auto" }}>
         <div style={{ marginBottom: "60px", padding: "40px", borderRadius: "32px", background: "rgba(37, 211, 102, 0.05)", border: "1px solid rgba(37, 211, 102, 0.2)" }}>
           <p style={{ fontSize: "17px", lineHeight: 1.8, color: "#e8f5ee", margin: 0 }}>
-            At Graxion, we take your privacy seriously. This policy describes how we collect, use, and protect your personal information and the data handled by our AI agents.
+            At Graxion, we take your privacy seriously. This policy describes how we collect, use, and protect your personal information and the data handled by our Graxion Flow AI agents.
           </p>
         </div>
 
@@ -75,7 +75,7 @@ export default function Privacy() {
 
         <div style={{ marginTop: "60px", textAlign: "center" }}>
           <p style={{ color: "#7a9b8a" }}>
-            If you have any questions about this Privacy Policy, please contact us at <a href="mailto:privacy@Graxion.com" style={{ color: "#25D366", textDecoration: "none", fontWeight: 600 }}>privacy@Graxion.com</a>.
+            If you have any questions about this Privacy Policy, please contact us at <a href="mailto:privacy@graxion.com" style={{ color: "#25D366", textDecoration: "none", fontWeight: 600 }}>privacy@graxion.com</a>.
           </p>
         </div>
       </div>

@@ -32,8 +32,8 @@ export default function Contact() {
   const contactInfo = [
     {
       title: "Email Us",
-      value: branding?.branding_contact_email || "support@graxion.com",
-      desc: "Our team usually responds within 24 hours.",
+      value: branding?.branding_contact_email || "sales@graxion.com",
+      desc: "Our sales team responds within 24 hours.",
       icon: Mail,
       color: "#25D366"
     },
@@ -45,9 +45,9 @@ export default function Contact() {
       color: "#1e90ff"
     },
     {
-      title: "Our Office",
-      value: branding?.branding_address || "VPO Roopgarh JInd Haryana India",
-      desc: branding?.branding_address_desc || "The heart of innovation.",
+      title: "Graxion HQ",
+      value: branding?.branding_address || "VPO Roopgarh, Jind, Haryana, India",
+      desc: branding?.branding_address_desc || "The heart of AI innovation.",
       icon: MapPin,
       color: "#ff4757"
     }
@@ -55,8 +55,8 @@ export default function Contact() {
 
   return (
     <StaticPageLayout 
-      title={`Contact ${branding?.branding_site_name || 'Graxion'}`} 
-      subtitle="Have questions? We're here to help you automate your business success."
+      title={`Contact ${branding?.branding_site_name || 'Graxion Sales'}`} 
+      subtitle="Ready to scale with Graxion Flow? We're here to help you automate your enterprise success."
     >
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "60px", alignItems: "start" }}>
         {/* Contact Form */}
@@ -181,7 +181,7 @@ export default function Contact() {
               <MessageSquare size={24} color="#25D366" /> 24/7 Support
             </h3>
             <p style={{ color: "#7a9b8a", fontSize: "15px", lineHeight: 1.6, marginBottom: "20px" }}>
-              Our AI agents are always online, but our human support team is also available for complex inquiries and enterprise setup.
+              Our AI agents are always online, but our Graxion Flow enterprise team is also available for complex inquiries and custom setups.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#25D366", fontSize: "14px", fontWeight: 600 }}>
               <Clock size={16} /> Average response time: &lt; 2 hours

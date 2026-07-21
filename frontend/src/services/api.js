@@ -309,6 +309,10 @@ export const organizationAPI = {
   create: (data) => api.post('/organizations', data),
   getOne: (id) => api.get(`/organizations/${id}`),
   switch: (id) => api.post(`/organizations/switch/${id}`),
+  inviteMember: (data) => api.post('/organizations/invite', data),
+  removeMember: (orgId, userId) => api.delete(`/organizations/${orgId}/members/${userId}`),
+  getActivity: (orgId) => api.get(`/organizations/${orgId}/activity`),
+  exportData: (orgId) => api.get(`/organizations/${orgId}/export`),
 };
 
 // Feature Flags
