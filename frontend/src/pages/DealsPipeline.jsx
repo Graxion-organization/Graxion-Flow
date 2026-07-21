@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
-
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, MoreHorizontal, DollarSign, Calendar, User, X } from 'lucide-react';
+import { Plus, MoreHorizontal, DollarSign, Calendar, User, X, TrendingUp, Activity, Target, Inbox } from 'lucide-react';
 import { dealAPI, contactAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
 const INITIAL_STAGES = [
-  { id: 'LEAD', label: 'Lead', color: 'bg-neutral-500' },
-  { id: 'CONTACTED', label: 'Contacted', color: 'bg-blue-500' },
-  { id: 'NEGOTIATION', label: 'Negotiation', color: 'bg-orange-500' },
-  { id: 'WON', label: 'Won', color: 'bg-green-500' },
-  { id: 'LOST', label: 'Lost', color: 'bg-red-500' }
+  { id: 'LEAD', label: 'Lead', color: 'bg-indigo-500', border: 'border-indigo-500/50', bgLight: 'bg-indigo-500/10' },
+  { id: 'CONTACTED', label: 'Contacted', color: 'bg-blue-500', border: 'border-blue-500/50', bgLight: 'bg-blue-500/10' },
+  { id: 'NEGOTIATION', label: 'Negotiation', color: 'bg-orange-500', border: 'border-orange-500/50', bgLight: 'bg-orange-500/10' },
+  { id: 'WON', label: 'Won', color: 'bg-emerald-500', border: 'border-emerald-500/50', bgLight: 'bg-emerald-500/10' },
+  { id: 'LOST', label: 'Lost', color: 'bg-rose-500', border: 'border-rose-500/50', bgLight: 'bg-rose-500/10' }
 ];
 
 export default function DealsPipeline() {
@@ -117,84 +116,170 @@ export default function DealsPipeline() {
     setDraggedDealId(null);
   };
 
+  // Metrics Calculations
+  const totalValue = deals.reduce((acc, deal) => acc + (Number(deal.amount) || 0), 0);
+  const activeDealsCount = deals.filter(d => d.stage !== 'WON' && d.stage !== 'LOST').length;
+  const wonDealsCount = deals.filter(d => d.stage === 'WON').length;
+  const totalDealsCount = deals.length || 1; // Prevent division by zero
+  const winRate = Math.round((wonDealsCount / totalDealsCount) * 100) || 0;
+
   return (
     <>
-      <div className="p-6 h-full flex flex-col relative">
-        <div className="flex justify-between items-center mb-6">
+      <div className="p-4 sm:p-6 h-full flex flex-col relative overflow-hidden">
+        
+        {/* Background Premium Glows */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-500/10 blur-[150px] rounded-full pointer-events-none -z-10"></div>
+
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 z-10">
           <div>
-            <h1 className="text-2xl font-bold text-white">Deals Pipeline</h1>
-            <p className="text-neutral-400">Manage your sales opportunities and track revenue.</p>
+            <h1 className="text-2xl font-black text-white tracking-tight">Deals Pipeline</h1>
+            <p className="text-slate-400 text-sm mt-1">Manage your sales opportunities and track revenue.</p>
           </div>
           <button 
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-medium shadow-md shadow-blue-500/20"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl transition-all font-semibold shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] shrink-0 w-full sm:w-auto justify-center"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-5 h-5" />
             New Deal
           </button>
         </div>
 
+        {/* Metrics Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8 z-10">
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg">
+                <DollarSign className="w-5 h-5" />
+              </div>
+              <span className="text-slate-400 text-xs sm:text-sm font-medium">Total Pipeline Value</span>
+            </div>
+            <p className="text-xl sm:text-2xl font-bold text-white">${totalValue.toLocaleString()}</p>
+          </div>
+          
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-indigo-500/20 text-indigo-400 rounded-lg">
+                <Activity className="w-5 h-5" />
+              </div>
+              <span className="text-slate-400 text-xs sm:text-sm font-medium">Active Deals</span>
+            </div>
+            <p className="text-xl sm:text-2xl font-bold text-white">{activeDealsCount}</p>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <span className="text-slate-400 text-xs sm:text-sm font-medium">Deals Won</span>
+            </div>
+            <p className="text-xl sm:text-2xl font-bold text-white">{wonDealsCount}</p>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-purple-500/20 text-purple-400 rounded-lg">
+                <Target className="w-5 h-5" />
+              </div>
+              <span className="text-slate-400 text-xs sm:text-sm font-medium">Win Rate</span>
+            </div>
+            <p className="text-xl sm:text-2xl font-bold text-white">{winRate}%</p>
+          </div>
+        </div>
+
         {loading ? (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex-1 flex items-center justify-center z-10">
+            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
           </div>
         ) : (
-          <div className="flex-1 flex gap-6 overflow-x-auto pb-4 custom-scrollbar items-start">
-            {INITIAL_STAGES.map((stage) => (
-              <div 
-                key={stage.id} 
-                className="min-w-[320px] w-[320px] flex flex-col bg-neutral-900/60 rounded-xl border border-neutral-800 shadow-xl"
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, stage.id)}
-              >
-                <div className="p-4 border-b border-neutral-800/50 flex justify-between items-center bg-neutral-800/40 rounded-t-xl backdrop-blur-sm">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${stage.color} shadow-[0_0_8px_currentColor]`} />
-                    <h3 className="font-semibold text-white tracking-wide">{stage.label}</h3>
-                    <span className="text-xs font-bold bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded-full border border-neutral-700">
-                      {deals.filter(d => d.stage === stage.id).length}
-                    </span>
+          <div className="flex-1 flex gap-4 sm:gap-6 overflow-x-auto pb-4 custom-scrollbar items-start z-10 snap-x sm:snap-none">
+            {INITIAL_STAGES.map((stage) => {
+              const stageDeals = deals.filter(d => d.stage === stage.id);
+              const stageValue = stageDeals.reduce((acc, deal) => acc + (Number(deal.amount) || 0), 0);
+
+              return (
+                <div 
+                  key={stage.id} 
+                  className="min-w-[85vw] w-[85vw] sm:min-w-[320px] sm:w-[320px] shrink-0 flex flex-col bg-[#0f1522]/80 backdrop-blur-xl rounded-2xl border border-white/5 shadow-2xl snap-center"
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, stage.id)}
+                >
+                  <div className={`p-4 border-b border-white/5 flex justify-between items-center rounded-t-2xl bg-gradient-to-r from-transparent to-${stage.color.replace('bg-', '')}/5`}>
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-2.5 h-2.5 rounded-full ${stage.color} shadow-[0_0_10px_currentColor]`} />
+                      <h3 className="font-bold text-slate-100 tracking-wide">{stage.label}</h3>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${stage.border} ${stage.bgLight} text-slate-200`}>
+                        {stageDeals.length}
+                      </span>
+                    </div>
+                    {stageValue > 0 && (
+                      <span className="text-xs font-bold text-slate-400 bg-white/5 px-2 py-1 rounded-md border border-white/5">
+                        ${stageValue.toLocaleString()}
+                      </span>
+                    )}
                   </div>
-                  <button className="text-neutral-500 hover:text-white transition-colors">
-                    <MoreHorizontal className="w-5 h-5" />
-                  </button>
-                </div>
 
-                <div className="p-3 flex-1 overflow-y-auto space-y-3 min-h-[150px]">
-                  {deals.filter(d => d.stage === stage.id).map(deal => (
-                    <motion.div 
-                      layoutId={deal._id}
-                      key={deal._id}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, deal._id)}
-                      onDragEnd={handleDragEnd}
-                      className="bg-neutral-800/80 p-4 rounded-xl border border-neutral-700/50 cursor-grab active:cursor-grabbing hover:border-neutral-500 transition-all shadow-lg hover:shadow-xl group"
-                    >
-                      <h4 className="font-semibold text-white mb-1.5 group-hover:text-blue-400 transition-colors">{deal.title}</h4>
-                      
-                      <div className="flex items-center gap-1.5 text-xs text-neutral-400 mb-3">
-                        <User className="w-3.5 h-3.5" />
-                        <span className="truncate">{deal.contact?.name || deal.contact?.phone || 'Unknown Contact'}</span>
-                      </div>
-
-                      {deal.expectedCloseDate && (
-                        <div className="flex items-center gap-1.5 text-xs text-neutral-500 mb-3">
-                          <Calendar className="w-3.5 h-3.5" />
-                          <span>{format(new Date(deal.expectedCloseDate), 'MMM d, yyyy')}</span>
+                  <div className="p-3 flex-1 overflow-y-auto space-y-3 min-h-[250px] custom-scrollbar">
+                    {stageDeals.length === 0 ? (
+                      <div className="h-full min-h-[200px] flex flex-col items-center justify-center text-center p-4 border-2 border-dashed border-white/5 rounded-xl bg-white/[0.01]">
+                        <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mb-3">
+                          <Inbox className="w-6 h-6 text-slate-500" />
                         </div>
-                      )}
-
-                      <div className="flex justify-between items-center mt-2 pt-2 border-t border-neutral-700/50">
-                        <div className="flex items-center text-green-400 font-bold text-sm bg-green-400/10 px-2 py-1 rounded-lg">
-                          <DollarSign className="w-3.5 h-3.5 mr-0.5" />
-                          {deal.amount?.toLocaleString() || '0'}
-                        </div>
+                        <p className="text-sm font-medium text-slate-400">No deals yet</p>
+                        <p className="text-xs text-slate-500 mt-1">Drag and drop a deal here</p>
                       </div>
-                    </motion.div>
-                  ))}
+                    ) : (
+                      stageDeals.map(deal => (
+                        <motion.div 
+                          layoutId={deal._id}
+                          key={deal._id}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, deal._id)}
+                          onDragEnd={handleDragEnd}
+                          className="bg-white/[0.03] p-4 rounded-xl border border-white/10 cursor-grab active:cursor-grabbing hover:border-white/20 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50 group relative overflow-hidden backdrop-blur-sm"
+                        >
+                          {/* Decorative stage color line */}
+                          <div className={`absolute left-0 top-0 bottom-0 w-1 ${stage.color} opacity-50 group-hover:opacity-100 transition-opacity`} />
+                          
+                          <div className="flex justify-between items-start mb-2 pl-2">
+                            <h4 className="font-bold text-slate-100 group-hover:text-blue-400 transition-colors leading-tight pr-4">{deal.title}</h4>
+                            <button className="text-slate-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </button>
+                          </div>
+                          
+                          <div className="flex flex-col gap-2 pl-2">
+                            <div className="flex items-center gap-2 text-xs text-slate-400">
+                              <User className="w-3.5 h-3.5 text-slate-500" />
+                              <span className="truncate">{deal.contact?.name || deal.contact?.phone || 'Unknown Contact'}</span>
+                            </div>
+
+                            {deal.expectedCloseDate && (
+                              <div className="flex items-center gap-2 text-xs text-slate-400">
+                                <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                                <span>{format(new Date(deal.expectedCloseDate), 'MMM d, yyyy')}</span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between pl-2">
+                            <div className="flex items-center text-emerald-400 font-bold text-sm bg-emerald-400/10 px-2 py-1 rounded-md border border-emerald-400/20">
+                              <DollarSign className="w-3.5 h-3.5 mr-0.5" />
+                              {deal.amount?.toLocaleString() || '0'}
+                            </div>
+                            <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+                              ID: {deal._id.slice(-4)}
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -204,100 +289,105 @@ export default function DealsPipeline() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
             >
               <motion.div 
                 initial={{ scale: 0.95, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 20 }}
-                className="bg-neutral-900 rounded-2xl w-full max-w-md border border-neutral-800 shadow-2xl overflow-hidden"
+                className="bg-[#0f1522] rounded-2xl w-full max-w-md border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[90vh]"
               >
-                <div className="flex justify-between items-center p-5 border-b border-neutral-800 bg-neutral-900/50">
-                  <h2 className="text-lg font-bold text-white">Create New Deal</h2>
-                  <button onClick={() => setShowModal(false)} className="text-neutral-400 hover:text-white transition-colors bg-neutral-800 hover:bg-neutral-700 p-1.5 rounded-lg">
+                <div className="flex justify-between items-center p-5 border-b border-white/5 bg-white/5">
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                      <Plus className="w-4 h-4" />
+                    </div>
+                    Create New Deal
+                  </h2>
+                  <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-xl">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <form onSubmit={handleCreateDeal} className="p-5 space-y-4">
+                <form onSubmit={handleCreateDeal} className="p-5 space-y-5 overflow-y-auto custom-scrollbar">
                   <div>
-                    <label className="block text-xs font-medium text-neutral-400 mb-1.5">Deal Title *</label>
+                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Deal Title *</label>
                     <input 
                       type="text" 
                       required
                       value={newDeal.title}
                       onChange={(e) => setNewDeal({...newDeal, title: e.target.value})}
                       placeholder="e.g. Enterprise Upgrade"
-                      className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all placeholder:text-slate-600"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-neutral-400 mb-1.5">Contact *</label>
+                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Contact *</label>
                     <select
                       required
                       value={newDeal.contactId}
                       onChange={(e) => setNewDeal({...newDeal, contactId: e.target.value})}
-                      className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none"
                     >
-                      <option value="">Select a contact</option>
+                      <option value="" className="bg-[#0f1522]">Select a contact</option>
                       {contacts.map(c => (
-                        <option key={c._id} value={c._id}>{c.name || c.phone}</option>
+                        <option key={c._id} value={c._id} className="bg-[#0f1522]">{c.name || c.phone}</option>
                       ))}
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                     <div>
-                      <label className="block text-xs font-medium text-neutral-400 mb-1.5">Amount ($)</label>
+                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Amount ($)</label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-3 w-4 h-4 text-neutral-500" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                         <input 
                           type="number" 
                           min="0"
                           value={newDeal.amount}
                           onChange={(e) => setNewDeal({...newDeal, amount: e.target.value})}
                           placeholder="0"
-                          className="w-full bg-neutral-800 border border-neutral-700 rounded-xl pl-9 pr-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-600"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-neutral-400 mb-1.5">Initial Stage</label>
+                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Initial Stage</label>
                       <select
                         value={newDeal.stage}
                         onChange={(e) => setNewDeal({...newDeal, stage: e.target.value})}
-                        className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none"
                       >
                         {INITIAL_STAGES.map(s => (
-                          <option key={s.id} value={s.id}>{s.label}</option>
+                          <option key={s.id} value={s.id} className="bg-[#0f1522]">{s.label}</option>
                         ))}
                       </select>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-neutral-400 mb-1.5">Expected Close Date</label>
+                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Expected Close Date</label>
                     <input 
                       type="date" 
                       value={newDeal.expectedCloseDate}
                       onChange={(e) => setNewDeal({...newDeal, expectedCloseDate: e.target.value})}
-                      className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all [color-scheme:dark]"
                     />
                   </div>
 
-                  <div className="pt-2 flex justify-end gap-3">
+                  <div className="pt-4 flex justify-end gap-3 border-t border-white/5">
                     <button 
                       type="button" 
                       onClick={() => setShowModal(false)}
-                      className="px-5 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors"
+                      className="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
                     >
                       Cancel
                     </button>
                     <button 
                       type="submit" 
                       disabled={creating}
-                      className="px-5 py-2.5 rounded-xl text-sm font-medium bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/20"
+                      className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(37,99,235,0.4)]"
                     >
                       {creating ? 'Creating...' : 'Create Deal'}
                     </button>

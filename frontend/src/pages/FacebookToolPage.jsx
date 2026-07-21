@@ -260,7 +260,7 @@ export default function FacebookTool() {
                 }`}
               >
                 <img 
-                  src={media.thumbnail_url || media.media_url || 'https://via.placeholder.com/150'} 
+                  src={media.full_picture || media.thumbnail_url || media.media_url || 'https://via.placeholder.com/150'} 
                   alt="Post" 
                   className="w-16 h-16 object-cover rounded-lg shrink-0 bg-black/40"
                   onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
@@ -268,7 +268,7 @@ export default function FacebookTool() {
                 <div className="flex-1 min-w-0">
                   <div className="text-xs text-gray-400 capitalize mb-1">{media.media_type}</div>
                   <div className="text-sm text-gray-200 line-clamp-2 leading-tight">
-                    {media.caption || 'No caption'}
+                    {media.message || media.story || media.caption || 'No caption'}
                   </div>
                 </div>
               </button>
@@ -342,20 +342,20 @@ export default function FacebookTool() {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-sm text-gray-200">@{comment.username}</span>
-                    <span className="text-[10px] text-gray-500">{new Date(comment.timestamp).toLocaleString()}</span>
+                    <span className="font-bold text-sm text-gray-200">@{comment.from?.name || comment.username || "User"}</span>
+                    <span className="text-[10px] text-gray-500">{new Date(comment.created_time || comment.timestamp).toLocaleString()}</span>
                   </div>
-                  <p className="text-sm text-gray-300">{comment.text}</p>
+                  <p className="text-sm text-gray-300">{comment.message || comment.text}</p>
                 </div>
                 
                 {/* Replies */}
-                {comment.replies && comment.replies.data && comment.replies.data.map(reply => (
+                {(comment.comments || comment.replies)?.data?.map(reply => (
                   <div key={reply.id} className="ml-8 p-3 rounded-xl bg-black/40 border border-white/5">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-xs text-blue-400">@{reply.username}</span>
-                      <span className="text-[10px] text-gray-500">{new Date(reply.timestamp).toLocaleString()}</span>
+                      <span className="font-bold text-xs text-blue-400">@{reply.from?.name || reply.username}</span>
+                      <span className="text-[10px] text-gray-500">{new Date(reply.created_time || reply.timestamp).toLocaleString()}</span>
                     </div>
-                    <p className="text-xs text-gray-300">{reply.text}</p>
+                    <p className="text-xs text-gray-300">{reply.message || reply.text}</p>
                   </div>
                 ))}
               </div>

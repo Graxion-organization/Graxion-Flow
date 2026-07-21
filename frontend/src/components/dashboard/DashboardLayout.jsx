@@ -573,7 +573,7 @@ export default function DashboardLayout() {
                 </button>
 
                 {notifOpen && (
-                  <div className={`absolute right-0 top-12 w-[360px] max-h-[480px] rounded-2xl border z-50 flex flex-col overflow-hidden nav-fade-up ${isDark ? "bg-slate-900 border-white/10 shadow-2xl shadow-black/40" : "bg-white border-slate-200 shadow-2xl shadow-slate-300/40"}`}>
+                  <div className={`absolute right-4 sm:right-0 top-12 w-[calc(100vw-2rem)] sm:w-[360px] max-h-[480px] rounded-2xl border z-50 flex flex-col overflow-hidden nav-fade-up ${isDark ? "bg-slate-900 border-white/10 shadow-2xl shadow-black/40" : "bg-white border-slate-200 shadow-2xl shadow-slate-300/40"}`}>
                     <div className={`flex items-center justify-between px-4 py-3 border-b ${isDark ? "border-white/10" : "border-slate-100"}`}>
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-sm">Notifications</span>

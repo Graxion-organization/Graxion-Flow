@@ -211,7 +211,7 @@ function AutomationSettings() {
           <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-3">
             Reply Mode
           </label>
-          <div className="grid grid-cols-2 gap-3 p-1 bg-gray-100 rounded-2xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-1 bg-gray-100 rounded-2xl">
             {[
               { value: 'auto', icon: RefreshCw, label: 'Fully Automatic' },
               { value: 'manual', icon: MessageSquare, label: 'Manual Approval' },

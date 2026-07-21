@@ -385,7 +385,7 @@ const SystemSettings = () => {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-4 min-w-[320px] md:min-w-[450px]">
+                    <div className="flex items-center gap-4 w-full md:min-w-[450px]">
                       {renderSettingInput(key, setting, isBoolean, isSecret, isLongText, isImage, isTemplate)}
                     </div>
                   </div>

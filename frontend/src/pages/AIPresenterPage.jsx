@@ -944,7 +944,7 @@ const ScheduleModal = ({ agents, onClose, onScheduled }) => {
               className="w-full bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
               placeholder="e.g., Q3 Marketing Plan" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date</label>
               <input type="date" value={data.date} onChange={e => setData(d => ({ ...d, date: e.target.value }))}
@@ -1022,7 +1022,7 @@ const EditMeetingModal = ({ meeting, onClose, onUpdated }) => {
             <input type="text" value={data.topic} onChange={e => setData(d => ({ ...d, topic: e.target.value }))}
               className="w-full bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date</label>
               <input type="date" value={data.date} onChange={e => setData(d => ({ ...d, date: e.target.value }))}

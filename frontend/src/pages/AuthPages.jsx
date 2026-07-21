@@ -26,7 +26,7 @@ export const CursorGlow = () => {
   return (
     <div
       ref={ref}
-      className="fixed w-[320px] h-[320px] rounded-full pointer-events-none z-[5] -translate-x-1/2 -translate-y-1/2 transition-[left_top] duration-100 ease-out"
+      className="fixed w-64 h-64 sm:w-[320px] sm:h-[320px] rounded-full pointer-events-none z-[5] -translate-x-1/2 -translate-y-1/2 transition-[left_top] duration-100 ease-out"
       style={{ background: 'radial-gradient(circle, rgba(255,106,0,0.14) 0%, transparent 70%)' }}
     />
   );
@@ -37,7 +37,7 @@ export const BackgroundElements = () => (
     <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 70% 55% at 10% 5%, rgba(255,106,0,0.12) 0%, transparent 58%), radial-gradient(ellipse 60% 45% at 90% 85%, rgba(255,138,0,0.1) 0%, transparent 55%)' }} />
     <div className="absolute inset-0 pointer-events-none opacity-25" style={{ backgroundImage: 'linear-gradient(rgba(255,106,0,0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(255,106,0,0.14) 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
     <div className="absolute top-[8%] left-[12%] w-80 h-80 bg-[#FF6A00] rounded-full blur-[120px] opacity-20 animate-pulse" />
-    <div className="absolute bottom-[8%] right-[10%] w-[360px] h-[360px] bg-[#FF8A00] rounded-full blur-[130px] opacity-20 animate-pulse" style={{ animationDelay: '1.2s' }} />
+    <div className="absolute bottom-[8%] right-[10%] w-64 h-64 sm:w-[360px] sm:h-[360px] bg-[#FF8A00] rounded-full blur-[130px] opacity-20 animate-pulse" style={{ animationDelay: '1.2s' }} />
     <CursorGlow />
   </>
 );
