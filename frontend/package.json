@@ -13,6 +13,7 @@
     "razorpay": "^2.9.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-draggable": "^4.7.0",
     "react-hook-form": "^7.48.2",
     "react-hot-toast": "^2.4.1",
     "react-i18next": "^17.0.9",

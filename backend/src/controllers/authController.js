@@ -19,22 +19,25 @@ const signToken = (id) =>
 const signRefreshToken = (id) =>
   jwt.sign({ id }, process.env.JWT_REFRESH_SECRET, { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN });
 
-const sendTokens = (user, statusCode, res) => {
+const sendTokens = (user, statusCode, res, req = null) => {
   const token = signToken(user._id);
   const refreshToken = signRefreshToken(user._id);
+
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isHttps = isProduction || req?.secure || req?.headers?.['x-forwarded-proto'] === 'https';
 
   const cookieOptions = {
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Match JWT_EXPIRES_IN (7d)
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: isHttps,
+    sameSite: isHttps ? 'none' : 'lax',
   };
 
   const refreshCookieOptions = {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: isHttps,
+    sameSite: isHttps ? 'none' : 'lax',
   };
 
   res.cookie('token', token, cookieOptions);
@@ -95,12 +98,19 @@ exports.getCsrfToken = (req, res) => {
 
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, ref, partnerCode } = req.body;
 
     const existing = await User.findOne({ email });
     if (existing) return next(new AppError('Email already registered. Please log in.', 400));
 
-    const user = await User.create({ name, email, password });
+    let referredByPartner = null;
+    const codeToSearch = ref || partnerCode;
+    if (codeToSearch) {
+      const partner = await User.findOne({ partnerCode: codeToSearch.toUpperCase() });
+      if (partner) referredByPartner = partner._id;
+    }
+
+    const user = await User.create({ name, email, password, referredByPartner });
 
     // Create default organization
     const Organization = require('../models/Organization');
@@ -120,7 +130,7 @@ exports.register = async (req, res, next) => {
     const template = emailTemplates.verifyEmail(user.name, verifyToken);
     await sendEmail({ to: user.email, ...template });
 
-    sendTokens(user, 201, res);
+    sendTokens(user, 201, res, req);
   } catch (err) {
     logger.error('Register error:', err);
     next(err);
@@ -154,7 +164,7 @@ exports.login = async (req, res, next) => {
     user.lastLogin = new Date();
     await user.save({ validateBeforeSave: false });
 
-    sendTokens(user, 200, res);
+    sendTokens(user, 200, res, req);
   } catch (err) {
     logger.error('Login error:', err);
     next(err);
@@ -196,7 +206,7 @@ exports.adminRegister = async (req, res, next) => {
       });
 
       logger.info(`Bootstrap seed admin registered: ${email}`);
-      return sendTokens(user, 201, res);
+      return sendTokens(user, 201, res, req);
     }
 
     // Standard mode: Create a pending AdminSignupRequest
@@ -278,7 +288,7 @@ exports.adminLogin = async (req, res, next) => {
     user.lastLogin = new Date();
     await user.save({ validateBeforeSave: false });
 
-    sendTokens(user, 200, res);
+    sendTokens(user, 200, res, req);
   } catch (err) {
     logger.error('Admin Login error:', err);
     next(err);
@@ -390,7 +400,7 @@ exports.resetPassword = async (req, res, next) => {
     user.passwordResetExpires = undefined;
     await user.save();
 
-    sendTokens(user, 200, res);
+    sendTokens(user, 200, res, req);
   } catch (err) {
     next(err);
   }
@@ -605,7 +615,7 @@ exports.changePassword = async (req, res, next) => {
 
     user.password = newPassword;
     await user.save();
-    sendTokens(user, 200, res);
+    sendTokens(user, 200, res, req);
   } catch (err) {
     next(err);
   }

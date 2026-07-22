@@ -25,9 +25,12 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'owner', 'admin', 'editor', 'viewer', 'superadmin'], // 'user' kept for legacy
+    enum: ['user', 'owner', 'admin', 'editor', 'viewer', 'superadmin', 'sales_partner'], // 'user' kept for legacy
     default: 'owner', // New default is owner of their own personal tenant
   },
+  partnerCode: { type: String, unique: true, sparse: true },
+  partnerCommissionRate: { type: Number, default: null }, // Optional custom % override for sales partner
+  referredByPartner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   isEmailVerified: { type: Boolean, default: false },
   emailVerifyToken: String,
   emailVerifyExpires: Date,

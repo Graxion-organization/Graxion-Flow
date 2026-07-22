@@ -170,6 +170,37 @@ exports.razorpayWebhook = async (req, res, next) => {
         user.subscription.credits = planInfo?.credits || 0;
         await user.save();
 
+        // Process Sales Partner Commission if user was referred by a Sales Partner
+        if (user.referredByPartner) {
+          try {
+            const SystemSettings = require('../models/SystemSettings');
+            const PartnerCommission = require('../models/PartnerCommission');
+            
+            const partner = await User.findById(user.referredByPartner);
+            if (partner) {
+              const settings = await SystemSettings.findOne({ key: 'global_settings' });
+              const rate = partner.partnerCommissionRate || settings?.defaultPartnerCommissionRate || 20;
+              
+              const paymentInRupees = (payment.amount || 0) / 100;
+              const commissionAmount = Math.round((paymentInRupees * rate) / 100);
+
+              await PartnerCommission.create({
+                partner: partner._id,
+                referredUser: user._id,
+                paymentAmount: paymentInRupees,
+                commissionAmount: commissionAmount,
+                commissionRate: rate,
+                status: 'APPROVED',
+                notes: `Subscription payment for plan: ${payment.plan}`
+              });
+
+              logger.info(`Recorded Partner Commission of ₹${commissionAmount} for Partner ${partner.email}`);
+            }
+          } catch (err) {
+            logger.error('Failed to process partner commission:', err);
+          }
+        }
+
         // Invoice Generation
         const invoiceData = {
           invoiceNumber: paymentId,

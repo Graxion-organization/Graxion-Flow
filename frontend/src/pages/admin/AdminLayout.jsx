@@ -53,6 +53,7 @@ const AdminLayout = () => {
       title: "User Management",
       items: [
         { name: "Users", icon: Users, path: "/admin/users" },
+        { name: "Sales Partners", icon: DollarSign, path: "/admin/sales-partners" },
         { name: "Sign-up Requests", icon: UserCheck, path: "/admin/signup-requests" },
         { name: "Deletion Requests", icon: UserX, path: "/admin/deletion-requests" },
         { name: "Subscriptions", icon: CreditCard, path: "/admin/subscriptions" },

@@ -1,32 +1,17 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import ReactFlow, {
-  MiniMap,
-  Controls,
-  Background,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-} from 'reactflow';
-import 'reactflow/dist/style.css';
-import { PlayIcon, DocumentTextIcon, ClockIcon, AdjustmentsHorizontalIcon, CogIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect } from 'react';
 import { flowAPI } from '../services/api';
 import toast from 'react-hot-toast';
-
-const initialNodes = [
-  { id: '1', type: 'input', position: { x: 250, y: 50 }, data: { label: 'Start Flow' } },
-];
-const initialEdges = [];
+import FlowEditor from '../components/flow/FlowEditor';
+import { PlusIcon, TrashIcon, PencilSquareIcon, BoltIcon, ChartBarIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 export default function FlowBuilderPage() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  
-  const [currentFlowId, setCurrentFlowId] = useState(null);
-  const [flowName, setFlowName] = useState('');
-  const [triggerKeyword, setTriggerKeyword] = useState('');
+  const [flows, setFlows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [selectedNode, setSelectedNode] = useState(null);
+  
+  // State to manage the full-screen editor overlay
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingFlowId, setEditingFlowId] = useState(null);
+  const [initialData, setInitialData] = useState(null);
 
   useEffect(() => {
     fetchFlows();
@@ -36,17 +21,7 @@ export default function FlowBuilderPage() {
     try {
       setLoading(true);
       const res = await flowAPI.getAll();
-      const flows = res.data?.data?.flows || [];
-      if (flows.length > 0) {
-        const flow = flows[0]; // Load the first flow for MVP
-        setCurrentFlowId(flow._id);
-        setFlowName(flow.name || '');
-        setTriggerKeyword(flow.triggerKeyword || '');
-        if (flow.nodes && flow.nodes.length > 0) {
-          setNodes(flow.nodes);
-          setEdges(flow.edges || []);
-        }
-      }
+      setFlows(res.data?.data?.flows || []);
     } catch (err) {
       toast.error('Failed to load flows');
       console.error(err);
@@ -55,168 +30,170 @@ export default function FlowBuilderPage() {
     }
   };
 
-  const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
-
-  const addNode = (type) => {
-    const newNode = {
-      id: `node_${Date.now()}`,
-      position: { x: 250, y: nodes.length * 100 + 50 },
-      data: { label: `New ${type}` },
-    };
-    setNodes((nds) => nds.concat(newNode));
+  const handleCreateNew = () => {
+    setEditingFlowId(null);
+    setInitialData(null);
+    setIsEditing(true);
   };
 
-  const handleSave = async () => {
-    if (!flowName.trim()) {
-      return toast.error('Please enter a Flow Name');
-    }
+  const handleEdit = (flow) => {
+    setEditingFlowId(flow._id);
+    setInitialData({
+      name: flow.name,
+      triggerKeyword: flow.triggerKeyword,
+      nodes: flow.nodes,
+      edges: flow.edges
+    });
+    setIsEditing(true);
+  };
 
+  const handleDelete = async (id, e) => {
+    e.stopPropagation(); // prevent opening the editor
+    if (!window.confirm("Are you sure you want to delete this flow? This cannot be undone.")) return;
+    
     try {
-      setSaving(true);
-      const payload = {
-        name: flowName,
-        triggerKeyword,
-        nodes,
-        edges,
-        isActive: true
-      };
-
-      if (currentFlowId) {
-        await flowAPI.update(currentFlowId, payload);
-        toast.success('Flow updated successfully!');
-      } else {
-        const res = await flowAPI.create(payload);
-        setCurrentFlowId(res.data?.data?.flow?._id);
-        toast.success('Flow created successfully!');
-      }
+      await flowAPI.delete(id);
+      toast.success('Flow deleted successfully');
+      setFlows(flows.filter(f => f._id !== id));
     } catch (err) {
-      toast.error('Failed to save flow');
-      console.error(err);
-    } finally {
-      setSaving(false);
+      toast.error('Failed to delete flow');
     }
   };
 
-  const onNodeClick = (event, node) => {
-    setSelectedNode(node);
+  const handleCloseEditor = () => {
+    setIsEditing(false);
+    setEditingFlowId(null);
+    setInitialData(null);
   };
 
-  const updateSelectedNodeLabel = (newLabel) => {
-    if (!selectedNode) return;
-    setNodes((nds) =>
-      nds.map((n) => {
-        if (n.id === selectedNode.id) {
-          return { ...n, data: { ...n.data, label: newLabel } };
-        }
-        return n;
-      })
-    );
-    setSelectedNode((prev) => ({ ...prev, data: { ...prev.data, label: newLabel } }));
+  const handleSaved = () => {
+    fetchFlows(); // Refresh the list
   };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-[calc(100vh-64px)] bg-gray-900">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden bg-gray-900 text-white">
-      {/* Sidebar Toolbar */}
-      <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-gray-800 bg-gray-900 flex flex-col h-[45vh] md:h-full shrink-0">
-        <div className="p-4 border-b border-gray-800 space-y-4 shrink-0">
-          <h2 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Flow Settings</h2>
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
-            <div>
-              <label className="block text-xs text-gray-400 mb-1">Flow Name</label>
-              <input 
-                type="text" 
-                value={flowName}
-                onChange={(e) => setFlowName(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="e.g. Welcome Flow"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-400 mb-1">Trigger Keyword</label>
-              <input 
-                type="text" 
-                value={triggerKeyword}
-                onChange={(e) => setTriggerKeyword(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="e.g. hello, help"
-              />
-            </div>
-          </div>
+    <div className="p-6 max-w-7xl mx-auto text-white">
+      {/* Dashboard Header & Advantages */}
+      <div className="mb-10 text-center">
+        <h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-4">
+          Flow Builder Dashboard
+        </h1>
+        <p className="text-gray-400 text-lg max-w-3xl mx-auto">
+          Automate your WhatsApp conversations visually. Build 24/7 chatbots without writing a single line of code.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-blue-500/50 transition duration-300">
+          <BoltIcon className="w-10 h-10 text-blue-400 mb-4" />
+          <h3 className="text-xl font-bold mb-2">Instant Setup</h3>
+          <p className="text-gray-400 text-sm">Drag and drop blocks to instantly create complex routing logic based on user replies.</p>
         </div>
-
-        <div className="p-4 space-y-3 flex-1 overflow-y-auto custom-scrollbar">
-          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Add Nodes</h3>
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
-            <button onClick={() => addNode('Message')} className="w-full flex items-center justify-center md:justify-start gap-2 p-2 sm:p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition border border-gray-700">
-              <DocumentTextIcon className="w-5 h-5 text-blue-400 shrink-0" />
-              <span className="text-xs sm:text-sm">Send Message</span>
-            </button>
-            <button onClick={() => addNode('Condition')} className="w-full flex items-center justify-center md:justify-start gap-2 p-2 sm:p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition border border-gray-700">
-              <AdjustmentsHorizontalIcon className="w-5 h-5 text-green-400 shrink-0" />
-              <span className="text-xs sm:text-sm">Condition</span>
-            </button>
-            <button onClick={() => addNode('Delay')} className="w-full flex items-center justify-center md:justify-start gap-2 p-2 sm:p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition border border-gray-700">
-              <ClockIcon className="w-5 h-5 text-yellow-400 shrink-0" />
-              <span className="text-xs sm:text-sm">Time Delay</span>
-            </button>
-            <button onClick={() => addNode('Action')} className="w-full flex items-center justify-center md:justify-start gap-2 p-2 sm:p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition border border-gray-700">
-              <CogIcon className="w-5 h-5 text-purple-400 shrink-0" />
-              <span className="text-xs sm:text-sm">Action</span>
-            </button>
-          </div>
-
-          {selectedNode && (
-            <div className="mt-4 md:mt-8 p-3 sm:p-4 bg-gray-800 rounded-lg border border-gray-700">
-              <h3 className="text-xs sm:text-sm font-semibold text-blue-400 mb-2">Edit Selected Node</h3>
-              <label className="block text-xs text-gray-400 mb-1">Node Label / Content</label>
-              <textarea 
-                rows="3"
-                value={selectedNode.data.label}
-                onChange={(e) => updateSelectedNodeLabel(e.target.value)}
-                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 resize-none"
-              />
-            </div>
-          )}
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-purple-500/50 transition duration-300">
+          <ChartBarIcon className="w-10 h-10 text-purple-400 mb-4" />
+          <h3 className="text-xl font-bold mb-2">Lead Qualification</h3>
+          <p className="text-gray-400 text-sm">Collect names, emails, and exact requirements automatically before routing to a human agent.</p>
         </div>
-
-        <div className="p-3 sm:p-4 border-t border-gray-800 mt-auto shrink-0">
-          <button 
-            onClick={handleSave}
-            disabled={saving}
-            className={`w-full flex justify-center items-center gap-2 py-2.5 sm:py-3 rounded-lg transition shadow-lg font-semibold text-sm sm:text-base
-              ${saving ? 'bg-blue-800 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500'}`}
-          >
-            <PlayIcon className="w-4 h-4 sm:w-5 sm:h-5" /> {saving ? 'Saving...' : 'Save & Publish'}
-          </button>
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-green-500/50 transition duration-300">
+          <ArrowPathIcon className="w-10 h-10 text-green-400 mb-4" />
+          <h3 className="text-xl font-bold mb-2">Cost Efficiency</h3>
+          <p className="text-gray-400 text-sm">Save expensive AI API tokens by handling generic FAQs and menus completely for free.</p>
         </div>
       </div>
 
-      {/* Canvas */}
-      <div className="flex-1 relative h-[55vh] md:h-full">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onNodeClick={onNodeClick}
-          onPaneClick={() => setSelectedNode(null)}
-          fitView
-          className="bg-gray-950"
+      {/* History & Controls */}
+      <div className="flex justify-between items-end mb-6">
+        <div>
+          <h2 className="text-2xl font-bold">Your Flows</h2>
+          <p className="text-gray-400 text-sm mt-1">Manage and edit your existing automation flows.</p>
+        </div>
+        <button 
+          onClick={handleCreateNew}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-lg font-semibold transition shadow-lg shadow-blue-500/20"
         >
-          <Controls className="bg-gray-800 border-gray-700 fill-white mb-2 md:mb-0" />
-          <MiniMap nodeStrokeColor="#fff" nodeColor="#374151" maskColor="rgba(0,0,0,0.7)" className="bg-gray-900 border border-gray-800 hidden md:block" />
-          <Background color="#374151" gap={16} size={1} />
-        </ReactFlow>
+          <PlusIcon className="w-5 h-5" /> Create New Flow
+        </button>
       </div>
+
+      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
+        {loading ? (
+          <div className="p-12 text-center text-gray-500">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            Loading your flows...
+          </div>
+        ) : flows.length === 0 ? (
+          <div className="p-16 text-center">
+            <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+              <BoltIcon className="w-10 h-10 text-gray-600" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">No flows yet</h3>
+            <p className="text-gray-500 mb-6">Create your first automated journey to engage with your customers.</p>
+            <button 
+              onClick={handleCreateNew}
+              className="bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-medium transition"
+            >
+              Get Started
+            </button>
+          </div>
+        ) : (
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-800/50 text-gray-400 text-xs uppercase tracking-wider">
+                <th className="p-4 font-medium">Flow Name</th>
+                <th className="p-4 font-medium">Trigger Keyword</th>
+                <th className="p-4 font-medium">Status</th>
+                <th className="p-4 font-medium text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-800">
+              {flows.map((flow) => (
+                <tr key={flow._id} onClick={() => handleEdit(flow)} className="hover:bg-gray-800/30 transition cursor-pointer group">
+                  <td className="p-4 font-semibold">{flow.name}</td>
+                  <td className="p-4">
+                    {flow.triggerKeyword ? (
+                      <span className="bg-blue-500/10 text-blue-400 px-2.5 py-1 rounded-md text-xs font-mono">
+                        {flow.triggerKeyword}
+                      </span>
+                    ) : (
+                      <span className="text-gray-500 text-xs italic">Every Message</span>
+                    )}
+                  </td>
+                  <td className="p-4">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${flow.isActive ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>
+                      {flow.isActive ? 'Active' : 'Draft'}
+                    </span>
+                  </td>
+                  <td className="p-4 text-right space-x-2">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleEdit(flow); }}
+                      className="p-2 text-gray-400 hover:text-blue-400 bg-gray-800 hover:bg-gray-700 rounded-lg transition"
+                      title="Edit Flow"
+                    >
+                      <PencilSquareIcon className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={(e) => handleDelete(flow._id, e)}
+                      className="p-2 text-gray-400 hover:text-red-400 bg-gray-800 hover:bg-red-500/10 rounded-lg transition"
+                      title="Delete Flow"
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Full Screen Overlay Editor */}
+      {isEditing && (
+        <FlowEditor 
+          flowId={editingFlowId}
+          initialData={initialData}
+          onClose={handleCloseEditor}
+          onSaved={handleSaved}
+        />
+      )}
     </div>
   );
 }

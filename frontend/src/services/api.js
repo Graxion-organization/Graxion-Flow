@@ -8,22 +8,39 @@ export const api = axios.create({
 });
 
 let csrfToken = null;
+let fetchingCsrfPromise = null;
 
 export const fetchCsrfToken = async () => {
-  try {
-    const res = await api.get('/auth/csrf');
-    csrfToken = res.data.csrfToken;
-  } catch (err) {
-    console.error('Failed to fetch CSRF token', err);
+  if (fetchingCsrfPromise) {
+    return fetchingCsrfPromise;
   }
+  fetchingCsrfPromise = (async () => {
+    try {
+      const res = await api.get('/auth/csrf');
+      csrfToken = res.data.csrfToken;
+      return csrfToken;
+    } catch (err) {
+      console.error('Failed to fetch CSRF token', err);
+      return null;
+    } finally {
+      fetchingCsrfPromise = null;
+    }
+  })();
+  return fetchingCsrfPromise;
 };
 
 // Request interceptor - attach headers
 api.interceptors.request.use(
-  (config) => {
-    // JWT token is now automatically sent via httpOnly cookies
+  async (config) => {
+    const method = config.method?.toLowerCase();
+    const isMutating = !['get', 'head', 'options'].includes(method);
+    const isCsrfUrl = config.url?.includes('/auth/csrf');
 
-    if (csrfToken && !['get', 'head', 'options'].includes(config.method?.toLowerCase())) {
+    if (isMutating && !isCsrfUrl && !csrfToken) {
+      await fetchCsrfToken();
+    }
+
+    if (csrfToken && isMutating && !isCsrfUrl) {
       config.headers['X-CSRF-Token'] = csrfToken;
     }
 
@@ -35,11 +52,30 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor - handle errors + token refresh
+// Response interceptor - handle errors + token refresh + CSRF retry
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // Retry CSRF token if request failed with 403 CSRF error
+    if (
+      error.response?.status === 403 &&
+      typeof error.response?.data?.message === 'string' &&
+      error.response.data.message.toLowerCase().includes('csrf') &&
+      !originalRequest._csrfRetry
+    ) {
+      originalRequest._csrfRetry = true;
+      try {
+        const newToken = await fetchCsrfToken();
+        if (newToken) {
+          originalRequest.headers['X-CSRF-Token'] = newToken;
+          return api(originalRequest);
+        }
+      } catch (csrfErr) {
+        return Promise.reject(error);
+      }
+    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -247,6 +283,17 @@ export const socialHubAPI = {
    generateCaption: (data) => api.post('/social-hub/ai/caption', data),
    getTodayAnalytics: () => api.get('/social-hub/ai/today-analytics'),
    getBestTime: (platform) => api.get(`/social-hub/ai/best-time?platform=${platform}`),
+};
+
+// Sales Partner System
+export const partnerAPI = {
+  getDashboard: () => api.get('/partner/dashboard'),
+  getPayouts: () => api.get('/partner/payouts'),
+  adminGetPartners: () => api.get('/partner/admin/partners'),
+  adminAssignRole: (data) => api.post('/partner/admin/assign-role', data),
+  adminGetSettings: () => api.get('/partner/admin/settings'),
+  adminUpdateSettings: (data) => api.patch('/partner/admin/settings', data),
+  adminProcessPayout: (data) => api.post('/partner/admin/process-payout', data),
 };
 
 // Marketing Copilot

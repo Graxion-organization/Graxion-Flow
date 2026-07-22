@@ -243,6 +243,7 @@ app.use('/api/keywords', keywordRoutes);
 app.use('/api/flows', flowRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/integrations', integrationsRoutes);
+app.use('/api/partner', require('./routes/partnerRoutes'));
 app.use('/api/public', publicRoutes);
 // app.use('/api/prompts', require('./routes/prompts')); // TODO: Route file does not exist yet
 

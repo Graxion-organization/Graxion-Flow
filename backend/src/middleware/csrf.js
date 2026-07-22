@@ -12,11 +12,14 @@ const generateCsrfToken = (req, res) => {
   const secret = getSecret();
   const hash = crypto.createHmac('sha256', secret).update(token).digest('hex');
 
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isHttps = req?.secure || req?.headers?.['x-forwarded-proto'] === 'https' || isProduction;
+
   // Set the hash in an httpOnly cookie
   res.cookie('_csrfSecret', hash, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: isHttps,
+    sameSite: isHttps ? 'none' : 'lax',
     path: '/',
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   });

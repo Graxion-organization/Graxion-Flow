@@ -5,9 +5,12 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const { parse } = require('json2csv');
 
+const getOrgId = (req) => req.organization?._id || req.user?.organization || req.user?.currentOrganization;
+
 exports.getAllContacts = catchAsync(async (req, res, next) => {
   const { search, page = 1, limit = 50 } = req.query;
-  const query = { organization: req.user.organization };
+  const orgId = getOrgId(req);
+  const query = { organization: orgId };
 
   if (search) {
     query.$or = [
@@ -31,19 +34,25 @@ exports.getAllContacts = catchAsync(async (req, res, next) => {
 });
 
 exports.getContact = catchAsync(async (req, res, next) => {
-  const contact = await Contact.findOne({ _id: req.params.id, organization: req.user.organization });
+  const orgId = getOrgId(req);
+  const contact = await Contact.findOne({ _id: req.params.id, organization: orgId });
   if (!contact) return next(new AppError('Contact not found', 404));
   res.status(200).json({ status: 'success', data: { contact } });
 });
 
 exports.createContact = catchAsync(async (req, res, next) => {
-  const contact = await Contact.create({ ...req.body, organization: req.user.organization });
+  const orgId = getOrgId(req);
+  if (!orgId) {
+    return next(new AppError('Organization context missing. Please refresh or re-select organization.', 400));
+  }
+  const contact = await Contact.create({ ...req.body, organization: orgId });
   res.status(201).json({ status: 'success', data: { contact } });
 });
 
 exports.updateContact = catchAsync(async (req, res, next) => {
+  const orgId = getOrgId(req);
   const contact = await Contact.findOneAndUpdate(
-    { _id: req.params.id, organization: req.user.organization },
+    { _id: req.params.id, organization: orgId },
     req.body,
     { new: true, runValidators: true }
   );
@@ -52,13 +61,18 @@ exports.updateContact = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteContact = catchAsync(async (req, res, next) => {
-  const contact = await Contact.findOneAndDelete({ _id: req.params.id, organization: req.user.organization });
+  const orgId = getOrgId(req);
+  const contact = await Contact.findOneAndDelete({ _id: req.params.id, organization: orgId });
   if (!contact) return next(new AppError('Contact not found', 404));
   res.status(204).json({ status: 'success', data: null });
 });
 
 exports.importContacts = catchAsync(async (req, res, next) => {
   if (!req.file) return next(new AppError('Please upload a CSV file', 400));
+  const orgId = getOrgId(req);
+  if (!orgId) {
+    return next(new AppError('Organization context missing.', 400));
+  }
   
   const results = [];
   fs.createReadStream(req.file.path)
@@ -68,8 +82,8 @@ exports.importContacts = catchAsync(async (req, res, next) => {
       try {
         const ops = results.map(row => ({
           updateOne: {
-            filter: { organization: req.user.organization, phone: row.phone },
-            update: { $set: { ...row, organization: req.user.organization } },
+            filter: { organization: orgId, phone: row.phone },
+            update: { $set: { ...row, organization: orgId } },
             upsert: true
           }
         }));
@@ -88,7 +102,8 @@ exports.importContacts = catchAsync(async (req, res, next) => {
 });
 
 exports.exportContacts = catchAsync(async (req, res, next) => {
-  const contacts = await Contact.find({ organization: req.user.organization }).lean();
+  const orgId = getOrgId(req);
+  const contacts = await Contact.find({ organization: orgId }).lean();
   
   if (!contacts.length) return next(new AppError('No contacts to export', 404));
   

@@ -34,6 +34,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Home = lazy(() => import("./pages/Home"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
+const SalesPartnerDashboard = lazy(() => import("./pages/SalesPartnerDashboard"));
 
 // Phase 8 New Pages
 const ContactsPage = lazy(() => import("./pages/ContactsPage"));
@@ -73,6 +74,7 @@ const AdminActivities = lazy(() => import("./pages/admin/AdminActivities"));
 const ApiExplorer = lazy(() => import("./pages/admin/ApiExplorer"));
 const InstagramTool = lazy(() => import("./pages/admin/InstagramTool"));
 const AdminContactMessages = lazy(() => import("./pages/admin/AdminContactMessages"));
+const SalesPartnerAdminTab = lazy(() => import("./components/admin/SalesPartnerAdminTab"));
 
 // Other pages
 const PendingDeletionPage = lazy(() => import("./pages/PendingDeletionPage"));
@@ -286,6 +288,7 @@ export default function App() {
             <Route path="quality" element={<QualityRatingPage />} />
             <Route path="social-hub" element={<SocialPublishingPage />} />
             <Route path="billing" element={<BillingPage />} />
+            <Route path="partner-dashboard" element={<SalesPartnerDashboard />} />
             <Route path="team" element={<TeamManagementPage />} />
             <Route path="settings" element={<SettingsPage />} />
 
@@ -307,6 +310,7 @@ export default function App() {
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="users" element={<UserManagement />} />
+            <Route path="sales-partners" element={<SalesPartnerAdminTab />} />
             <Route path="signup-requests" element={<AdminRequests />} />
             <Route path="contact-messages" element={<AdminContactMessages />} />
             <Route path="activities" element={<AdminActivities />} />

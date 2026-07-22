@@ -37,7 +37,8 @@ import {
   Zap,
   FileText,
   Shield,
-  Trash2
+  Trash2,
+  DollarSign
 } from "lucide-react";
 import { io } from "socket.io-client";
 import { useAuthStore, useNotificationStore, useOrganizationStore, useBrandingStore } from "../../store";
@@ -92,6 +93,7 @@ const SIDEBAR_GROUPS = [
     title: "Administration",
     items: [
       { to: "/app/integrations", icon: Smartphone, label: "App Store", minRole: "admin" },
+      { to: "/app/partner-dashboard", icon: DollarSign, label: "Sales Partner", minRole: "sales_partner" },
       { to: "/app/settings", icon: Settings, label: "Settings", minRole: "viewer" },
       { to: "/app/billing", icon: CreditCard, label: "Billing", minRole: "admin" },
     ]
@@ -633,6 +635,28 @@ export default function DashboardLayout() {
                     </div>
 
                     <div className={`py-1 border-b ${isDark ? "border-white/10" : "border-slate-100"}`}>
+                      {(user?.role === 'sales_partner' || user?.role === 'admin' || user?.role === 'superadmin') && (
+                        <button
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            navigate("/app/partner-dashboard");
+                          }}
+                          className={`flex items-center gap-2 w-full px-4 py-2 text-sm text-emerald-400 font-semibold ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}
+                        >
+                          <DollarSign size={15} /> Sales Partner Panel
+                        </button>
+                      )}
+                      {(user?.role === 'admin' || user?.role === 'superadmin') && (
+                        <button
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            navigate("/admin/dashboard");
+                          }}
+                          className={`flex items-center gap-2 w-full px-4 py-2 text-sm text-purple-400 font-semibold ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}
+                        >
+                          <Shield size={15} /> Admin Panel
+                        </button>
+                      )}
                       <button
                         onClick={() => {
                           setUserMenuOpen(false);
