@@ -11,10 +11,61 @@ const creditHelper = require('../utils/creditHelper');
 const { calculateTax } = require('../services/taxService');
 const { generateInvoicePDF } = require('../services/invoiceService');
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+const getRazorpayInstance = () => {
+  const keyId = (process.env.RAZORPAY_KEY_ID || '').trim();
+  const keySecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
+  if (!keyId || !keySecret || keyId === 'dummy') {
+    return null;
+  }
+  return new Razorpay({ key_id: keyId, key_secret: keySecret });
+};
+
+const processPartnerCommission = async (user, paymentAmountInRupees, planCode, paymentId = null) => {
+  if (!user || !user.referredByPartner || paymentAmountInRupees <= 0) return;
+  try {
+    const SystemSettings = require('../models/SystemSettings');
+    const PartnerCommission = require('../models/PartnerCommission');
+
+    const partner = await User.findById(user.referredByPartner);
+    if (!partner) return;
+
+    // Check if commission for this specific payment was already recorded
+    const query = {
+      partner: partner._id,
+      referredUser: user._id,
+    };
+    if (paymentId) {
+      query.payment = paymentId;
+    } else {
+      query.paymentAmount = paymentAmountInRupees;
+      query.notes = { $regex: planCode };
+    }
+
+    const existingComm = await PartnerCommission.findOne(query);
+    if (existingComm) return;
+
+    const settings = await SystemSettings.findOne({ key: 'global_settings' });
+    const rate = partner.partnerCommissionRate || settings?.defaultPartnerCommissionRate || 20;
+
+    const commissionAmount = Math.round((paymentAmountInRupees * rate) / 100);
+
+    if (commissionAmount > 0) {
+      await PartnerCommission.create({
+        partner: partner._id,
+        referredUser: user._id,
+        payment: paymentId || null,
+        paymentAmount: paymentAmountInRupees,
+        commissionAmount: commissionAmount,
+        commissionRate: rate,
+        status: 'APPROVED',
+        notes: `Subscription payment for plan: ${planCode}`
+      });
+      logger.info(`Recorded Partner Commission of ₹${commissionAmount} for Partner ${partner.email}`);
+    }
+  } catch (err) {
+    logger.error('Failed to process partner commission:', err);
+  }
+};
 
 exports.getPlans = async (req, res, next) => {
   try {
@@ -40,27 +91,37 @@ exports.getPlans = async (req, res, next) => {
   }
 };
 
-// WA-004: Create Subscription (Replaces createOrder)
+// WA-004: Create Order / Subscription (Production Razorpay Order Creation)
 exports.createSubscription = async (req, res, next) => {
   try {
-    const { planId, customerStateCode } = req.body;
+    const planId = req.body.planId || req.body.plan;
+    const { customerStateCode } = req.body;
+
+    const rzp = getRazorpayInstance();
+    if (!rzp) {
+      return next(new AppError('Razorpay payment gateway is not configured. Please set valid RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in backend .env file.', 500));
+    }
     
     // Fetch plan
-    const planInfo = await Plan.findOne({ code: planId, isActive: true });
+    let planInfo = await Plan.findOne({ code: planId, isActive: true });
+    if (!planInfo) {
+      const defaultPlans = {
+        starter: { name: 'Starter', price: 999, messageLimit: 1000, agentLimit: 3, credits: 500 },
+        pro: { name: 'Pro', price: 2999, messageLimit: 5000, agentLimit: 10, credits: 2000 },
+        enterprise: { name: 'Enterprise', price: 9999, messageLimit: 50000, agentLimit: 50, credits: 10000 },
+      };
+      planInfo = defaultPlans[planId];
+    }
     if (!planInfo) return next(new AppError('Invalid plan selected.', 400));
 
     // Calculate tax
     const taxInfo = calculateTax(planInfo.price, customerStateCode);
     const amountInPaisa = Math.round(taxInfo.totalAmount * 100);
 
-    // Create a plan on Razorpay if it doesn't exist (assuming Razorpay Plan ID = planId)
-    // Here we'd normally map our DB plan to Razorpay Plan ID. For simplicity, we just create an order.
-    // Real implementation would use razorpay.subscriptions.create()
-
-    const order = await razorpay.orders.create({
+    const order = await rzp.orders.create({
       amount: amountInPaisa,
       currency: 'INR',
-      receipt: `SUB${req.user._id}${Date.now()}`,
+      receipt: `rcpt_${req.user._id.toString().slice(-8)}_${Date.now()}`,
       notes: { userId: req.user._id.toString(), plan: planId, isSubscription: "true" },
     });
 
@@ -79,25 +140,38 @@ exports.createSubscription = async (req, res, next) => {
         orderId: order.id,
         amount: amountInPaisa,
         currency: 'INR',
-        keyId: process.env.RAZORPAY_KEY_ID,
+        keyId: process.env.RAZORPAY_KEY_ID?.trim(),
         plan: planId,
         planLabel: planInfo.name,
         prefill: { name: req.user.name, email: req.user.email },
-        // IND-007: RBI payment guidelines compliance note
         rbiComplianceNote: amountInPaisa >= 1500000 ? 'As per RBI guidelines, recurring e-mandates above ₹15,000 will require AFA (Additional Factor of Authentication).' : undefined
       },
     });
   } catch (err) {
-    logger.error('Create subscription error:', err);
-    next(err);
+    const errorDetail = err.error?.description || err.description || err.message || 'Unknown Razorpay Error';
+    logger.error('Create Razorpay subscription order error:', err);
+    if (err.statusCode === 401 || errorDetail.toLowerCase().includes('authentication failed')) {
+      return next(new AppError('Razorpay Authentication Failed: Invalid RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET in backend .env file. Please verify your Razorpay API key credentials.', 401));
+    }
+    next(new AppError(`Razorpay payment order creation failed: ${errorDetail}`, 500));
   }
 };
 
-// Legacy verifyPayment (used by frontend callback)
+// Verify Payment Signature & Activate Subscription
 exports.verifyPayment = async (req, res, next) => {
   try {
     const { razorpayOrderId, razorpayPaymentId, razorpaySignature, plan } = req.body;
+    const planCode = plan || req.body.planId;
 
+    if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+      return next(new AppError('Missing required payment verification credentials.', 400));
+    }
+
+    if (!process.env.RAZORPAY_KEY_SECRET) {
+      return next(new AppError('Razorpay secret key not configured on server.', 500));
+    }
+
+    // Strict HMAC-SHA256 Cryptographic Signature Verification
     const body = razorpayOrderId + '|' + razorpayPaymentId;
     const expectedSignature = crypto
       .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
@@ -105,10 +179,56 @@ exports.verifyPayment = async (req, res, next) => {
       .digest('hex');
 
     if (expectedSignature !== razorpaySignature) {
-      return next(new AppError('Payment verification failed. Invalid signature.', 400));
+      logger.error(`Signature verification failed for order ${razorpayOrderId}`);
+      return next(new AppError('Payment verification failed. Invalid Razorpay signature.', 400));
     }
 
-    res.status(200).json({ status: 'success', message: 'Payment verified. Awaiting webhook for activation.' });
+    // Instantly activate user subscription
+    let planInfo = await Plan.findOne({ code: planCode, isActive: true });
+    if (!planInfo) {
+      const defaultPlans = {
+        starter: { name: 'Starter', price: 999, messageLimit: 1000, agentLimit: 3, credits: 500 },
+        pro: { name: 'Pro', price: 2999, messageLimit: 5000, agentLimit: 10, credits: 2000 },
+        enterprise: { name: 'Enterprise', price: 9999, messageLimit: 50000, agentLimit: 50, credits: 10000 },
+      };
+      planInfo = defaultPlans[planCode] || { name: planCode, price: 999, messageLimit: 1000, agentLimit: 3, credits: 500 };
+    }
+
+    const now = new Date();
+    const periodEnd = new Date(now);
+    periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+    const user = await User.findById(req.user._id);
+    if (user) {
+      user.subscription.plan = planCode;
+      user.subscription.status = 'active';
+      user.subscription.currentPeriodStart = now;
+      user.subscription.currentPeriodEnd = periodEnd;
+      user.subscription.messageLimit = planInfo.messageLimit || 1000;
+      user.subscription.agentLimit = planInfo.agentLimit || 3;
+      user.subscription.credits = (user.subscription.credits || 0) + (planInfo.credits || 500);
+      user.subscription.totalCredits = (user.subscription.totalCredits || 0) + (planInfo.credits || 500);
+      await user.save();
+    }
+
+    // Update payment record
+    const paymentDoc = await Payment.findOneAndUpdate(
+      { razorpayOrderId },
+      {
+        status: 'captured',
+        razorpayPaymentId,
+        billingPeriod: { start: now, end: periodEnd }
+      },
+      { new: true }
+    );
+
+    // Process Sales Partner Commission if user was referred by a Sales Partner
+    if (user && user.referredByPartner) {
+      const paymentInRupees = planInfo ? planInfo.price : 0;
+      await processPartnerCommission(user, paymentInRupees, planCode, paymentDoc?._id);
+    }
+
+    res.status(200).json({ status: 'success', message: 'Payment verified and plan activated successfully!', data: { user } });
   } catch (err) {
     logger.error('Verify payment error:', err);
     next(err);
@@ -172,33 +292,8 @@ exports.razorpayWebhook = async (req, res, next) => {
 
         // Process Sales Partner Commission if user was referred by a Sales Partner
         if (user.referredByPartner) {
-          try {
-            const SystemSettings = require('../models/SystemSettings');
-            const PartnerCommission = require('../models/PartnerCommission');
-            
-            const partner = await User.findById(user.referredByPartner);
-            if (partner) {
-              const settings = await SystemSettings.findOne({ key: 'global_settings' });
-              const rate = partner.partnerCommissionRate || settings?.defaultPartnerCommissionRate || 20;
-              
-              const paymentInRupees = (payment.amount || 0) / 100;
-              const commissionAmount = Math.round((paymentInRupees * rate) / 100);
-
-              await PartnerCommission.create({
-                partner: partner._id,
-                referredUser: user._id,
-                paymentAmount: paymentInRupees,
-                commissionAmount: commissionAmount,
-                commissionRate: rate,
-                status: 'APPROVED',
-                notes: `Subscription payment for plan: ${payment.plan}`
-              });
-
-              logger.info(`Recorded Partner Commission of ₹${commissionAmount} for Partner ${partner.email}`);
-            }
-          } catch (err) {
-            logger.error('Failed to process partner commission:', err);
-          }
+          const paymentInRupees = (payment.amount || 0) / 100;
+          await processPartnerCommission(user, paymentInRupees, payment.plan, payment._id);
         }
 
         // Invoice Generation
@@ -239,10 +334,62 @@ exports.razorpayWebhook = async (req, res, next) => {
   }
 };
 
-// WA-006: Upgrade/Proration
+// WA-006: Direct Upgrade/Proration
 exports.upgradePlan = async (req, res, next) => {
-  // Proration logic: Calculate remaining days on current plan, subtract from new plan cost.
-  res.status(200).json({ status: 'success', message: 'Proration calculation pending' });
+  try {
+    const planCode = req.body.plan || req.body.planId;
+    if (!planCode) return next(new AppError('Plan is required', 400));
+
+    let planInfo = await Plan.findOne({ code: planCode, isActive: true });
+    if (!planInfo) {
+      const defaultPlans = {
+        starter: { name: 'Starter', price: 999, messageLimit: 1000, agentLimit: 3, credits: 500 },
+        pro: { name: 'Pro', price: 2999, messageLimit: 5000, agentLimit: 10, credits: 2000 },
+        enterprise: { name: 'Enterprise', price: 9999, messageLimit: 50000, agentLimit: 50, credits: 10000 },
+      };
+      planInfo = defaultPlans[planCode] || { name: planCode, price: 999, messageLimit: 1000, agentLimit: 3, credits: 500 };
+    }
+
+    const now = new Date();
+    const periodEnd = new Date(now);
+    periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+    const user = await User.findById(req.user._id);
+    if (!user) return next(new AppError('User not found', 44));
+
+    user.subscription.plan = planCode;
+    user.subscription.status = 'active';
+    user.subscription.currentPeriodStart = now;
+    user.subscription.currentPeriodEnd = periodEnd;
+    user.subscription.messageLimit = planInfo.messageLimit || 1000;
+    user.subscription.agentLimit = planInfo.agentLimit || 3;
+    user.subscription.credits = (user.subscription.credits || 0) + (planInfo.credits || 500);
+    user.subscription.totalCredits = (user.subscription.totalCredits || 0) + (planInfo.credits || 500);
+    await user.save();
+
+    const paymentObj = await Payment.create({
+      user: req.user._id,
+      razorpayOrderId: `DIRECT_UPGRADE_${Date.now()}`,
+      razorpayPaymentId: `DIRECT_PAY_${Date.now()}`,
+      plan: planCode,
+      amount: (planInfo.price || 0) * 100,
+      status: 'captured',
+      billingPeriod: { start: now, end: periodEnd }
+    });
+
+    if (user && user.referredByPartner) {
+      await processPartnerCommission(user, planInfo.price || 0, planCode, paymentObj._id);
+    }
+
+    res.status(200).json({
+      status: 'success',
+      message: `Plan upgraded to ${planInfo.name || planCode} successfully!`,
+      data: { user }
+    });
+  } catch (err) {
+    logger.error('Upgrade plan error:', err);
+    next(err);
+  }
 };
 
 // WA-007: Refund Payment

@@ -15,6 +15,8 @@ export const useAuthStore = create(
         set({ isLoading: true });
         try {
           const res = await authAPI.login(credentials);
+          const token = res.data.token || res.data.data?.token;
+          if (token) localStorage.setItem('authToken', token);
           const { data } = res.data;
           useOrganizationStore.getState().clearOrganizations();
           set({ user: data.user, isAuthenticated: true, isLoading: false });
@@ -43,6 +45,8 @@ export const useAuthStore = create(
               otpToken: res.data.otpToken
             };
           }
+          const token = res.data.token || res.data.data?.token;
+          if (token) localStorage.setItem('authToken', token);
           const { data } = res.data;
           useOrganizationStore.getState().clearOrganizations();
           set({ user: data.user, isAuthenticated: true, isLoading: false });
@@ -70,6 +74,8 @@ export const useAuthStore = create(
               message: res.data?.message
             };
           }
+          const token = res.data.token || res.data.data?.token;
+          if (token) localStorage.setItem('authToken', token);
           const { data: { user } } = res.data;
           useOrganizationStore.getState().clearOrganizations();
           set({ user, isAuthenticated: true, isLoading: false });
@@ -87,6 +93,8 @@ export const useAuthStore = create(
         set({ isLoading: true });
         try {
           const res = await authAPI.register(data);
+          const token = res.data.token || res.data.data?.token;
+          if (token) localStorage.setItem('authToken', token);
           const { data: { user } } = res.data;
           useOrganizationStore.getState().clearOrganizations();
           set({ user, isAuthenticated: true, isLoading: false });
@@ -104,6 +112,7 @@ export const useAuthStore = create(
 
       logout: async () => {
         try { await authAPI.logout(); } catch { }
+        localStorage.removeItem('authToken');
         useOrganizationStore.getState().clearOrganizations();
         set({ user: null, isAuthenticated: false });
       },
@@ -112,8 +121,10 @@ export const useAuthStore = create(
         try {
           const res = await authAPI.getMe();
           set({ user: res.data.data.user });
-        } catch {
-          get().logout();
+        } catch (err) {
+          if (err.response?.status === 401 && !localStorage.getItem('authToken')) {
+            get().logout();
+          }
         }
       },
     }),

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { whatsappAPI, fetchCsrfToken } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { Loader2, XCircle } from "lucide-react";
@@ -7,8 +7,12 @@ import toast from "react-hot-toast";
 export default function Callback() {
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState(null);
+  const hasExecutedRef = useRef(false);
 
   useEffect(() => {
+    if (hasExecutedRef.current) return;
+    hasExecutedRef.current = true;
+
     const handleSignup = async () => {
       const params = new URLSearchParams(window.location.search);
       const code = params.get("code");
@@ -32,10 +36,14 @@ export default function Callback() {
         return;
       }
 
+      // Clean URL immediately so single-use code is not re-submitted on page refresh
+      window.history.replaceState({}, document.title, window.location.pathname);
+
       try {
         const redirectUri = window.location.origin + "/callback";
+        const appId = process.env.REACT_APP_META_APP_ID;
         await fetchCsrfToken();
-        const res = await whatsappAPI.embeddedSignupCallback(code, redirectUri);
+        const res = await whatsappAPI.embeddedSignupCallback(code, redirectUri, appId);
 
         localStorage.setItem("wa_data", JSON.stringify(res.data.data));
         toast.success("Account connected successfully!");

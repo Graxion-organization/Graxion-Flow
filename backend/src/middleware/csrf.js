@@ -8,15 +8,16 @@ const getSecret = () => process.env.ENCRYPTION_KEY || process.env.JWT_SECRET || 
  * Generate CSRF token and set secure cookie
  */
 const generateCsrfToken = (req, res) => {
-  const token = crypto.randomBytes(32).toString('hex');
+  const rawToken = crypto.randomBytes(32).toString('hex');
   const secret = getSecret();
-  const hash = crypto.createHmac('sha256', secret).update(token).digest('hex');
+  const signature = crypto.createHmac('sha256', secret).update(rawToken).digest('hex');
+  const token = `${rawToken}.${signature}`;
 
   const isProduction = process.env.NODE_ENV === 'production';
   const isHttps = req?.secure || req?.headers?.['x-forwarded-proto'] === 'https' || isProduction;
 
-  // Set the hash in an httpOnly cookie
-  res.cookie('_csrfSecret', hash, {
+  // Set the hash in an httpOnly cookie for browsers supporting cross-site cookies
+  res.cookie('_csrfSecret', signature, {
     httpOnly: true,
     secure: isHttps,
     sameSite: isHttps ? 'none' : 'lax',
@@ -24,7 +25,7 @@ const generateCsrfToken = (req, res) => {
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   });
 
-  // Return the raw token to the client (to be stored in memory and sent in headers)
+  // Return the signed token to the client
   return token;
 };
 
@@ -37,27 +38,59 @@ const validateCsrf = (req, res, next) => {
     return next();
   }
 
-  // Skip webhooks since they use signature verification, not CSRF
-  if (req.originalUrl.includes('/webhook') || req.originalUrl.includes('/api/whatsapp/webhook')) {
+  // Skip webhooks and auth refresh-token endpoint (uses httpOnly refreshToken cookie)
+  if (
+    req.originalUrl.includes('/webhook') || 
+    req.originalUrl.includes('/api/whatsapp/webhook') ||
+    req.originalUrl.includes('/api/auth/refresh-token')
+  ) {
     return next();
   }
 
   const token = req.headers['x-csrf-token'];
-  const hash = req.cookies?.['_csrfSecret'];
-
-  if (!token || !hash) {
+  if (!token) {
     return next(new AppError('CSRF token missing. Request blocked.', 403));
   }
 
   const secret = getSecret();
-  const expectedHash = crypto.createHmac('sha256', secret).update(token).digest('hex');
 
-  // Secure time-safe comparison
-  const expectedBuffer = Buffer.from(expectedHash);
-  const hashBuffer = Buffer.from(hash);
+  // If token is signed (contains rawToken.signature)
+  if (token.includes('.')) {
+    const parts = token.split('.');
+    if (parts.length !== 2) {
+      return next(new AppError('Invalid CSRF token format. Request blocked.', 403));
+    }
+    const [rawToken, signature] = parts;
+    const expectedSignature = crypto.createHmac('sha256', secret).update(rawToken).digest('hex');
 
-  if (expectedBuffer.length !== hashBuffer.length || !crypto.timingSafeEqual(expectedBuffer, hashBuffer)) {
-    return next(new AppError('Invalid CSRF token. Request blocked.', 403));
+    const expectedBuffer = Buffer.from(expectedSignature);
+    const signatureBuffer = Buffer.from(signature);
+
+    if (expectedBuffer.length !== signatureBuffer.length || !crypto.timingSafeEqual(expectedBuffer, signatureBuffer)) {
+      return next(new AppError('Invalid CSRF token signature. Request blocked.', 403));
+    }
+
+    // If cookie is also present, verify cookie signature match
+    const hash = req.cookies?.['_csrfSecret'];
+    if (hash) {
+      const hashBuffer = Buffer.from(hash);
+      if (signatureBuffer.length === hashBuffer.length && !crypto.timingSafeEqual(signatureBuffer, hashBuffer)) {
+        return next(new AppError('CSRF cookie mismatch. Request blocked.', 403));
+      }
+    }
+  } else {
+    // Legacy token validation
+    const hash = req.cookies?.['_csrfSecret'];
+    if (!hash) {
+      return next(new AppError('CSRF token missing. Request blocked.', 403));
+    }
+    const expectedHash = crypto.createHmac('sha256', secret).update(token).digest('hex');
+    const expectedBuffer = Buffer.from(expectedHash);
+    const hashBuffer = Buffer.from(hash);
+
+    if (expectedBuffer.length !== hashBuffer.length || !crypto.timingSafeEqual(expectedBuffer, hashBuffer)) {
+      return next(new AppError('Invalid CSRF token. Request blocked.', 403));
+    }
   }
 
   next();

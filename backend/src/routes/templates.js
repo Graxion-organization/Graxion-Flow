@@ -5,6 +5,8 @@ const { protect } = require('../middleware/auth');
 const router = express.Router();
 router.use(protect);
 
+router.get('/system', templateController.getSystemTemplates);
+router.post('/clone-system', templateController.cloneSystemTemplate);
 router.post('/sync', templateController.syncTemplatesFromMeta);
 
 router

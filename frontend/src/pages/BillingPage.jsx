@@ -37,12 +37,13 @@ export default function BillingPage() {
   const handleUpgrade = async (planId) => {
     setPaying(planId);
     try {
+      const orderRes = await billingAPI.createOrder(planId);
+      const { orderId, amount, currency, keyId, planLabel, prefill } = orderRes.data.data;
+
       if (!window.Razorpay) {
         const { loadScript } = await import('../utils/scriptLoader');
         await loadScript('https://checkout.razorpay.com/v1/checkout.js', 'razorpay-checkout-script');
       }
-      const orderRes = await billingAPI.createOrder(planId);
-      const { orderId, amount, currency, keyId, planLabel, prefill } = orderRes.data.data;
 
       const options = {
         key: keyId,
@@ -63,23 +64,25 @@ export default function BillingPage() {
             });
             toast.success(`${planLabel} plan activated!`);
             await fetchUser();
-            billingAPI.getHistory().then((r) => setHistory(r.data.data.payments));
-            billingAPI.getCreditsHistory().then((r) => setCreditsHistory(r.data.data.transactions));
-          } catch {
-            toast.error('Payment verification failed. Contact support.');
+            billingAPI.getHistory().then((r) => setHistory(r.data?.data?.payments || []));
+            billingAPI.getCreditsHistory().then((r) => setCreditsHistory(r.data?.data?.transactions || []));
+          } catch (err) {
+            toast.error(err.response?.data?.message || 'Payment verification failed. Contact support.');
+          } finally {
+            setPaying(null);
           }
         },
         modal: { ondismiss: () => setPaying(null) },
       };
 
       const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', () => {
-        toast.error('Payment failed. Please try again.');
+      rzp.on('payment.failed', (resp) => {
+        toast.error(resp.error?.description || 'Payment failed. Please try again.');
         setPaying(null);
       });
       rzp.open();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to initiate payment');
+      toast.error(err.response?.data?.message || 'Failed to initiate payment gateway order');
       setPaying(null);
     }
   };

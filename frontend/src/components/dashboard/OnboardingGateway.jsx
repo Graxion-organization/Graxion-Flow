@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Smartphone, Bot, CheckCircle2, ChevronRight, AlertCircle } from 'lucide-react';
+import { Smartphone, Bot, CheckCircle2, ChevronRight, AlertCircle, CreditCard } from 'lucide-react';
 
 export default function OnboardingGateway({ status, isDark }) {
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ export default function OnboardingGateway({ status, isDark }) {
           </div>
           <h1 className="text-3xl font-bold mb-3">Complete Your Setup</h1>
           <p className={`text-lg ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-            Welcome aboard! Before accessing the dashboard, you need to connect a social media account and create your first AI agent.
+            Welcome aboard! You can connect a social media account, create an AI agent, or upgrade your plan directly.
           </p>
         </div>
 
@@ -82,8 +82,17 @@ export default function OnboardingGateway({ status, isDark }) {
           </div>
         </div>
 
-        <div className={`mt-8 text-center text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-          Need help? Contact support or check our integration guides.
+        <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <button
+            onClick={() => navigate('/app/billing')}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#FF6A00] hover:bg-[#e05d00] transition-colors flex items-center justify-center gap-2 shadow-md"
+          >
+            <CreditCard size={18} />
+            Upgrade Plan Now
+          </button>
+          <span className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+            You can upgrade your plan anytime without connecting social media accounts.
+          </span>
         </div>
       </div>
     </div>

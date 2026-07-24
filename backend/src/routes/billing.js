@@ -10,7 +10,9 @@ router.post('/webhook', billingController.razorpayWebhook);
 router.use(protect);
 
 router.get('/plans', billingController.getPlans);
+router.post('/create-order', billingController.createSubscription);
 router.post('/create-subscription', billingController.createSubscription);
+router.post('/verify-payment', billingController.verifyPayment);
 router.post('/verify', billingController.verifyPayment);
 router.get('/history', billingController.getBillingHistory);
 router.get('/credits/history', billingController.getCreditsHistory);

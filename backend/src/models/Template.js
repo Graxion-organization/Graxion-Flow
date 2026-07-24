@@ -6,6 +6,7 @@ const templateSchema = new mongoose.Schema({
   category: { type: String, required: true, enum: ['AUTHENTICATION', 'MARKETING', 'UTILITY'] },
   language: { type: String, required: true },
   status: { type: String, enum: ['PENDING', 'APPROVED', 'REJECTED'], default: 'PENDING' },
+  rejectedReason: String,
   components: [mongoose.Schema.Types.Mixed],
   metaTemplateId: String,
   wabaId: String,

@@ -484,6 +484,12 @@ export default function AgentsPage() {
     else setAgents((prev) => [...prev, agent]);
   };
 
+  const openCreateModal = (agent = null) => {
+    setEditingAgent(agent);
+    whatsappAPI.getAll().then((r) => setWaAccounts(r.data.data?.accounts || [])).catch(() => {});
+    setShowForm(true);
+  };
+
   const handleToggle = async (id) => {
     try {
       const res = await agentAPI.toggle(id);
@@ -508,12 +514,12 @@ export default function AgentsPage() {
 
   // Determine connected platforms
   const connectedPlatforms = {
-    whatsapp: waAccounts.some(a => a.status === 'connected'),
-    telegram: tgAccounts.some(a => a.status === 'connected'),
-    instagram: igAccounts.some(a => a.status === 'connected'),
-    facebook: fbAccounts.some(a => a.status === 'connected'),
-    youtube: ytAccounts.length > 0,
-    linkedin: lnAccounts.length > 0
+    whatsapp: Array.isArray(waAccounts) && waAccounts.length > 0,
+    telegram: Array.isArray(tgAccounts) && tgAccounts.length > 0,
+    instagram: Array.isArray(igAccounts) && igAccounts.length > 0,
+    facebook: Array.isArray(fbAccounts) && fbAccounts.length > 0,
+    youtube: Array.isArray(ytAccounts) && ytAccounts.length > 0,
+    linkedin: Array.isArray(lnAccounts) && lnAccounts.length > 0
   };
 
   const hasAnyConnected = Object.values(connectedPlatforms).some(Boolean);
@@ -534,7 +540,7 @@ export default function AgentsPage() {
         
         {hasAnyConnected && (
           <button
-            onClick={() => { setEditingAgent(null); setShowForm(true); }}
+            onClick={() => openCreateModal(null)}
             className="flex items-center justify-center gap-2 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-xl shadow-[#FF6A00]/20 hover:shadow-[#FF6A00]/40 transition-all hover:-translate-y-0.5 bg-gradient-to-r from-[#FF6A00] to-[#FF4500]"
           >
             <Plus size={18} /> Create New Agent
@@ -569,7 +575,7 @@ export default function AgentsPage() {
             Your workspace is quiet. Deploy your first AI agent to start automating responses.
           </p>
           <button 
-            onClick={() => { setEditingAgent(null); setShowForm(true); }}
+            onClick={() => openCreateModal(null)}
             className="flex items-center gap-2 bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-[#FF6A00]/20 hover:scale-105 transition-all"
           >
             <Plus size={18} /> Build First Agent
@@ -638,7 +644,7 @@ export default function AgentsPage() {
                 <button onClick={() => setTestingAgent(agent)} className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold transition-all ${isDark ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'}`}>
                   <Play size={16} /> Test
                 </button>
-                <button onClick={() => { setEditingAgent(agent); setShowForm(true); }} className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold transition-all ${isDark ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
+                <button onClick={() => openCreateModal(agent)} className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold transition-all ${isDark ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
                   <Pencil size={16} /> Edit
                 </button>
                 <button onClick={() => handleDelete(agent._id)} className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold transition-all ${isDark ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-red-50 text-red-600 hover:bg-red-100'}`}>

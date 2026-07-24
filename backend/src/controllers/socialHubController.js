@@ -23,16 +23,17 @@ const normalizePostType = (type = 'post') => {
 // ─── Get Connected Accounts ────────────────────────────────────────────────
 exports.getConnectedAccounts = async (req, res, next) => {
   try {
+    const orgId = req.organization?._id || req.user?.currentOrganization || req.user?.organization;
     const userId = req.user._id;
 
-    const igAccounts = await InstagramAccount.find({ organization: req.organization._id
+    const igAccounts = await InstagramAccount.find({ organization: orgId }).select("+accessToken");
+    const fbAccounts = await FacebookAccount.find({ organization: orgId }).select("+accessToken");
+    const waAccounts = await WhatsappAccount.find({
+      $or: [{ organization: orgId }, { user: userId }],
+      status: { $ne: 'disconnected' },
+      isActive: true
     }).select("+accessToken");
-    const fbAccounts = await FacebookAccount.find({ organization: req.organization._id
-    }).select("+accessToken");
-    const waAccounts = await WhatsappAccount.find({ organization: req.organization._id
-    }).select("+accessToken");
-    const tgAccounts = await TelegramAccount.find({ organization: req.organization._id
-    }).select("+accessToken");
+    const tgAccounts = await TelegramAccount.find({ organization: orgId }).select("+accessToken");
 
     const accounts = [];
     const connectedFbPageIds = new Set();

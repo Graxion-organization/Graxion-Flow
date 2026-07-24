@@ -11,6 +11,11 @@ const partnerCommissionSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  payment: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Payment',
+    default: null,
+  },
   paymentAmount: {
     type: Number,
     required: true,

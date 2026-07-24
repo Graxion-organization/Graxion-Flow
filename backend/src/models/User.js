@@ -25,8 +25,8 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'owner', 'admin', 'editor', 'viewer', 'superadmin', 'sales_partner'], // 'user' kept for legacy
-    default: 'owner', // New default is owner of their own personal tenant
+    enum: ['user', 'owner', 'admin', 'editor', 'viewer', 'superadmin', 'sales_partner'],
+    default: 'user',
   },
   partnerCode: { type: String, unique: true, sparse: true },
   partnerCommissionRate: { type: Number, default: null }, // Optional custom % override for sales partner

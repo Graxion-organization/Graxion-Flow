@@ -281,6 +281,30 @@ class WhatsAppService {
     }
   }
 
+  async createMessageTemplate(wabaId, templateData) {
+    try {
+      const response = await this.client.post(`/${wabaId}/message_templates`, templateData);
+      return response.data; // { id: '...', status: 'PENDING' }
+    } catch (err) {
+      logger.error('WhatsApp createMessageTemplate error:', err.response?.data || err.message);
+      const metaMsg = err.response?.data?.error?.message || err.response?.data?.error?.error_user_msg || 'Failed to submit template to Meta Graph API.';
+      throw new AppError(metaMsg, 400);
+    }
+  }
+
+  async deleteMessageTemplate(wabaId, templateName) {
+    try {
+      const response = await this.client.delete(`/${wabaId}/message_templates`, {
+        params: { name: templateName }
+      });
+      return response.data;
+    } catch (err) {
+      logger.error('WhatsApp deleteMessageTemplate error:', err.response?.data || err.message);
+      const metaMsg = err.response?.data?.error?.message || 'Failed to delete template on Meta.';
+      throw new AppError(metaMsg, 400);
+    }
+  }
+
   static async getSystemUserToken(appId, appSecret) {
     try {
       const axios = require('axios');

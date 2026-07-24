@@ -95,7 +95,7 @@ const SIDEBAR_GROUPS = [
       { to: "/app/integrations", icon: Smartphone, label: "App Store", minRole: "admin" },
       { to: "/app/partner-dashboard", icon: DollarSign, label: "Sales Partner", minRole: "sales_partner" },
       { to: "/app/settings", icon: Settings, label: "Settings", minRole: "viewer" },
-      { to: "/app/billing", icon: CreditCard, label: "Billing", minRole: "admin" },
+      { to: "/app/billing", icon: CreditCard, label: "Billing & Plans", minRole: "viewer" },
     ]
   }
 ];
@@ -302,7 +302,7 @@ export default function DashboardLayout() {
       const userLevel = roleLevels[currentRole] || 1;
       if (userLevel < requiredLevel) return false;
       
-      if (!onboardingStatus.isCompleted && !['/app/integrations', '/app/agents', '/app/settings'].includes(item.to)) {
+      if (!onboardingStatus.isCompleted && !['/app/integrations', '/app/agents', '/app/settings', '/app/billing'].includes(item.to)) {
         return false;
       }
       return true;
@@ -671,9 +671,18 @@ export default function DashboardLayout() {
                           setUserMenuOpen(false);
                           navigate("/app/settings");
                         }}
-                        className={`flex items-center gap-2 w-full px-4 py-2.5 text-sm ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}
+                        className={`flex items-center gap-2 w-full px-4 py-2 text-sm ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}
                       >
                         <Settings size={15} /> Settings
+                      </button>
+                      <button
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          navigate("/app/billing");
+                        }}
+                        className={`flex items-center gap-2 w-full px-4 py-2.5 text-sm font-semibold text-[#FF6A00] ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}
+                      >
+                        <CreditCard size={15} /> Billing & Plans
                       </button>
                     </div>
 
@@ -749,7 +758,7 @@ export default function DashboardLayout() {
               <div className="flex h-full items-center justify-center min-h-[60vh]">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
               </div>
-            ) : !onboardingStatus.isCompleted && !['/app/integrations', '/app/agents', '/app/settings'].some(p => location.pathname.startsWith(p)) ? (
+            ) : !onboardingStatus.isCompleted && !['/app/integrations', '/app/agents', '/app/settings', '/app/billing'].some(p => location.pathname.startsWith(p)) ? (
               <OnboardingGateway status={onboardingStatus} isDark={isDark} />
             ) : (
               <Outlet key={currentOrganization._id} />

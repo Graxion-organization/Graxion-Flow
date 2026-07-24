@@ -47,7 +47,8 @@ const sendTokens = (user, statusCode, res, req = null) => {
 
   res.status(statusCode).json({
     status: 'success',
-    data: { user },
+    token,
+    data: { user, token },
   });
 };
 
@@ -105,12 +106,20 @@ exports.register = async (req, res, next) => {
 
     let referredByPartner = null;
     const codeToSearch = ref || partnerCode;
-    if (codeToSearch) {
-      const partner = await User.findOne({ partnerCode: codeToSearch.toUpperCase() });
+    if (codeToSearch && typeof codeToSearch === 'string') {
+      const cleanCode = codeToSearch.trim();
+      const mongoose = require('mongoose');
+      let partner = await User.findOne({ partnerCode: { $regex: new RegExp(`^${cleanCode}$`, 'i') } });
+      if (!partner && mongoose.Types.ObjectId.isValid(cleanCode)) {
+        partner = await User.findById(cleanCode);
+      }
+      if (!partner && cleanCode.includes('@')) {
+        partner = await User.findOne({ email: cleanCode.toLowerCase() });
+      }
       if (partner) referredByPartner = partner._id;
     }
 
-    const user = await User.create({ name, email, password, referredByPartner });
+    const user = await User.create({ name, email, password, role: 'user', referredByPartner });
 
     // Create default organization
     const Organization = require('../models/Organization');
@@ -140,8 +149,9 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    const cleanEmail = email ? email.toLowerCase().trim() : '';
 
-    const user = await User.findOne({ email }).select('+password +subscription +usage');
+    const user = await User.findOne({ email: cleanEmail }).select('+password +subscription +usage');
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
     if (!user) {

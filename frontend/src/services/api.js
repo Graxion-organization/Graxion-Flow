@@ -16,6 +16,9 @@ export const fetchCsrfToken = async () => {
   }
   fetchingCsrfPromise = (async () => {
     try {
+      if (typeof document !== 'undefined' && document.requestStorageAccess) {
+        await document.requestStorageAccess().catch(() => {});
+      }
       const res = await api.get('/auth/csrf');
       csrfToken = res.data.csrfToken;
       return csrfToken;
@@ -46,6 +49,11 @@ api.interceptors.request.use(
 
     const organizationId = localStorage.getItem('organizationId');
     if (organizationId) config.headers['X-Organization-Id'] = organizationId;
+
+    const authToken = localStorage.getItem('authToken');
+    if (authToken && !config.headers['Authorization']) {
+      config.headers['Authorization'] = `Bearer ${authToken}`;
+    }
 
     return config;
   },
@@ -78,17 +86,27 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
+      const url = originalRequest.url?.toLowerCase() || '';
+      const isAuthEndpoint = url.includes('/auth/login') ||
+                             url.includes('/auth/register') ||
+                             url.includes('/auth/refresh-token') ||
+                             url.includes('/auth/csrf');
+
+      if (isAuthEndpoint) {
+        return Promise.reject(error);
+      }
+
       originalRequest._retry = true;
       try {
-        await axios.post(
-          `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/auth/refresh-token`,
-          {},
-          { withCredentials: true }
-        );
+        await api.post('/auth/refresh-token');
         // Retry the original request (cookies are automatically included)
         return api(originalRequest);
-      } catch {
-        window.location.href = '/login';
+      } catch (refreshErr) {
+        // Only redirect to login if user is attempting to access a protected app/admin route
+        const path = window.location.pathname.toLowerCase();
+        if (path.startsWith('/app') || path.startsWith('/admin')) {
+          window.location.href = '/login';
+        }
         return Promise.reject(error);
       }
     }
@@ -149,7 +167,7 @@ export const whatsappAPI = {
   disconnect: (id) => api.delete(`/whatsapp/${id}`),
   getQualityRating: (id) => api.get(`/whatsapp/accounts/${id}/quality-rating`),
   // Embedded Signup
-  embeddedSignupCallback: (code, redirectUri) => api.post('/whatsapp/embedded-signup/callback', { code, redirectUri }),
+  embeddedSignupCallback: (code, redirectUri, appId) => api.post('/whatsapp/embedded-signup/callback', { code, redirectUri, appId }),
   embeddedSignupSave: (data) => api.post('/whatsapp/embedded-signup/save', data),
 };
 
@@ -290,6 +308,7 @@ export const partnerAPI = {
   getDashboard: () => api.get('/partner/dashboard'),
   getPayouts: () => api.get('/partner/payouts'),
   adminGetPartners: () => api.get('/partner/admin/partners'),
+  adminGetPartnerUsers: (partnerId) => api.get(`/partner/admin/partner-users/${partnerId}`),
   adminAssignRole: (data) => api.post('/partner/admin/assign-role', data),
   adminGetSettings: () => api.get('/partner/admin/settings'),
   adminUpdateSettings: (data) => api.patch('/partner/admin/settings', data),
@@ -396,7 +415,11 @@ export const contactGroupAPI = {
 // Templates
 export const templateAPI = {
   getAll: () => api.get('/templates'),
+  getSystem: () => api.get('/templates/system'),
   sync: () => api.post('/templates/sync'),
+  create: (data) => api.post('/templates', data),
+  cloneSystem: (data) => api.post('/templates/clone-system', data),
+  delete: (id) => api.delete(`/templates/${id}`),
   getOne: (id) => api.get(`/templates/${id}`)
 };
 

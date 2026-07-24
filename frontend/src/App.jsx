@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore, useBrandingStore, useFeatureFlagStore } from "./store";
 import { fetchCsrfToken } from "./services/api";
+import CookieConsentModal from "./components/ui/CookieConsentModal";
 
 // Static layouts and wrappers (Kept static to ensure structural stability and avoid layout flashes)
 import DashboardLayout from "./components/dashboard/DashboardLayout";
@@ -173,6 +174,7 @@ export default function App() {
           success: { iconTheme: { primary: "#25D366", secondary: "#fff" } },
         }}
       />
+      <CookieConsentModal />
 
       <Suspense fallback={<LoadingFallback />}>
         <Routes>

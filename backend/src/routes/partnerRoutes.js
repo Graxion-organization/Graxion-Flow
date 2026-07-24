@@ -12,6 +12,7 @@ router.get('/payouts', partnerController.getPartnerPayouts);
 
 // Admin routes (Accessible only by admin / superadmin)
 router.get('/admin/partners', restrictTo('admin', 'superadmin'), partnerController.getAllPartners);
+router.get('/admin/partner-users/:partnerId', restrictTo('admin', 'superadmin'), partnerController.getPartnerReferredUsers);
 router.post('/admin/assign-role', restrictTo('admin', 'superadmin'), partnerController.assignPartnerRole);
 router.get('/admin/settings', restrictTo('admin', 'superadmin'), partnerController.getAdminSettings);
 router.patch('/admin/settings', restrictTo('admin', 'superadmin'), partnerController.updateAdminSettings);

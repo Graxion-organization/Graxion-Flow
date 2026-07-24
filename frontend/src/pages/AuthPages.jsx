@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -227,6 +227,15 @@ export function RegisterPage() {
   const [showPass, setShowPass] = useState(false);
   const { register: registerUser, isLoading } = useAuthStore();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const refCode = searchParams.get('ref') || searchParams.get('partnerCode') || searchParams.get('ref_code');
+    if (refCode) {
+      localStorage.setItem('referralCode', refCode);
+    }
+  }, [searchParams]);
+
   const {
     register,
     handleSubmit,
@@ -237,8 +246,10 @@ export function RegisterPage() {
   const [formData, setFormData] = useState(null);
 
   const onSubmit = async (data) => {
-    setFormData(data);
-    const result = await registerUser(data);
+    const refCode = searchParams.get('ref') || searchParams.get('partnerCode') || searchParams.get('ref_code') || localStorage.getItem('referralCode');
+    const payload = { ...data, ref: refCode || undefined };
+    setFormData(payload);
+    const result = await registerUser(payload);
 
     if (result.success) {
       toast.success('Account created! Check your email to verify.');
