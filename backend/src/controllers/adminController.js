@@ -403,7 +403,15 @@ exports.getPublicSettings = async (req, res, next) => {
       'branding_favicon_url',
       'branding_footer_text',
       'branding_address',
-      'branding_address_desc'
+      'branding_address_desc',
+      'branding_hero_title',
+      'branding_hero_subtitle',
+      'branding_tagline',
+      'branding_social_twitter',
+      'branding_social_linkedin',
+      'branding_social_instagram',
+      'branding_social_youtube',
+      'branding_features_json'
     ];
     
     const settings = await SystemSetting.find({ key: { $in: keys } });
@@ -418,7 +426,10 @@ exports.getPublicSettings = async (req, res, next) => {
     if (!config.branding_site_name) config.branding_site_name = 'WhatsAgent';
     if (!config.branding_contact_email) config.branding_contact_email = 'support@whatsappsaas.com';
     if (!config.branding_contact_phone) config.branding_contact_phone = '+1234567890';
-    if (!config.branding_footer_text) config.branding_footer_text = ' 2026 WhatsAgent. All rights reserved.';
+    if (!config.branding_footer_text) config.branding_footer_text = '© 2026 WhatsAgent. All rights reserved.';
+    if (!config.branding_hero_title) config.branding_hero_title = 'Automate Your Business Communication';
+    if (!config.branding_hero_subtitle) config.branding_hero_subtitle = 'Deploy AI-powered agents across WhatsApp, Instagram, and Telegram. Automate customer support, close deals, and scale your operations effortlessly.';
+    if (!config.branding_tagline) config.branding_tagline = 'The Next-Gen Automation Platform';
 
     res.status(200).json({
       status: 'success',

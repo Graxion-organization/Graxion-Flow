@@ -543,6 +543,17 @@ exports.getFeed = async (req, res, next) => {
       });
     }
 
+    const LinkedInAccount = require('../models/LinkedInAccount');
+    const liAccounts = await LinkedInAccount.find({ organization: req.organization._id, isActive: true });
+    liAccounts.forEach(acc => {
+      platformConfigs.push({
+        id: acc._id,
+        platform: 'linkedin',
+        accessToken: acc.accessToken,
+        linkedinId: acc.linkedinId
+      });
+    });
+
     const feed = await SocialMediaHubService.getFeed(platformConfigs);
 
     // Fetch jobs from database
@@ -580,8 +591,7 @@ exports.deletePost = async (req, res, next) => {
     const { platform, postId, accountId, isJob, jobId } = req.body;
 
     if (isJob || jobId) {
-      const deleted = await SocialPostJob.findOneAndDelete({ _id: jobId || postId, organization: req.organization._id
-    }).select("+accessToken");
+      const deleted = await SocialPostJob.findOneAndDelete({ _id: jobId || postId, organization: req.organization._id });
       if (!deleted) return next(new AppError('Job not found', 404));
       return res.status(200).json({ status: 'success', message: 'Scheduled post deleted' });
     }
@@ -688,8 +698,7 @@ exports.updateScheduledJob = async (req, res, next) => {
     const { jobId } = req.params;
     const { caption, mediaUrls, mode, scheduledAt, platforms, platformOptions = {} } = req.body;
 
-    const job = await SocialPostJob.findOne({ _id: jobId, organization: req.organization._id
-    }).select("+accessToken");
+    const job = await SocialPostJob.findOne({ _id: jobId, organization: req.organization._id });
     if (!job) return next(new AppError('Scheduled post not found', 404));
 
     if (job.overallStatus !== 'queued') {
@@ -842,8 +851,7 @@ exports.linkedinCallback = async (req, res, next) => {
 exports.disconnectLinkedInAccount = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const deleted = await LinkedInAccount.findOneAndDelete({ _id: id, organization: req.organization._id
-    }).select("+accessToken");
+    const deleted = await LinkedInAccount.findOneAndDelete({ _id: id, organization: req.organization._id });
     if (!deleted) return next(new AppError('LinkedIn account not found', 404));
     res.status(200).json({ status: 'success', message: 'LinkedIn account disconnected successfully' });
   } catch (err) {
@@ -857,8 +865,7 @@ exports.disconnectLinkedInAccount = async (req, res, next) => {
 
 exports.getAllLinkedInAccounts = async (req, res, next) => {
   try {
-    const accounts = await LinkedInAccount.find({ organization: req.organization._id
-    }).select("+accessToken");
+    const accounts = await LinkedInAccount.find({ organization: req.organization._id });
     res.status(200).json({ status: 'success', data: { accounts } });
   } catch (err) {
     next(err);

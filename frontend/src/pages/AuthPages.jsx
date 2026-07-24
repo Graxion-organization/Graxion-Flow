@@ -3,14 +3,14 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { MessageSquare, Eye, EyeOff, Loader2, Sparkles, ArrowRight } from 'lucide-react';
+import { MessageSquare, Eye, EyeOff, Loader2, Sparkles, ArrowRight, Shield, CheckCircle2 } from 'lucide-react';
 import { useAuthStore, useBrandingStore } from '../store';
 import SecurityChallengeModal from '../components/auth/SecurityChallengeModal';
 import toast from 'react-hot-toast';
 
+/* ─── Background Effects (exported for AdminAuthPage) ─── */
 export const CursorGlow = () => {
   const ref = useRef(null);
-
   useEffect(() => {
     const move = (e) => {
       if (ref.current) {
@@ -18,26 +18,24 @@ export const CursorGlow = () => {
         ref.current.style.top = `${e.clientY}px`;
       }
     };
-
     window.addEventListener('mousemove', move);
     return () => window.removeEventListener('mousemove', move);
   }, []);
-
   return (
     <div
       ref={ref}
       className="fixed w-64 h-64 sm:w-[320px] sm:h-[320px] rounded-full pointer-events-none z-[5] -translate-x-1/2 -translate-y-1/2 transition-[left_top] duration-100 ease-out"
-      style={{ background: 'radial-gradient(circle, rgba(255,106,0,0.14) 0%, transparent 70%)' }}
+      style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.1) 0%, transparent 70%)' }}
     />
   );
 };
 
 export const BackgroundElements = () => (
   <>
-    <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 70% 55% at 10% 5%, rgba(255,106,0,0.12) 0%, transparent 58%), radial-gradient(ellipse 60% 45% at 90% 85%, rgba(255,138,0,0.1) 0%, transparent 55%)' }} />
-    <div className="absolute inset-0 pointer-events-none opacity-25" style={{ backgroundImage: 'linear-gradient(rgba(255,106,0,0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(255,106,0,0.14) 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
-    <div className="absolute top-[8%] left-[12%] w-80 h-80 bg-[#FF6A00] rounded-full blur-[120px] opacity-20 animate-pulse" />
-    <div className="absolute bottom-[8%] right-[10%] w-64 h-64 sm:w-[360px] sm:h-[360px] bg-[#FF8A00] rounded-full blur-[130px] opacity-20 animate-pulse" style={{ animationDelay: '1.2s' }} />
+    <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 70% 55% at 10% 5%, rgba(34,197,94,0.08) 0%, transparent 58%), radial-gradient(ellipse 60% 45% at 90% 85%, rgba(34,197,94,0.06) 0%, transparent 55%)' }} />
+    <div className="absolute inset-0 pointer-events-none opacity-20" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
+    <div className="absolute top-[8%] left-[12%] w-80 h-80 bg-brand-500 rounded-full blur-[150px] opacity-[0.06] animate-pulse" />
+    <div className="absolute bottom-[8%] right-[10%] w-64 h-64 sm:w-[360px] sm:h-[360px] bg-cyan-500 rounded-full blur-[150px] opacity-[0.04] animate-pulse" style={{ animationDelay: '1.2s' }} />
     <CursorGlow />
   </>
 );
@@ -59,60 +57,91 @@ const registerSchema = z
     path: ['confirmPassword'],
   });
 
+/* ─── Input component ─── */
+const AuthInput = ({ label, error, children }) => (
+  <div>
+    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{label}</label>
+    {children}
+    {error && <p className="text-red-400 text-xs mt-1.5">{error}</p>}
+  </div>
+);
+
+/* ─── Auth Shell ─── */
 function AuthShell({ children, subtitle, title }) {
   const navigate = useNavigate();
   const { branding } = useBrandingStore();
+  const brandName = branding?.branding_site_name || 'Graxion';
+  const logoUrl = branding?.branding_logo_url;
+  const tagline = branding?.branding_tagline || 'The Next-Gen Automation Platform';
 
   return (
-    <div className="min-h-screen bg-[#070B12] flex items-center justify-center p-4 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#060912] flex items-center justify-center p-4 relative overflow-hidden font-sans">
       <BackgroundElements />
 
-      <div className="w-full max-w-5xl relative z-10 grid lg:grid-cols-[1.05fr_0.95fr] rounded-[28px] overflow-hidden border border-white/10 bg-white/[0.03] backdrop-blur-xl shadow-[0_30px_90px_rgba(0,0,0,0.45)]">
-        <aside className="hidden lg:flex flex-col justify-between p-9 border-r border-white/10 bg-gradient-to-br from-[#0e1726]/90 to-[#0b111d]/90">
-          <div>
-            <button onClick={() => navigate('/')} className="flex items-center gap-3">
-              {branding?.branding_logo_url ? (
-                <img src={branding.branding_logo_url} alt={branding.branding_site_name} className="h-10 max-w-[150px] object-contain rounded-lg" />
+      <div className="w-full max-w-5xl relative z-10 grid lg:grid-cols-[1fr_1fr] rounded-[2rem] overflow-hidden border border-white/[0.06] bg-white/[0.02] backdrop-blur-xl shadow-glass-lg">
+        {/* Left Panel */}
+        <aside className="hidden lg:flex flex-col justify-between p-10 border-r border-white/[0.06] bg-gradient-to-br from-[#0a1020]/80 to-[#060912]/80 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-brand-500/[0.06] blur-[100px] rounded-full" />
+          
+          <div className="relative z-10">
+            <button onClick={() => navigate('/')} className="flex items-center gap-3 group">
+              {logoUrl ? (
+                <img src={logoUrl} alt={brandName} className="h-10 max-w-[150px] object-contain rounded-lg" />
               ) : (
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#FF6A00] to-[#FF8A00] text-white flex items-center justify-center">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-400 text-white flex items-center justify-center shadow-glow-sm">
                   <MessageSquare size={18} />
                 </div>
               )}
-              <span className="text-slate-100 font-bold tracking-tight">{branding?.branding_site_name || 'Graxion'}</span>
+              <span className="text-slate-100 font-bold tracking-tight text-lg">{brandName}</span>
             </button>
 
-            <h2 className="mt-10 text-3xl font-extrabold text-slate-100 leading-tight">
+            <h2 className="mt-12 text-3xl font-extrabold text-slate-100 leading-tight">
               Premium AI CRM for
-              <span className="block text-[#FF8A00]">high-growth India teams</span>
+              <span className="block text-gradient mt-1">modern businesses</span>
             </h2>
-            <p className="mt-4 text-sm text-slate-300 max-w-sm">
+            <p className="mt-4 text-sm text-gray-400 max-w-sm leading-relaxed">
               Build faster response loops, convert more leads, and run a sharper customer experience across every chat channel.
             </p>
           </div>
 
-          <div className="space-y-3 text-sm text-slate-300">
+          <div className="space-y-3 text-sm text-gray-400 relative z-10">
             {['Unified inbox for all channels', 'AI + human handoff in seconds', 'Security-first onboarding flow'].map((item) => (
-              <div key={item} className="flex items-center gap-2.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#FF6A00]" />
+              <div key={item} className="flex items-center gap-3">
+                <CheckCircle2 className="w-4 h-4 text-brand-500/70 shrink-0" />
                 <span>{item}</span>
               </div>
             ))}
           </div>
         </aside>
 
-        <section className="p-6 sm:p-8 lg:p-9">
-          <div className="flex items-center gap-2 text-xs text-[#FF8A00] font-semibold uppercase tracking-[0.18em]">
-            <Sparkles size={14} />
+        {/* Right Panel - Form */}
+        <section className="p-6 sm:p-8 lg:p-10">
+          {/* Mobile logo */}
+          <div className="lg:hidden flex items-center gap-3 mb-8">
+            {logoUrl ? (
+              <img src={logoUrl} alt={brandName} className="h-8 w-auto" />
+            ) : (
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-400 text-white flex items-center justify-center">
+                <MessageSquare size={16} />
+              </div>
+            )}
+            <span className="text-white font-bold">{brandName}</span>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs text-brand-400 font-semibold uppercase tracking-[0.18em]">
+            <Shield size={14} />
             Secure Access
           </div>
           <h1 className="mt-3 text-3xl font-extrabold text-slate-100 tracking-tight">{title}</h1>
-          <p className="mt-2 text-sm text-slate-400">{subtitle}</p>
+          <p className="mt-2 text-sm text-gray-400">{subtitle}</p>
           <div className="mt-7">{children}</div>
         </section>
       </div>
     </div>
   );
 }
+
+const inputClass = "w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-slate-100 placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500/40 transition-all";
 
 export function LoginPage() {
   const [showPass, setShowPass] = useState(false);
@@ -160,40 +189,36 @@ export function LoginPage() {
   return (
     <AuthShell title="Welcome Back" subtitle="Sign in to continue managing conversations and growth.">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div>
-          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Email</label>
+        <AuthInput label="Email" error={errors.email?.message}>
           <input
             {...register('email')}
             type="email"
             placeholder="you@example.com"
-            className="w-full px-4 py-3 bg-[#0B1220] border border-white/10 rounded-xl text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#FF6A00]/40 focus:border-[#FF6A00]/70 transition-all"
+            className={inputClass}
           />
-          {errors.email && <p className="text-red-400 text-xs mt-1.5">{errors.email.message}</p>}
-        </div>
+        </AuthInput>
 
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
-            <Link to="/forgot-password" className="text-xs text-[#FF8A00] hover:text-[#FFC48D] transition-colors font-medium">Forgot password?</Link>
+        <AuthInput label="Password" error={errors.password?.message}>
+          <div className="flex items-center justify-end mb-0 -mt-6">
+            <Link to="/forgot-password" className="text-xs text-brand-400 hover:text-brand-300 transition-colors font-medium">Forgot password?</Link>
           </div>
-          <div className="relative">
+          <div className="relative mt-2">
             <input
               {...register('password')}
               type={showPass ? 'text' : 'password'}
               placeholder="********"
-              className="w-full px-4 py-3 bg-[#0B1220] border border-white/10 rounded-xl text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#FF6A00]/40 focus:border-[#FF6A00]/70 transition-all pr-12"
+              className={`${inputClass} pr-12`}
             />
-            <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-3.5 text-slate-500 hover:text-slate-200 transition-colors">
+            <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-3.5 text-gray-500 hover:text-slate-200 transition-colors">
               {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          {errors.password && <p className="text-red-400 text-xs mt-1.5">{errors.password.message}</p>}
-        </div>
+        </AuthInput>
 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-gradient-to-r from-[#FF6A00] to-[#FF8A00] text-white font-bold tracking-wide py-3.5 rounded-xl transition-all duration-300 shadow-[0_10px_24px_rgba(255,106,0,0.32)] hover:shadow-[0_14px_34px_rgba(255,106,0,0.42)] hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+          className="w-full bg-brand-500 hover:bg-brand-400 text-white font-bold tracking-wide py-3.5 rounded-xl transition-all duration-300 shadow-[0_10px_24px_rgba(34,197,94,0.2)] hover:shadow-[0_14px_34px_rgba(34,197,94,0.3)] hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
         >
           {isLoading ? (
             <>
@@ -207,9 +232,9 @@ export function LoginPage() {
         </button>
       </form>
 
-      <p className="text-center text-sm text-slate-400 mt-8">
+      <p className="text-center text-sm text-gray-400 mt-8">
         Don't have an account?{' '}
-        <Link to="/register" className="text-[#FF8A00] font-semibold hover:text-[#FFC48D] transition-colors">Sign up free</Link>
+        <Link to="/register" className="text-brand-400 font-semibold hover:text-brand-300 transition-colors">Sign up free</Link>
       </p>
 
       <SecurityChallengeModal
@@ -286,29 +311,27 @@ export function RegisterPage() {
           { name: 'password', label: 'Password', type: showPass ? 'text' : 'password', placeholder: 'Minimum 8 characters', hasToggle: true },
           { name: 'confirmPassword', label: 'Confirm Password', type: showPass ? 'text' : 'password', placeholder: 'Re-enter password' },
         ].map((field) => (
-          <div key={field.name}>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">{field.label}</label>
+          <AuthInput key={field.name} label={field.label} error={errors[field.name]?.message}>
             <div className="relative">
               <input
                 {...register(field.name)}
                 type={field.type}
                 placeholder={field.placeholder}
-                className="w-full px-4 py-3 bg-[#0B1220] border border-white/10 rounded-xl text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#FF6A00]/40 focus:border-[#FF6A00]/70 transition-all"
+                className={`${inputClass} ${field.hasToggle ? 'pr-12' : ''}`}
               />
               {field.hasToggle && (
-                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-3.5 text-slate-500 hover:text-slate-200 transition-colors">
+                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-3.5 text-gray-500 hover:text-slate-200 transition-colors">
                   {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               )}
             </div>
-            {errors[field.name] && <p className="text-red-400 text-xs mt-1.5">{errors[field.name].message}</p>}
-          </div>
+          </AuthInput>
         ))}
 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-gradient-to-r from-[#FF6A00] to-[#FF8A00] text-white font-bold tracking-wide py-3.5 rounded-xl transition-all duration-300 shadow-[0_10px_24px_rgba(255,106,0,0.32)] hover:shadow-[0_14px_34px_rgba(255,106,0,0.42)] hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2 mt-6"
+          className="w-full bg-brand-500 hover:bg-brand-400 text-white font-bold tracking-wide py-3.5 rounded-xl transition-all duration-300 shadow-[0_10px_24px_rgba(34,197,94,0.2)] hover:shadow-[0_14px_34px_rgba(34,197,94,0.3)] hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2 mt-6"
         >
           {isLoading ? (
             <>
@@ -322,9 +345,9 @@ export function RegisterPage() {
         </button>
       </form>
 
-      <p className="text-center text-sm text-slate-400 mt-8">
+      <p className="text-center text-sm text-gray-400 mt-8">
         Already have an account?{' '}
-        <Link to="/login" className="text-[#FF8A00] font-semibold hover:text-[#FFC48D] transition-colors">Sign in</Link>
+        <Link to="/login" className="text-brand-400 font-semibold hover:text-brand-300 transition-colors">Sign in</Link>
       </p>
 
       <SecurityChallengeModal

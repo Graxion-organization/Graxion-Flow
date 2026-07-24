@@ -148,6 +148,32 @@ class SocialMediaHubService {
               platform: 'youtube',
               accountId: p.id
             }));
+          case 'linkedin':
+            const liService = new LinkedInService(p.accessToken, p.linkedinId);
+            posts = await liService.getMemberPosts(20);
+            return posts.map(item => {
+              // Extract the first image/video URL if any
+              let mediaUrl = null;
+              let type = 'text';
+              if (item.content && item.content.media && item.content.media.length > 0) {
+                // Adjust this based on actual LinkedIn API response for media
+                mediaUrl = item.content.media[0].id || item.content.media[0].url;
+                type = 'image'; // simplistic assumption
+              }
+              // Often commentary is under commentary.text
+              const caption = item.commentary || item.text || (item.specificContent && item.specificContent['com.linkedin.ugc.ShareContent'] && item.specificContent['com.linkedin.ugc.ShareContent'].shareCommentary ? item.specificContent['com.linkedin.ugc.ShareContent'].shareCommentary.text : 'LinkedIn Post');
+
+              return {
+                id: item.id || item.urn,
+                caption: caption,
+                mediaUrl: mediaUrl,
+                permalink: `https://www.linkedin.com/feed/update/${item.id || item.urn}`,
+                timestamp: item.createdAt || new Date(),
+                type: type,
+                platform: 'linkedin',
+                accountId: p.id
+              };
+            });
           default:
             return [];
         }

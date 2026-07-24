@@ -106,7 +106,15 @@ const SystemSettings = () => {
         'branding_favicon_url',
         'branding_footer_text',
         'branding_address',
-        'branding_address_desc'
+        'branding_address_desc',
+        'branding_hero_title',
+        'branding_hero_subtitle',
+        'branding_tagline',
+        'branding_social_twitter',
+        'branding_social_linkedin',
+        'branding_social_instagram',
+        'branding_social_youtube',
+        'branding_features_json'
       ]
     },
     {

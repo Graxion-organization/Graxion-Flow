@@ -66,9 +66,9 @@ exports.autoConnect = async (req, res, next) => {
     const apiVersion = process.env.META_API_VERSION || 'v19.0';
     let finalUserToken = accessToken;
 
-    // Fallback to Facebook or Meta credentials if Instagram specific ones are missing
-    const appId = process.env.INSTAGRAM_APP_ID || process.env.FACEBOOK_APP_ID || process.env.META_APP_ID;
-    const appSecret = process.env.INSTAGRAM_APP_SECRET || process.env.FACEBOOK_APP_SECRET || process.env.META_APP_SECRET;
+    // Dedicated Instagram App ID and App Secret from environment variables
+    const appId = (process.env.INSTAGRAM_APP_ID || process.env.FACEBOOK_APP_ID || process.env.META_APP_ID || '').trim().replace(/^['"]|['"]$/g, '');
+    const appSecret = (process.env.INSTAGRAM_APP_SECRET || process.env.FACEBOOK_APP_SECRET || process.env.META_APP_SECRET || '').trim().replace(/^['"]|['"]$/g, '');
 
     // Exchange short-lived User token for long-lived User token
     // This ensures that the Page Access Tokens we fetch next are NON-EXPIRING
@@ -84,15 +84,15 @@ exports.autoConnect = async (req, res, next) => {
         });
         if (tokenExchangeRes.data && tokenExchangeRes.data.access_token) {
           finalUserToken = tokenExchangeRes.data.access_token;
-          logger.info('Successfully generated long-lived access token');
+          logger.info('Successfully generated long-lived access token for Instagram');
         }
       } catch (err) {
         const errorMsg = err.response?.data?.error?.message || err.message;
-        logger.error(`Failed to get long-lived token: ${errorMsg}`);
-        return next(new AppError(`Failed to generate long-lived Instagram token: ${errorMsg}. Please ensure REACT_APP_INSTAGRAM_APP_ID on frontend matches INSTAGRAM_APP_ID on backend.`, 400));
+        logger.error(`Failed to get long-lived Instagram token: ${errorMsg}`);
+        return next(new AppError(`Failed to generate long-lived Instagram token: ${errorMsg}. Please ensure INSTAGRAM_APP_ID and INSTAGRAM_APP_SECRET are set correctly in backend .env file.`, 400));
       }
     } else {
-      return next(new AppError('Server is missing INSTAGRAM_APP_ID or INSTAGRAM_APP_SECRET environment variables.', 500));
+      return next(new AppError('Server is missing INSTAGRAM_APP_ID or INSTAGRAM_APP_SECRET environment variables in backend .env file.', 500));
     }
     
     // 1. Get Facebook Pages using the (now long-lived) token

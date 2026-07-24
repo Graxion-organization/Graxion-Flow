@@ -236,7 +236,15 @@ export const useBrandingStore = create((set, get) => ({
     branding_favicon_url: '',
     branding_address: 'VPO Roopgarh JInd Haryana India',
     branding_address_desc: 'The heart of innovation.',
-    branding_footer_text: '© 2026 Graxion Inc. All rights reserved.'
+    branding_footer_text: '© 2026 Graxion Inc. All rights reserved.',
+    branding_hero_title: 'Automate Your Business Communication',
+    branding_hero_subtitle: 'Deploy AI-powered agents across WhatsApp, Instagram, and Telegram. Automate customer support, close deals, and scale your operations effortlessly.',
+    branding_tagline: 'The Next-Gen Automation Platform',
+    branding_social_twitter: '',
+    branding_social_linkedin: '',
+    branding_social_instagram: '',
+    branding_social_youtube: '',
+    branding_features_json: ''
   },
   isLoading: false,
 
