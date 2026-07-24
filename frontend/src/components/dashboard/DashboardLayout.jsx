@@ -93,6 +93,7 @@ const SIDEBAR_GROUPS = [
     title: "Administration",
     items: [
       { to: "/app/integrations", icon: Smartphone, label: "App Store", minRole: "admin" },
+      { to: "/admin/sales-partners", icon: Users, label: "Sales Partners Control", minRole: "admin" },
       { to: "/app/partner-dashboard", icon: DollarSign, label: "Sales Partner", minRole: "sales_partner" },
       { to: "/app/settings", icon: Settings, label: "Settings", minRole: "viewer" },
       { to: "/app/billing", icon: CreditCard, label: "Billing & Plans", minRole: "viewer" },

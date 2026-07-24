@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { 
   Users, 
   MessageSquare, 
@@ -8,7 +9,9 @@ import {
   Smartphone,
   Send,
   Instagram,
-  BarChart3
+  BarChart3,
+  DollarSign,
+  ArrowRight
 } from "lucide-react";
 import { adminAPI } from "../../services/api";
 import { toast } from "react-hot-toast";
@@ -88,6 +91,30 @@ const AdminDashboard = () => {
           icon={Zap} 
           color="orange" 
         />
+      </div>
+
+      {/* Quick Action Banner for Sales Partners */}
+      <div className="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 border border-emerald-500/20 rounded-2xl p-6 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <div className="p-3.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-2xl">
+            <DollarSign className="w-7 h-7" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              Sales Partners Control Panel
+              <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-bold rounded-full uppercase">Active</span>
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Manage affiliate sales partners, view referred client data, and audit payment-based commission distributions.
+            </p>
+          </div>
+        </div>
+        <Link 
+          to="/admin/sales-partners"
+          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 transition shadow-[0_0_15px_rgba(16,185,129,0.3)] shrink-0"
+        >
+          Open Sales Partners Tab <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

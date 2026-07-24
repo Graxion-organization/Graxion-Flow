@@ -22,17 +22,18 @@ import {
   Globe,
   Mail,
   Zap,
-  Key
+  Key,
+  Menu,
+  X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const AdminLayout = () => {
-  const location = useLocation();
-
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState({
     "Analytics & Comm": true,
-    "User Management": false,
-    "Security & Health": false,
+    "User Management": true,
+    "Security & Health": true,
     "System Settings": true
   });
 
@@ -170,11 +171,20 @@ const AdminLayout = () => {
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-y-auto h-screen relative">
         <header className="mb-8 flex justify-between items-center sticky top-0 bg-[#030712]/80 backdrop-blur-md z-10 py-4 -my-4 border-b border-white/5">
-          <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">
-              {activePageName}
-            </h1>
-            <p className="text-gray-400 text-sm mt-1">Manage and track system-wide activity</p>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-300 transition"
+              title="Toggle Menu"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+            <div>
+              <h1 className="text-3xl font-bold text-white tracking-tight">
+                {activePageName}
+              </h1>
+              <p className="text-gray-400 text-sm mt-1">Manage and track system-wide activity</p>
+            </div>
           </div>
           
           <div className="flex items-center gap-4">
