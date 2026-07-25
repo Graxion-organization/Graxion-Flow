@@ -463,18 +463,34 @@ exports.processWebhookPayload = async (payload) => {
       const wantsVoice = isVoiceRequest(userMessageText) || isAudioRequest;
  
       // 8c. Check for Keyword Triggers (WA-011)
-      const matchedTrigger = await checkKeywordMatch(waAccount.organization, userMessageText);
+      const matchedTrigger = await checkKeywordMatch(waAccount.organization, userMessageText, 'whatsapp', 'DM');
       if (matchedTrigger) {
         logger.info(`[KEYWORD TRIGGER] Matched trigger ${matchedTrigger._id} for ${from}`);
  
         if (matchedTrigger.action === 'SEND_MESSAGE') {
-          const sentMsg = await waService.sendTextMessage(from, matchedTrigger.response);
+          let sentMsg;
+          if (matchedTrigger.mediaType === 'image' && matchedTrigger.mediaUrl) {
+            sentMsg = await waService.sendImageMessage(from, matchedTrigger.mediaUrl, matchedTrigger.response);
+          } else if (matchedTrigger.mediaType === 'video' && matchedTrigger.mediaUrl) {
+            sentMsg = await waService.sendVideoMessage(from, matchedTrigger.mediaUrl, matchedTrigger.response);
+          } else if (matchedTrigger.mediaType === 'audio' && matchedTrigger.mediaUrl) {
+            sentMsg = await waService.sendAudioMessage(from, matchedTrigger.mediaUrl);
+            // WhatsApp Audio messages might not support captions directly in all API versions, so we could send text too, but let's stick to standard audio message
+            if (matchedTrigger.response) {
+              await waService.sendTextMessage(from, matchedTrigger.response);
+            }
+          } else if (matchedTrigger.mediaType === 'document' && matchedTrigger.mediaUrl) {
+            sentMsg = await waService.sendDocumentMessage(from, matchedTrigger.mediaUrl, 'document', matchedTrigger.response);
+          } else {
+            sentMsg = await waService.sendTextMessage(from, matchedTrigger.response);
+          }
  
           await conversation.addMessage({
             role: 'assistant',
-            content: matchedTrigger.response,
+            content: matchedTrigger.response || '[Media Sent]',
             waMessageId: sentMsg?.messages?.[0]?.id,
-            type: 'text',
+            type: matchedTrigger.mediaType !== 'none' ? matchedTrigger.mediaType : 'text',
+            media: matchedTrigger.mediaUrl ? { url: matchedTrigger.mediaUrl } : null,
             status: 'sent',
           });
  

@@ -7,6 +7,7 @@ const User = require('../models/User');
 const logger = require('../utils/logger');
 const { emitToUser, emitNotification } = require('../utils/socket');
 const creditHelper = require('../utils/creditHelper');
+const { checkKeywordMatch } = require('../utils/keywordMatcher');
 const webhookQueue = require('../utils/webhookQueue');
 
 
@@ -211,6 +212,39 @@ async function handleFacebookMessage(event, fbAccount, agent) {
 
       // Typing indicator
       await fbService.sendAction(senderId, 'typing_on');
+
+      // Check for Keyword Triggers
+      const matchedTrigger = await checkKeywordMatch(fbAccount.organization, text, 'facebook', 'DM');
+      
+      if (matchedTrigger && matchedTrigger.action === 'SEND_MESSAGE') {
+        logger.info(`[KEYWORD TRIGGER] Matched trigger ${matchedTrigger._id} for Facebook DM from ${senderId}`);
+        // FacebookService currently only supports text message method natively in our codebase for DMs.
+        // If they need image/media, we'd add it to fbService similar to IG. For now, we'll send text.
+        // We blocked 'document' for FB, so mediaType would be none, image, video, audio. Let's just send the text response if there is one.
+        // If we want to support media properly, we'll add fbService.sendMediaMessage.
+        // Given we don't have it right now, let's fallback to text.
+        
+        // Actually, we can just send the text response. If there's mediaUrl, we can append it as a link in text for now, 
+        // or just ignore if the user didn't specify text. We'll send the response text.
+        const sentText = matchedTrigger.response || (matchedTrigger.mediaUrl ? `Attachment: ${matchedTrigger.mediaUrl}` : '[Action Triggered]');
+        const sentMsg = await fbService.sendTextMessage(senderId, sentText);
+
+        await conversation.addMessage({
+          role: 'assistant',
+          content: sentText,
+          waMessageId: sentMsg?.message_id,
+          type: 'text',
+          status: 'sent',
+          tokens: 0,
+          responseTime: 0,
+        });
+
+        conversation.totalMessages += 2;
+        conversation.lastMessageAt = new Date();
+        await conversation.save();
+        await fbService.sendAction(senderId, 'typing_off');
+        return; // Skip AI
+      }
 
       const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text);
 

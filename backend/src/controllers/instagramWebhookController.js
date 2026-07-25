@@ -13,6 +13,7 @@ const { generateSpeech, deleteTempAudio, transcribeAudio, convertAudioToVideo } 
 const CloudinaryService = require('../services/cloudinaryService');
 const os = require('os');
 const path = require('path');
+const { checkKeywordMatch } = require('../utils/keywordMatcher');
 
 const isVoiceRequest = (message) => {
   if (!message) return false;
@@ -326,6 +327,43 @@ async function handleInstagramDM(event, igAccount, agent) {
 
       const wantsVoice = isVoiceRequest(text) || isAudioRequest;
 
+      // Check for Keyword Triggers
+      const matchedTrigger = await checkKeywordMatch(igAccount.organization, text, 'instagram', 'DM');
+      if (matchedTrigger && matchedTrigger.action === 'SEND_MESSAGE') {
+        logger.info(`[KEYWORD TRIGGER] Matched trigger ${matchedTrigger._id} for Instagram DM from ${senderId}`);
+        let sentMsg;
+        if (matchedTrigger.mediaType === 'image' && matchedTrigger.mediaUrl) {
+          sentMsg = await igService.sendImageMessage(igAccount.igAccountId, senderId, matchedTrigger.mediaUrl);
+        } else if (matchedTrigger.mediaType === 'video' && matchedTrigger.mediaUrl) {
+          sentMsg = await igService.sendVideoMessage(igAccount.igAccountId, senderId, matchedTrigger.mediaUrl);
+        } else if (matchedTrigger.mediaType === 'audio' && matchedTrigger.mediaUrl) {
+          sentMsg = await igService.sendAudioMessage(igAccount.igAccountId, senderId, matchedTrigger.mediaUrl);
+        } else {
+          sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, matchedTrigger.response);
+        }
+
+        // If caption provided with media on instagram, we must send a separate text message since the API does not support captions in attachment directly
+        if (matchedTrigger.mediaType !== 'none' && matchedTrigger.response) {
+            await igService.sendTextMessage(igAccount.igAccountId, senderId, matchedTrigger.response);
+        }
+
+        await conversation.addMessage({
+          role: 'assistant',
+          content: matchedTrigger.response || '[Media Sent]',
+          waMessageId: sentMsg?.message_id || sentMsg?.id || messageId,
+          type: matchedTrigger.mediaType !== 'none' ? matchedTrigger.mediaType : 'text',
+          media: matchedTrigger.mediaUrl ? { url: matchedTrigger.mediaUrl } : null,
+          status: 'sent',
+          tokens: 0,
+          responseTime: 0,
+        });
+
+        conversation.totalMessages += 2;
+        conversation.lastMessageAt = new Date();
+        await conversation.save();
+        return; // Skip AI
+      }
+
       const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text);
 
       let sentMsg;
@@ -522,6 +560,17 @@ async function handleInstagramComment(commentData, igAccount, agent) {
           contextWindow: 1
         };
         
+        // Check for Keyword Triggers
+        const matchedTrigger = await checkKeywordMatch(igAccount.organization, text, 'instagram', 'COMMENT');
+        const igService = new InstagramService(igAccount.pageAccessToken, igAccount.pageId);
+        
+        if (matchedTrigger && matchedTrigger.action === 'SEND_MESSAGE') {
+            logger.info(`[KEYWORD TRIGGER] Matched trigger ${matchedTrigger._id} for Instagram Comment ${commentId}`);
+            await igService.replyToComment(igAccount.igAccountId, commentId, matchedTrigger.response);
+            logger.info(`Successfully sent custom keyword reply to comment ${commentId}`);
+            return; // Skip AI
+        }
+
         const aiResult = await AIService.generate(tempAgent, contextMessages, text);
 
         logger.info(`AI generated comment reply: ${aiResult.content}`);

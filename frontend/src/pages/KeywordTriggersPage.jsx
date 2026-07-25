@@ -6,7 +6,16 @@ import toast from 'react-hot-toast';
 export default function KeywordTriggersPage() {
   const [keywords, setKeywords] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [newKeyword, setNewKeyword] = useState({ keyword: '', matchType: 'exact', action: 'SEND_MESSAGE', response: '' });
+  const [newKeyword, setNewKeyword] = useState({ 
+    keyword: '', 
+    matchType: 'exact', 
+    action: 'SEND_MESSAGE', 
+    response: '',
+    platforms: ['whatsapp'],
+    replyType: 'ALL',
+    mediaType: 'none',
+    mediaUrl: ''
+  });
 
   useEffect(() => {
     fetchKeywords();
@@ -29,7 +38,16 @@ export default function KeywordTriggersPage() {
     try {
       await keywordAPI.create(newKeyword);
       toast.success('Keyword added');
-      setNewKeyword({ keyword: '', matchType: 'exact', action: 'SEND_MESSAGE', response: '' });
+      setNewKeyword({ 
+        keyword: '', 
+        matchType: 'exact', 
+        action: 'SEND_MESSAGE', 
+        response: '',
+        platforms: ['whatsapp'],
+        replyType: 'ALL',
+        mediaType: 'none',
+        mediaUrl: ''
+      });
       fetchKeywords();
     } catch (err) {
       toast.error('Failed to add keyword');
@@ -55,7 +73,7 @@ export default function KeywordTriggersPage() {
 
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-xl mb-8">
         <h2 className="text-xl font-semibold mb-4">Add New Trigger</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <input 
             type="text" 
             placeholder="If user says (e.g. 'pricing')..." 
@@ -71,16 +89,68 @@ export default function KeywordTriggersPage() {
             <option value="exact">Exact Match</option>
             <option value="contains">Contains</option>
           </select>
+          <select 
+            className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-white"
+            value={newKeyword.platforms[0] || 'whatsapp'}
+            onChange={(e) => setNewKeyword({...newKeyword, platforms: [e.target.value]})}
+          >
+            <option value="whatsapp">WhatsApp</option>
+            <option value="instagram">Instagram</option>
+            <option value="facebook">Facebook</option>
+            <option value="telegram">Telegram</option>
+          </select>
+          <select 
+            className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-white"
+            value={newKeyword.replyType}
+            onChange={(e) => {
+              const newReplyType = e.target.value;
+              let newMediaType = newKeyword.mediaType;
+              if (newReplyType === 'COMMENT') newMediaType = 'none';
+              setNewKeyword({...newKeyword, replyType: newReplyType, mediaType: newMediaType});
+            }}
+          >
+            <option value="ALL">DM & Comment</option>
+            <option value="DM">DM Only</option>
+            <option value="COMMENT">Comment Only</option>
+          </select>
+
           <input 
             type="text" 
-            placeholder="Then reply with..." 
-            className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-white"
+            placeholder="Then reply with text..." 
+            className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-white lg:col-span-2"
             value={newKeyword.response}
             onChange={(e) => setNewKeyword({...newKeyword, response: e.target.value})}
           />
-          <button onClick={handleAdd} className="bg-blue-600 rounded-lg p-3 hover:bg-blue-500 font-semibold flex justify-center items-center gap-2 shadow-lg shadow-blue-500/20">
-            <PlusIcon className="w-5 h-5" /> Add Trigger
-          </button>
+
+          {newKeyword.replyType !== 'COMMENT' && (
+            <select 
+              className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-white"
+              value={newKeyword.mediaType}
+              onChange={(e) => setNewKeyword({...newKeyword, mediaType: e.target.value})}
+            >
+              <option value="none">No Media</option>
+              <option value="image">Image</option>
+              <option value="video">Video</option>
+              <option value="audio">Audio</option>
+              <option value="document" disabled={newKeyword.platforms.includes('instagram') || newKeyword.platforms.includes('facebook') || newKeyword.platforms.includes('telegram')}>Document (PDF)</option>
+            </select>
+          )}
+
+          {newKeyword.mediaType !== 'none' && newKeyword.replyType !== 'COMMENT' && (
+             <input 
+             type="url" 
+             placeholder="Media URL (e.g. https://...)" 
+             className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-white"
+             value={newKeyword.mediaUrl}
+             onChange={(e) => setNewKeyword({...newKeyword, mediaUrl: e.target.value})}
+           />
+          )}
+
+          <div className="lg:col-span-4 flex justify-end">
+            <button onClick={handleAdd} className="bg-blue-600 rounded-lg px-6 py-3 hover:bg-blue-500 font-semibold flex justify-center items-center gap-2 shadow-lg shadow-blue-500/20">
+              <PlusIcon className="w-5 h-5" /> Add Trigger
+            </button>
+          </div>
         </div>
       </div>
 
@@ -89,9 +159,10 @@ export default function KeywordTriggersPage() {
           <thead className="bg-gray-800/50 border-b border-gray-800">
             <tr>
               <th className="p-4 font-medium text-gray-300">Keyword</th>
+              <th className="p-4 font-medium text-gray-300">Platform</th>
               <th className="p-4 font-medium text-gray-300">Match Type</th>
-              <th className="p-4 font-medium text-gray-300">Action</th>
-              <th className="p-4 font-medium text-gray-300">Response</th>
+              <th className="p-4 font-medium text-gray-300">Location</th>
+              <th className="p-4 font-medium text-gray-300">Response / Media</th>
               <th className="p-4 font-medium text-gray-300 w-16"></th>
             </tr>
           </thead>
@@ -104,9 +175,17 @@ export default function KeywordTriggersPage() {
               keywords.map(kw => (
                 <tr key={kw._id} className="hover:bg-gray-800/30 transition">
                   <td className="p-4 font-semibold text-blue-400">"{kw.keyword}"</td>
+                  <td className="p-4 text-gray-400 capitalize">{kw.platforms?.join(', ') || 'Whatsapp'}</td>
                   <td className="p-4 text-gray-400 capitalize">{kw.matchType}</td>
-                  <td className="p-4"><span className="px-2 py-1 bg-gray-800 rounded text-xs">Reply</span></td>
-                  <td className="p-4 text-gray-300">{kw.response}</td>
+                  <td className="p-4"><span className="px-2 py-1 bg-gray-800 rounded text-xs">{kw.replyType || 'DM'}</span></td>
+                  <td className="p-4 text-gray-300">
+                    <div className="flex flex-col gap-1">
+                      <span>{kw.response}</span>
+                      {kw.mediaType !== 'none' && (
+                        <span className="text-xs text-blue-300">Attachment: {kw.mediaType}</span>
+                      )}
+                    </div>
+                  </td>
                   <td className="p-4">
                     <button onClick={() => handleDelete(kw._id)} className="text-red-400 hover:text-red-300 p-2 hover:bg-red-400/10 rounded transition">
                       <TrashIcon className="w-5 h-5" />

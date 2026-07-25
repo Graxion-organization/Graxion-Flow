@@ -6,6 +6,7 @@ const Conversation = require('../models/Conversation');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 const { emitToUser, emitNotification } = require('../utils/socket');
+const { checkKeywordMatch } = require('../utils/keywordMatcher');
 const creditHelper = require('../utils/creditHelper');
 const webhookQueue = require('../utils/webhookQueue');
 
@@ -295,7 +296,44 @@ exports.receiveMessage = async (req, res) => {
           .slice(-(agent.contextWindow * 2))
           .map((m) => ({ role: m.role, content: m.content }));
 
-        // 9. Generate AI response
+        // 9. Generate AI response or use Keyword Trigger
+        const matchedTrigger = await checkKeywordMatch(tgAccount.organization, text, 'telegram', 'DM');
+        const tgService = new TelegramService(tgAccount.botToken);
+
+        if (matchedTrigger && matchedTrigger.action === 'SEND_MESSAGE') {
+          logger.info(`[KEYWORD TRIGGER] Matched trigger ${matchedTrigger._id} for Telegram DM from ${fromId}`);
+          let sentMsg;
+          if (matchedTrigger.mediaType === 'image' && matchedTrigger.mediaUrl) {
+            sentMsg = await tgService.sendPhoto(chatId, matchedTrigger.mediaUrl, matchedTrigger.response);
+          } else if (matchedTrigger.mediaType === 'video' && matchedTrigger.mediaUrl) {
+            sentMsg = await tgService.sendVideo(chatId, matchedTrigger.mediaUrl, matchedTrigger.response);
+          } else {
+            sentMsg = await tgService.sendTextMessage(chatId, matchedTrigger.response);
+          }
+
+          await conversation.addMessage({
+            role: 'assistant',
+            content: matchedTrigger.response || '[Media Sent]',
+            waMessageId: sentMsg?.result?.message_id?.toString(),
+            type: matchedTrigger.mediaType !== 'none' ? matchedTrigger.mediaType : 'text',
+            media: matchedTrigger.mediaUrl ? { url: matchedTrigger.mediaUrl } : null,
+            status: 'sent',
+            tokens: 0,
+            responseTime: 0,
+          });
+
+          conversation.totalMessages += 2;
+          conversation.lastMessageAt = new Date();
+          conversation.isRead = false;
+          await conversation.save();
+
+          emitToUser(tgAccount.user.toString(), 'conversation_updated', {
+            conversationId: conversation._id,
+            messages: await conversation.getRecentMessages(),
+          });
+          return; // Skip AI
+        }
+
         const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text);
       
         // 10. Send AI reply

@@ -1,9 +1,13 @@
 const KeywordTrigger = require('../models/KeywordTrigger');
 
-const checkKeywordMatch = async (organizationId, text) => {
+const checkKeywordMatch = async (organizationId, text, platform = 'whatsapp', replyType = 'DM') => {
   if (!text) return null;
   
-  const triggers = await KeywordTrigger.find({ organization: organizationId });
+  const triggers = await KeywordTrigger.find({ 
+    organization: organizationId,
+    platforms: { $in: [platform] },
+    replyType: { $in: [replyType, 'ALL'] }
+  });
   
   for (const trigger of triggers) {
     if (trigger.matchType === 'EXACT') {

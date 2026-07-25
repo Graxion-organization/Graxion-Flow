@@ -342,6 +342,31 @@ class InstagramService {
     }
   }
 
+  async sendImageMessage(igAccountId, recipientId, imageUrl) {
+    try {
+      const endpointId = 'me';
+      const response = await axios.post(
+        `${this.baseUrl}/${endpointId}/messages`,
+        {
+          messaging_type: 'RESPONSE',
+          recipient: { id: recipientId },
+          message: {
+            attachment: {
+              type: 'image',
+              payload: { url: imageUrl, is_reusable: true }
+            }
+          },
+        },
+        { params: { access_token: this.accessToken } }
+      );
+      return response.data;
+    } catch (error) {
+      const errDetail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
+      logger.error(`Instagram sendImageMessage error: ${errDetail}`);
+      throw error;
+    }
+  }
+
   async sendVideoMessage(igAccountId, recipientId, videoUrl) {
     try {
       const endpointId = 'me';
