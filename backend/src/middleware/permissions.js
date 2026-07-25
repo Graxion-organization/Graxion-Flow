@@ -12,12 +12,7 @@ const requireRole = (minimumRole) => {
         return res.status(401).json({ success: false, message: 'Unauthorized' });
       }
 
-      // Bypass for superadmin or global admin
-      if (req.user.role === 'superadmin' || req.user.role === 'admin') {
-        return next();
-      }
-
-      const organizationId = req.headers['x-organization-id'] || req.cookies?.organizationId;
+      const organizationId = req.headers['x-organization-id'] || req.cookies?.organizationId || req.params.organizationId;
       
       if (!organizationId) {
         return res.status(400).json({ success: false, message: 'Organization ID is required' });
@@ -27,6 +22,14 @@ const requireRole = (minimumRole) => {
       if (!org) {
         return res.status(404).json({ success: false, message: 'Organization not found' });
       }
+
+      // Bypass member role check for superadmin or global admin
+      if (req.user.role === 'superadmin' || req.user.role === 'admin') {
+        req.organization = org;
+        req.memberRole = 'owner';
+        return next();
+      }
+
 
       // Check if user is the owner (global org owner)
       if (org.owner.toString() === req.user._id.toString()) {

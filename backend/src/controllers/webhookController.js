@@ -463,7 +463,7 @@ exports.processWebhookPayload = async (payload) => {
       const wantsVoice = isVoiceRequest(userMessageText) || isAudioRequest;
  
       // 8c. Check for Keyword Triggers (WA-011)
-      const matchedTrigger = await checkKeywordMatch(waAccount.organization, userMessageText, 'whatsapp', 'DM');
+      const matchedTrigger = await checkKeywordMatch(waAccount.organization, userMessageText, 'whatsapp', 'DM', agent?._id);
       if (matchedTrigger) {
         logger.info(`[KEYWORD TRIGGER] Matched trigger ${matchedTrigger._id} for ${from}`);
  

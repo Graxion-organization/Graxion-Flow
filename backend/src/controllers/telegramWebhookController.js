@@ -297,7 +297,7 @@ exports.receiveMessage = async (req, res) => {
           .map((m) => ({ role: m.role, content: m.content }));
 
         // 9. Generate AI response or use Keyword Trigger
-        const matchedTrigger = await checkKeywordMatch(tgAccount.organization, text, 'telegram', 'DM');
+        const matchedTrigger = await checkKeywordMatch(tgAccount.organization, text, 'telegram', 'DM', agent?._id);
         const tgService = new TelegramService(tgAccount.botToken);
 
         if (matchedTrigger && matchedTrigger.action === 'SEND_MESSAGE') {
@@ -337,7 +337,6 @@ exports.receiveMessage = async (req, res) => {
         const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text);
       
         // 10. Send AI reply
-        const tgService = new TelegramService(tgAccount.botToken);
         const sentMsg = await tgService.sendTextMessage(chatId, aiResult.content || "this is new AI reply");
 
         // 11. Save assistant message

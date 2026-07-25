@@ -12,20 +12,22 @@ const validateKeywordPayload = (payload) => {
 };
 
 exports.getAllKeywords = catchAsync(async (req, res, next) => {
-  const keywords = await KeywordTrigger.find({ organization: req.user.organization }).sort('-createdAt');
+  const keywords = await KeywordTrigger.find({ organization: req.organization._id }).sort('-createdAt');
   res.status(200).json({ status: 'success', data: { keywords } });
 });
 
 exports.createKeyword = catchAsync(async (req, res, next) => {
   validateKeywordPayload(req.body);
-  const keyword = await KeywordTrigger.create({ ...req.body, organization: req.user.organization });
+  if (req.body.matchType) req.body.matchType = req.body.matchType.toUpperCase();
+  const keyword = await KeywordTrigger.create({ ...req.body, organization: req.organization._id });
   res.status(201).json({ status: 'success', data: { keyword } });
 });
 
 exports.updateKeyword = catchAsync(async (req, res, next) => {
   validateKeywordPayload(req.body);
+  if (req.body.matchType) req.body.matchType = req.body.matchType.toUpperCase();
   const keyword = await KeywordTrigger.findOneAndUpdate(
-    { _id: req.params.id, organization: req.user.organization },
+    { _id: req.params.id, organization: req.organization._id },
     req.body,
     { new: true, runValidators: true }
   );
@@ -34,7 +36,7 @@ exports.updateKeyword = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteKeyword = catchAsync(async (req, res, next) => {
-  const keyword = await KeywordTrigger.findOneAndDelete({ _id: req.params.id, organization: req.user.organization });
+  const keyword = await KeywordTrigger.findOneAndDelete({ _id: req.params.id, organization: req.organization._id });
   if (!keyword) return next(new AppError('Keyword not found', 404));
   res.status(204).json({ status: 'success', data: null });
 });

@@ -214,7 +214,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
       await fbService.sendAction(senderId, 'typing_on');
 
       // Check for Keyword Triggers
-      const matchedTrigger = await checkKeywordMatch(fbAccount.organization, text, 'facebook', 'DM');
+      const matchedTrigger = await checkKeywordMatch(fbAccount.organization, text, 'facebook', 'DM', agent?._id);
       
       if (matchedTrigger && matchedTrigger.action === 'SEND_MESSAGE') {
         logger.info(`[KEYWORD TRIGGER] Matched trigger ${matchedTrigger._id} for Facebook DM from ${senderId}`);

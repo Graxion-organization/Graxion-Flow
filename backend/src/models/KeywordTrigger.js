@@ -10,7 +10,8 @@ const keywordTriggerSchema = new mongoose.Schema({
   platforms: { type: [{ type: String, enum: ['whatsapp', 'instagram', 'facebook', 'telegram'] }], default: ['whatsapp'] },
   replyType: { type: String, enum: ['DM', 'COMMENT', 'ALL'], default: 'ALL' },
   mediaUrl: String,
-  mediaType: { type: String, enum: ['none', 'image', 'video', 'audio', 'document'], default: 'none' }
+  mediaType: { type: String, enum: ['none', 'image', 'video', 'audio', 'document'], default: 'none' },
+  agent: { type: mongoose.Schema.Types.ObjectId, ref: 'Agent' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('KeywordTrigger', keywordTriggerSchema);

@@ -167,10 +167,10 @@ userSchema.methods.createPasswordResetToken = function () {
 // Plan limits
 userSchema.methods.getPlanLimits = async function () {
   const fallbackLimits = {
-    free:       { messages: 100,   agents: 1,  credits: 100,   label: 'Free' },
-    starter:    { messages: 1000,  agents: 3,  credits: 1000,  label: 'Starter' },
-    pro:        { messages: 5000,  agents: 10, credits: 5000,  label: 'Pro' },
-    enterprise: { messages: 50000, agents: 50, credits: 50000, label: 'Enterprise' },
+    free:       { messages: 100,   agents: 1,  credits: 100,   teamMembers: 1,  label: 'Free' },
+    starter:    { messages: 1000,  agents: 3,  credits: 1000,  teamMembers: 3,  label: 'Starter' },
+    pro:        { messages: 5000,  agents: 10, credits: 5000,  teamMembers: 10, label: 'Pro' },
+    enterprise: { messages: 50000, agents: 50, credits: 50000, teamMembers: 50, label: 'Enterprise' },
   };
 
   const planCode = this.subscription?.plan || 'free';
@@ -183,6 +183,7 @@ userSchema.methods.getPlanLimits = async function () {
         messages: dbPlan.messageLimit,
         agents: dbPlan.agentLimit,
         credits: dbPlan.credits,
+        teamMembers: dbPlan.teamMemberLimit || fallbackLimits[planCode]?.teamMembers || 3,
         label: dbPlan.name,
       };
     }
