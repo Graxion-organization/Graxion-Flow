@@ -244,6 +244,7 @@ app.use('/api/marketing-copilot', require('./routes/marketingCopilot'));
 app.use('/api/ai', aiRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/admin', adminRoutes); // Fallback if proxy/client strips or misses /api
 app.use('/api/fraud-admin', fraudAdminRoutes);
 app.use('/api/organizations', organizationRoutes);
 
