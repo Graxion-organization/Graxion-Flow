@@ -77,8 +77,15 @@ app.use(helmet({
 // CORS Configuration
 const allowedOrigins = [
   'https://apiflow.graxion.in',
-  'https://flow.graxion.in'
-];
+  'https://flow.graxion.in',
+  'https://graxion.in',
+  'https://api.graxion.in',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  process.env.FRONTEND_URL
+].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -99,7 +106,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Organization-Id', 'X-CSRF-Token', 'Accept']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Organization-Id', 'X-CSRF-Token', 'Accept', 'x-graxion-proxy-secret']
 }));
 
 // Rate limiting - global
