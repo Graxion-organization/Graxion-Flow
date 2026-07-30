@@ -218,6 +218,16 @@ app.get('/health', (req, res) => {
 app.use(healthMonitor);
 app.use(checkMaintenance);
 
+// URL Rewrite Middleware for Proxy Resilience
+// If the proxy or frontend accidentally strips the /api prefix, add it back.
+app.use((req, res, next) => {
+  const isExcluded = req.url === '/' || req.url === '/health' || req.url.startsWith('/youtube-callback') || req.url.startsWith('/socket.io');
+  if (!req.url.startsWith('/api') && !isExcluded) {
+    req.url = '/api' + req.url;
+  }
+  next();
+});
+
 // Redirect YouTube OAuth callback to frontend
 app.get('/youtube-callback', (req, res) => {
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
