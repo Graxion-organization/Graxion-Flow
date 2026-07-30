@@ -15,7 +15,7 @@ export default function WhatsAppSignup() {
         appId: "928669669524481",
         autoLogAppEvents: true,
         xfbml: true,
-        version: "v25.0",
+        version: "v21.0",
       });
     };
 
@@ -84,7 +84,7 @@ export default function WhatsAppSignup() {
       });
 
       const res = await fetch(
-        `https://graph.facebook.com/v25.0/oauth/access_token?${params.toString()}`,
+        `https://graph.facebook.com/v21.0/oauth/access_token?${params.toString()}`,
       );
 
       const data = await res.json();

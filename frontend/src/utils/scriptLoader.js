@@ -55,7 +55,7 @@ export const loadFbSdk = () => {
     }
 
     const META_APP_ID = process.env.REACT_APP_META_APP_ID || "928669669524481";
-    const META_API_VERSION = process.env.REACT_APP_META_API_VERSION || "v20.0";
+    const META_API_VERSION = process.env.REACT_APP_META_API_VERSION || "v21.0";
 
     window.fbAsyncInit = function() {
       window.FB.init({
