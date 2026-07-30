@@ -97,11 +97,17 @@ app.use(cors({
       return callback(null, true);
     }
     
+    // Allow all subdomains of graxion.in and localhost
+    if (origin.endsWith('.graxion.in') || origin === 'https://graxion.in' || origin.includes('localhost')) {
+      return callback(null, true);
+    }
+    
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     
-    const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+    console.error(`[CORS REJECTED] Blocked Origin: ${origin}`);
+    const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
     return callback(new Error(msg), false);
   },
   credentials: true,
