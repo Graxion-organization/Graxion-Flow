@@ -2,19 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import {
   Bot, Plus, Pencil, Trash2, Play, ToggleLeft, ToggleRight,
   Loader2, MessageSquare, X, Send, Lock, ChevronRight, Activity, Cpu
 } from 'lucide-react';
 import { agentAPI, whatsappAPI, telegramAPI, instagramAPI, facebookAPI, youtubeAPI, socialHubAPI } from '../services/api';
 import toast from 'react-hot-toast';
+import ActionGuard from '../components/dashboard/ActionGuard';
 
 const agentSchema = z.object({
   name:                z.string().min(2, 'Min 2 chars').max(50),
   description:         z.string().max(200).optional(),
   platforms:           z.array(z.string()).min(1, 'Select at least one platform'),
-  whatsappAccountId:   z.string().optional(),
+  whatsappAccountIds:  z.array(z.string()).optional(),
   telegramAccountId:   z.string().optional(),
   instagramAccountId:  z.string().optional(),
   facebookAccountId:   z.string().optional(),
@@ -51,10 +52,11 @@ const DEFAULT_PROMPTS = {
   booking:          'You are an appointment booking assistant. Help customers schedule, reschedule, or cancel appointments. Always confirm details before finalizing.',
 };
 
-function AgentFormModal({ onClose, onSave, editingAgent, connectedPlatforms, waAccounts, tgAccounts, igAccounts, fbAccounts, ytAccounts, lnAccounts, isDark }) {
+function AgentFormModal({ onClose, onSave, editingAgent, connectedPlatforms, waAccounts, tgAccounts, igAccounts, fbAccounts, ytAccounts, lnAccounts, isDark, initialPlatform }) {
   const [selectedProvider, setSelectedProvider] = useState(editingAgent?.aiProvider || 'openai');
 
   const getInitialPlatforms = () => {
+    if (!editingAgent && initialPlatform) return [initialPlatform];
     if (!editingAgent) return [];
     
     if (editingAgent.platforms && editingAgent.platforms.length > 0) {
@@ -62,7 +64,8 @@ function AgentFormModal({ onClose, onSave, editingAgent, connectedPlatforms, waA
     }
 
     const plats = [];
-    if (editingAgent.whatsappAccount) plats.push('whatsapp');
+    if (editingAgent.whatsappAccounts && editingAgent.whatsappAccounts.length > 0) plats.push('whatsapp');
+    else if (editingAgent.whatsappAccount) plats.push('whatsapp');
     if (editingAgent.telegramAccount) plats.push('telegram');
     if (editingAgent.instagramAccount) plats.push('instagram');
     if (editingAgent.facebookAccount) plats.push('facebook');
@@ -86,7 +89,7 @@ function AgentFormModal({ onClose, onSave, editingAgent, connectedPlatforms, waA
     defaultValues: editingAgent ? {
       ...editingAgent,
       platforms: getInitialPlatforms(),
-      whatsappAccountId: editingAgent.whatsappAccount?._id || editingAgent.whatsappAccount,
+      whatsappAccountIds: editingAgent.whatsappAccounts?.map(a => a._id || a) || (editingAgent.whatsappAccount ? [editingAgent.whatsappAccount._id || editingAgent.whatsappAccount] : []),
       telegramAccountId: editingAgent.telegramAccount?._id || editingAgent.telegramAccount,
       instagramAccountId: editingAgent.instagramAccount?._id || editingAgent.instagramAccount,
       facebookAccountId: editingAgent.facebookAccount?._id || editingAgent.facebookAccount,
@@ -120,7 +123,7 @@ function AgentFormModal({ onClose, onSave, editingAgent, connectedPlatforms, waA
     if (plats.length === 0) {
       toast.error('Please select at least one platform.'); return;
     }
-    if (plats.includes('whatsapp') && !data.whatsappAccountId) { toast.error('Please select a WhatsApp account'); return; }
+    if (plats.includes('whatsapp') && (!data.whatsappAccountIds || data.whatsappAccountIds.length === 0)) { toast.error('Please select at least one WhatsApp account'); return; }
     if (plats.includes('telegram') && !data.telegramAccountId) { toast.error('Please select a Telegram account'); return; }
     if (plats.includes('instagram') && !data.instagramAccountId) { toast.error('Please select an Instagram account'); return; }
     if (plats.includes('facebook') && !data.facebookAccountId) { toast.error('Please select a Facebook page'); return; }
@@ -131,7 +134,7 @@ function AgentFormModal({ onClose, onSave, editingAgent, connectedPlatforms, waA
       ...data,
       platforms: plats,
       platform: plats.length === 1 ? plats[0] : plats.includes('whatsapp') && plats.includes('telegram') ? 'both' : 'all',
-      whatsappAccount:  plats.includes('whatsapp')  ? data.whatsappAccountId  : null,
+      whatsappAccountIds: plats.includes('whatsapp')  ? data.whatsappAccountIds  : undefined,
       telegramAccount:  plats.includes('telegram')  ? data.telegramAccountId  : null,
       instagramAccount: plats.includes('instagram') ? data.instagramAccountId : null,
       facebookAccount:  plats.includes('facebook')  ? data.facebookAccountId  : null,
@@ -206,13 +209,18 @@ function AgentFormModal({ onClose, onSave, editingAgent, connectedPlatforms, waA
             <div className={`p-5 rounded-2xl border ${isDark ? 'bg-slate-800/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
               <div className="grid md:grid-cols-2 gap-4">
                 {selectedPlatforms.includes('whatsapp') && (
-                  <div>
-                    <label className="text-sm font-semibold mb-1 block">WhatsApp Account</label>
-                    <select {...register('whatsappAccountId')} className={`w-full p-2.5 rounded-xl border text-sm focus:ring-2 focus:ring-[#FF6A00]/50 outline-none ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
-                      <option value="">Select number...</option>
-                      {waAccounts.map((a) => <option key={a._id} value={a._id}>{a.displayPhoneNumber} {a.verifiedName ? `(${a.verifiedName})` : ''}</option>)}
-                    </select>
-                  </div>
+                    <div>
+                      <label className="text-sm font-semibold mb-1 block">WhatsApp Accounts</label>
+                      <div className={`w-full p-2.5 rounded-xl border text-sm flex flex-col gap-2 max-h-40 overflow-y-auto ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+                        {waAccounts.map((a) => (
+                          <label key={a._id} className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" value={a._id} {...register('whatsappAccountIds')} className="w-4 h-4 rounded text-[#FF6A00] focus:ring-[#FF6A00]" />
+                            <span>{a.displayPhoneNumber} {a.verifiedName ? `(${a.verifiedName})` : ''}</span>
+                          </label>
+                        ))}
+                        {waAccounts.length === 0 && <span className="text-slate-500">No WhatsApp accounts connected.</span>}
+                      </div>
+                    </div>
                 )}
                 {selectedPlatforms.includes('telegram') && (
                   <div>
@@ -448,6 +456,7 @@ function TestModal({ agent, onClose, isDark }) {
 
 export default function AgentsPage() {
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
+  const { onboardingStatus } = useOutletContext() || {};
   const [agents, setAgents] = useState([]);
   const [waAccounts, setWaAccounts] = useState([]);
   const [tgAccounts, setTgAccounts] = useState([]);
@@ -459,6 +468,8 @@ export default function AgentsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingAgent, setEditingAgent] = useState(null);
   const [testingAgent, setTestingAgent] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [initialPlatform, setInitialPlatform] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -476,7 +487,22 @@ export default function AgentsPage() {
       facebookAPI.getAll().then(r => setFbAccounts(r.data.data.accounts)).catch(() => {}),
       youtubeAPI.getAll().then(r => setYtAccounts(r.data.data.accounts)).catch(() => {}),
       socialHubAPI.getAllLinkedInAccounts().then(r => setLnAccounts(r.data.data.accounts || r.data.accounts)).catch(() => {}),
-    ]).finally(() => setLoading(false));
+    ]).finally(() => {
+      setLoading(false);
+      
+      // Auto-open create modal if requested via URL params
+      if (searchParams.get('create') === 'true') {
+        const plat = searchParams.get('platform');
+        if (plat) setInitialPlatform(plat);
+        openCreateModal(null);
+        
+        // Remove params from URL after consuming
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete('create');
+        newParams.delete('platform');
+        setSearchParams(newParams, { replace: true });
+      }
+    });
   }, []);
 
   const handleSave = (agent, isEdit) => {
@@ -524,6 +550,18 @@ export default function AgentsPage() {
 
   const hasAnyConnected = Object.values(connectedPlatforms).some(Boolean);
 
+  if (onboardingStatus && !onboardingStatus.hasIntegration) {
+    return (
+      <ActionGuard 
+        status={onboardingStatus} 
+        isDark={isDark} 
+        title="Agent Studio Locked"
+        description="Connect at least one platform (WhatsApp, Instagram, Telegram) to start building AI agents."
+        mode="integration-only"
+      />
+    );
+  }
+
   return (
     <div className={`space-y-8 animate-fade-in ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
       
@@ -540,7 +578,7 @@ export default function AgentsPage() {
         
         {hasAnyConnected && (
           <button
-            onClick={() => openCreateModal(null)}
+            onClick={() => { setInitialPlatform(null); openCreateModal(null); }}
             className="flex items-center justify-center gap-2 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-xl shadow-[#FF6A00]/20 hover:shadow-[#FF6A00]/40 transition-all hover:-translate-y-0.5 bg-gradient-to-r from-[#FF6A00] to-[#FF4500]"
           >
             <Plus size={18} /> Create New Agent
@@ -550,21 +588,13 @@ export default function AgentsPage() {
 
       {/* Main Content Area */}
       {!hasAnyConnected ? (
-        <div className={`flex flex-col items-center justify-center p-12 text-center rounded-3xl border shadow-2xl ${isDark ? 'bg-slate-900/50 border-white/10 shadow-black/50' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
-          <div className="w-20 h-20 bg-[#FF6A00]/10 text-[#FF6A00] rounded-3xl flex items-center justify-center mb-6 shadow-inner">
-            <Lock size={36} />
-          </div>
-          <h3 className="text-2xl font-bold mb-3">No Platforms Connected</h3>
-          <p className={`max-w-md mb-8 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-            Before you can create an AI agent, you must connect at least one social media account (WhatsApp, Instagram, etc.).
-          </p>
-          <button 
-            onClick={() => navigate('/app/integrations')}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-[#FF6A00]/20 hover:scale-105 transition-all"
-          >
-            Go to Integrations <ChevronRight size={18} />
-          </button>
-        </div>
+        <ActionGuard 
+          status={onboardingStatus} 
+          isDark={isDark} 
+          title="No Platforms Connected"
+          description="Before you can create an AI agent, you must connect at least one social media account (WhatsApp, Instagram, etc.)."
+          mode="integration-only"
+        />
       ) : agents.length === 0 ? (
         <div className={`flex flex-col items-center justify-center p-16 text-center rounded-3xl border border-dashed ${isDark ? 'bg-slate-900/30 border-white/20' : 'bg-slate-50 border-slate-300'}`}>
           <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-sm ${isDark ? 'bg-slate-800 text-slate-400' : 'bg-white text-slate-400'}`}>
@@ -575,7 +605,7 @@ export default function AgentsPage() {
             Your workspace is quiet. Deploy your first AI agent to start automating responses.
           </p>
           <button 
-            onClick={() => openCreateModal(null)}
+            onClick={() => { setInitialPlatform(null); openCreateModal(null); }}
             className="flex items-center gap-2 bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-[#FF6A00]/20 hover:scale-105 transition-all"
           >
             <Plus size={18} /> Build First Agent
@@ -669,6 +699,7 @@ export default function AgentsPage() {
           fbAccounts={fbAccounts.filter(a => a.status === 'connected')}
           ytAccounts={ytAccounts}
           lnAccounts={lnAccounts}
+          initialPlatform={initialPlatform}
         />
       )}
       {testingAgent && <TestModal isDark={isDark} agent={testingAgent} onClose={() => setTestingAgent(null)} />}

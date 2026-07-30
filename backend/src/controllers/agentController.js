@@ -11,16 +11,23 @@ const path = require('path');
 
 exports.createAgent = async (req, res, next) => {
   try {
-    const { whatsappAccountId, ...agentData } = req.body;
+    const { whatsappAccountIds, ...agentData } = req.body;
+
+    // Make sure whatsappAccountIds is an array
+    const waIds = Array.isArray(whatsappAccountIds) ? whatsappAccountIds : (whatsappAccountIds ? [whatsappAccountIds] : []);
 
     if (agentData.agentType !== 'presenter') {
-      // Verify WA account belongs to this organization for social agents
-      const waAccount = await WhatsappAccount.findOne({
-        _id: whatsappAccountId,
-        organization: req.organization._id,
-        status: 'connected',
-      });
-      if (!waAccount) return next(new AppError('WhatsApp account not found or not connected.', 404));
+      // Verify WA accounts belong to this organization for social agents
+      if (waIds.length > 0) {
+        const validWaAccounts = await WhatsappAccount.find({
+          _id: { $in: waIds },
+          organization: req.organization._id,
+          status: 'connected',
+        });
+        if (validWaAccounts.length !== waIds.length) {
+          return next(new AppError('One or more selected WhatsApp accounts are invalid or not connected.', 400));
+        }
+      }
     }
 
     // Check agent limit (scoped to organization)
@@ -34,7 +41,7 @@ exports.createAgent = async (req, res, next) => {
       ...agentData,
       user: req.user._id,
       organization: req.organization._id,
-      whatsappAccount: whatsappAccountId,
+      whatsappAccounts: waIds,
     });
 
     res.status(201).json({ status: 'success', data: { agent } });
@@ -47,6 +54,7 @@ exports.getAgents = async (req, res, next) => {
   try {
     const agents = await Agent.find({ organization: req.organization._id })
       .populate('whatsappAccount', 'displayPhoneNumber verifiedName status')
+      .populate('whatsappAccounts', 'displayPhoneNumber verifiedName status')
       .populate('telegramAccount', 'botUsername botName status')
       .populate('instagramAccount', 'igUsername igAccountId status')
       .populate('facebookAccount', 'pageName pageId status')
@@ -61,6 +69,7 @@ exports.getAgent = async (req, res, next) => {
   try {
     const agent = await Agent.findOne({ _id: req.params.id, organization: req.organization._id })
       .populate('whatsappAccount', 'displayPhoneNumber verifiedName status')
+      .populate('whatsappAccounts', 'displayPhoneNumber verifiedName status')
       .populate('telegramAccount', 'botUsername botName status')
       .populate('instagramAccount', 'igUsername igAccountId status')
       .populate('facebookAccount', 'pageName pageId status');
@@ -73,8 +82,13 @@ exports.getAgent = async (req, res, next) => {
 
 exports.updateAgent = async (req, res, next) => {
   try {
-    const forbidden = ['user', 'organization', 'whatsappAccount', 'stats'];
+    const forbidden = ['user', 'organization', 'stats'];
     forbidden.forEach((f) => delete req.body[f]);
+
+    if (req.body.whatsappAccountIds !== undefined) {
+       req.body.whatsappAccounts = Array.isArray(req.body.whatsappAccountIds) ? req.body.whatsappAccountIds : [req.body.whatsappAccountIds];
+       delete req.body.whatsappAccountIds;
+    }
 
     const agent = await Agent.findOneAndUpdate(
       { _id: req.params.id, organization: req.organization._id },

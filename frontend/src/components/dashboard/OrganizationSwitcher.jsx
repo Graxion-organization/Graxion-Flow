@@ -121,7 +121,7 @@ export default function OrganizationSwitcher({ isDark = true, primaryColor = "#F
       </button>
 
       {open && (
-        <div className={`absolute left-0 top-full mt-2 w-72 rounded-2xl border z-50 overflow-hidden nav-fade-up ${isDark ? "bg-slate-900 border-white/10 shadow-2xl shadow-black/40" : "bg-white border-slate-200 shadow-2xl shadow-slate-300/40"}`}>
+        <div className={`absolute left-0 top-full mt-2 w-full min-w-[240px] rounded-2xl border z-50 overflow-hidden nav-fade-up backdrop-blur-xl ${isDark ? "bg-slate-900/95 border-white/10 shadow-2xl shadow-black/40" : "bg-white/95 border-slate-200 shadow-2xl shadow-slate-300/40"}`}>
           <div className="p-2 space-y-1 max-h-64 overflow-y-auto">
             {organizations.map((org) => {
               const active = currentOrganization?._id === org._id;

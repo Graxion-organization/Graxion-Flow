@@ -84,10 +84,7 @@ exports.getAccounts = async (req, res, next) => {
 
     // Find all active accounts matching user or organization
     const accounts = await WhatsappAccount.find({
-      $or: [
-        { organization: orgId },
-        { user: userId }
-      ],
+      ...(orgId ? { organization: orgId } : { user: userId }),
       isActive: true
     })
       .select('-accessToken')
@@ -105,7 +102,7 @@ exports.getAccount = async (req, res, next) => {
     const orgId = req.organization?._id || req.user?.currentOrganization || req.user?.organization;
     const account = await WhatsappAccount.findOne({
       _id: req.params.id,
-      $or: [{ organization: orgId }, { user: req.user._id }]
+      ...(orgId ? { organization: orgId } : { user: req.user._id })
     }).select('-accessToken');
 
     if (!account) return next(new AppError('Account not found.', 404));
@@ -121,7 +118,7 @@ exports.verifyConnection = async (req, res, next) => {
     const orgId = req.organization?._id || req.user?.currentOrganization || req.user?.organization;
     const account = await WhatsappAccount.findOne({
       _id: req.params.id,
-      $or: [{ organization: orgId }, { user: req.user._id }]
+      ...(orgId ? { organization: orgId } : { user: req.user._id })
     }).select('+accessToken');
 
     if (!account) return next(new AppError('Account not found.', 404));
@@ -157,7 +154,7 @@ exports.disconnectAccount = async (req, res, next) => {
     // Hard delete account from DB so it cleans up workspace completely
     const account = await WhatsappAccount.findOne({
       _id: req.params.id,
-      $or: [{ organization: orgId }, { user: userId }]
+      ...(orgId ? { organization: orgId } : { user: userId })
     });
 
     if (account) {
@@ -165,7 +162,7 @@ exports.disconnectAccount = async (req, res, next) => {
     } else {
       // Clean up any stale records for this ID/user
       await WhatsappAccount.deleteMany({
-        $or: [{ _id: req.params.id }, { user: userId, organization: orgId }]
+        ...(orgId ? { _id: req.params.id, organization: orgId } : { _id: req.params.id, user: userId })
       });
     }
 
@@ -183,7 +180,7 @@ exports.updateBusinessProfile = async (req, res, next) => {
 
     const account = await WhatsappAccount.findOne({
       _id: req.params.id,
-      $or: [{ organization: orgId }, { user: req.user._id }]
+      ...(orgId ? { organization: orgId } : { user: req.user._id })
     }).select('+accessToken');
 
     if (!account) return next(new AppError('Account not found', 404));
@@ -214,7 +211,7 @@ exports.getQualityRating = async (req, res, next) => {
 
     const account = await WhatsappAccount.findOne({
       _id: req.params.id,
-      $or: [{ organization: orgId }, { user: req.user._id }]
+      ...(orgId ? { organization: orgId } : { user: req.user._id })
     }).select('+accessToken');
 
     if (!account) return next(new AppError('Account not found', 404));

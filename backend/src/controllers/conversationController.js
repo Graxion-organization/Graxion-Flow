@@ -1,4 +1,6 @@
 const Conversation = require('../models/Conversation');
+const Deal = require('../models/Deal');
+const Broadcast = require('../models/Broadcast');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 const WhatsAppService = require('../services/whatsappService');
@@ -8,14 +10,17 @@ const { emitToUser } = require('../utils/socket');
 const { decrypt } = require('../utils/encryption');
 const logger = require('../utils/logger');
 
+// Helper to get consistent base filter for multi-tenancy
+const getBaseFilter = (req) => {
+  return req.organization 
+    ? { organization: req.organization._id }
+    : { user: req.user._id };
+};
 
 exports.getConversations = async (req, res, next) => {
   try {
     const { status, agentId, platform, page = 1, limit = 20, search } = req.query;
-    // Filter by org if available, fall back to user for backward compat
-    const filter = req.organization 
-      ? { organization: req.organization._id }
-      : { user: req.user._id };
+    const filter = getBaseFilter(req);
 
     if (status) filter.status = status;
     if (platform) filter.platform = platform;
@@ -56,7 +61,7 @@ exports.getConversation = async (req, res, next) => {
   try {
     const conversation = await Conversation.findOne({
       _id: req.params.id,
-      user: req.user._id,
+      ...getBaseFilter(req)
     }).populate('agent', 'name aiProvider model');
 
     if (!conversation) return next(new AppError('Conversation not found.', 404));
@@ -84,7 +89,7 @@ exports.replyToConversation = async (req, res, next) => {
     const { message } = req.body;
     if (!message) return next(new AppError('Message is required.', 400));
 
-    const conversation = await Conversation.findOne({ _id: id, user: req.user._id })
+    const conversation = await Conversation.findOne({ _id: id, ...getBaseFilter(req) })
       .populate({ path: 'whatsappAccount', select: '+accessToken phoneNumberId' })
       .populate({ path: 'telegramAccount', select: '+botToken' })
       .populate({ path: 'instagramAccount', select: '+pageAccessToken pageId igAccountId' });
@@ -141,7 +146,7 @@ exports.replyToConversation = async (req, res, next) => {
 exports.closeConversation = async (req, res, next) => {
   try {
     const conversation = await Conversation.findOneAndUpdate(
-      { _id: req.params.id, user: req.user._id },
+      { _id: req.params.id, ...getBaseFilter(req) },
       { status: 'closed', resolvedAt: new Date() },
       { new: true }
     );
@@ -168,7 +173,7 @@ exports.toggleStatus = async (req, res, next) => {
     }
 
     const conversation = await Conversation.findOneAndUpdate(
-      { _id: req.params.id, user: req.user._id },
+      { _id: req.params.id, ...getBaseFilter(req) },
       { status },
       { new: true }
     );
@@ -194,10 +199,7 @@ exports.toggleStatus = async (req, res, next) => {
 
 exports.getDashboardStats = async (req, res, next) => {
   try {
-    // Filter by org if available, fall back to user for backward compat
-    const baseFilter = req.organization 
-      ? { organization: req.organization._id }
-      : { user: req.user._id };
+    const baseFilter = getBaseFilter(req);
     const userId = req.user._id;
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -210,6 +212,12 @@ exports.getDashboardStats = async (req, res, next) => {
       unreadCount,
       weeklyMessages,
       avgResponseTime,
+      platformBreakdown,
+      handoffCount,
+      activeBroadcasts,
+      dealsData,
+      topAgents,
+      recentDeals
     ] = await Promise.all([
       Conversation.countDocuments(baseFilter),
       Conversation.countDocuments({ ...baseFilter, status: 'active' }),
@@ -225,6 +233,25 @@ exports.getDashboardStats = async (req, res, next) => {
         { $match: { 'messages.role': 'assistant', 'messages.responseTime': { $exists: true } } },
         { $group: { _id: null, avg: { $avg: '$messages.responseTime' } } },
       ]),
+      Conversation.aggregate([
+        { $match: baseFilter },
+        { $group: { _id: '$platform', count: { $sum: 1 } } },
+      ]),
+      Conversation.countDocuments({ ...baseFilter, status: 'human_handoff' }),
+      Broadcast.countDocuments({ ...baseFilter, status: 'IN_PROGRESS' }),
+      Deal.aggregate([
+        { $match: baseFilter },
+        { $group: { _id: null, totalPipelineValue: { $sum: '$amount' }, dealsCount: { $sum: 1 } } }
+      ]),
+      Conversation.aggregate([
+        { $match: baseFilter },
+        { $group: { _id: '$agent', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 3 },
+        { $lookup: { from: 'agents', localField: '_id', foreignField: '_id', as: 'agentInfo' } },
+        { $unwind: { path: '$agentInfo', preserveNullAndEmptyArrays: true } }
+      ]),
+      Deal.find(baseFilter).sort({ createdAt: -1 }).limit(3).lean()
     ]);
 
     // Daily message count for last 7 days
@@ -244,6 +271,16 @@ exports.getDashboardStats = async (req, res, next) => {
         weeklyMessages: weeklyMessages[0]?.total || 0,
         avgResponseTime: Math.round(avgResponseTime[0]?.avg || 0),
         dailyStats,
+        platformBreakdown: platformBreakdown.map((p) => ({ platform: p._id || 'whatsapp', count: p.count })),
+        handoffCount,
+        activeBroadcasts,
+        pipelineValue: dealsData[0]?.totalPipelineValue || 0,
+        dealsCount: dealsData[0]?.dealsCount || 0,
+        topAgents: topAgents.map(a => ({
+          name: a.agentInfo?.name || 'Unknown Agent',
+          count: a.count
+        })),
+        recentDeals,
         usage: {
           messagesThisMonth: req.user.usage?.messagesThisMonth || 0,
           limit: (await req.user.getPlanLimits()).messages,
@@ -270,7 +307,8 @@ exports.getLeadsDashboard = async (req, res, next) => {
       'kitna', 'khareedna', 'lena hai', 'batao', 'chahiye', 'karna hai',
     ];
 
-    const filter = { user: userId };
+    const baseFilter = getBaseFilter(req);
+    const filter = { ...baseFilter };
     if (platform) filter.platform = platform;
     if (status) filter.status = status;
     if (search) {
@@ -295,7 +333,7 @@ exports.getLeadsDashboard = async (req, res, next) => {
 
     // Compute interest score + classify each lead
     const leads = conversations.map((conv) => {
-      const userMessages = conv.messages.filter((m) => m.role === 'user');
+      const userMessages = (conv.messages || []).filter((m) => m.role === 'user');
       const msgCount = userMessages.length;
       const allText = userMessages.map((m) => m.content?.toLowerCase() || '').join(' ');
 
@@ -348,6 +386,7 @@ exports.getLeadsDashboard = async (req, res, next) => {
     });
 
     // ── Summary aggregations ──────────────────────────────────────────────────
+    const baseSummaryFilter = getBaseFilter(req);
     const [
       platformBreakdown,
       handoffCount,
@@ -355,13 +394,13 @@ exports.getLeadsDashboard = async (req, res, next) => {
       hotLeadsCount,
     ] = await Promise.all([
       Conversation.aggregate([
-        { $match: { user: userId } },
+        { $match: baseSummaryFilter },
         { $group: { _id: '$platform', count: { $sum: 1 } } },
       ]),
-      Conversation.countDocuments({ user: userId, status: 'human_handoff' }),
-      Conversation.countDocuments({ user: userId }),
+      Conversation.countDocuments({ ...baseSummaryFilter, status: 'human_handoff' }),
+      Conversation.countDocuments(baseSummaryFilter),
       // Hot leads = conversations with totalMessages >= 6 (proxy for high engagement)
-      Conversation.countDocuments({ user: userId, totalMessages: { $gte: 6 } }),
+      Conversation.countDocuments({ ...baseSummaryFilter, totalMessages: { $gte: 6 } }),
     ]);
 
     res.status(200).json({
@@ -387,7 +426,7 @@ exports.getLeadsDashboard = async (req, res, next) => {
 exports.getConversationTemplates = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const conversation = await Conversation.findOne({ _id: id, user: req.user._id })
+    const conversation = await Conversation.findOne({ _id: id, ...getBaseFilter(req) })
       .populate({ path: 'whatsappAccount', select: '+accessToken phoneNumberId wabaId' });
 
     if (!conversation) return next(new AppError('Conversation not found.', 404));
@@ -441,7 +480,7 @@ exports.sendTemplateReply = async (req, res, next) => {
     const { templateName, languageCode, components } = req.body;
     if (!templateName) return next(new AppError('Template name is required.', 400));
 
-    const conversation = await Conversation.findOne({ _id: id, user: req.user._id })
+    const conversation = await Conversation.findOne({ _id: id, ...getBaseFilter(req) })
       .populate({ path: 'whatsappAccount', select: '+accessToken phoneNumberId' });
 
     if (!conversation) return next(new AppError('Conversation not found.', 404));
@@ -506,7 +545,7 @@ exports.createConversationTemplate = async (req, res, next) => {
       return next(new AppError('Template name must contain only lowercase alphanumeric characters and underscores.', 400));
     }
 
-    const conversation = await Conversation.findOne({ _id: id, user: req.user._id })
+    const conversation = await Conversation.findOne({ _id: id, ...getBaseFilter(req) })
       .populate({ path: 'whatsappAccount', select: '+accessToken phoneNumberId wabaId' });
 
     if (!conversation) return next(new AppError('Conversation not found.', 404));
@@ -570,7 +609,7 @@ exports.getMessages = async (req, res) => {
 exports.addTag = catchAsync(async (req, res, next) => {
   const { tag } = req.body;
   const conversation = await Conversation.findOneAndUpdate(
-    { _id: req.params.id, organization: req.user.organization },
+    { _id: req.params.id, organization: (req.organization?._id || req.user?.currentOrganization) },
     { $addToSet: { tags: tag } },
     { new: true }
   );
@@ -581,7 +620,7 @@ exports.addTag = catchAsync(async (req, res, next) => {
 exports.removeTag = catchAsync(async (req, res, next) => {
   const { tag } = req.params;
   const conversation = await Conversation.findOneAndUpdate(
-    { _id: req.params.id, organization: req.user.organization },
+    { _id: req.params.id, organization: (req.organization?._id || req.user?.currentOrganization) },
     { $pull: { tags: tag } },
     { new: true }
   );

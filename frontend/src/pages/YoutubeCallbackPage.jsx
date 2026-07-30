@@ -25,9 +25,7 @@ export default function YoutubeCallbackPage() {
         await youtubeAPI.callback(code);
         setStatus('success');
         toast.success('YouTube channel connected successfully!');
-        setTimeout(() => {
-          navigate('/app/integrations');
-        }, 2000);
+        // Removed auto redirect to allow user to choose their next step
       } catch (err) {
         setStatus('error');
         setError(err.response?.data?.message || 'Failed to connect YouTube account.');
@@ -62,8 +60,21 @@ export default function YoutubeCallbackPage() {
               <CheckCircle2 className="text-emerald-500 w-12 h-12" />
             </div>
             <h1 className="text-2xl font-bold text-slate-800 mb-2">Successfully Connected!</h1>
-            <p className="text-slate-500 mb-6">Your YouTube channel is now ready for automated Shorts posting.</p>
-            <div className="animate-pulse text-sm text-blue-600 font-medium">Redirecting you back...</div>
+            <p className="text-slate-500 mb-6">Your YouTube channel is now ready. Would you like to create an AI Agent for it now?</p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => navigate('/app/agents?create=true&platform=youtube')}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold hover:from-red-600 hover:to-red-700 transition shadow-lg shadow-red-500/30"
+              >
+                Create AI Agent
+              </button>
+              <button
+                onClick={() => navigate('/app/integrations')}
+                className="w-full py-3 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition"
+              >
+                Back to Dashboard
+              </button>
+            </div>
           </>
         )}
 

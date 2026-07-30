@@ -4,7 +4,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 
 exports.getDeals = catchAsync(async (req, res, next) => {
-  const deals = await Deal.find({ organization: req.user.organization })
+  const deals = await Deal.find({ organization: (req.organization?._id || req.user?.currentOrganization) })
     .populate('contact', 'name phone email')
     .sort('-createdAt');
   
@@ -14,11 +14,11 @@ exports.getDeals = catchAsync(async (req, res, next) => {
 exports.createDeal = catchAsync(async (req, res, next) => {
   const { contactId, title, amount, expectedCloseDate, stage, notes } = req.body;
   
-  const contact = await Contact.findOne({ _id: contactId, organization: req.user.organization });
+  const contact = await Contact.findOne({ _id: contactId, organization: (req.organization?._id || req.user?.currentOrganization) });
   if (!contact) return next(new AppError('Contact not found', 404));
 
   const deal = await Deal.create({
-    organization: req.user.organization,
+    organization: (req.organization?._id || req.user?.currentOrganization),
     contact: contactId,
     title,
     amount,
@@ -44,7 +44,7 @@ exports.updateDeal = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const updates = req.body;
   
-  const deal = await Deal.findOne({ _id: id, organization: req.user.organization });
+  const deal = await Deal.findOne({ _id: id, organization: (req.organization?._id || req.user?.currentOrganization) });
   if (!deal) return next(new AppError('Deal not found', 404));
 
   Object.assign(deal, updates);
@@ -54,7 +54,7 @@ exports.updateDeal = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteDeal = catchAsync(async (req, res, next) => {
-  const deal = await Deal.findOneAndDelete({ _id: req.params.id, organization: req.user.organization });
+  const deal = await Deal.findOneAndDelete({ _id: req.params.id, organization: (req.organization?._id || req.user?.currentOrganization) });
   if (!deal) return next(new AppError('Deal not found', 404));
 
   res.status(204).json({ status: 'success', data: null });

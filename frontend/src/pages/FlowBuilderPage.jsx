@@ -71,7 +71,7 @@ export default function FlowBuilderPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto text-white">
+    <div className="p-6 max-w-7xl mx-auto text-slate-800 dark:text-white">
       {/* Dashboard Header & Advantages */}
       <div className="mb-10 text-center">
         <h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-4">
@@ -108,7 +108,7 @@ export default function FlowBuilderPage() {
         </div>
         <button 
           onClick={handleCreateNew}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-lg font-semibold transition shadow-lg shadow-blue-500/20"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-slate-800 dark:text-white px-5 py-2.5 rounded-lg font-semibold transition shadow-lg shadow-blue-500/20"
         >
           <PlusIcon className="w-5 h-5" /> Create New Flow
         </button>
@@ -129,7 +129,7 @@ export default function FlowBuilderPage() {
             <p className="text-gray-500 mb-6">Create your first automated journey to engage with your customers.</p>
             <button 
               onClick={handleCreateNew}
-              className="bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-medium transition"
+              className="bg-gray-800 hover:bg-gray-700 text-slate-800 dark:text-white px-6 py-2 rounded-lg font-medium transition"
             >
               Get Started
             </button>

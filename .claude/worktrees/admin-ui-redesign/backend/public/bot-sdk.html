@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Zoom Bot Local SDK</title>
+    <link type="text/css" rel="stylesheet" href="https://source.zoom.us/3.1.6/css/bootstrap.css" />
+    <link type="text/css" rel="stylesheet" href="https://source.zoom.us/3.1.6/css/react-select.css" />
+</head>
+<body>
+    <script src="https://source.zoom.us/3.1.6/lib/vendor/react.min.js"></script>
+    <script src="https://source.zoom.us/3.1.6/lib/vendor/react-dom.min.js"></script>
+    <script src="https://source.zoom.us/3.1.6/lib/vendor/redux.min.js"></script>
+    <script src="https://source.zoom.us/3.1.6/lib/vendor/redux-thunk.min.js"></script>
+    <script src="https://source.zoom.us/3.1.6/lib/vendor/lodash.min.js"></script>
+    <script src="https://source.zoom.us/zoom-meeting-3.1.6.min.js"></script>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const meetingNumber = urlParams.get('meetingNumber');
+        const userName = urlParams.get('userName') || 'AI Presenter';
+        const signature = urlParams.get('signature');
+        const sdkKey = urlParams.get('sdkKey');
+        const passWord = urlParams.get('password') || '';
+
+        ZoomMtg.setZoomJSLib('https://source.zoom.us/3.1.6/lib', '/av');
+        ZoomMtg.preLoadWasm();
+        ZoomMtg.prepareWebSDK();
+        ZoomMtg.i18n.load('en-US');
+        ZoomMtg.i18n.reload('en-US');
+
+        ZoomMtg.init({
+            leaveUrl: 'http://localhost:5000',
+            success: function () {
+                ZoomMtg.join({
+                    meetingNumber: meetingNumber,
+                    userName: userName,
+                    signature: signature,
+                    sdkKey: sdkKey,
+                    passWord: passWord,
+                    success: function (res) {
+                        console.log('Joined successfully', res);
+                        // The backend puppeteer script will hook into this to inject audio
+                        setTimeout(() => {
+                            // Try to auto-join computer audio
+                            document.querySelector('.join-audio-by-voip__join-btn')?.click();
+                        }, 5000);
+                    },
+                    error: function (res) {
+                        console.error('Join error', res);
+                    }
+                });
+            },
+            error: function (res) {
+                console.error('Init error', res);
+            }
+        });
+    </script>
+</body>
+</html>

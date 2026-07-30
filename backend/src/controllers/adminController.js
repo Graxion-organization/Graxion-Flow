@@ -482,10 +482,10 @@ exports.getSystemSettings = async (req, res, next) => {
       { key: 'lang_gu-IN_enabled', value: false, description: 'Gujarati' },
       { key: 'lang_ta-IN_enabled', value: false, description: 'Tamil' },
       { key: 'lang_te-IN_enabled', value: false, description: 'Telugu' },
-      { key: 'lang_kn-IN_enabled', value: false, description: 'Kannada' },
       { key: 'lang_ml-IN_enabled', value: false, description: 'Malayalam' },
       { key: 'lang_pa-IN_enabled', value: false, description: 'Punjabi' },
-      { key: 'lang_ur-IN_enabled', value: false, description: 'Urdu' }
+      { key: 'lang_ur-IN_enabled', value: false, description: 'Urdu' },
+      { key: 'sidebar_settings', value: {}, description: 'Sidebar visibility configuration' }
     ];
 
     let settings = await SystemSetting.find();
@@ -1595,6 +1595,39 @@ exports.markContactMessageRead = async (req, res, next) => {
     const msg = await ContactMessage.findByIdAndUpdate(req.params.id, { status: 'read' }, { new: true });
     if (!msg) return res.status(404).json({ status: 'error', message: 'Message not found' });
     res.status(200).json({ status: 'success', data: msg });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get public settings (Branding, Sidebar settings, etc)
+ */
+exports.getPublicSettings = async (req, res, next) => {
+  try {
+    const settings = await SystemSetting.find({
+      key: {
+        $in: [
+          'branding_site_name',
+          'branding_logo_url',
+          'branding_favicon_url',
+          'branding_footer_text',
+          'sidebar_settings',
+          'registration_enabled'
+        ]
+      }
+    });
+
+    // Format response as a key-value object
+    const formattedSettings = settings.reduce((acc, curr) => {
+      acc[curr.key] = curr.value;
+      return acc;
+    }, {});
+
+    res.status(200).json({
+      status: 'success',
+      data: formattedSettings
+    });
   } catch (err) {
     next(err);
   }

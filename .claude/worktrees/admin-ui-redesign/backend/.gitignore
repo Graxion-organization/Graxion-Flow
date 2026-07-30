@@ -1,0 +1,45 @@
+# dependencies
+node_modules/
+
+# env files 🔥
+.env
+.env.*
+
+# logs
+logs/
+*.log
+
+# runtime
+pids
+*.pid
+*.pid.lock
+
+# uploads (IMPORTANT agar files store kar raha hai)
+uploads/
+tmp/
+temp/
+
+# build
+dist/
+build/
+
+# cache
+.cache/
+
+# editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# misc
+*.local
+
+# database (optional)
+*.sqlite
+*.db
+
+# firebase
+.firebase/

@@ -29,7 +29,7 @@ exports.getConnectedAccounts = async (req, res, next) => {
     const igAccounts = await InstagramAccount.find({ organization: orgId }).select("+accessToken");
     const fbAccounts = await FacebookAccount.find({ organization: orgId }).select("+accessToken");
     const waAccounts = await WhatsappAccount.find({
-      $or: [{ organization: orgId }, { user: userId }],
+      ...(orgId ? { organization: orgId } : { user: userId }),
       status: { $ne: 'disconnected' },
       isActive: true
     }).select("+accessToken");

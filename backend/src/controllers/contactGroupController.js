@@ -3,18 +3,18 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 
 exports.getAllGroups = catchAsync(async (req, res, next) => {
-  const groups = await ContactGroup.find({ organization: req.user.organization }).sort('-createdAt');
+  const groups = await ContactGroup.find({ organization: (req.organization?._id || req.user?.currentOrganization) }).sort('-createdAt');
   res.status(200).json({ status: 'success', data: { groups } });
 });
 
 exports.createGroup = catchAsync(async (req, res, next) => {
-  const group = await ContactGroup.create({ ...req.body, organization: req.user.organization });
+  const group = await ContactGroup.create({ ...req.body, organization: (req.organization?._id || req.user?.currentOrganization) });
   res.status(201).json({ status: 'success', data: { group } });
 });
 
 exports.updateGroup = catchAsync(async (req, res, next) => {
   const group = await ContactGroup.findOneAndUpdate(
-    { _id: req.params.id, organization: req.user.organization },
+    { _id: req.params.id, organization: (req.organization?._id || req.user?.currentOrganization) },
     req.body,
     { new: true, runValidators: true }
   );
@@ -23,7 +23,7 @@ exports.updateGroup = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteGroup = catchAsync(async (req, res, next) => {
-  const group = await ContactGroup.findOneAndDelete({ _id: req.params.id, organization: req.user.organization });
+  const group = await ContactGroup.findOneAndDelete({ _id: req.params.id, organization: (req.organization?._id || req.user?.currentOrganization) });
   if (!group) return next(new AppError('Group not found', 404));
   res.status(204).json({ status: 'success', data: null });
 });

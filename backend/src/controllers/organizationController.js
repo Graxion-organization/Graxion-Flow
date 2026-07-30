@@ -2,6 +2,8 @@ const Organization = require('../models/Organization');
 const User = require('../models/User');
 const AppError = require('../utils/AppError');
 const logger = require('../utils/logger');
+const crypto = require('crypto');
+const { sendEmail, emailTemplates } = require('../services/emailService');
 
 exports.createOrganization = async (req, res, next) => {
   try {
@@ -99,15 +101,44 @@ exports.inviteMember = async (req, res, next) => {
     // Check limits
     const limits = await req.user.getPlanLimits();
     if (req.organization.members.length >= limits.teamMembers) {
-      return next(new AppError(`Team member limit exceeded. Plan allows \${limits.teamMembers} members.`, 403));
+      return next(new AppError(`Team member limit exceeded. Plan allows ${limits.teamMembers} members.`, 403));
     }
     
     // Find user by email
-    const invitedUser = await User.findOne({ email });
+    let invitedUser = await User.findOne({ email });
+    let isNewUser = false;
+    
     if (!invitedUser) {
-      // In production: send invite email to register
-      logger.info(`Mock Email: Inviting \${email} to join platform and organization \${organizationId}`);
-      return res.status(200).json({ status: 'success', message: 'Invitation email sent (mock)' });
+      // Create a new inactive user with a random secure password
+      const tempPassword = crypto.randomBytes(16).toString('hex') + 'A1!';
+      invitedUser = new User({
+        email,
+        name: email.split('@')[0], // Default name from email
+        password: tempPassword,
+        isActive: false, // Wait for them to set password / signup
+        isEmailVerified: false
+      });
+      
+      await invitedUser.save({ validateBeforeSave: false });
+      isNewUser = true;
+
+      // Send invite email for new user
+      try {
+        const { subject, html } = emailTemplates.teamInviteNew(email);
+        await sendEmail({ to: email, subject, html });
+        logger.info(`Invite email (new) sent to ${email} for organization ${organizationId}`);
+      } catch (emailErr) {
+        logger.error(`Failed to send invite email to ${email}: ${emailErr.message}`);
+      }
+    } else {
+      // User exists, send invite email for existing user
+      try {
+        const { subject, html } = emailTemplates.teamInviteExisting(email);
+        await sendEmail({ to: email, subject, html });
+        logger.info(`Invite email (existing) sent to ${email} for organization ${organizationId}`);
+      } catch (emailErr) {
+        logger.error(`Failed to send invite email to ${email}: ${emailErr.message}`);
+      }
     }
     
     // Check if already member
@@ -120,12 +151,20 @@ exports.inviteMember = async (req, res, next) => {
     req.organization.members.push({ user: invitedUser._id, role });
     await req.organization.save();
     
-    logger.info(`Mock Email: ${email} added to organization ${organizationId} as ${role}`);
+    logger.info(`User ${email} added to organization ${organizationId} as ${role}`);
     
     res.status(200).json({
       status: 'success',
-      message: 'User added successfully',
-      data: { member: { id: invitedUser._id, name: invitedUser.name, email: invitedUser.email, role, status: 'active' } }
+      message: isNewUser ? 'Invitation email sent.' : 'User added to team.',
+      data: {
+        member: {
+          id: invitedUser._id,
+          name: invitedUser.name,
+          email: invitedUser.email,
+          role,
+          status: invitedUser.isActive ? 'active' : 'invited'
+        }
+      }
     });
   } catch (err) {
     next(err);

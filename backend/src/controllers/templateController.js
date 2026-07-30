@@ -7,8 +7,10 @@ const AppError = require('../utils/AppError');
 const { decrypt } = require('../utils/encryption');
 
 // Helper to get connected WhatsApp account with decrypted token
-const getConnectedWAAccount = async (userId) => {
-  const waAccount = await WhatsappAccount.findOne({ user: userId, status: 'connected' }).select('+accessToken');
+const getConnectedWAAccount = async (req) => {
+  const orgId = req.organization?._id || req.user?.currentOrganization;
+  const filter = orgId ? { organization: orgId, status: 'connected' } : { user: req.user.id, status: 'connected' };
+  const waAccount = await WhatsappAccount.findOne(filter).select('+accessToken');
   if (!waAccount) {
     throw new AppError('No connected WhatsApp Business Account found. Please connect your WhatsApp account in Integrations first.', 400);
   }
@@ -88,7 +90,7 @@ exports.getSystemTemplates = catchAsync(async (req, res, next) => {
 
 // GET /api/templates - Get user's synced & created templates
 exports.getAllTemplates = catchAsync(async (req, res, next) => {
-  const templates = await Template.find({ organization: req.user.currentOrganization || req.user.organization })
+  const templates = await Template.find({ organization: req.user.currentOrganization || (req.organization?._id || req.user?.currentOrganization) })
     .sort('-createdAt');
 
   res.status(200).json({ status: 'success', data: { templates } });
@@ -96,13 +98,13 @@ exports.getAllTemplates = catchAsync(async (req, res, next) => {
 
 // POST /api/templates/sync - Sync latest status & templates from Meta Graph API
 exports.syncTemplatesFromMeta = catchAsync(async (req, res, next) => {
-  const waAccount = await getConnectedWAAccount(req.user.id);
+  const waAccount = await getConnectedWAAccount(req);
   const waService = new WhatsAppService(decrypt(waAccount.accessToken), waAccount.phoneNumberId);
   
   const metaResponse = await waService.getMessageTemplates(waAccount.wabaId);
   const metaTemplates = metaResponse.data || [];
 
-  const orgId = req.user.currentOrganization || req.user.organization;
+  const orgId = req.user.currentOrganization || (req.organization?._id || req.user?.currentOrganization);
 
   const upsertPromises = metaTemplates.map(tpl => {
     return Template.findOneAndUpdate(
@@ -150,7 +152,7 @@ exports.createTemplate = catchAsync(async (req, res, next) => {
 
   const cleanedComponents = sanitizeMetaComponents(components);
 
-  const waAccount = await getConnectedWAAccount(req.user.id);
+  const waAccount = await getConnectedWAAccount(req);
   const waService = new WhatsAppService(decrypt(waAccount.accessToken), waAccount.phoneNumberId);
 
   const metaPayload = {
@@ -163,7 +165,7 @@ exports.createTemplate = catchAsync(async (req, res, next) => {
   // Submit directly to Meta Graph API
   const metaResult = await waService.createMessageTemplate(waAccount.wabaId, metaPayload);
 
-  const orgId = req.user.currentOrganization || req.user.organization;
+  const orgId = req.user.currentOrganization || (req.organization?._id || req.user?.currentOrganization);
 
   // Save / Upsert in MongoDB
   const template = await Template.findOneAndUpdate(
@@ -203,7 +205,7 @@ exports.cloneSystemTemplate = catchAsync(async (req, res, next) => {
 
   const cleanedComponents = sanitizeMetaComponents(sysTpl.components);
 
-  const waAccount = await getConnectedWAAccount(req.user.id);
+  const waAccount = await getConnectedWAAccount(req);
   const waService = new WhatsAppService(decrypt(waAccount.accessToken), waAccount.phoneNumberId);
 
   const metaPayload = {
@@ -216,7 +218,7 @@ exports.cloneSystemTemplate = catchAsync(async (req, res, next) => {
   // Submit to Meta Graph API
   const metaResult = await waService.createMessageTemplate(waAccount.wabaId, metaPayload);
 
-  const orgId = req.user.currentOrganization || req.user.organization;
+  const orgId = req.user.currentOrganization || (req.organization?._id || req.user?.currentOrganization);
 
   const template = await Template.create({
     organization: orgId,
@@ -238,7 +240,7 @@ exports.cloneSystemTemplate = catchAsync(async (req, res, next) => {
 
 // DELETE /api/templates/:id - Delete template on Meta Graph API and MongoDB
 exports.deleteTemplate = catchAsync(async (req, res, next) => {
-  const orgId = req.user.currentOrganization || req.user.organization;
+  const orgId = req.user.currentOrganization || (req.organization?._id || req.user?.currentOrganization);
   const template = await Template.findOne({ _id: req.params.id, organization: orgId });
 
   if (!template) {
@@ -247,7 +249,8 @@ exports.deleteTemplate = catchAsync(async (req, res, next) => {
 
   // Attempt deleting on Meta Graph API if connected
   try {
-    const waAccount = await getConnectedWAAccount(req.user.id);
+    // Get connected account
+    const waAccount = await getConnectedWAAccount(req);
     const waService = new WhatsAppService(decrypt(waAccount.accessToken), waAccount.phoneNumberId);
     await waService.deleteMessageTemplate(waAccount.wabaId, template.name);
   } catch (err) {

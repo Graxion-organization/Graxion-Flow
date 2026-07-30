@@ -164,18 +164,18 @@ export default function InstagramTool() {
   };
 
   return (
-    <div className="h-[calc(100vh-120px)] flex flex-col gap-6 pb-6">
+    <div className="flex flex-col gap-6 pb-6 h-auto lg:h-[calc(100vh-120px)] min-h-screen lg:min-h-0">
       
       {/* HEADER: Active Account Info */}
       {selectedAccount && (
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between shrink-0">
+        <div className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-pink-500/20 rounded-xl">
               <Instagram className="w-6 h-6 text-pink-500" />
             </div>
             <div>
-              <h2 className="font-bold text-lg text-gray-100">@{selectedAccount.igUsername || 'Unknown'}</h2>
-              <div className="text-sm text-gray-400 flex items-center gap-1">
+              <h2 className="font-bold text-lg text-slate-900 dark:text-gray-100">@{selectedAccount.igUsername || 'Unknown'}</h2>
+              <div className="text-sm text-slate-500 dark:text-gray-400 flex items-center gap-1">
                 <UserIcon className="w-4 h-4" />
                 {selectedAccount.user?.name || 'No User'}
               </div>
@@ -197,7 +197,7 @@ export default function InstagramTool() {
             >
               <RefreshCw className="w-4 h-4" /> Sync DMs
             </button>
-            <button onClick={fetchAccounts} className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-colors text-gray-400">
+            <button onClick={fetchAccounts} className="p-2 bg-slate-100 dark:bg-white/10 hover:bg-white/20 rounded-xl transition-colors text-slate-500 dark:text-gray-400">
               <RefreshCw className={`w-5 h-5 ${loadingAccounts ? 'animate-spin' : ''}`} />
             </button>
           </div>
@@ -207,13 +207,13 @@ export default function InstagramTool() {
       {loadingAccounts && !selectedAccount ? (
         <div className="flex-1 flex justify-center items-center"><Loader2 className="w-8 h-8 animate-spin text-pink-500" /></div>
       ) : !selectedAccount ? (
-        <div className="flex-1 flex justify-center items-center text-gray-500">No connected accounts found. Connect an account first.</div>
+        <div className="flex-1 flex justify-center items-center text-slate-400 dark:text-gray-500">No connected accounts found. Connect an account first.</div>
       ) : (
-        <div className="flex-1 flex gap-6 min-h-0">
+        <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0">
           
           {/* COLUMN 1: Media Posts & Stats */}
-          <div className="w-1/3 bg-white/5 border border-white/10 rounded-3xl flex flex-col overflow-hidden shrink-0">
-        <div className="p-4 border-b border-white/10">
+          <div className="w-full lg:w-1/3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-3xl flex flex-col overflow-hidden shrink-0 h-[400px] lg:h-auto">
+        <div className="p-4 border-b border-slate-200 dark:border-white/10">
           <h2 className="font-bold flex items-center gap-2">
             <ImageIcon className="w-5 h-5 text-purple-500" />
             Recent Posts
@@ -222,37 +222,37 @@ export default function InstagramTool() {
         
         {/* Stats Section */}
         {selectedAccount && (
-          <div className="p-3 bg-black/20 border-b border-white/5 text-sm">
-            <h3 className="font-bold flex items-center gap-1.5 text-gray-300 mb-2">
+          <div className="p-3 bg-slate-100 dark:bg-black/20 border-b border-slate-200 dark:border-white/5 text-sm">
+            <h3 className="font-bold flex items-center gap-1.5 text-slate-700 dark:text-gray-300 mb-2">
               <BarChart3 className="w-4 h-4 text-emerald-400" />
               Page Analytics (Top 20 Posts)
             </h3>
             {loadingStats ? (
-              <div className="text-gray-500 text-xs animate-pulse">Calculating...</div>
+              <div className="text-slate-400 dark:text-gray-500 text-xs animate-pulse">Calculating...</div>
             ) : accountStats ? (
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="bg-white/5 p-2 rounded-lg text-center">
-                  <div className="text-gray-400">Total Comments</div>
-                  <div className="font-bold text-gray-200">{accountStats.totalComments}</div>
+                <div className="bg-slate-50 dark:bg-white/5 p-2 rounded-lg text-center">
+                  <div className="text-slate-500 dark:text-gray-400">Total Comments</div>
+                  <div className="font-bold text-slate-800 dark:text-gray-200">{accountStats.totalComments}</div>
                 </div>
-                <div className="bg-white/5 p-2 rounded-lg text-center">
-                  <div className="text-gray-400">Pending Replies</div>
+                <div className="bg-slate-50 dark:bg-white/5 p-2 rounded-lg text-center">
+                  <div className="text-slate-500 dark:text-gray-400">Pending Replies</div>
                   <div className="font-bold text-rose-400">{accountStats.pendingComments}</div>
                 </div>
               </div>
             ) : (
-              <div className="text-gray-500 text-xs">No stats available</div>
+              <div className="text-slate-400 dark:text-gray-500 text-xs">No stats available</div>
             )}
           </div>
         )}
 
         <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2">
           {!selectedAccount ? (
-            <div className="text-center text-gray-500 text-sm py-8">Select an account to view posts.</div>
+            <div className="text-center text-slate-400 dark:text-gray-500 text-sm py-8">Select an account to view posts.</div>
           ) : loadingMedia ? (
             <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-purple-500" /></div>
           ) : mediaItems.length === 0 ? (
-            <div className="text-center text-gray-500 text-sm py-8">No posts found for this account.</div>
+            <div className="text-center text-slate-400 dark:text-gray-500 text-sm py-8">No posts found for this account.</div>
           ) : (
             mediaItems.map(media => (
               <button
@@ -261,18 +261,18 @@ export default function InstagramTool() {
                 className={`w-full text-left p-2 rounded-xl border transition-all flex gap-3 ${
                   selectedMedia?.id === media.id 
                     ? 'bg-purple-500/20 border-purple-500/50' 
-                    : 'bg-white/5 border-transparent hover:bg-white/10'
+                    : 'bg-slate-50 dark:bg-white/5 border-transparent hover:bg-slate-100 dark:bg-white/10'
                 }`}
               >
                 <img 
                   src={media.thumbnail_url || media.media_url || 'https://via.placeholder.com/150'} 
                   alt="Post" 
-                  className="w-16 h-16 object-cover rounded-lg shrink-0 bg-black/40"
+                  className="w-16 h-16 object-cover rounded-lg shrink-0 bg-slate-200 dark:bg-black/40"
                   onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs text-gray-400 capitalize mb-1">{media.media_type}</div>
-                  <div className="text-sm text-gray-200 line-clamp-2 leading-tight">
+                  <div className="text-xs text-slate-500 dark:text-gray-400 capitalize mb-1">{media.media_type}</div>
+                  <div className="text-sm text-slate-800 dark:text-gray-200 line-clamp-2 leading-tight">
                     {media.caption || 'No caption'}
                   </div>
                 </div>
@@ -283,8 +283,8 @@ export default function InstagramTool() {
       </div>
 
       {/* COLUMN 3: Comments & Composer */}
-      <div className="flex-1 bg-white/5 border border-white/10 rounded-3xl flex flex-col overflow-hidden relative">
-        <div className="p-4 border-b border-white/10 shrink-0 flex justify-between items-center">
+      <div className="flex-1 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-3xl flex flex-col overflow-hidden relative min-h-[500px] lg:min-h-0">
+        <div className="p-4 border-b border-slate-200 dark:border-white/10 shrink-0 flex justify-between items-center">
           <h2 className="font-bold flex items-center gap-2">
             <MessageCircle className="w-5 h-5 text-blue-500" />
             Comments & Replies
@@ -327,14 +327,14 @@ export default function InstagramTool() {
 
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 pb-40">
           {!selectedMedia ? (
-            <div className="text-center text-gray-500 text-sm py-8 h-full flex flex-col items-center justify-center">
+            <div className="text-center text-slate-400 dark:text-gray-500 text-sm py-8 h-full flex flex-col items-center justify-center">
               <MessageCircle className="w-12 h-12 mb-4 opacity-20" />
               Select a post to view its comments and send replies.
             </div>
           ) : loadingComments ? (
             <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-blue-500" /></div>
           ) : comments.length === 0 ? (
-            <div className="text-center text-gray-500 text-sm py-8">No comments on this post yet.</div>
+            <div className="text-center text-slate-400 dark:text-gray-500 text-sm py-8">No comments on this post yet.</div>
           ) : (
             comments.map(comment => (
               <div key={comment.id} className="space-y-2">
@@ -343,24 +343,24 @@ export default function InstagramTool() {
                   className={`p-3 rounded-xl border transition-all cursor-pointer ${
                     selectedComment?.id === comment.id 
                       ? 'bg-blue-500/20 border-blue-500/50' 
-                      : 'bg-white/5 border-white/10 hover:bg-white/10'
+                      : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:bg-white/10'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-sm text-gray-200">@{comment.username}</span>
-                    <span className="text-[10px] text-gray-500">{new Date(comment.timestamp).toLocaleString()}</span>
+                    <span className="font-bold text-sm text-slate-800 dark:text-gray-200">@{comment.username}</span>
+                    <span className="text-[10px] text-slate-400 dark:text-gray-500">{new Date(comment.timestamp).toLocaleString()}</span>
                   </div>
-                  <p className="text-sm text-gray-300">{comment.text}</p>
+                  <p className="text-sm text-slate-700 dark:text-gray-300">{comment.text}</p>
                 </div>
                 
                 {/* Replies */}
                 {comment.replies && comment.replies.data && comment.replies.data.map(reply => (
-                  <div key={reply.id} className="ml-8 p-3 rounded-xl bg-black/40 border border-white/5">
+                  <div key={reply.id} className="ml-8 p-3 rounded-xl bg-slate-200 dark:bg-black/40 border border-slate-200 dark:border-white/5">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-bold text-xs text-blue-400">@{reply.username}</span>
-                      <span className="text-[10px] text-gray-500">{new Date(reply.timestamp).toLocaleString()}</span>
+                      <span className="text-[10px] text-slate-400 dark:text-gray-500">{new Date(reply.timestamp).toLocaleString()}</span>
                     </div>
-                    <p className="text-xs text-gray-300">{reply.text}</p>
+                    <p className="text-xs text-slate-700 dark:text-gray-300">{reply.text}</p>
                   </div>
                 ))}
               </div>
@@ -370,9 +370,9 @@ export default function InstagramTool() {
 
         {/* Composer Footer */}
         {selectedMedia && (
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#0d1117] border-t border-white/10 shrink-0">
+          <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#0d1117] border-t border-slate-200 dark:border-white/10 shrink-0">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-gray-400">
+              <span className="text-xs font-bold text-slate-500 dark:text-gray-400">
                 {selectedComment ? (
                   <span className="flex items-center gap-1 text-blue-400">
                     Replying to @{selectedComment.username}
@@ -390,12 +390,12 @@ export default function InstagramTool() {
                 value={messageText}
                 onChange={e => setMessageText(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSendComment()}
-                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                className="flex-1 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors"
               />
               <button
                 onClick={handleSendComment}
                 disabled={isSending || !messageText.trim()}
-                className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center transition-all"
+                className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-slate-800 dark:text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center transition-all"
               >
                 {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
               </button>

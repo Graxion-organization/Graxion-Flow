@@ -11,6 +11,10 @@ const agentSchema = new mongoose.Schema({
     ref: 'Organization',
     required: true,
   },
+  whatsappAccounts: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'WhatsappAccount',
+  }],
   whatsappAccount: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'WhatsappAccount',
@@ -40,7 +44,7 @@ const agentSchema = new mongoose.Schema({
   }],
   platform: {
     type: String,
-    enum: ['whatsapp', 'telegram', 'both', 'instagram', 'facebook', 'all'],
+    enum: ['whatsapp', 'telegram', 'both', 'instagram', 'facebook', 'youtube', 'linkedin', 'all'],
     default: 'whatsapp',
   },
   agentType: {
@@ -155,6 +159,7 @@ const agentSchema = new mongoose.Schema({
 
 agentSchema.index({ user: 1, isActive: 1 });
 agentSchema.index({ organization: 1, isActive: 1 });
+agentSchema.index({ whatsappAccounts: 1 });
 agentSchema.index({ whatsappAccount: 1 });
 
 module.exports = mongoose.model('Agent', agentSchema);

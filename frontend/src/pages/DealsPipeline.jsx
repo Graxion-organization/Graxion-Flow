@@ -9,6 +9,7 @@ const INITIAL_STAGES = [
   { id: 'LEAD', label: 'Lead', color: 'bg-indigo-500', text: 'text-indigo-500' },
   { id: 'CONTACTED', label: 'Contacted', color: 'bg-blue-500', text: 'text-blue-500' },
   { id: 'NEGOTIATION', label: 'Negotiation', color: 'bg-orange-500', text: 'text-orange-500' },
+  { id: 'OBJECTION', label: 'Objection', color: 'bg-amber-500', text: 'text-amber-500' },
   { id: 'WON', label: 'Won', color: 'bg-emerald-500', text: 'text-emerald-500' },
   { id: 'LOST', label: 'Lost', color: 'bg-rose-500', text: 'text-rose-500' }
 ];

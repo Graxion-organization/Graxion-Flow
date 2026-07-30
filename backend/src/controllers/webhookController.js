@@ -15,6 +15,7 @@ const CloudinaryService = require('../services/cloudinaryService');
 const { checkKeywordMatch } = require('../utils/keywordMatcher');
 const conversationPricingService = require('../services/conversationPricingService');
 const Template = require('../models/Template');
+const DealAutomationService = require('../services/dealAutomationService');
 const path = require('path');
 const os = require('os');
 
@@ -194,6 +195,7 @@ exports.processWebhookPayload = async (payload) => {
 
       // 2. Find active agents for this organization
       const agent = await Agent.findOne({ organization: waAccount.organization, isActive: true }) ||
+                    await Agent.findOne({ whatsappAccounts: waAccount._id, isActive: true }) ||
                     await Agent.findOne({ whatsappAccount: waAccount._id, isActive: true });
       if (!agent) {
         logger.warn(`No active agent found for organization: ${waAccount.organization}`);
@@ -589,6 +591,11 @@ exports.processWebhookPayload = async (payload) => {
       conversation.lastMessageAt = new Date();
       conversation.isRead = false;
       await conversation.save();
+
+      // Trigger Deal Automation asynchronously
+      DealAutomationService.analyzeAndAutoUpdateDeal(conversation).catch(err => {
+        logger.error(`Deal Automation error: ${err.message}`);
+      });
 
       emitToUser(waAccount.user.toString(), 'conversation_updated', {
         conversationId: conversation._id,

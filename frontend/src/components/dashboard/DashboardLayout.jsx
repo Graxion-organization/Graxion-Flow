@@ -277,16 +277,35 @@ export default function DashboardLayout() {
     }
   }
 
-  const filteredGroups = SIDEBAR_GROUPS.map(group => ({
-    ...group,
-    items: group.items.filter(item => {
+  const filteredGroups = SIDEBAR_GROUPS.map(group => {
+    const mappedItems = group.items.map(item => {
+      let isGloballyDisabled = false;
+      if (branding?.sidebar_settings && branding.sidebar_settings[item.label] === false) {
+        isGloballyDisabled = true;
+      }
+      return { ...item, isGloballyDisabled };
+    });
+
+    const visibleItems = mappedItems.filter(item => {
       const requiredLevel = roleLevels[item.minRole] || 1;
       const userLevel = roleLevels[currentRole] || 1;
       if (userLevel < requiredLevel) return false;
-      if (!onboardingStatus.isCompleted && !['/app/integrations', '/app/agents', '/app/settings', '/app/billing'].includes(item.to)) return false;
+      
+      // Feature Toggle Check
+      if (item.isGloballyDisabled) {
+        if (!user?.isBetaTester && user?.role !== 'admin' && user?.role !== 'superadmin') {
+          return false;
+        }
+      }
+      
       return true;
-    })
-  })).filter(group => group.items.length > 0);
+    });
+
+    return {
+      ...group,
+      items: visibleItems
+    };
+  }).filter(group => group.items.length > 0);
 
   useEffect(() => {
     const load = async () => {
@@ -403,7 +422,7 @@ export default function DashboardLayout() {
                     {group.title}
                   </p>
                 )}
-                {group.items.map(({ to, icon: Icon, label }) => (
+                {group.items.map(({ to, icon: Icon, label, isGloballyDisabled }) => (
                   <NavLink
                     key={to}
                     to={to}
@@ -413,15 +432,20 @@ export default function DashboardLayout() {
                       `group relative flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3.5'} py-2.5 rounded-xl text-[13.5px] font-medium transition-all duration-200 ${
                         isActive
                           ? (isDark ? "bg-[#FF6A00]/10 text-[#FF6A00] font-semibold border border-[#FF6A00]/20" : "bg-[#FF6A00]/10 text-[#FF6A00] font-semibold border border-[#FF6A00]/20")
-                          : (isDark ? "text-slate-400 hover:text-slate-100 hover:bg-white/5 border border-transparent" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 border border-transparent")
+                          : (isDark 
+                              ? (isGloballyDisabled ? "text-slate-500 hover:text-slate-400 hover:bg-white/5 border border-transparent opacity-60" : "text-slate-400 hover:text-slate-100 hover:bg-white/5 border border-transparent")
+                              : (isGloballyDisabled ? "text-slate-400 hover:text-slate-500 hover:bg-slate-100/80 border border-transparent opacity-60" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 border border-transparent")
+                            )
                       }`
                     }
                   >
-                    <Icon size={isSidebarCollapsed ? 22 : 18} className={({isActive}) => isActive ? "text-[#FF6A00]" : "text-inherit"} />
-                    {!isSidebarCollapsed && <span>{t(`nav.${label.toLowerCase().replace(/ /g, '')}`, label)}</span>}
-                    {isSidebarCollapsed && (
-                      <div className="absolute left-14 opacity-0 group-hover:opacity-100 pointer-events-none px-3 py-1.5 bg-slate-800 text-white text-xs rounded-lg whitespace-nowrap z-50 shadow-xl transition-opacity">
-                        {label}
+                    <Icon size={isSidebarCollapsed ? 22 : 18} className={({isActive}) => isActive ? "text-[#FF6A00]" : (isGloballyDisabled ? "text-inherit opacity-60 grayscale" : "text-inherit")} />
+                    {!isSidebarCollapsed && (
+                      <div className="flex items-center justify-between w-full">
+                        <span className={isGloballyDisabled ? "line-through decoration-slate-600/50" : ""}>{t(`nav.${label.toLowerCase().replace(/ /g, '')}`, label)}</span>
+                        {isGloballyDisabled && (
+                          <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${isDark ? "bg-slate-800/50 text-slate-500 border border-slate-700/50" : "bg-slate-200/50 text-slate-400 border border-slate-300/50"}`}>Disabled</span>
+                        )}
                       </div>
                     )}
                   </NavLink>
@@ -601,10 +625,8 @@ export default function DashboardLayout() {
               <div className="flex h-full items-center justify-center min-h-[60vh]">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF6A00]"></div>
               </div>
-            ) : !onboardingStatus.isCompleted && !['/app/integrations', '/app/agents', '/app/settings', '/app/billing'].some(p => location.pathname.startsWith(p)) ? (
-              <OnboardingGateway status={onboardingStatus} isDark={isDark} />
             ) : (
-              <Outlet key={currentOrganization._id} />
+              <Outlet key={currentOrganization._id} context={{ onboardingStatus }} />
             )}
           </div>
         </main>

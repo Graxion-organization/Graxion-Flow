@@ -25,15 +25,12 @@ exports.embeddedSignupCallback = async (req, res, next) => {
           return next(new AppError(`App ID Mismatch! Vercel is sending App ID (${frontendAppId}), but Render has META_APP_ID (${appId}). Please set REACT_APP_META_APP_ID on Vercel and META_APP_ID on Render to the exact same Meta App ID.`, 400));
         }
 
-        const redirect_uri = redirectUri || "https://watsapp-automotion.vercel.app/callback";
-
         // Exchange code for access token
         const tokenRes = await axios.get(`${META_API_BASE}/oauth/access_token`, {
             params: {
                 client_id: appId,
                 client_secret: appSecret,
                 code,
-                redirect_uri
             },
         });
 
@@ -82,7 +79,7 @@ exports.embeddedSignupCallback = async (req, res, next) => {
             wabas.push(...wabaRes.data.data);
           }
         } catch (e2) {
-          logger.warn('whatsapp_business_accounts warning:', e2.response?.data?.error?.message || e2.message);
+          console.warn('[EmbeddedSignup] whatsapp_business_accounts warning:', e2.response?.data?.error?.message || e2.message);
         }
 
         // 3. Fallback via GET /me/businesses (if business_management permission granted)
@@ -102,6 +99,25 @@ exports.embeddedSignupCallback = async (req, res, next) => {
           }
         } catch (e3) {
           logger.warn('businesses fetch warning:', e3.response?.data?.error?.message || e3.message);
+        }
+
+        // 4. Fetch via /debug_token to get granular_scopes target_ids
+        try {
+          const debugRes = await axios.get(`${META_API_BASE}/debug_token`, {
+            params: {
+              input_token: longLivedToken,
+              access_token: `${appId}|${appSecret}`
+            }
+          });
+          const granularScopes = debugRes.data?.data?.granular_scopes || [];
+          const waScope = granularScopes.find(s => s.scope === 'whatsapp_business_management');
+          if (waScope && waScope.target_ids) {
+            for (const targetId of waScope.target_ids) {
+              wabas.push({ id: targetId, name: 'WhatsApp Account (from token scopes)' });
+            }
+          }
+        } catch (e4) {
+          logger.warn('debug_token fetch warning:', e4.response?.data?.error?.message || e4.message);
         }
 
         // Deduplicate WABAs by ID
@@ -127,16 +143,28 @@ exports.embeddedSignupCallback = async (req, res, next) => {
               }
             }
           } catch (phoneErr) {
-            logger.warn(`Failed to fetch phone numbers for WABA ${waba.id}:`, phoneErr.response?.data?.error?.message || phoneErr.message);
+            console.warn(`[EmbeddedSignup] Failed to fetch phone numbers for WABA ${waba.id}:`, phoneErr.response?.data?.error?.message || phoneErr.message);
           }
         }
+
+        console.log(`[EmbeddedSignup] Fetched ${phoneNumbers.length} phone numbers from Meta.`);
 
         // Auto-save connected phone numbers directly to MongoDB
         const orgId = req.organization?._id || req.user?.currentOrganization || req.user?.organization;
         const savedAccounts = [];
 
+        let skippedDueToOrg = 0;
+
         for (const phone of phoneNumbers) {
           try {
+            // Prevent cross-workspace stealing
+            const existing = await WhatsappAccount.findOne({ phoneNumberId: phone.phoneNumberId });
+            if (existing && existing.organization?.toString() !== orgId.toString()) {
+               console.warn(`[EmbeddedSignup] Skipping phone ${phone.phoneNumberId} - belongs to another organization.`);
+               skippedDueToOrg++;
+               continue;
+            }
+
             // Subscribe to WABA webhook on Meta
             try {
               await axios.post(
@@ -144,7 +172,22 @@ exports.embeddedSignupCallback = async (req, res, next) => {
                 {},
                 { params: { access_token: longLivedToken } }
               );
-            } catch (subErr) {}
+            } catch (subErr) {
+               console.warn(`[EmbeddedSignup] Webhook sub failed:`, subErr.message);
+            }
+
+            // Register the phone number for Cloud API
+            try {
+              const pin = Math.floor(100000 + Math.random() * 900000).toString();
+              await axios.post(
+                `${META_API_BASE}/${phone.phoneNumberId}/register`,
+                { messaging_product: 'whatsapp', pin: pin },
+                { params: { access_token: longLivedToken } }
+              );
+              console.log(`[EmbeddedSignup] Phone ${phone.phoneNumberId} registered successfully with PIN ${pin}.`);
+            } catch (regErr) {
+               console.warn(`[EmbeddedSignup] Registration failed for ${phone.phoneNumberId}:`, regErr.response?.data?.error?.message || regErr.message);
+            }
 
             const account = await WhatsappAccount.findOneAndUpdate(
               { phoneNumberId: phone.phoneNumberId },
@@ -169,8 +212,15 @@ exports.embeddedSignupCallback = async (req, res, next) => {
             delete accObj.accessToken;
             savedAccounts.push(accObj);
           } catch (saveErr) {
-            logger.warn(`Auto-save error for phone ${phone.phoneNumberId}:`, saveErr.message);
+            console.warn(`[EmbeddedSignup] Auto-save error for phone ${phone.phoneNumberId}:`, saveErr.message);
           }
+        }
+
+        if (savedAccounts.length === 0) {
+            if (phoneNumbers.length > 0 && skippedDueToOrg > 0) {
+                return next(new AppError('The WhatsApp number you selected is already connected to another Workspace. Please disconnect it from that Workspace first, or use a different number.', 400));
+            }
+            return next(new AppError('No WhatsApp phone numbers found. Please make sure you explicitly select your business and phone numbers during the Meta authentication flow (even if you previously connected them).', 400));
         }
 
         res.status(200).json({

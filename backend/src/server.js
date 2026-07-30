@@ -75,9 +75,10 @@ app.use(helmet({
 }));
 
 // CORS Configuration
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
-  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim()) 
-  : ['http://localhost:3000'];
+const allowedOrigins = [
+  'https://apiflow.graxion.in',
+  'https://flow.graxion.in'
+];
 
 app.use(cors({
   origin: function (origin, callback) {

@@ -3,11 +3,12 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore, useBrandingStore, useFeatureFlagStore } from "./store";
 import { fetchCsrfToken } from "./services/api";
+import { HelmetProvider } from "react-helmet-async";
 import CookieConsentModal from "./components/ui/CookieConsentModal";
+import SEO from "./components/seo/SEO";
 
 // Static layouts and wrappers (Kept static to ensure structural stability and avoid layout flashes)
 import DashboardLayout from "./components/dashboard/DashboardLayout";
-import AdminLayout from "./pages/admin/AdminLayout";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 // Lazy-loaded page-level components
@@ -58,28 +59,14 @@ const Terms = lazy(() => import("./pages/static/Terms"));
 const Security = lazy(() => import("./pages/static/Security"));
 const DataDeletion = lazy(() => import("./pages/static/DataDeletion"));
 
-// Admin pages
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
-const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
-const SystemHealth = lazy(() => import("./pages/admin/SystemHealth"));
-const SystemSettings = lazy(() => import("./pages/admin/SystemSettings"));
-const SystemLogs = lazy(() => import("./pages/admin/SystemLogs"));
-const SystemMedia = lazy(() => import("./pages/admin/SystemMedia"));
-const FraudDashboard = lazy(() => import("./pages/admin/FraudDashboard"));
-const DeletionRequests = lazy(() => import("./pages/admin/DeletionRequests"));
-const Subscriptions = lazy(() => import("./pages/admin/Subscriptions"));
-const Payments = lazy(() => import("./pages/admin/Payments"));
-const FeatureFlagsManagement = lazy(() => import("./pages/admin/FeatureFlagsManagement"));
-const AdminRequests = lazy(() => import("./pages/admin/AdminRequests"));
-const AdminActivities = lazy(() => import("./pages/admin/AdminActivities"));
-const ApiExplorer = lazy(() => import("./pages/admin/ApiExplorer"));
-const InstagramTool = lazy(() => import("./pages/admin/InstagramTool"));
-const AdminContactMessages = lazy(() => import("./pages/admin/AdminContactMessages"));
-const SalesPartnerAdminTab = lazy(() => import("./components/admin/SalesPartnerAdminTab"));
+// New Legal/Trust Policies (SEO Phase)
+const CookiePolicy = lazy(() => import("./pages/policies/CookiePolicy"));
+const AIPolicy = lazy(() => import("./pages/policies/AIPolicy"));
+const AcceptableUse = lazy(() => import("./pages/policies/AcceptableUse"));
+
 
 // Other pages
 const PendingDeletionPage = lazy(() => import("./pages/PendingDeletionPage"));
-const AdminAuthPage = lazy(() => import("./pages/AdminAuthPage"));
 const VerifyEmailPage = lazy(() => import("./pages/VerifyEmailPage"));
 const InstagramToolPage = lazy(() => import("./pages/InstagramToolPage"));
 const FacebookToolPage = lazy(() => import("./pages/FacebookToolPage"));
@@ -117,31 +104,6 @@ const PublicRoute = ({ children }) => {
   return !isAuthenticated ? children : <Navigate to="/app/dashboard" replace />;
 };
 
-// 🛡️ Admin Public Route
-const AdminPublicRoute = ({ children }) => {
-  const { isAuthenticated, user } = useAuthStore();
-  if (isAuthenticated && user?.role === 'admin') return <Navigate to="/admin/dashboard" replace />;
-  return children;
-};
-
-// 🛡️ Admin Protected Route
-const AdminProtectedRoute = ({ children }) => {
-  const { isAuthenticated, user } = useAuthStore();
-  
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  
-  // Wait for user data to load if it's not available yet
-  if (!user) {
-    return <LoadingFallback />;
-  }
-
-  if (user.role !== 'admin') {
-    return <Navigate to="/app/dashboard" replace />;
-  }
-
-  return children;
-};
-
 export default function App() {
   const { isAuthenticated, fetchUser } = useAuthStore();
   const { fetchBranding } = useBrandingStore();
@@ -161,7 +123,9 @@ export default function App() {
 
 
   return (
-    <BrowserRouter>
+    <HelmetProvider>
+      <SEO /> {/* Default Site-wide SEO */}
+      <BrowserRouter>
       <Toaster
         position="top-right"
         toastOptions={{
@@ -216,14 +180,6 @@ export default function App() {
               </PublicRoute>
             }
           />
-          <Route
-            path="/admin-auth"
-            element={
-              <AdminPublicRoute>
-                <AdminAuthPage />
-              </AdminPublicRoute>
-            }
-          />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
 
           {/* 🚀 Auth Callbacks */}
@@ -254,6 +210,9 @@ export default function App() {
           <Route path="/changelog" element={<Changelog />} />
           <Route path="/roadmap" element={<Roadmap />} />
           <Route path="/data-deletion-policy" element={<DataDeletion />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/ai-policy" element={<AIPolicy />} />
+          <Route path="/acceptable-use" element={<AcceptableUse />} />
 
           {/* 🔐 Protected Routes (SHIFTED TO /app) */}
           <Route
@@ -300,37 +259,6 @@ export default function App() {
 
           <Route path="/portal" element={<CustomerPortal />} />
 
-          {/* 🛡️ Admin Routes */}
-          <Route
-            path="/admin"
-            element={
-              <AdminProtectedRoute>
-                <AdminLayout />
-              </AdminProtectedRoute>
-            }
-          >
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="users" element={<UserManagement />} />
-            <Route path="sales-partners" element={<SalesPartnerAdminTab />} />
-            <Route path="signup-requests" element={<AdminRequests />} />
-            <Route path="contact-messages" element={<AdminContactMessages />} />
-            <Route path="activities" element={<AdminActivities />} />
-            <Route path="conversations" element={<ComingSoon />} />
-            <Route path="subscriptions" element={<Subscriptions />} />
-            <Route path="payments" element={<Payments />} />
-            <Route path="health" element={<SystemHealth />} />
-            <Route path="logs" element={<SystemLogs />} />
-            <Route path="media" element={<SystemMedia />} />
-            <Route path="fraud" element={<FraudDashboard />} />
-            <Route path="deletion-requests" element={<DeletionRequests />} />
-            <Route path="feature-flags" element={<FeatureFlagsManagement />} />
-            <Route path="api-explorer" element={<ApiExplorer />} />
-            <Route path="instagram-tools" element={<InstagramTool />} />
-            <Route path="settings" element={<Navigate to="core" replace />} />
-            <Route path="settings/:tab" element={<SystemSettings />} />
-          </Route>
-
 
 
           {/* 🌍 Global 404 */}
@@ -338,5 +266,6 @@ export default function App() {
         </Routes>
       </Suspense>
     </BrowserRouter>
+    </HelmetProvider>
   );
 }

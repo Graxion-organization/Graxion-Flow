@@ -40,8 +40,8 @@ class SLAService {
         // Record metrics (in a real app, this would go to Prometheus/DataDog)
         
         // Check for SLA breach
-        if (req.user && req.user.organization) {
-          const orgId = req.user.organization.toString();
+        if (req.user && (req.organization?._id || req.user?.currentOrganization)) {
+          const orgId = (req.organization?._id || req.user?.currentOrganization).toString();
           const threshold = this.slaThresholds.get(orgId);
           
           if (threshold && timeMs > threshold) {

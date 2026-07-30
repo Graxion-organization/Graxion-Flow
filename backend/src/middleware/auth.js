@@ -5,6 +5,16 @@ const logger = require('../utils/logger');
 
 const protect = async (req, res, next) => {
   try {
+    // Graxion Proxy Admin Bypass
+    if (
+      req.headers['x-graxion-proxy-secret'] &&
+      process.env.GRAXION_PROXY_SECRET &&
+      req.headers['x-graxion-proxy-secret'] === process.env.GRAXION_PROXY_SECRET
+    ) {
+      req.user = { role: 'admin', _id: 'graxion-proxy-admin' };
+      return next();
+    }
+
     let token;
 
     if (req.headers.authorization?.startsWith('Bearer')) {

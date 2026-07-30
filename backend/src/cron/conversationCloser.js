@@ -9,7 +9,7 @@ cron.schedule('0 * * * *', async () => {
     const threshold = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
     
     const result = await Conversation.updateMany(
-      { status: 'active', lastMessageAt: { $lt: threshold } },
+      { status: 'active', platform: 'whatsapp', lastMessageAt: { $lt: threshold } },
       { $set: { status: 'closed' } }
     );
     

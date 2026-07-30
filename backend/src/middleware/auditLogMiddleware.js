@@ -13,7 +13,7 @@ exports.auditLogger = async (req, res, next) => {
 
     // After response is sent, asynchronously log the audit event
     // Only log mutations
-    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method) && req.user && req.user.organization) {
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method) && req.user && (req.organization?._id || req.user?.currentOrganization)) {
       // Determine action based on HTTP Method
       let action = 'OTHER';
       if (req.method === 'POST') action = 'CREATE';
@@ -40,7 +40,7 @@ exports.auditLogger = async (req, res, next) => {
 
       // Log asynchronously
       AuditLog.create({
-        organization: req.user.organization,
+        organization: (req.organization?._id || req.user?.currentOrganization),
         actor: req.user._id,
         action,
         resource,

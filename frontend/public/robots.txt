@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /about-us
+Allow: /integrations
+Allow: /contact
+Allow: /blog
+Allow: /careers
+Allow: /changelog
+Allow: /roadmap
+Disallow: /app/
+Disallow: /admin/
+Disallow: /login
+Disallow: /register
+Disallow: /callback
+Disallow: /api/
+
+Sitemap: https://flow.graxion.in/sitemap.xml

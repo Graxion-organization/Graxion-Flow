@@ -382,10 +382,27 @@ export default function IntegrationsPage() {
       toast.error("META APP ID missing in environment");
       return;
     }
-    const redirectUriUrl = window.location.origin + "/callback";
-    const redirectUri = encodeURIComponent(redirectUriUrl);
-    const url = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${META_APP_ID}&redirect_uri=${redirectUri}&response_type=code&config_id=${META_CONFIG_ID}&scope=whatsapp_business_management,whatsapp_business_messaging`;
-    window.location.href = url;
+    if (!window.FB) {
+      toast.error("Facebook SDK not loaded. Please wait a moment.");
+      return;
+    }
+
+    window.FB.login(
+      (response) => {
+        if (response.authResponse && response.authResponse.code) {
+          const code = response.authResponse.code;
+          window.location.href = `/callback?code=${encodeURIComponent(code)}`;
+        } else {
+          toast.error("Embedded signup cancelled or failed.");
+        }
+      },
+      {
+        config_id: META_CONFIG_ID,
+        response_type: "code",
+        override_default_response_type: true,
+        extras: { setup: {} },
+      }
+    );
   };
 
   const handleFacebookLogin = () => {
@@ -518,7 +535,7 @@ export default function IntegrationsPage() {
       <div className="flex h-[70vh] items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="animate-spin text-[#FF6A00] h-9 w-9" />
-          <p className="text-sm text-slate-400 font-medium">Loading integration panel...</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Loading integration panel...</p>
         </div>
       </div>
     );
@@ -532,19 +549,19 @@ export default function IntegrationsPage() {
     <div className="space-y-8 max-w-6xl mx-auto pb-16">
       
       {/* Header section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-white/5 pb-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-white flex items-center gap-2.5">
             <Workflow className="h-6 w-6 text-[#FF6A00]" />
             App Store & Integrations
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
             Connect external apps and messaging channels to automate workflows and unify customer data.
           </p>
         </div>
         
         <div className="flex items-center gap-3">
-          <div className="px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-slate-300 flex items-center gap-2">
+          <div className="px-3.5 py-1.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             API Status: Operational
           </div>
@@ -557,7 +574,7 @@ export default function IntegrationsPage() {
       </div>
 
       {/* Filter Row */}
-      <div className="flex flex-col sm:flex-row items-center gap-4 justify-between bg-white/[0.02] border border-white/5 rounded-2xl p-4">
+      <div className="flex flex-col sm:flex-row items-center gap-4 justify-between bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-2xl p-4">
         
         {/* Category Tabs */}
         <div className="flex items-center gap-1.5 w-full sm:w-auto">
@@ -567,8 +584,8 @@ export default function IntegrationsPage() {
               onClick={() => setSelectedCategory(category)}
               className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all ${
                 selectedCategory === category
-                  ? 'bg-white/10 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                  ? 'bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-200 hover:bg-slate-50 dark:bg-white/5'
               }`}
             >
               {category}
@@ -578,13 +595,13 @@ export default function IntegrationsPage() {
 
         {/* Search */}
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
           <input
             type="text"
             placeholder="Search integrations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#FF6A00]/50 focus:border-[#FF6A00] transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-xs text-slate-800 dark:text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#FF6A00]/50 focus:border-[#FF6A00] transition-all"
           />
         </div>
       </div>
@@ -602,18 +619,18 @@ export default function IntegrationsPage() {
             if (isConnected) {
               connectedLabel = `${connectedAccounts.length} Connected`;
               connectedDetails = (
-                <div className="mt-4 p-3 rounded-xl bg-white/[0.02] border border-white/5 space-y-2">
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Linked Accounts</span>
+                <div className="mt-4 p-3 rounded-xl bg-white/[0.02] border border-slate-200 dark:border-white/5 space-y-2">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block">Linked Accounts</span>
                   <div className="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar">
                     {connectedAccounts.map((acc) => (
-                      <div key={acc.id} className="flex justify-between items-center bg-white/[0.01] hover:bg-white/[0.03] border border-white/5 rounded-lg p-2 text-xs">
+                      <div key={acc.id} className="flex justify-between items-center bg-white dark:bg-white/[0.01] hover:bg-slate-50 dark:hover:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-lg p-2 text-xs">
                         <div className="flex flex-col min-w-0">
-                          <span className="text-slate-200 font-bold truncate max-w-[160px]">{acc.name}</span>
-                          <span className="text-[9px] text-slate-400">{acc.type}</span>
+                          <span className="text-slate-800 dark:text-slate-200 font-bold truncate max-w-[160px]">{acc.name}</span>
+                          <span className="text-[9px] text-slate-500 dark:text-slate-400">{acc.type}</span>
                         </div>
                         <button
                           onClick={() => handleDisconnectChannel(acc)}
-                          className="p-1 rounded bg-red-500/10 hover:bg-red-500 hover:text-white text-red-400 transition-all border border-red-500/20 hover:border-transparent"
+                          className="p-1 rounded bg-red-500/10 hover:bg-red-500 hover:text-white dark:hover:text-white text-red-500 dark:text-red-400 transition-all border border-red-500/20 hover:border-transparent"
                           title="Disconnect Account"
                         >
                           <Trash2 size={12} />
@@ -630,14 +647,14 @@ export default function IntegrationsPage() {
             if (isConnected) {
               connectedLabel = 'Active';
               connectedDetails = (
-                <div className="mt-4 p-3 rounded-xl bg-white/[0.02] border border-white/5 space-y-1.5 text-[10px]">
+                <div className="mt-4 p-3 rounded-xl bg-white/[0.02] border border-slate-200 dark:border-white/5 space-y-1.5 text-[10px]">
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-400 font-medium">Sync Status</span>
+                    <span className="text-slate-500 dark:text-slate-400 font-medium">Sync Status</span>
                     <span className="text-emerald-400 font-bold">Synced</span>
                   </div>
                   {dbInt.shopUrl && (
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-400 font-medium">Store URL</span>
+                      <span className="text-slate-500 dark:text-slate-400 font-medium">Store URL</span>
                       <span className="text-[#FF6A00] font-bold truncate max-w-[150px]" title={dbInt.shopUrl}>
                         {dbInt.shopUrl}
                       </span>
@@ -645,8 +662,8 @@ export default function IntegrationsPage() {
                   )}
                   {dbInt.spreadsheetId && (
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-400 font-medium">Spreadsheet ID</span>
-                      <span className="text-slate-300 font-bold truncate max-w-[150px]" title={dbInt.spreadsheetId}>
+                      <span className="text-slate-500 dark:text-slate-400 font-medium">Spreadsheet ID</span>
+                      <span className="text-slate-700 dark:text-slate-300 font-bold truncate max-w-[150px]" title={dbInt.spreadsheetId}>
                         {dbInt.spreadsheetId}
                       </span>
                     </div>
@@ -661,8 +678,8 @@ export default function IntegrationsPage() {
           return (
             <div 
               key={int.id}
-              className={`group flex flex-col justify-between rounded-2xl bg-slate-900/40 border border-white/5 p-6 transition-all duration-300 hover:border-white/10 ${
-                isConnected ? 'shadow-[0_0_20px_rgba(34,197,94,0.03)]' : ''
+              className={`group flex flex-col justify-between rounded-2xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 p-6 transition-all duration-300 hover:border-slate-300 dark:hover:border-white/10 ${
+                isConnected ? 'shadow-[0_0_20px_rgba(34,197,94,0.03)]' : 'shadow-sm'
               }`}
             >
               <div>
@@ -673,8 +690,8 @@ export default function IntegrationsPage() {
                       <Icon className={`h-6 w-6 ${int.textColor}`} strokeWidth={1.5} />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-white tracking-tight">{int.name}</h3>
-                      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{int.category}</span>
+                      <h3 className="text-base font-bold text-slate-800 dark:text-white tracking-tight">{int.name}</h3>
+                      <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{int.category}</span>
                     </div>
                   </div>
 
@@ -684,21 +701,21 @@ export default function IntegrationsPage() {
                       {connectedLabel}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-slate-400 border border-white/10">
+                    <span className="inline-flex items-center rounded-full bg-slate-50 dark:bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10">
                       Ready
                     </span>
                   )}
                 </div>
 
                 {/* Description */}
-                <p className="text-xs text-slate-400 leading-relaxed mb-5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-5">
                   {int.description}
                 </p>
 
                 {/* Features Checklist */}
                 <div className="space-y-2 mb-6">
                   {int.features.map((feat, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-[11px] text-slate-400 font-medium">
+                    <div key={idx} className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                       <CheckCircle2 className="h-3.5 w-3.5 text-slate-500 shrink-0" />
                       <span>{feat}</span>
                     </div>
@@ -710,14 +727,14 @@ export default function IntegrationsPage() {
               </div>
 
               {/* Actions Footer */}
-              <div className="pt-4 border-t border-white/5 mt-6 flex items-center justify-between gap-3">
+              <div className="pt-4 border-t border-slate-200 dark:border-white/5 mt-6 flex items-center justify-between gap-3">
                 {int.type === 'channel' ? (
                   <>
                     {isConnected ? (
                       <>
                         <button
                           onClick={() => openModal(int)}
-                          className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-xs font-semibold text-slate-300 transition-all hover:bg-white/10 hover:text-white"
+                          className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-all hover:bg-slate-100 dark:bg-white/10 hover:text-slate-800 dark:text-white"
                         >
                           <Plus size={13} /> Connect Additional
                         </button>
@@ -725,10 +742,10 @@ export default function IntegrationsPage() {
                     ) : (
                       <button
                         onClick={() => openModal(int)}
-                        className="w-full flex items-center justify-between rounded-xl bg-[#FF6A00]/15 border border-[#FF6A00]/30 px-4 py-2.5 text-xs font-semibold text-[#FF6A00] transition-all hover:bg-[#FF6A00] hover:text-white hover:border-transparent group/btn"
+                        className="w-full flex items-center justify-between rounded-xl bg-[#FF6A00]/15 border border-[#FF6A00]/30 px-4 py-2.5 text-xs font-semibold text-[#FF6A00] transition-all hover:bg-[#FF6A00] hover:text-slate-800 dark:text-white hover:border-transparent group/btn"
                       >
                         <span>Configure Integration</span>
-                        <ArrowRight className="h-4 w-4 text-slate-400 transition-transform group-hover/btn:translate-x-1" />
+                        <ArrowRight className="h-4 w-4 text-slate-500 dark:text-slate-400 transition-transform group-hover/btn:translate-x-1" />
                       </button>
                     )}
                   </>
@@ -738,13 +755,13 @@ export default function IntegrationsPage() {
                       <>
                         <button
                           onClick={() => openModal(int)}
-                          className="flex-1 rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-xs font-semibold text-slate-300 transition-all hover:bg-white/10 hover:text-white"
+                          className="flex-1 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-all hover:bg-slate-100 dark:bg-white/10 hover:text-slate-800 dark:text-white"
                         >
                           Modify Setup
                         </button>
                         <button
                           onClick={() => handleDisconnectTool(int.id, int.name)}
-                          className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 transition-all hover:bg-red-500 hover:text-white hover:border-transparent"
+                          className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 transition-all hover:bg-red-500 hover:text-slate-800 dark:text-white hover:border-transparent"
                           title="Disconnect Integration"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -753,7 +770,7 @@ export default function IntegrationsPage() {
                     ) : (
                       <button
                         onClick={() => openModal(int)}
-                        className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#FF6A00]/15 border border-[#FF6A00]/30 px-4 py-2.5 text-xs font-semibold text-[#FF6A00] transition-all hover:bg-[#FF6A00] hover:text-white hover:border-transparent"
+                        className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#FF6A00]/15 border border-[#FF6A00]/30 px-4 py-2.5 text-xs font-semibold text-[#FF6A00] transition-all hover:bg-[#FF6A00] hover:text-slate-800 dark:text-white hover:border-transparent"
                       >
                         Connect Workspace
                       </button>
@@ -767,10 +784,10 @@ export default function IntegrationsPage() {
       </div>
 
       {filteredIntegrations.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.02] py-20 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 dark:border-white/10 bg-white/[0.02] py-20 text-center">
           <HelpCircle className="h-10 w-10 text-slate-500 mb-3" />
-          <h4 className="text-white font-bold mb-1 text-sm">No Integrations Found</h4>
-          <p className="text-slate-400 text-xs max-w-xs leading-relaxed">
+          <h4 className="text-slate-800 dark:text-white font-bold mb-1 text-sm">No Integrations Found</h4>
+          <p className="text-slate-500 dark:text-slate-400 text-xs max-w-xs leading-relaxed">
             We couldn't find any app matching your search criteria. Try modifying your filters.
           </p>
         </div>
@@ -784,24 +801,24 @@ export default function IntegrationsPage() {
             onClick={closeModal}
           ></div>
           
-          <div className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 shadow-2xl animate-in zoom-in-95 duration-200">
             {/* Top colored border */}
             <div className="h-1" style={{ backgroundColor: activeModal.accentColor }}></div>
             
             {/* Modal Header */}
-            <div className="px-6 py-5 border-b border-white/5 flex justify-between items-center bg-white/[0.01]">
+            <div className="px-6 py-5 border-b border-slate-200 dark:border-white/5 flex justify-between items-center bg-white dark:bg-white/[0.01]">
               <div className="flex items-center gap-3">
                 <div className={`p-2 rounded-lg bg-gradient-to-br ${activeModal.color}`}>
                   <activeModal.icon className={`h-5 w-5 ${activeModal.textColor}`} />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-white">Setup {activeModal.name}</h2>
-                  <span className="text-[9px] uppercase tracking-wider text-slate-400">Connection Window</span>
+                  <h2 className="text-sm font-bold text-slate-800 dark:text-white">Setup {activeModal.name}</h2>
+                  <span className="text-[9px] uppercase tracking-wider text-slate-500 dark:text-slate-400">Connection Window</span>
                 </div>
               </div>
               <button 
                 onClick={closeModal} 
-                className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/5 hover:text-white"
+                className="rounded-lg p-1.5 text-slate-500 dark:text-slate-400 transition hover:bg-slate-50 dark:bg-white/5 hover:text-slate-800 dark:text-white"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -816,20 +833,20 @@ export default function IntegrationsPage() {
                   <div className="space-y-3">
                     <button
                       onClick={handleWhatsappEmbeddedSignup}
-                      className="w-full flex items-center justify-center gap-3 bg-[#FF6A00] hover:bg-[#ff7b1a] text-white py-3 rounded-xl font-semibold text-xs transition-all shadow-lg shadow-[#FF6A00]/25"
+                      className="w-full flex items-center justify-center gap-3 bg-[#FF6A00] hover:bg-[#ff7b1a] text-slate-800 dark:text-white py-3 rounded-xl font-semibold text-xs transition-all shadow-lg shadow-[#FF6A00]/25"
                     >
                       <Facebook size={16} /> Connect via Facebook (Embedded Signup)
                     </button>
                     
                     <div className="relative flex py-2 items-center">
-                      <div className="flex-grow border-t border-white/5"></div>
+                      <div className="flex-grow border-t border-slate-200 dark:border-white/5"></div>
                       <span className="flex-shrink mx-4 text-slate-500 text-[10px] uppercase font-bold tracking-wider">Or Connect Manually</span>
-                      <div className="flex-grow border-t border-white/5"></div>
+                      <div className="flex-grow border-t border-slate-200 dark:border-white/5"></div>
                     </div>
 
                     <button
                       onClick={() => setWhatsappSetupStep('manual')}
-                      className="w-full py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold text-xs transition-all"
+                      className="w-full py-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-white font-semibold text-xs transition-all"
                     >
                       Enter Permanent API Tokens manually
                     </button>
@@ -840,63 +857,63 @@ export default function IntegrationsPage() {
                   <form onSubmit={handleConnectSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <label className="text-[11px] font-semibold text-slate-400">Phone Number ID</label>
+                        <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Phone Number ID</label>
                         <input
                           type="text"
                           name="phoneNumberId"
                           required
                           value={formData.phoneNumberId || ''}
                           onChange={handleInputChange}
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
+                          className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-3 py-2 text-xs text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
                           placeholder="e.g., 1234567890123"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[11px] font-semibold text-slate-400">WABA ID</label>
+                        <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">WABA ID</label>
                         <input
                           type="text"
                           name="wabaId"
                           required
                           value={formData.wabaId || ''}
                           onChange={handleInputChange}
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
+                          className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-3 py-2 text-xs text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
                           placeholder="WhatsApp Business Account ID"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[11px] font-semibold text-slate-400">Display Phone Number</label>
+                        <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Display Phone Number</label>
                         <input
                           type="text"
                           name="displayPhoneNumber"
                           required
                           value={formData.displayPhoneNumber || ''}
                           onChange={handleInputChange}
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
+                          className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-3 py-2 text-xs text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
                           placeholder="e.g., +1 555-0100"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[11px] font-semibold text-slate-400">Display Name (optional)</label>
+                        <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Display Name (optional)</label>
                         <input
                           type="text"
                           name="verifiedName"
                           value={formData.verifiedName || ''}
                           onChange={handleInputChange}
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
+                          className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-3 py-2 text-xs text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
                           placeholder="e.g., My Business"
                         />
                       </div>
                     </div>
                     
                     <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-slate-400">System User Access Token</label>
+                      <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">System User Access Token</label>
                       <textarea
                         name="accessToken"
                         required
                         rows={3}
                         value={formData.accessToken || ''}
                         onChange={handleInputChange}
-                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-slate-600 font-mono focus:border-[#FF6A00] focus:outline-none resize-none"
+                        className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-3 py-2 text-xs text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 font-mono focus:border-[#FF6A00] focus:outline-none resize-none"
                         placeholder="EAABm..."
                       />
                     </div>
@@ -905,14 +922,14 @@ export default function IntegrationsPage() {
                       <button
                         type="button"
                         onClick={() => setWhatsappSetupStep('picker')}
-                        className="flex-1 py-2.5 rounded-xl bg-white/5 border border-white/5 text-xs text-white hover:bg-white/10 transition-all"
+                        className="flex-1 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 text-xs text-slate-800 dark:text-white hover:bg-slate-100 dark:bg-white/10 transition-all"
                       >
                         Back
                       </button>
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="flex-1 py-2.5 rounded-xl bg-[#FF6A00] hover:bg-[#ff7b1a] text-white font-semibold text-xs transition-all shadow-md"
+                        className="flex-1 py-2.5 rounded-xl bg-[#FF6A00] hover:bg-[#ff7b1a] text-slate-800 dark:text-white font-semibold text-xs transition-all shadow-md"
                       >
                         {isSubmitting ? 'Connecting...' : 'Connect Manually'}
                       </button>
@@ -922,7 +939,7 @@ export default function IntegrationsPage() {
 
                 {whatsappSetupStep === 'picking' && (
                   <form onSubmit={handleConnectSubmit} className="space-y-4">
-                    <span className="text-xs text-slate-400 block font-medium">Select the phone number you want to hook up:</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 block font-medium">Select the phone number you want to hook up:</span>
                     <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
                       {whatsappPhoneNumbers.map((phone) => (
                         <button
@@ -931,13 +948,13 @@ export default function IntegrationsPage() {
                           onClick={() => setSelectedWhatsappPhone(phone)}
                           className={`w-full text-left p-3.5 rounded-xl border-2 transition-all flex items-center justify-between ${
                             selectedWhatsappPhone?.phoneNumberId === phone.phoneNumberId 
-                              ? 'border-[#FF6A00] bg-[#FF6A00]/5 text-white' 
-                              : 'border-white/5 bg-white/[0.01] hover:border-white/20'
+                              ? 'border-[#FF6A00] bg-[#FF6A00]/5 text-slate-800 dark:text-white' 
+                              : 'border-slate-200 dark:border-white/5 bg-white dark:bg-white/[0.01] hover:border-white/20'
                           }`}
                         >
                           <div className="min-w-0">
-                            <p className="font-bold text-xs text-white">{phone.displayPhoneNumber}</p>
-                            <p className="text-[10px] text-slate-400">{phone.verifiedName || 'No Display Name'}</p>
+                            <p className="font-bold text-xs text-slate-800 dark:text-white">{phone.displayPhoneNumber}</p>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400">{phone.verifiedName || 'No Display Name'}</p>
                             <p className="text-[9px] text-slate-500 font-mono">WABA ID: {phone.wabaId}</p>
                           </div>
                           {selectedWhatsappPhone?.phoneNumberId === phone.phoneNumberId && (
@@ -951,14 +968,14 @@ export default function IntegrationsPage() {
                       <button
                         type="button"
                         onClick={closeModal}
-                        className="flex-1 py-2.5 rounded-xl bg-white/5 border border-white/5 text-xs text-white hover:bg-white/10"
+                        className="flex-1 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 text-xs text-slate-800 dark:text-white hover:bg-slate-100 dark:bg-white/10"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={!selectedWhatsappPhone || isSubmitting}
-                        className="flex-1 py-2.5 rounded-xl bg-[#FF6A00] hover:bg-[#ff7b1a] text-white font-semibold text-xs transition-all shadow-md disabled:opacity-50"
+                        className="flex-1 py-2.5 rounded-xl bg-[#FF6A00] hover:bg-[#ff7b1a] text-slate-800 dark:text-white font-semibold text-xs transition-all shadow-md disabled:opacity-50"
                       >
                         {isSubmitting ? 'Saving...' : 'Connect Number'}
                       </button>
@@ -971,11 +988,11 @@ export default function IntegrationsPage() {
             {/* 2. FACEBOOK MESSENGER SETUP */}
             {activeModal.id === 'facebook' && (
               <div className="p-6 space-y-4">
-                <div className="flex p-1 rounded-xl bg-white/5 border border-white/10 mb-2">
+                <div className="flex p-1 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 mb-2">
                   <button
                     onClick={() => setFacebookSetupMethod('oauth')}
                     className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
-                      facebookSetupMethod === 'oauth' ? 'bg-[#FF6A00] text-white' : 'text-slate-400 hover:text-white'
+                      facebookSetupMethod === 'oauth' ? 'bg-[#FF6A00] text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                     }`}
                   >
                     OAuth Connect
@@ -983,7 +1000,7 @@ export default function IntegrationsPage() {
                   <button
                     onClick={() => setFacebookSetupMethod('manual')}
                     className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
-                      facebookSetupMethod === 'manual' ? 'bg-[#FF6A00] text-white' : 'text-slate-400 hover:text-white'
+                      facebookSetupMethod === 'manual' ? 'bg-[#FF6A00] text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                     }`}
                   >
                     Manual Token
@@ -992,13 +1009,13 @@ export default function IntegrationsPage() {
 
                 {facebookSetupMethod === 'oauth' ? (
                   <div className="space-y-4 text-center py-4">
-                    <p className="text-xs text-slate-400 leading-normal">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
                       Connect your Facebook Pages using the standard popup login. We will automatically fetch and list all your pages.
                     </p>
                     <button
                       onClick={handleFacebookLogin}
                       disabled={isSubmitting}
-                      className="w-full flex items-center justify-center gap-3 bg-[#1877F2] hover:bg-[#166fe5] text-white py-3 rounded-xl font-semibold text-xs transition-all shadow-lg"
+                      className="w-full flex items-center justify-center gap-3 bg-[#1877F2] hover:bg-[#166fe5] text-slate-800 dark:text-white py-3 rounded-xl font-semibold text-xs transition-all shadow-lg"
                     >
                       {isSubmitting ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -1011,7 +1028,7 @@ export default function IntegrationsPage() {
                 ) : (
                   <form onSubmit={handleConnectSubmit} className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-300">
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                         Facebook Access Token
                       </label>
                       <textarea
@@ -1020,7 +1037,7 @@ export default function IntegrationsPage() {
                         rows={4}
                         value={formData.accessToken || ''}
                         onChange={handleInputChange}
-                        className="block w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs text-white placeholder-slate-600 font-mono focus:border-[#FF6A00] focus:outline-none resize-none"
+                        className="block w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-2.5 text-xs text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 font-mono focus:border-[#FF6A00] focus:outline-none resize-none"
                         placeholder="EAABm..."
                       />
                       <p className="text-[10px] text-slate-500 leading-normal">
@@ -1032,14 +1049,14 @@ export default function IntegrationsPage() {
                       <button
                         type="button"
                         onClick={closeModal}
-                        className="flex-1 rounded-xl bg-white/5 border border-white/5 px-4 py-2.5 text-xs text-white transition hover:bg-white/10"
+                        className="flex-1 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-4 py-2.5 text-xs text-slate-800 dark:text-white transition hover:bg-slate-100 dark:bg-white/10"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="flex-1 rounded-xl bg-[#FF6A00] hover:bg-[#ff7b1a] px-4 py-2.5 text-xs font-semibold text-white shadow-lg transition disabled:opacity-50"
+                        className="flex-1 rounded-xl bg-[#FF6A00] hover:bg-[#ff7b1a] px-4 py-2.5 text-xs font-semibold text-slate-800 dark:text-white shadow-lg transition disabled:opacity-50"
                       >
                         {isSubmitting ? 'Saving...' : 'Connect Page'}
                       </button>
@@ -1052,11 +1069,11 @@ export default function IntegrationsPage() {
             {/* 3. INSTAGRAM SETUP */}
             {activeModal.id === 'instagram' && (
               <div className="p-6 space-y-4">
-                <div className="flex p-1 rounded-xl bg-white/5 border border-white/10 mb-2">
+                <div className="flex p-1 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 mb-2">
                   <button
                     onClick={() => setInstagramSetupMethod('oauth')}
                     className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
-                      instagramSetupMethod === 'oauth' ? 'bg-[#FF6A00] text-white' : 'text-slate-400 hover:text-white'
+                      instagramSetupMethod === 'oauth' ? 'bg-[#FF6A00] text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                     }`}
                   >
                     OAuth Connect
@@ -1064,7 +1081,7 @@ export default function IntegrationsPage() {
                   <button
                     onClick={() => setInstagramSetupMethod('manual')}
                     className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
-                      instagramSetupMethod === 'manual' ? 'bg-[#FF6A00] text-white' : 'text-slate-400 hover:text-white'
+                      instagramSetupMethod === 'manual' ? 'bg-[#FF6A00] text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                     }`}
                   >
                     Manual Inputs
@@ -1073,13 +1090,13 @@ export default function IntegrationsPage() {
 
                 {instagramSetupMethod === 'oauth' ? (
                   <div className="space-y-4 text-center py-4">
-                    <p className="text-xs text-slate-400 leading-normal">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
                       Connect your Instagram Business accounts linked to your Facebook Pages. We will automatically discover and link them.
                     </p>
                     <button
                       onClick={handleInstagramLogin}
                       disabled={isSubmitting}
-                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-xl font-semibold text-xs transition-all shadow-lg"
+                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-slate-800 dark:text-white py-3 rounded-xl font-semibold text-xs transition-all shadow-lg"
                     >
                       {isSubmitting ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -1093,52 +1110,52 @@ export default function IntegrationsPage() {
                   <form onSubmit={handleConnectSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <label className="text-[11px] font-semibold text-slate-400">Instagram Account ID</label>
+                        <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Instagram Account ID</label>
                         <input
                           type="text"
                           name="igAccountId"
                           required
                           value={formData.igAccountId || ''}
                           onChange={handleInputChange}
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs text-white placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
+                          className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-3 py-2.5 text-xs text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
                           placeholder="e.g., 178414..."
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[11px] font-semibold text-slate-400">Facebook Page ID</label>
+                        <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Facebook Page ID</label>
                         <input
                           type="text"
                           name="pageId"
                           required
                           value={formData.pageId || ''}
                           onChange={handleInputChange}
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs text-white placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
+                          className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-3 py-2.5 text-xs text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
                           placeholder="e.g., 10103..."
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-slate-400">Instagram Username (optional)</label>
+                      <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Instagram Username (optional)</label>
                       <input
                         type="text"
                         name="igUsername"
                         value={formData.igUsername || ''}
                         onChange={handleInputChange}
-                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs text-white placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
+                        className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-3 py-2.5 text-xs text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
                         placeholder="e.g., @my_brand"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-slate-400">Page Access Token</label>
+                      <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Page Access Token</label>
                       <textarea
                         name="pageAccessToken"
                         required
                         rows={3}
                         value={formData.pageAccessToken || ''}
                         onChange={handleInputChange}
-                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-slate-600 font-mono focus:border-[#FF6A00] focus:outline-none resize-none"
+                        className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-3 py-2 text-xs text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 font-mono focus:border-[#FF6A00] focus:outline-none resize-none"
                         placeholder="EAABm..."
                       />
                     </div>
@@ -1147,14 +1164,14 @@ export default function IntegrationsPage() {
                       <button
                         type="button"
                         onClick={closeModal}
-                        className="flex-1 rounded-xl bg-white/5 border border-white/5 px-4 py-2.5 text-xs text-white transition hover:bg-white/10"
+                        className="flex-1 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-4 py-2.5 text-xs text-slate-800 dark:text-white transition hover:bg-slate-100 dark:bg-white/10"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="flex-1 rounded-xl bg-[#FF6A00] hover:bg-[#ff7b1a] px-4 py-2.5 text-xs font-semibold text-white shadow-lg transition disabled:opacity-50"
+                        className="flex-1 rounded-xl bg-[#FF6A00] hover:bg-[#ff7b1a] px-4 py-2.5 text-xs font-semibold text-slate-800 dark:text-white shadow-lg transition disabled:opacity-50"
                       >
                         {isSubmitting ? 'Saving...' : 'Connect Instagram'}
                       </button>
@@ -1168,7 +1185,7 @@ export default function IntegrationsPage() {
             {activeModal.id === 'telegram' && (
               <form onSubmit={handleConnectSubmit} className="p-6 space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Telegram Bot Token
                   </label>
                   <input
@@ -1177,7 +1194,7 @@ export default function IntegrationsPage() {
                     required
                     value={formData.botToken || ''}
                     onChange={handleInputChange}
-                    className="block w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
+                    className="block w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-2.5 text-xs text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-[#FF6A00] focus:outline-none"
                     placeholder="e.g. 1234567890:AAH_XXXXXXXXXXXXXXX"
                   />
                   <p className="text-[10px] text-slate-500 leading-normal">
@@ -1189,14 +1206,14 @@ export default function IntegrationsPage() {
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="flex-1 rounded-xl bg-white/5 border border-white/5 px-4 py-2.5 text-xs text-white transition hover:bg-white/10"
+                    className="flex-1 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-4 py-2.5 text-xs text-slate-800 dark:text-white transition hover:bg-slate-100 dark:bg-white/10"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 rounded-xl bg-[#FF6A00] hover:bg-[#ff7b1a] px-4 py-2.5 text-xs font-semibold text-white shadow-lg transition disabled:opacity-50"
+                    className="flex-1 rounded-xl bg-[#FF6A00] hover:bg-[#ff7b1a] px-4 py-2.5 text-xs font-semibold text-slate-800 dark:text-white shadow-lg transition disabled:opacity-50"
                   >
                     {isSubmitting ? 'Connecting...' : 'Connect Bot'}
                   </button>
@@ -1207,12 +1224,12 @@ export default function IntegrationsPage() {
             {/* 5. YOUTUBE OAUTH SETUP */}
             {activeModal.id === 'youtube' && (
               <div className="p-6 space-y-4 text-center py-6">
-                <p className="text-xs text-slate-400 leading-normal">
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
                   Connect your YouTube Channel via Google Account. We will synchronize comment replies and enable AI automation on your videos.
                 </p>
                 <button
                   onClick={handleYoutubeConnect}
-                  className="w-full flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-semibold text-xs transition-all shadow-lg shadow-red-600/25"
+                  className="w-full flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-slate-800 dark:text-white py-3 rounded-xl font-semibold text-xs transition-all shadow-lg shadow-red-600/25"
                 >
                   <Youtube size={16} />
                   <span>Authorize YouTube Channel</span>
@@ -1223,12 +1240,12 @@ export default function IntegrationsPage() {
             {/* 6. LINKEDIN OAUTH SETUP */}
             {activeModal.id === 'linkedin' && (
               <div className="p-6 space-y-4 text-center py-6">
-                <p className="text-xs text-slate-400 leading-normal">
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
                   Authenticate your LinkedIn account to sync outreach, connection updates, and post analytics automatically.
                 </p>
                 <button
                   onClick={handleLinkedinConnect}
-                  className="w-full flex items-center justify-center gap-3 bg-[#0077b5] hover:bg-[#00669c] text-white py-3 rounded-xl font-semibold text-xs transition-all shadow-lg shadow-[#0077b5]/25"
+                  className="w-full flex items-center justify-center gap-3 bg-[#0077b5] hover:bg-[#00669c] text-slate-800 dark:text-white py-3 rounded-xl font-semibold text-xs transition-all shadow-lg shadow-[#0077b5]/25"
                 >
                   <Linkedin size={16} />
                   <span>Authorize LinkedIn Profile</span>
@@ -1243,13 +1260,13 @@ export default function IntegrationsPage() {
                   {activeModal.fields.map((field) => (
                     <div key={field.name} className="space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-semibold text-slate-300">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                           {field.label}
                         </label>
                         {field.helpText && (
                           <div className="group relative">
-                            <HelpCircle className="h-3.5 w-3.5 text-slate-400 hover:text-slate-200 cursor-pointer" />
-                            <div className="absolute right-0 bottom-full mb-2 w-48 hidden group-hover:block bg-slate-900 border border-white/10 rounded-lg p-2.5 text-[10px] text-slate-400 leading-normal shadow-xl z-50">
+                            <HelpCircle className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400 hover:text-slate-200 cursor-pointer" />
+                            <div className="absolute right-0 bottom-full mb-2 w-48 hidden group-hover:block bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg p-2.5 text-[10px] text-slate-500 dark:text-slate-400 leading-normal shadow-xl z-50">
                               {field.helpText}
                             </div>
                           </div>
@@ -1261,7 +1278,7 @@ export default function IntegrationsPage() {
                         required
                         value={formData[field.name] || ''}
                         onChange={handleInputChange}
-                        className="block w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs text-white placeholder-slate-600 transition focus:border-[#FF6A00] focus:outline-none focus:ring-1 focus:ring-[#FF6A00]"
+                        className="block w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-2.5 text-xs text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 transition focus:border-[#FF6A00] focus:outline-none focus:ring-1 focus:ring-[#FF6A00]"
                         placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
                       />
                     </div>
@@ -1272,14 +1289,14 @@ export default function IntegrationsPage() {
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="flex-1 rounded-xl bg-white/5 border border-white/5 px-4 py-3 text-xs font-semibold text-white transition hover:bg-white/10"
+                    className="flex-1 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-4 py-3 text-xs font-semibold text-slate-800 dark:text-white transition hover:bg-slate-100 dark:bg-white/10"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#FF6A00] px-4 py-3 text-xs font-semibold text-white shadow-lg shadow-[#FF6A00]/20 transition hover:bg-[#ff7b1a] hover:scale-[1.01] disabled:opacity-75 disabled:cursor-not-allowed"
+                    className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#FF6A00] px-4 py-3 text-xs font-semibold text-slate-800 dark:text-white shadow-lg shadow-[#FF6A00]/20 transition hover:bg-[#ff7b1a] hover:scale-[1.01] disabled:opacity-75 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
                       <>

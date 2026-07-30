@@ -7,6 +7,8 @@ import toast from 'react-hot-toast';
 import { formatDistanceToNow, format } from 'date-fns';
 import { io } from 'socket.io-client';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useOutletContext, useNavigate } from 'react-router-dom';
+import ActionGuard from '../components/dashboard/ActionGuard';
 
 const STATUS_TABS = [
   { key: '', label: 'All' },
@@ -161,6 +163,8 @@ const check24hWindow = (conv) => {
 
 export default function ConversationsPage() {
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
+  const { onboardingStatus } = useOutletContext() || {};
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [conversations, setConversations] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -493,6 +497,18 @@ export default function ConversationsPage() {
   const titleClass = 'text-gray-900 dark:text-white';
   const mutedClass = 'text-gray-600 dark:text-slate-300';
   const subtleClass = 'text-gray-400 dark:text-slate-400';
+
+  if (onboardingStatus && !onboardingStatus.hasIntegration) {
+    return (
+      <ActionGuard 
+        status={onboardingStatus} 
+        isDark={isDark} 
+        title="Inbox Unavailable"
+        description="Connect a social media account to start receiving and replying to messages."
+        mode="integration-only"
+      />
+    );
+  }
 
   return (
     <div className={isFullScreen 

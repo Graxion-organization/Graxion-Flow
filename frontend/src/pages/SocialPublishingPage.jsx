@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
+import ActionGuard from '../components/dashboard/ActionGuard';
 import {
   Calendar,
   ChevronLeft,
@@ -43,6 +44,7 @@ import { useAuthStore } from '../store';
 import BrandCopilotTab from '../components/social/BrandCopilotTab';
 import AICaptionWriter from '../components/social/AICaptionWriter';
 import TodayAnalyticsPanel from '../components/social/TodayAnalyticsPanel';
+import SocialCalendarTab from '../components/social/SocialCalendarTab';
 
 const PIPELINE_STEPS = [
   { id: 'validating', label: 'Validating', icon: ShieldCheck },
@@ -69,11 +71,12 @@ const getPipelineStatus = (status) => {
 };
 
 const TABS = [
-  { id: 'publish', label: 'Auto Post', icon: Send },
-  { id: 'today', label: 'Today\'s Activity', icon: BarChart2 },
+  { id: 'publish', label: 'Create Post', icon: Send },
+  { id: 'calendar', label: 'Calendar', icon: Calendar },
+  { id: 'today', label: 'Activity & Insights', icon: BarChart2 },
   { id: 'copilot', label: 'AI Brand Copilot', icon: Sparkles },
   { id: 'feed', label: 'Content Library', icon: Layout },
-  { id: 'accounts', label: 'Accounts', icon: LinkIcon },
+  { id: 'accounts', label: 'Manage Accounts', icon: LinkIcon },
   { id: 'profile', label: 'Profile Sync', icon: UserCircle },
 ];
 
@@ -108,6 +111,7 @@ const AI_ASPECT_OPTIONS = [
 
 export default function SocialPublishingPage() {
   const navigate = useNavigate();
+  const { onboardingStatus } = useOutletContext() || {};
   const { user, fetchUser } = useAuthStore();
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
   const [activeTab, setActiveTab] = useState('publish');
@@ -902,12 +906,48 @@ export default function SocialPublishingPage() {
     );
   }
 
+  if (onboardingStatus && !onboardingStatus.hasIntegration) {
+    return (
+      <ActionGuard 
+        status={onboardingStatus} 
+        isDark={isDark} 
+        title="Social Hub Locked"
+        description="Connect your social media accounts to start publishing and managing your content."
+        mode="integration-only"
+      />
+    );
+  }
+
   return (
     <div className="w-full h-full min-h-[calc(100vh-100px)] max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      {/* Connected Accounts Status Bar */}
+      {connectedAccounts.length > 0 && (
+        <div className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border overflow-x-auto scrollbar-thin ${
+          isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200'
+        }`}>
+          <span className={`text-[10px] font-bold uppercase tracking-wider flex-shrink-0 ${
+            isDark ? 'text-slate-500' : 'text-slate-400'
+          }`}>Connected</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            {connectedAccounts.map((acc) => (
+              <div key={acc.id} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${
+                isDark ? 'bg-white/5 text-slate-300' : 'bg-slate-50 text-slate-700'
+              }`}>
+                {PLATFORM_ICON[acc.platform]}
+                <span className="truncate max-w-[100px]">{acc.name}</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Horizontal Tabs & Header */}
       <div className="flex flex-col gap-6">
         {/* Horizontal Scrollable Tabs */}
-        <div className="flex flex-wrap gap-2 pb-2 border-b border-border">
+        <div className={`flex flex-wrap gap-1.5 pb-3 border-b sticky top-0 z-10 backdrop-blur-md pt-1 -mt-1 ${
+          isDark ? 'border-white/10' : 'border-slate-200'
+        }`}>
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -917,8 +957,8 @@ export default function SocialPublishingPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                   active 
-                    ? 'bg-accent text-white shadow-sm' 
-                    : 'text-text/70 hover:text-text hover:bg-surface'
+                    ? (isDark ? 'bg-[#FF6A00] text-white shadow-lg shadow-[#FF6A00]/20' : 'bg-[#FF6A00] text-white shadow-lg shadow-[#FF6A00]/20')
+                    : (isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-white/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100')
                 }`}
               >
                 <Icon size={16} />
@@ -928,6 +968,11 @@ export default function SocialPublishingPage() {
           })}
         </div>
       </div>
+        {activeTab === 'calendar' && (
+          <div className="pb-16">
+            <SocialCalendarTab />
+          </div>
+        )}
         {activeTab === 'today' && (
           <div className="pb-16">
             <TodayAnalyticsPanel  />

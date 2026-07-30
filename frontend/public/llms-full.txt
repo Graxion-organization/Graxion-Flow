@@ -1,0 +1,20 @@
+# Graxion Flow - AI Discovery Context
+
+Graxion Flow is an enterprise-grade WhatsApp and Social Media AI Automation SaaS platform.
+It empowers businesses to automate customer interactions across WhatsApp, Instagram, Facebook, LinkedIn, and Telegram using custom AI agents.
+
+## Key Capabilities
+- **Omnichannel Automation:** AI agents that reply instantly on all major social platforms.
+- **Flow Builder:** A visual drag-and-drop builder for creating complex chatbot flows.
+- **AI Copilot:** An intelligent assistant that drafts responses and generates social media content.
+- **Unified Social Hub:** A single dashboard to monitor conversations, publish posts, and track analytics across platforms.
+
+## Links
+- Website: https://flow.graxion.in
+- Pricing: https://flow.graxion.in/billing
+- Contact: https://flow.graxion.in/contact
+- Privacy Policy: https://flow.graxion.in/privacy-policy
+- Terms of Service: https://flow.graxion.in/terms-of-service
+
+## AI Usage Policy
+Graxion Flow strictly prohibits the use of its platform for generating malicious, deceptive, or spam content.

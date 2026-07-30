@@ -7,7 +7,7 @@ const dealSchema = new mongoose.Schema({
   amount: { type: Number, default: 0 },
   stage: { 
     type: String, 
-    enum: ['LEAD', 'CONTACTED', 'NEGOTIATION', 'WON', 'LOST'], 
+    enum: ['LEAD', 'CONTACTED', 'NEGOTIATION', 'OBJECTION', 'WON', 'LOST'], 
     default: 'LEAD' 
   },
   expectedCloseDate: { type: Date },

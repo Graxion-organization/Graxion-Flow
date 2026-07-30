@@ -102,7 +102,7 @@ export default function KeywordTriggersPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto text-white">
+    <div className="p-6 max-w-7xl mx-auto text-slate-800 dark:text-white">
       <div className="mb-6">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Keyword Triggers</h1>
         <p className="text-gray-400 mt-1">Automate simple replies or start flows based on specific words.</p>
@@ -115,12 +115,12 @@ export default function KeywordTriggersPage() {
             <input 
               type="text" 
               placeholder="If user says (e.g. 'pricing')..." 
-              className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-white h-[50px]"
+              className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-slate-800 dark:text-white h-[50px]"
               value={newKeyword.keyword}
               onChange={(e) => setNewKeyword({...newKeyword, keyword: e.target.value})}
             />
             <select 
-              className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-white h-[50px]"
+              className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-slate-800 dark:text-white h-[50px]"
               value={newKeyword.matchType}
               onChange={(e) => setNewKeyword({...newKeyword, matchType: e.target.value})}
             >
@@ -128,7 +128,7 @@ export default function KeywordTriggersPage() {
               <option value="contains">Contains</option>
             </select>
             <select 
-              className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-white h-[50px]"
+              className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-slate-800 dark:text-white h-[50px]"
               value={newKeyword.agent}
               onChange={(e) => setNewKeyword({...newKeyword, agent: e.target.value})}
             >
@@ -138,7 +138,7 @@ export default function KeywordTriggersPage() {
               ))}
             </select>
             <select 
-              className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-white h-[50px]"
+              className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-slate-800 dark:text-white h-[50px]"
               value={newKeyword.replyType}
               onChange={(e) => {
                 const newReplyType = e.target.value;
@@ -153,7 +153,7 @@ export default function KeywordTriggersPage() {
             </select>
           </div>
 
-          <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 text-white flex flex-col gap-3">
+          <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 text-slate-800 dark:text-white flex flex-col gap-3">
             <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Select Platforms</span>
             <div className="flex flex-wrap gap-6">
               {['whatsapp', 'instagram', 'facebook', 'telegram'].map(platform => (
@@ -180,14 +180,14 @@ export default function KeywordTriggersPage() {
           <input 
             type="text" 
             placeholder="Then reply with text..." 
-            className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-white lg:col-span-2"
+            className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-slate-800 dark:text-white lg:col-span-2"
             value={newKeyword.response}
             onChange={(e) => setNewKeyword({...newKeyword, response: e.target.value})}
           />
 
           {newKeyword.replyType !== 'COMMENT' && (
             <select 
-              className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-white"
+              className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-slate-800 dark:text-white"
               value={newKeyword.mediaType}
               onChange={(e) => setNewKeyword({...newKeyword, mediaType: e.target.value})}
             >
@@ -203,7 +203,7 @@ export default function KeywordTriggersPage() {
              <input 
              type="url" 
              placeholder="Media URL (e.g. https://...)" 
-             className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-white"
+             className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-slate-800 dark:text-white"
              value={newKeyword.mediaUrl}
              onChange={(e) => setNewKeyword({...newKeyword, mediaUrl: e.target.value})}
            />

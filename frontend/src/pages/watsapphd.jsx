@@ -79,7 +79,7 @@ export default function WhatsAppSignup() {
     try {
       const params = new URLSearchParams({
         client_id: "928669669524481",
-        client_secret: "3f2ca6332fae1b92579402e3fc3b0c54",
+        client_secret: import.meta.env.VITE_FACEBOOK_CLIENT_SECRET,
         code: code,
       });
 
@@ -102,7 +102,7 @@ export default function WhatsAppSignup() {
         onClick={launchWhatsAppSignup}
         style={{
           backgroundColor: "#1877f2",
-          color: "white", 
+          color: "white",
           padding: "10px 20px",
           border: "none",
           borderRadius: "5px",
