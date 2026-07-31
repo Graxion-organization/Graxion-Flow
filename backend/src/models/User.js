@@ -41,6 +41,7 @@ const userSchema = new mongoose.Schema({
   subscription: {
     plan: { type: String, default: 'free' },
     status: { type: String, enum: ['active', 'inactive', 'cancelled', 'past_due'], default: 'active' },
+    lastPlan: { type: String, default: null },
     razorpaySubscriptionId: String,
     razorpayCustomerId: String,
     currentPeriodStart: Date,
