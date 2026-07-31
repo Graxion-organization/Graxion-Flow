@@ -18,5 +18,6 @@ router.get('/history', billingController.getBillingHistory);
 router.get('/credits/history', billingController.getCreditsHistory);
 router.post('/upgrade', billingController.upgradePlan);
 router.post('/refund', billingController.refundPayment);
+router.delete('/cancel', billingController.cancelSubscription);
 
 module.exports = router;

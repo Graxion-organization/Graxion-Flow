@@ -41,6 +41,14 @@ exports.receiveMessage = async (req, res) => {
           logger.warn(`No active Telegram account for botUsername: ${botUsername}`);
           return;
         }
+
+        // Verify organization is active (leakage prevention)
+        const Organization = require('../models/Organization');
+        const org = await Organization.findOne({ _id: tgAccount.organization, isActive: true });
+        if (!org) {
+          logger.warn(`Organization ${tgAccount.organization} is suspended/inactive. Blocking Telegram automation.`);
+          return;
+        }
         
         // 2. Find active agent for this account
         const agent = await Agent.findOne({

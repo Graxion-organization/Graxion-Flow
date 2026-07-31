@@ -75,6 +75,14 @@ exports.receiveMessage = async (req, res) => {
         continue;
       }
 
+      // Verify organization is active (leakage prevention)
+      const Organization = require('../models/Organization');
+      const org = await Organization.findOne({ _id: igAccount.organization, isActive: true });
+      if (!org) {
+        logger.warn(`Organization ${igAccount.organization} is suspended/inactive. Blocking Instagram automation.`);
+        continue;
+      }
+
       // 2. Find active agent
       const agent = await Agent.findOne({
         instagramAccount: igAccount._id,

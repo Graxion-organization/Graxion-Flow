@@ -55,6 +55,14 @@ exports.receiveMessage = async (req, res) => {
         continue;
       }
 
+      // Verify organization is active (leakage prevention)
+      const Organization = require('../models/Organization');
+      const org = await Organization.findOne({ _id: fbAccount.organization, isActive: true });
+      if (!org) {
+        logger.warn(`Organization ${fbAccount.organization} is suspended/inactive. Blocking Facebook automation.`);
+        continue;
+      }
+
       // 2. Find active agent
       const agent = await Agent.findOne({
         facebookAccount: fbAccount._id,

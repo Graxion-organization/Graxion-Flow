@@ -41,6 +41,14 @@ class LinkedinAutomationService {
    * Process automation for a single Agent on LinkedIn
    */
   static async processAgentAutomation(agent) {
+    // Verify organization is active (leakage prevention)
+    const Organization = require('../models/Organization');
+    const org = await Organization.findOne({ _id: agent.organization, isActive: true });
+    if (!org) {
+      logger.warn(`[LinkedIn Automation] Skipping automation for Agent ${agent.name} because organization is suspended.`);
+      return;
+    }
+
     const liAccount = agent.linkedinAccount;
     
     // Ensure account is still active

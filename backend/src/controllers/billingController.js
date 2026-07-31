@@ -209,6 +209,10 @@ exports.verifyPayment = async (req, res, next) => {
       user.subscription.credits = (user.subscription.credits || 0) + (planInfo.credits || 500);
       user.subscription.totalCredits = (user.subscription.totalCredits || 0) + (planInfo.credits || 500);
       await user.save();
+
+      // Reactivate all workspaces owned by the user
+      const Organization = require('../models/Organization');
+      await Organization.updateMany({ owner: user._id }, { isActive: true });
     }
 
     // Update payment record
@@ -367,6 +371,10 @@ exports.upgradePlan = async (req, res, next) => {
     user.subscription.totalCredits = (user.subscription.totalCredits || 0) + (planInfo.credits || 500);
     await user.save();
 
+    // Reactivate all workspaces owned by the user
+    const Organization = require('../models/Organization');
+    await Organization.updateMany({ owner: user._id }, { isActive: true });
+
     const paymentObj = await Payment.create({
       user: req.user._id,
       razorpayOrderId: `DIRECT_UPGRADE_${Date.now()}`,
@@ -419,6 +427,54 @@ exports.getCreditsHistory = async (req, res, next) => {
     const transactions = await CreditTransaction.find({ user: req.user._id }).sort({ createdAt: -1 }).lean();
     res.status(200).json({ status: 'success', data: { transactions } });
   } catch (err) {
+    next(err);
+  }
+};
+
+// Cancel Subscription
+exports.cancelSubscription = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return next(new AppError('User not found', 404));
+
+    if (!user.subscription || user.subscription.plan === 'free') {
+      return next(new AppError('You do not have an active premium subscription to cancel.', 400));
+    }
+
+    user.subscription.status = 'cancelled';
+    await user.save();
+
+    // Send email confirmation
+    try {
+      const expiryDate = user.subscription.currentPeriodEnd 
+        ? new Date(user.subscription.currentPeriodEnd).toLocaleDateString()
+        : 'the end of your billing cycle';
+
+      await sendEmail({
+        to: user.email,
+        subject: 'Subscription Cancellation Confirmed',
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #FF6A00;">Subscription Cancellation Confirmed</h2>
+            <p>Hi ${user.name},</p>
+            <p>We've received your request to cancel your subscription. Your plan will remain active with full access to all paid features until <strong>${expiryDate}</strong>.</p>
+            <p>At the end of your billing period, your account will be downgraded to the <strong>Free Plan</strong>. Your workspaces will remain active under the Free Plan limits.</p>
+            <p>If this was a mistake, you can always renew or upgrade your plan directly from settings.</p>
+            <p style="color: #666; font-size: 12px;">Thanks,<br/>The Team</p>
+          </div>
+        `
+      });
+    } catch (emailErr) {
+      logger.warn(`Failed to send cancellation confirmation email: ${emailErr.message}`);
+    }
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Subscription cancelled successfully. You will be moved to the free plan at the end of your billing period.',
+      data: { user }
+    });
+  } catch (err) {
+    logger.error('Cancel subscription error:', err);
     next(err);
   }
 };

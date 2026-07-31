@@ -193,6 +193,14 @@ exports.processWebhookPayload = async (payload) => {
         return;
       }
 
+      // Verify organization is active (leakage prevention)
+      const Organization = require('../models/Organization');
+      const org = await Organization.findOne({ _id: waAccount.organization, isActive: true });
+      if (!org) {
+        logger.warn(`Organization ${waAccount.organization} is suspended/inactive. Blocking WhatsApp message automation.`);
+        return;
+      }
+
       // 2. Find active agents for this organization
       const agent = await Agent.findOne({ organization: waAccount.organization, isActive: true }) ||
                     await Agent.findOne({ whatsappAccounts: waAccount._id, isActive: true }) ||

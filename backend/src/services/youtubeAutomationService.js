@@ -39,6 +39,14 @@ class YoutubeAutomationService {
    * Process automation for a single user
    */
   static async processUserAutomation(automation) {
+    // Verify organization is active (leakage prevention)
+    const Organization = require('../models/Organization');
+    const org = await Organization.findOne({ _id: automation.organization, isActive: true });
+    if (!org) {
+      logger.warn(`[YouTube Automation] Skipping automation for organization ${automation.organization} because it is suspended.`);
+      return;
+    }
+
     const youtubeAccount = await YoutubeAccount.findOne({ organization: automation.organization, isActive: true }).select('+accessToken +refreshToken');
     if (!youtubeAccount) return;
 
