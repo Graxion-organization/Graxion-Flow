@@ -279,8 +279,32 @@ export default function DashboardLayout() {
   const filteredGroups = SIDEBAR_GROUPS.map(group => {
     const mappedItems = group.items.map(item => {
       let isGloballyDisabled = false;
-      if (branding?.sidebar_settings && branding.sidebar_settings[item.label] === false) {
-        isGloballyDisabled = true;
+      // Custom sidebar branding toggle hide check
+      if (branding?.sidebar_settings) {
+        const mapping = {
+          "Home": "Home",
+          "Analytics": "Analytics",
+          "Live Inbox": "Inbox",
+          "Customers": "Contacts",
+          "Deals Pipeline": "Contacts",
+          "Leads": "Contacts",
+          "Broadcasts": "Broadcast",
+          "Campaigns": "Broadcast",
+          "Templates": "Broadcast",
+          "My AI Team": "Agent Studio",
+          "Auto-Replies": "Automations",
+          "Chat Flows": "Automations",
+          "Social Hub": "Social Hub",
+          "Auto Comments": "Social Hub",
+          "App Store": "Integrations",
+          "Meta Quality": "Integrations",
+          "Settings": "Settings",
+          "Billing": "Settings"
+        };
+        const toggleKey = mapping[item.label];
+        if (toggleKey && branding.sidebar_settings[toggleKey] === false) {
+          isGloballyDisabled = true;
+        }
       }
       return { ...item, isGloballyDisabled };
     });
