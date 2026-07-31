@@ -648,7 +648,7 @@ export default function DashboardLayout() {
                           </div>
                         </div>
                         <button
-                          onClick={() => navigate('/app/settings?tab=limits')}
+                          onClick={() => navigate('/app/billing')}
                           className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all shrink-0 active:scale-95"
                         >
                           Renew / Upgrade Plan
@@ -681,7 +681,7 @@ export default function DashboardLayout() {
                           </div>
                         </div>
                         <button
-                          onClick={() => navigate('/app/settings?tab=limits')}
+                          onClick={() => navigate('/app/billing')}
                           className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all shrink-0 active:scale-95"
                         >
                           Renew / Upgrade Plan
@@ -708,7 +708,7 @@ export default function DashboardLayout() {
                           </div>
                         </div>
                         <button
-                          onClick={() => navigate('/app/settings?tab=limits')}
+                          onClick={() => navigate('/app/billing')}
                           className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shrink-0 active:scale-95 shadow-lg shadow-red-500/20"
                         >
                           Extend Subscription
@@ -733,7 +733,7 @@ export default function DashboardLayout() {
                           </div>
                         </div>
                         <button
-                          onClick={() => navigate('/app/settings?tab=limits')}
+                          onClick={() => navigate('/app/billing')}
                           className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shrink-0 active:scale-95"
                         >
                           Renew Plan
@@ -753,7 +753,7 @@ export default function DashboardLayout() {
                           </p>
                         </div>
                         <button
-                          onClick={() => navigate('/app/settings?tab=limits')}
+                          onClick={() => navigate('/app/billing')}
                           className="text-xs font-bold text-orange-500 hover:underline shrink-0 text-left"
                         >
                           Billing Details ➔
