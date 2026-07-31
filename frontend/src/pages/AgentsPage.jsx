@@ -10,6 +10,7 @@ import {
 import { agentAPI, whatsappAPI, telegramAPI, instagramAPI, facebookAPI, youtubeAPI, socialHubAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import ActionGuard from '../components/dashboard/ActionGuard';
+import { useAuthStore } from '../store';
 
 const agentSchema = z.object({
   name:                z.string().min(2, 'Min 2 chars').max(50),
@@ -455,6 +456,8 @@ function TestModal({ agent, onClose, isDark }) {
 }
 
 export default function AgentsPage() {
+  const { user } = useAuthStore();
+  const isDowngraded = !!user?.subscription?.lastPlan;
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
   const { onboardingStatus } = useOutletContext() || {};
   const [agents, setAgents] = useState([]);
@@ -517,6 +520,10 @@ export default function AgentsPage() {
   };
 
   const handleToggle = async (id) => {
+    if (isDowngraded) {
+      toast.error('Subscription Expired. Please renew your plan to toggle agent status.');
+      return;
+    }
     try {
       const res = await agentAPI.toggle(id);
       setAgents((prev) => prev.map((a) => a._id === id ? res.data.data.agent : a));
@@ -578,7 +585,14 @@ export default function AgentsPage() {
         
         {hasAnyConnected && (
           <button
-            onClick={() => { setInitialPlatform(null); openCreateModal(null); }}
+            onClick={() => {
+              if (isDowngraded) {
+                toast.error('Subscription Expired. Please renew your plan to create new agents!');
+                return;
+              }
+              setInitialPlatform(null);
+              openCreateModal(null);
+            }}
             className="flex items-center justify-center gap-2 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-xl shadow-[#FF6A00]/20 hover:shadow-[#FF6A00]/40 transition-all hover:-translate-y-0.5 bg-gradient-to-r from-[#FF6A00] to-[#FF4500]"
           >
             <Plus size={18} /> Create New Agent
@@ -605,7 +619,14 @@ export default function AgentsPage() {
             Your workspace is quiet. Deploy your first AI agent to start automating responses.
           </p>
           <button 
-            onClick={() => { setInitialPlatform(null); openCreateModal(null); }}
+            onClick={() => {
+              if (isDowngraded) {
+                toast.error('Subscription Expired. Please renew your plan to create new agents!');
+                return;
+              }
+              setInitialPlatform(null);
+              openCreateModal(null);
+            }}
             className="flex items-center gap-2 bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-[#FF6A00]/20 hover:scale-105 transition-all"
           >
             <Plus size={18} /> Build First Agent
@@ -674,7 +695,16 @@ export default function AgentsPage() {
                 <button onClick={() => setTestingAgent(agent)} className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold transition-all ${isDark ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'}`}>
                   <Play size={16} /> Test
                 </button>
-                <button onClick={() => openCreateModal(agent)} className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold transition-all ${isDark ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
+                <button
+                  onClick={() => {
+                    if (isDowngraded) {
+                      toast.error('Subscription Expired. Please renew your plan to edit agents!');
+                      return;
+                    }
+                    openCreateModal(agent);
+                  }}
+                  className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold transition-all ${isDark ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
+                >
                   <Pencil size={16} /> Edit
                 </button>
                 <button onClick={() => handleDelete(agent._id)} className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold transition-all ${isDark ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-red-50 text-red-600 hover:bg-red-100'}`}>
