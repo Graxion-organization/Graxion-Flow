@@ -303,7 +303,7 @@ export default function DashboardLayout() {
         };
         const toggleKey = mapping[item.label];
         if (toggleKey && branding.sidebar_settings[toggleKey] === false) {
-          const isAdminOrOwner = userRole === 'admin' || userRole === 'owner' || user?.role === 'admin';
+          const isAdminOrOwner = currentRole === 'admin' || currentRole === 'owner' || user?.role === 'admin';
           if (!isAdminOrOwner) {
             isGloballyDisabled = true;
           }
