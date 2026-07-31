@@ -104,7 +104,6 @@ const SIDEBAR_GROUPS = [
   {
     title: "Administration",
     items: [
-      { to: "/admin/sales-partners", icon: Building2, label: "Partners Control", minRole: "admin" },
       { to: "/app/partner-dashboard", icon: DollarSign, label: "Sales Partner", minRole: "sales_partner" },
       { to: "/app/settings", icon: Settings, label: "Settings", minRole: "viewer" },
       { to: "/app/billing", icon: CreditCard, label: "Billing", minRole: "viewer" },
@@ -302,7 +301,10 @@ export default function DashboardLayout() {
           "Social Hub": "Social Hub",
           "Auto Comments": "Auto Comments",
           "App Store": "App Store",
-          "Meta Quality": "Meta Quality"
+          "Meta Quality": "Meta Quality",
+          "Sales Partner": "Sales Partner",
+          "Settings": "Settings",
+          "Billing": "Billing"
         };
         const toggleKey = mapping[item.label];
         if (toggleKey && branding.sidebar_settings[toggleKey] === false) {
@@ -332,6 +334,50 @@ export default function DashboardLayout() {
     };
   }).filter(group => group.items.length > 0);
 
+  // Route Blocking for Disabled Sections
+  useEffect(() => {
+    const currentPath = location.pathname;
+    let isDisabled = false;
+    
+    SIDEBAR_GROUPS.forEach(group => {
+      group.items.forEach(item => {
+        if (item.to === currentPath) {
+          if (branding?.sidebar_settings) {
+            const mapping = {
+              "Home": "Overview",
+              "Analytics": "Analytics",
+              "Live Inbox": "Live Inbox",
+              "Customers": "Customers",
+              "Deals Pipeline": "Deals Pipeline",
+              "Leads": "Leads",
+              "Broadcasts": "Broadcasts",
+              "Campaigns": "Campaigns",
+              "Templates": "Templates",
+              "My AI Team": "My AI Team",
+              "Auto-Replies": "Auto-Replies",
+              "Chat Flows": "Chat Flows",
+              "Social Hub": "Social Hub",
+              "Auto Comments": "Auto Comments",
+              "App Store": "App Store",
+              "Meta Quality": "Meta Quality",
+              "Sales Partner": "Sales Partner",
+              "Settings": "Settings",
+              "Billing": "Billing"
+            };
+            const toggleKey = mapping[item.label];
+            if (toggleKey && branding.sidebar_settings[toggleKey] === false) {
+              isDisabled = true;
+            }
+          }
+        }
+      });
+    });
+
+    if (isDisabled) {
+      toast.error("This section is currently disabled");
+      navigate('/app/dashboard', { replace: true });
+    }
+  }, [location.pathname, branding, navigate]);
   useEffect(() => {
     const load = async () => {
       try {
@@ -606,11 +652,6 @@ export default function DashboardLayout() {
                       {(user?.role === 'sales_partner' || user?.role === 'admin' || user?.role === 'superadmin') && (
                         <button onClick={() => { setUserMenuOpen(false); navigate("/app/partner-dashboard"); }} className={`flex items-center gap-2.5 w-full px-3 py-2 text-sm text-emerald-500 font-medium rounded-lg ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}>
                           <DollarSign size={16} /> Partner Panel
-                        </button>
-                      )}
-                      {(user?.role === 'admin' || user?.role === 'superadmin') && (
-                        <button onClick={() => { setUserMenuOpen(false); navigate("/admin/dashboard"); }} className={`flex items-center gap-2.5 w-full px-3 py-2 text-sm text-purple-500 font-medium rounded-lg ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}>
-                          <Shield size={16} /> Admin Center
                         </button>
                       )}
                       <button onClick={() => { setUserMenuOpen(false); navigate("/app/team"); }} className={`flex items-center gap-2.5 w-full px-3 py-2 text-sm font-medium rounded-lg ${isDark ? "hover:bg-white/5 text-slate-300" : "hover:bg-slate-50 text-slate-700"}`}>
