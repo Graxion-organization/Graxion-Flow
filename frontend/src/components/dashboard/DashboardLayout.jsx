@@ -628,18 +628,9 @@ export default function DashboardLayout() {
               <div className="space-y-6">
                 {/* Subscription Expiry Warning Banner */}
                 {(() => {
-                  if (!user?.subscription || user.subscription.plan === 'free') return null;
+                  if (!user?.subscription) return null;
                   
-                  const end = user.subscription.currentPeriodEnd;
-                  if (!end) return null;
-                  
-                  const endMs = new Date(end).getTime();
-                  const nowMs = Date.now();
-                  const timeDiff = endMs - nowMs;
-                  const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-                  
-                  // Status check
-                  const isPastDue = user.subscription.status === 'past_due' || timeDiff <= 0;
+                  const isPastDue = user.subscription.status === 'past_due';
                   
                   // If expired
                   if (isPastDue) {
@@ -665,6 +656,41 @@ export default function DashboardLayout() {
                       </div>
                     );
                   }
+
+                  if (user.subscription.plan === 'free') return null;
+                  
+                  const end = user.subscription.currentPeriodEnd;
+                  if (!end) return null;
+                  
+                  const endMs = new Date(end).getTime();
+                  const nowMs = Date.now();
+                  const timeDiff = endMs - nowMs;
+                  
+                  if (timeDiff <= 0) {
+                    return (
+                      <div className="p-4 sm:p-5 rounded-2xl bg-rose-600/10 border border-rose-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-pulse">
+                        <div className="flex items-start sm:items-center gap-3">
+                          <div className="p-2 bg-rose-500 rounded-xl text-white shrink-0">
+                            <AlertTriangle size={20} />
+                          </div>
+                          <div>
+                            <h4 className="font-extrabold text-rose-500 text-sm">Subscription / Trial Expired!</h4>
+                            <p className={`text-xs mt-1 ${isDark ? 'text-rose-200/80' : 'text-rose-800/80'}`}>
+                              Your active workspace and all automatic agents are currently disabled. Renew your subscription immediately to resume operations.
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => navigate('/app/settings?tab=limits')}
+                          className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all shrink-0 active:scale-95"
+                        >
+                          Renew / Upgrade Plan
+                        </button>
+                      </div>
+                    );
+                  }
+
+                  const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
                   
                   // If expiring in 1 day (Last Day / Today)
                   if (daysRemaining <= 1) {
