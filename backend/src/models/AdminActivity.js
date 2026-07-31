@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const adminActivitySchema = new mongoose.Schema({
   adminId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.Mixed,
     ref: 'User',
     required: true,
   },

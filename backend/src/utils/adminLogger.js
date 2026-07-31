@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const AdminActivity = require('../models/AdminActivity');
 const User = require('../models/User');
 const crypto = require('crypto');
@@ -11,19 +12,23 @@ const logAdminActivity = async (req, action, details) => {
   try {
     if (!req.user || req.user.role !== 'admin') return;
 
+    const isValidObjectId = mongoose.Types.ObjectId.isValid(req.user._id);
+
     // Self-healing: if an admin user somehow has no adminAccessKey, generate and assign it
     if (!req.user.adminAccessKey) {
       req.user.adminAccessKey = `ADM-${crypto.randomBytes(2).toString('hex').toUpperCase()}-${crypto.randomBytes(2).toString('hex').toUpperCase()}`;
-      await User.updateOne(
-        { _id: req.user._id },
-        { $set: { adminAccessKey: req.user.adminAccessKey } }
-      );
+      if (isValidObjectId) {
+        await User.updateOne(
+          { _id: req.user._id },
+          { $set: { adminAccessKey: req.user.adminAccessKey } }
+        );
+      }
     }
 
     await AdminActivity.create({
       adminId: req.user._id,
-      adminEmail: req.user.email,
-      adminAccessKey: req.user.adminAccessKey,
+      adminEmail: req.user.email || 'admin@graxion.in',
+      adminAccessKey: req.user.adminAccessKey || 'ADM-PROXY-ADMIN',
       action,
       details,
       ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
