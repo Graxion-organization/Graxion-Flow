@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { User, Lock, Shield, Loader2, Trash2, AlertTriangle, ChevronRight, ChevronLeft, CheckCircle2, Zap, CreditCard, Save } from 'lucide-react';
-import { authAPI } from '../services/api';
+import { authAPI, organizationAPI } from '../services/api';
 import { useAuthStore, useOrganizationStore } from '../store';
 import toast from 'react-hot-toast';
 import TeamMembers from '../components/settings/TeamMembers';
@@ -416,7 +416,8 @@ export default function SettingsPage() {
           )}
 
           {activeTab === 'danger' && (
-            <div className="slide-in">
+            <div className="slide-in space-y-8">
+              {/* Delete Account Card */}
               <div className={`rounded-[2rem] border overflow-hidden shadow-2xl transition-all duration-300 ${isDark ? 'bg-rose-950/20 border-rose-500/20 shadow-rose-900/10' : 'bg-white border-red-100 shadow-red-100'}`}>
                 <div className="p-8">
                   <div className="flex flex-col md:flex-row items-start md:items-center gap-5">
@@ -436,6 +437,29 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Delete Organization Card */}
+              {currentOrganization && currentRole === 'owner' && (
+                <div className={`rounded-[2rem] border overflow-hidden shadow-2xl transition-all duration-300 ${isDark ? 'bg-rose-950/20 border-rose-500/20 shadow-rose-900/10' : 'bg-white border-red-100 shadow-red-100'}`}>
+                  <div className="p-8">
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-5">
+                      <div className="p-4 bg-red-500/10 rounded-2xl text-red-500 border border-red-500/20 shrink-0">
+                        <AlertTriangle size={32} />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-black text-red-500">Delete Workspace</h2>
+                        <p className={`text-sm mt-2 leading-relaxed ${isDark ? 'text-rose-200/70' : 'text-slate-600'}`}>
+                          Permanently delete the active workspace <strong>"{currentOrganization.name}"</strong> and all its associated data (agents, contacts, conversations, social settings, integrations). <strong>This action is irreversible.</strong>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-8">
+                      <OrgDeletionFlow isDark={isDark} />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -550,4 +574,102 @@ function DeletionFlow({ onComplete, isDark }) {
       </div>
     );
   }
+}
+
+function OrgDeletionFlow({ isDark }) {
+  const { currentOrganization, clearOrganizations } = useOrganizationStore();
+  const [confirmName, setConfirmName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+
+  const handleDelete = async () => {
+    if (confirmName !== currentOrganization.name) {
+      return toast.error("Workspace name does not match confirmation");
+    }
+
+    setLoading(true);
+    const toastId = toast.loading('Deleting workspace...');
+    try {
+      const res = await organizationAPI.delete(currentOrganization._id);
+      if (res.data.status === 'success') {
+        toast.success('Workspace deleted successfully!', { id: toastId });
+        
+        // Clear cached organizations in state so DashboardLayout auto-selects or redirects
+        clearOrganizations();
+        
+        // Refresh page to trigger DashboardLayout auto-create / select flow
+        setTimeout(() => {
+          window.location.href = '/app/dashboard';
+        }, 1500);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to delete workspace', { id: toastId });
+    } finally {
+      setLoading(false);
+      setShowWarningModal(false);
+    }
+  };
+
+  const glassInput = `w-full px-5 py-3.5 rounded-2xl border text-sm transition-all focus:outline-none focus:ring-2 focus:ring-red-500/40 ${isDark ? 'bg-slate-950/50 border-white/10 text-white placeholder:text-slate-500 focus:border-red-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-red-500'}`;
+
+  return (
+    <div className={`space-y-6 p-6 rounded-3xl border ${isDark ? 'bg-slate-900/50 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+      <h4 className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Workspace Deletion Confirmation</h4>
+      <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+        Please type the workspace name <strong className="font-mono text-red-500">"{currentOrganization?.name}"</strong> to confirm your intent.
+      </p>
+
+      <input
+        type="text"
+        placeholder="Type workspace name..."
+        value={confirmName}
+        onChange={(e) => setConfirmName(e.target.value)}
+        className={glassInput}
+      />
+
+      <button
+        disabled={confirmName !== currentOrganization?.name || loading}
+        onClick={() => setShowWarningModal(true)}
+        className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-6 py-4 rounded-xl text-sm font-bold hover:bg-red-700 active:scale-95 transition-all disabled:opacity-30 disabled:pointer-events-none"
+      >
+        {loading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+        Request Workspace Deletion
+      </button>
+
+      {/* Warning Confirmation Modal */}
+      {showWarningModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className={`max-w-md w-full p-8 rounded-[2rem] border shadow-2xl ${isDark ? 'bg-slate-900 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
+            <div className="flex items-center gap-4 text-red-500 mb-4">
+              <AlertTriangle size={32} />
+              <h3 className="text-xl font-black">Final Warning</h3>
+            </div>
+            
+            <p className={`text-sm leading-relaxed mb-6 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+              You are about to delete <strong className="text-red-500">"{currentOrganization.name}"</strong>. This will delete all connected WhatsApp/Instagram keys, CRM databases, campaigns, agent brains, and team permissions. 
+              <br /><br />
+              This action <strong>CANNOT</strong> be undone. Are you absolutely sure?
+            </p>
+
+            <div className="flex gap-4">
+              <button
+                disabled={loading}
+                onClick={handleDelete}
+                className="flex-1 bg-red-600 text-white text-sm font-bold py-3.5 rounded-xl hover:bg-red-700 active:scale-95 transition-all"
+              >
+                Yes, Delete Workspace
+              </button>
+              <button
+                disabled={loading}
+                onClick={() => setShowWarningModal(false)}
+                className={`flex-1 text-sm font-bold py-3.5 rounded-xl ${isDark ? 'bg-white/10 text-slate-200 hover:bg-white/20' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

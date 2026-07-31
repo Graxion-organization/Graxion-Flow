@@ -234,3 +234,79 @@ exports.exportData = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.deleteOrganization = async (req, res, next) => {
+  try {
+    const { organizationId } = req.params;
+
+    // Check ownership (security verification)
+    if (req.organization.owner.toString() !== req.user._id.toString()) {
+      return next(new AppError('Only the organization owner can perform deletion.', 403));
+    }
+
+    // Define all models dynamically to avoid import/compilation circular issues
+    const models = {
+      Agent: require('../models/Agent'),
+      AgentMemory: require('../models/AgentMemory'),
+      AuditLog: require('../models/AuditLog'),
+      Broadcast: require('../models/Broadcast'),
+      Campaign: require('../models/Campaign'),
+      Contact: require('../models/Contact'),
+      ContactGroup: require('../models/ContactGroup'),
+      Conversation: require('../models/Conversation'),
+      Message: require('../models/Message'),
+      Deal: require('../models/Deal'),
+      FacebookAccount: require('../models/FacebookAccount'),
+      Flow: require('../models/Flow'),
+      GlobalKnowledgeBase: require('../models/GlobalKnowledgeBase'),
+      InstagramAccount: require('../models/InstagramAccount'),
+      Integration: require('../models/Integration'),
+      KeywordTrigger: require('../models/KeywordTrigger'),
+      LinkedInAccount: require('../models/LinkedInAccount'),
+      MarketingCampaign: require('../models/MarketingCampaign'),
+      Meeting: require('../models/Meeting'),
+      OptOut: require('../models/OptOut'),
+      SocialPostJob: require('../models/SocialPostJob'),
+      TelegramAccount: require('../models/TelegramAccount'),
+      Template: require('../models/Template'),
+      WhatsappAccount: require('../models/WhatsappAccount'),
+      YoutubeAccount: require('../models/YoutubeAccount'),
+      YoutubeAutomation: require('../models/YoutubeAutomation')
+    };
+
+    logger.info(`Starting cascade deletion for organization: ${organizationId} owned by: ${req.user._id}`);
+
+    // 1. Delete associated Messages by locating Conversation IDs first
+    const conversations = await models.Conversation.find({ organization: organizationId }).select('_id');
+    const conversationIds = conversations.map(c => c._id);
+    if (conversationIds.length > 0) {
+      await models.Message.deleteMany({ conversationId: { $in: conversationIds } });
+    }
+
+    // 2. Delete all direct references
+    const deleteQueries = Object.keys(models)
+      .filter(key => key !== 'Message') // Handled above manually
+      .map(key => {
+        return models[key].deleteMany({ organization: organizationId });
+      });
+
+    await Promise.all(deleteQueries);
+
+    // 3. Delete the organization itself
+    await Organization.findByIdAndDelete(organizationId);
+
+    // 4. Update users currentOrganization reference if it pointed here
+    await User.updateMany(
+      { currentOrganization: organizationId },
+      { $unset: { currentOrganization: 1 } }
+    );
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Organization and all associated data deleted successfully.'
+    });
+  } catch (err) {
+    logger.error('Delete Organization Error:', err);
+    next(err);
+  }
+};

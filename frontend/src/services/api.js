@@ -379,6 +379,7 @@ export const organizationAPI = {
   removeMember: (orgId, userId) => api.delete(`/organizations/${orgId}/members/${userId}`),
   getActivity: (orgId) => api.get(`/organizations/${orgId}/activity`),
   exportData: (orgId) => api.get(`/organizations/${orgId}/export`),
+  delete: (id) => api.delete(`/organizations/${id}`),
 };
 
 // Feature Flags

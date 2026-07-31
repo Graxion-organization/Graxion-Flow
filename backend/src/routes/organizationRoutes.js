@@ -15,6 +15,7 @@ router.post('/switch/:organizationId', organizationController.switchOrganization
 
 // Protected routes (requires specific roles)
 router.get('/:organizationId', requireRole('viewer'), organizationController.getOrganizationDetails);
+router.delete('/:organizationId', requireRole('owner'), organizationController.deleteOrganization);
 router.post('/invite', requireRole('admin'), organizationController.inviteMember);
 router.delete('/:organizationId/members/:userId', requireRole('admin'), organizationController.removeMember);
 router.get('/:organizationId/activity', requireRole('admin'), organizationController.getActivityLogs);
