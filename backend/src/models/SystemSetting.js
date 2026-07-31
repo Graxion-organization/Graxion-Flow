@@ -12,7 +12,7 @@ const systemSettingSchema = new mongoose.Schema({
   },
   description: String,
   updatedBy: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.Mixed,
     ref: 'User',
   },
 }, {
