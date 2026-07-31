@@ -172,11 +172,16 @@ export default function DashboardLayout() {
   const quickActionRef = useRef(null);
   const { user, logout } = useAuthStore();
   const { currentOrganization, organizations, addOrganization, setCurrentOrganization: setGlobalCurrentOrg } = useOrganizationStore();
-  const { branding } = useBrandingStore();
+  const { branding, fetchBranding } = useBrandingStore();
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation();
   
+  // Dynamically fetch fresh branding/sidebar settings every time dashboard loads
+  useEffect(() => {
+    fetchBranding().catch(() => {});
+  }, [fetchBranding]);
+
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'hi' : 'en';
     i18n.changeLanguage(newLang);
@@ -303,26 +308,22 @@ export default function DashboardLayout() {
         };
         const toggleKey = mapping[item.label];
         if (toggleKey && branding.sidebar_settings[toggleKey] === false) {
-          const isAdminOrOwner = currentRole === 'admin' || currentRole === 'owner' || user?.role === 'admin';
-          if (!isAdminOrOwner) {
-            isGloballyDisabled = true;
-          }
+          isGloballyDisabled = true;
         }
       }
       return { ...item, isGloballyDisabled };
     });
 
     const visibleItems = mappedItems.filter(item => {
+      // Feature Toggle Check - Unconditionally hide if disabled globally via Admin Panel
+      if (item.isGloballyDisabled) {
+        return false;
+      }
+
       const requiredLevel = roleLevels[item.minRole] || 1;
       const userLevel = roleLevels[currentRole] || 1;
       if (userLevel < requiredLevel) return false;
       
-      // Feature Toggle Check
-      if (item.isGloballyDisabled) {
-        if (!user?.isBetaTester && user?.role !== 'admin' && user?.role !== 'superadmin') {
-          return false;
-        }
-      }
       
       return true;
     });
