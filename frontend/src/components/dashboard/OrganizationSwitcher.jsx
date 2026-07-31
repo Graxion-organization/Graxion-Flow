@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 export default function OrganizationSwitcher({ isDark = true, primaryColor = "#FF6A00" }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [switchingId, setSwitchingId] = useState(null);
   const [newOrgName, setNewOrgName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const dropdownRef = useRef(null);
@@ -60,10 +61,11 @@ export default function OrganizationSwitcher({ isDark = true, primaryColor = "#F
   }, []);
 
   const handleSwitch = async (org) => {
-    if (currentOrganization?._id === org._id) {
+    if (switchingId || currentOrganization?._id === org._id) {
       setOpen(false);
       return;
     }
+    setSwitchingId(org._id);
     try {
       const res = await organizationAPI.switch(org._id);
       if (res.data.status === "success") {
@@ -75,6 +77,8 @@ export default function OrganizationSwitcher({ isDark = true, primaryColor = "#F
     } catch (err) {
       console.error("Switch error:", err);
       toast.error(err.response?.data?.message || "Failed to switch organization");
+    } finally {
+      setSwitchingId(null);
     }
   };
 
@@ -125,11 +129,13 @@ export default function OrganizationSwitcher({ isDark = true, primaryColor = "#F
           <div className="p-2 space-y-1 max-h-64 overflow-y-auto">
             {organizations.map((org) => {
               const active = currentOrganization?._id === org._id;
+              const isCurrentlySwitching = switchingId === org._id;
               return (
                 <button
                   key={org._id}
+                  disabled={!!switchingId}
                   onClick={() => handleSwitch(org)}
-                  className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-all ${
+                  className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-all disabled:opacity-60 ${
                     active
                       ? "text-white"
                       : isDark
@@ -145,8 +151,12 @@ export default function OrganizationSwitcher({ isDark = true, primaryColor = "#F
                   >
                     <Building2 size={15} />
                   </div>
-                  <span className="flex-1 text-sm font-medium truncate">{org.name}</span>
-                  {active && <Check size={15} />}
+                  <span className="flex-1 text-sm font-medium truncate text-left">{org.name}</span>
+                  {isCurrentlySwitching ? (
+                    <Loader2 size={15} className={`animate-spin ${active ? "text-white" : "text-slate-400"}`} />
+                  ) : (
+                    active && <Check size={15} />
+                  )}
                 </button>
               );
             })}
