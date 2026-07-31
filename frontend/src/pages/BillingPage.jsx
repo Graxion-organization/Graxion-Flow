@@ -99,6 +99,7 @@ export default function BillingPage() {
   };
 
   const currentPlan = user?.subscription?.plan || 'free';
+  const isExpired = user?.subscription?.status === 'past_due';
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-[#FF6A00] border-t-transparent rounded-full animate-spin" /></div>;
 
@@ -108,7 +109,16 @@ export default function BillingPage() {
         <h1 className={`text-2xl font-extrabold ${'text-slate-900 dark:text-slate-100'}`}>Billing & Plans</h1>
         <p className={`${'text-slate-500 dark:text-slate-400'} text-sm mt-1`}>
           Current plan: <span className={`font-semibold capitalize ${'text-slate-800 dark:text-slate-200'}`}>{currentPlan}</span>
-          {user?.subscription?.currentPeriodEnd && currentPlan !== 'free' && <> · Renews {new Date(user.subscription.currentPeriodEnd).toLocaleDateString()}</>}
+          {user?.subscription?.currentPeriodEnd && currentPlan !== 'free' && (
+            <>
+              {' · '}
+              {isExpired ? (
+                <span className="text-rose-500 font-semibold">Expired on {new Date(user.subscription.currentPeriodEnd).toLocaleDateString()}</span>
+              ) : (
+                `Renews ${new Date(user.subscription.currentPeriodEnd).toLocaleDateString()}`
+              )}
+            </>
+          )}
         </p>
       </div>
 
@@ -129,7 +139,13 @@ export default function BillingPage() {
           return (
             <div key={plan.id} className={`relative rounded-2xl border p-6 transition-all hover:shadow-xl ${bg} ${isCurrentPlan ? 'ring-2 ring-[#FF6A00]' : ''}`}>
               {isBest && <div className="absolute -top-3 left-1/2 -translate-x-1/2"><span className="bg-[#FF6A00] text-white text-xs font-semibold px-3 py-1 rounded-full">Most Popular</span></div>}
-              {isCurrentPlan && <div className="absolute -top-3 right-4"><span className="bg-[#FF6A00] text-white text-xs font-semibold px-3 py-1 rounded-full">Current</span></div>}
+              {isCurrentPlan && (
+                <div className="absolute -top-3 right-4">
+                  <span className={`text-white text-xs font-semibold px-3 py-1 rounded-full ${isExpired ? 'bg-rose-500 shadow-lg shadow-rose-500/20 animate-pulse' : 'bg-[#FF6A00]'}`}>
+                    {isExpired ? 'Expired' : 'Current'}
+                  </span>
+                </div>
+              )}
 
               <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-4" style={{ background: '#FF6A0022', color: '#FF6A00' }}>
                 <Icon size={22} />
@@ -151,12 +167,18 @@ export default function BillingPage() {
               </ul>
 
               <button
-                onClick={() => !isCurrentPlan && handleUpgrade(plan.id)}
-                disabled={isCurrentPlan || paying === plan.id}
-                className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-60 ${isCurrentPlan ? ('bg-gray-100 text-gray-500 cursor-default dark:bg-white/10 dark:text-slate-400 dark:cursor-default') : 'text-white'}`}
-                style={!isCurrentPlan ? { background: '#FF6A00' } : undefined}
+                onClick={() => (!isCurrentPlan || isExpired) && handleUpgrade(plan.id)}
+                disabled={(isCurrentPlan && !isExpired) || paying === plan.id}
+                className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-60 ${(isCurrentPlan && !isExpired) ? ('bg-gray-100 text-gray-500 cursor-default dark:bg-white/10 dark:text-slate-400 dark:cursor-default') : 'text-white'}`}
+                style={(!isCurrentPlan || isExpired) ? { background: '#FF6A00' } : undefined}
               >
-                {paying === plan.id ? <><Loader2 size={15} className="animate-spin" /> Processing...</> : isCurrentPlan ? 'Active Plan' : `Upgrade to ${plan.label}`}
+                {paying === plan.id ? (
+                  <><Loader2 size={15} className="animate-spin" /> Processing...</>
+                ) : isCurrentPlan ? (
+                  isExpired ? 'Renew Plan' : 'Active Plan'
+                ) : (
+                  `Upgrade to ${plan.label}`
+                )}
               </button>
             </div>
           );
