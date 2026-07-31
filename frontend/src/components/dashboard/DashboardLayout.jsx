@@ -41,7 +41,7 @@ import {
 } from "lucide-react";
 import { io } from "socket.io-client";
 import { useAuthStore, useNotificationStore, useOrganizationStore, useBrandingStore } from "../../store";
-import { notificationAPI, socialHubAPI, authAPI } from "../../services/api";
+import { notificationAPI, socialHubAPI, authAPI, organizationAPI } from "../../services/api";
 import toast from "react-hot-toast";
 import { formatDistanceToNow } from "date-fns";
 import OrganizationSwitcher from "./OrganizationSwitcher";
@@ -229,7 +229,6 @@ export default function DashboardLayout() {
       if (organizations.length === 0 && !currentOrganization && !isAutoCreating) {
         setIsAutoCreating(true);
         try {
-          const { organizationAPI } = require('../../services/api');
           const res = await organizationAPI.getAll();
           const orgs = res.data?.data?.organizations || [];
           if (orgs.length === 0) {
