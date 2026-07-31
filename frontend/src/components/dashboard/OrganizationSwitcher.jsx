@@ -13,6 +13,7 @@ export default function OrganizationSwitcher({ isDark = true, primaryColor = "#F
   const [isCreating, setIsCreating] = useState(false);
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, org: null });
   const dropdownRef = useRef(null);
+  const contextMenuRef = useRef(null);
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
@@ -53,11 +54,17 @@ export default function OrganizationSwitcher({ isDark = true, primaryColor = "#F
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      const clickedInsideDropdown = dropdownRef.current && dropdownRef.current.contains(e.target);
+      const clickedInsideContextMenu = contextMenuRef.current && contextMenuRef.current.contains(e.target);
+      
+      if (!clickedInsideDropdown && !clickedInsideContextMenu) {
         setOpen(false);
         setIsCreating(false);
       }
-      setContextMenu({ visible: false, x: 0, y: 0, org: null });
+      
+      if (!clickedInsideContextMenu) {
+        setContextMenu({ visible: false, x: 0, y: 0, org: null });
+      }
     };
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
@@ -230,6 +237,7 @@ export default function OrganizationSwitcher({ isDark = true, primaryColor = "#F
 
       {contextMenu.visible && (
         <div
+          ref={contextMenuRef}
           className={`fixed z-[100] w-48 rounded-xl border backdrop-blur-xl p-1 shadow-2xl ${
             isDark
               ? "bg-slate-900/95 border-white/10 shadow-black/50"
