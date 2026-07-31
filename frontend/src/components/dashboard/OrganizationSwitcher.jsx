@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Building2, Plus, Check, ChevronDown, Loader2 } from "lucide-react";
+import { Building2, Plus, Check, ChevronDown, Loader2, Trash2 } from "lucide-react";
 import { organizationAPI } from "../../services/api";
-import { useOrganizationStore } from "../../store";
+import { useOrganizationStore, useAuthStore } from "../../store";
 import toast from "react-hot-toast";
 
 export default function OrganizationSwitcher({ isDark = true, primaryColor = "#FF6A00" }) {
@@ -11,8 +11,10 @@ export default function OrganizationSwitcher({ isDark = true, primaryColor = "#F
   const [switchingId, setSwitchingId] = useState(null);
   const [newOrgName, setNewOrgName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, org: null });
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   const {
     organizations,
@@ -55,6 +57,7 @@ export default function OrganizationSwitcher({ isDark = true, primaryColor = "#F
         setOpen(false);
         setIsCreating(false);
       }
+      setContextMenu({ visible: false, x: 0, y: 0, org: null });
     };
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
@@ -130,11 +133,24 @@ export default function OrganizationSwitcher({ isDark = true, primaryColor = "#F
             {organizations.map((org) => {
               const active = currentOrganization?._id === org._id;
               const isCurrentlySwitching = switchingId === org._id;
+              
+              const handleContextMenu = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setContextMenu({
+                  visible: true,
+                  x: e.clientX,
+                  y: e.clientY,
+                  org
+                });
+              };
+
               return (
                 <button
                   key={org._id}
                   disabled={!!switchingId}
                   onClick={() => handleSwitch(org)}
+                  onContextMenu={handleContextMenu}
                   className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-all disabled:opacity-60 ${
                     active
                       ? "text-white"
@@ -209,6 +225,81 @@ export default function OrganizationSwitcher({ isDark = true, primaryColor = "#F
               </button>
             )}
           </div>
+        </div>
+      )}
+
+      {contextMenu.visible && (
+        <div
+          className={`fixed z-[100] w-48 rounded-xl border backdrop-blur-xl p-1 shadow-2xl ${
+            isDark
+              ? "bg-slate-900/95 border-white/10 shadow-black/50"
+              : "bg-white/95 border-slate-200 shadow-slate-300/50"
+          }`}
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+        >
+          <button
+            onClick={() => {
+              handleSwitch(contextMenu.org);
+              setContextMenu({ visible: false, x: 0, y: 0, org: null });
+            }}
+            className={`flex items-center gap-2 w-full px-3 py-2.5 text-xs font-semibold rounded-lg transition-all text-left ${
+              isDark ? "text-slate-200 hover:bg-white/10" : "text-slate-700 hover:bg-slate-100"
+            }`}
+          >
+            <Building2 size={13} />
+            Switch to Workspace
+          </button>
+          
+          {/* Delete Option */}
+          {(() => {
+            const isOwner = contextMenu.org.owner === user?._id;
+            return (
+              <button
+                disabled={!isOwner}
+                onClick={async () => {
+                  const targetOrg = contextMenu.org;
+                  setContextMenu({ visible: false, x: 0, y: 0, org: null });
+                  setOpen(false);
+
+                  // 1. If not current organization, switch first
+                  if (currentOrganization?._id !== targetOrg._id) {
+                    toast.loading(`Switching to ${targetOrg.name}...`, { id: 'switch-before-delete' });
+                    try {
+                      const res = await organizationAPI.switch(targetOrg._id);
+                      if (res.data.status === "success") {
+                        setCurrentOrganization(targetOrg);
+                        toast.success(`Switched to ${targetOrg.name}`, { id: 'switch-before-delete' });
+                      } else {
+                        throw new Error();
+                      }
+                    } catch {
+                      toast.error("Failed to switch workspace", { id: 'switch-before-delete' });
+                      return;
+                    }
+                  }
+
+                  // 2. Redirect to Danger Zone settings tab
+                  navigate("/app/settings?tab=danger");
+                  
+                  // 3. Scroll to the Delete Workspace card after rendering
+                  setTimeout(() => {
+                    const el = document.getElementById("delete-workspace-card");
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                  }, 800);
+                }}
+                className={`flex items-center gap-2 w-full px-3 py-2.5 text-xs font-semibold rounded-lg transition-all text-left ${
+                  isOwner
+                    ? "text-red-500 hover:bg-red-500/10"
+                    : "text-slate-400 opacity-50 cursor-not-allowed"
+                }`}
+              >
+                <Trash2 size={13} />
+                Delete Workspace {!isOwner && "🔒"}
+              </button>
+            );
+          })()}
         </div>
       )}
     </div>

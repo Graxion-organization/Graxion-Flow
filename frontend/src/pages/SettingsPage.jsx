@@ -440,7 +440,7 @@ export default function SettingsPage() {
 
               {/* Delete Organization Card */}
               {currentOrganization && currentRole === 'owner' && (
-                <div className={`rounded-[2rem] border overflow-hidden shadow-2xl transition-all duration-300 ${isDark ? 'bg-rose-950/20 border-rose-500/20 shadow-rose-900/10' : 'bg-white border-red-100 shadow-red-100'}`}>
+                <div id="delete-workspace-card" className={`rounded-[2rem] border overflow-hidden shadow-2xl transition-all duration-300 ${isDark ? 'bg-rose-950/20 border-rose-500/20 shadow-rose-900/10' : 'bg-white border-red-100 shadow-red-100'}`}>
                   <div className="p-8">
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-5">
                       <div className="p-4 bg-red-500/10 rounded-2xl text-red-500 border border-red-500/20 shrink-0">
