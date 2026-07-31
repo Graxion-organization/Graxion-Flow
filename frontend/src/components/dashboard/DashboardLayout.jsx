@@ -287,24 +287,22 @@ export default function DashboardLayout() {
       // Custom sidebar branding toggle hide check
       if (branding?.sidebar_settings) {
         const mapping = {
-          "Home": "Home",
+          "Home": "Overview",
           "Analytics": "Analytics",
-          "Live Inbox": "Inbox",
-          "Customers": "Contacts",
-          "Deals Pipeline": "Contacts",
-          "Leads": "Contacts",
-          "Broadcasts": "Broadcast",
-          "Campaigns": "Broadcast",
-          "Templates": "Broadcast",
-          "My AI Team": "Agent Studio",
-          "Auto-Replies": "Automations",
-          "Chat Flows": "Automations",
+          "Live Inbox": "Live Inbox",
+          "Customers": "Customers",
+          "Deals Pipeline": "Deals Pipeline",
+          "Leads": "Leads",
+          "Broadcasts": "Broadcasts",
+          "Campaigns": "Campaigns",
+          "Templates": "Templates",
+          "My AI Team": "My AI Team",
+          "Auto-Replies": "Auto-Replies",
+          "Chat Flows": "Chat Flows",
           "Social Hub": "Social Hub",
-          "Auto Comments": "Social Hub",
-          "App Store": "Integrations",
-          "Meta Quality": "Integrations",
-          "Settings": "Settings",
-          "Billing": "Settings"
+          "Auto Comments": "Auto Comments",
+          "App Store": "App Store",
+          "Meta Quality": "Meta Quality"
         };
         const toggleKey = mapping[item.label];
         if (toggleKey && branding.sidebar_settings[toggleKey] === false) {
