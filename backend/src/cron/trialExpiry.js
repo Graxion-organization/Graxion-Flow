@@ -15,13 +15,22 @@ cron.schedule('0 0 * * *', async () => {
     });
 
     for (const user of expiredTrials) {
-      user.subscription.status = 'past_due';
+      user.subscription.lastPlan = 'trial';
+      
+      // Downgrade user to free plan
+      user.subscription.plan = 'free';
+      user.subscription.status = 'active'; // Active status on free plan
+      user.subscription.currentPeriodEnd = undefined;
+      user.subscription.messageLimit = 100;
+      user.subscription.agentLimit = 1;
+      user.subscription.credits = 0;
+      user.subscription.totalCredits = 0;
       await user.save();
       
-      // Suspend their organization to block WhatsApp sending
-      await Organization.updateMany({ owner: user._id }, { isActive: false });
+      // Ensure workspaces remain active under the Free Plan limits
+      await Organization.updateMany({ owner: user._id }, { isActive: true });
       
-      logger.info(`[CRON] Suspended user \${user._id} due to expired trial`);
+      logger.info(`[CRON] Downgraded user ${user._id} to Free Plan due to expired trial`);
 
       try {
         await sendEmail({

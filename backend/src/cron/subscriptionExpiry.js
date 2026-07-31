@@ -16,13 +16,22 @@ cron.schedule('0 1 * * *', async () => {
     });
 
     for (const user of expiredActiveUsers) {
-      // In reality, you'd check Stripe/Razorpay API here to verify it didn't auto-renew
-      user.subscription.status = 'past_due';
+      // Save last paid plan
+      user.subscription.lastPlan = user.subscription.plan;
+      
+      // Downgrade user to free plan
+      user.subscription.plan = 'free';
+      user.subscription.status = 'active'; // Active status but on free plan
+      user.subscription.currentPeriodEnd = undefined;
+      user.subscription.messageLimit = 100;
+      user.subscription.agentLimit = 1;
+      user.subscription.credits = 0;
+      user.subscription.totalCredits = 0;
       await user.save();
       
-      // Disable their org
-      await Organization.updateMany({ owner: user._id }, { isActive: false });
-      logger.info(`[CRON] Suspended user ${user._id} due to expired subscription`);
+      // Ensure workspaces remain active under the Free Plan limits
+      await Organization.updateMany({ owner: user._id }, { isActive: true });
+      logger.info(`[CRON] Downgraded expired active user ${user._id} to Free Plan`);
     }
 
     // 2. Process cancelled users who expired (status: cancelled)
@@ -32,14 +41,17 @@ cron.schedule('0 1 * * *', async () => {
     });
 
     for (const user of expiredCancelledUsers) {
+      // Save last paid plan
+      user.subscription.lastPlan = user.subscription.plan;
+
       // Downgrade user to free plan
       user.subscription.plan = 'free';
       user.subscription.status = 'active'; // Active status but on free plan
       user.subscription.currentPeriodEnd = undefined;
       user.subscription.messageLimit = 100;
       user.subscription.agentLimit = 1;
-      user.subscription.credits = 100;
-      user.subscription.totalCredits = 100;
+      user.subscription.credits = 0;
+      user.subscription.totalCredits = 0;
       await user.save();
 
       // Ensure their workspaces remain/become active under the Free Plan limits
