@@ -60,6 +60,15 @@ export default function BillingPage() {
             setPaying(null);
           }
           if (result.redirect) {
+            try {
+              await billingAPI.verifyPayment({
+                cashfreeOrderId: orderId,
+                plan: planId,
+                gateway: 'cashfree',
+              });
+            } catch (err) {
+              console.error('Cashfree verification error:', err);
+            }
             toast.success(`${planLabel} plan activated!`);
             await fetchUser();
             billingAPI.getHistory().then((r) => setHistory(r.data?.data?.payments || []));
@@ -67,6 +76,15 @@ export default function BillingPage() {
             setPaying(null);
           }
           if (result.paymentDetails) {
+            try {
+              await billingAPI.verifyPayment({
+                cashfreeOrderId: orderId,
+                plan: planId,
+                gateway: 'cashfree',
+              });
+            } catch (err) {
+              console.error('Cashfree verification error:', err);
+            }
             // Cashfree sends payment message
             await fetchUser();
             billingAPI.getHistory().then((r) => setHistory(r.data?.data?.payments || []));

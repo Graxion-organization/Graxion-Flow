@@ -304,6 +304,7 @@ exports.verifyPayment = async (req, res, next) => {
     if (user) {
       user.subscription.plan = planCode;
       user.subscription.status = 'active';
+      user.subscription.lastPlan = null; // Clear expiry state
       user.subscription.currentPeriodStart = now;
       user.subscription.currentPeriodEnd = periodEnd;
       user.subscription.messageLimit = planInfo.messageLimit || 1000;
@@ -318,13 +319,21 @@ exports.verifyPayment = async (req, res, next) => {
     }
 
     // Update payment record
+    const paymentQuery = gateway === 'cashfree' ? { cashfreeOrderId } : { razorpayOrderId };
+    const paymentUpdate = {
+      status: 'captured',
+      billingPeriod: { start: now, end: periodEnd }
+    };
+    if (gateway === 'cashfree') {
+      paymentUpdate.cashfreePaymentId = req.body.cashfreePaymentId; // Optional if we already saved it above
+    } else {
+      paymentUpdate.razorpayPaymentId = razorpayPaymentId;
+      paymentUpdate.razorpaySignature = razorpaySignature;
+    }
+    
     const paymentDoc = await Payment.findOneAndUpdate(
-      { razorpayOrderId },
-      {
-        status: 'captured',
-        razorpayPaymentId,
-        billingPeriod: { start: now, end: periodEnd }
-      },
+      paymentQuery,
+      paymentUpdate,
       { new: true }
     );
 
