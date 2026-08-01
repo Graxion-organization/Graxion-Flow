@@ -165,7 +165,9 @@ exports.createSubscription = async (req, res, next) => {
             amount: taxInfo.totalAmount,
             currency: 'INR',
             gateway: 'cashfree',
-            environment: process.env.CASHFREE_ENV === 'PRODUCTION' ? 'production' : 'sandbox'
+            environment: process.env.CASHFREE_ENV === 'PRODUCTION' ? 'production' : 'sandbox',
+            plan: planId,
+            planLabel: planInfo.name
           }
         });
       } catch (err) {
