@@ -1,5 +1,5 @@
 const Razorpay = require('razorpay');
-const { Cashfree } = require('cashfree-pg');
+const { Cashfree, CFEnvironment } = require('cashfree-pg');
 const crypto = require('crypto');
 const User = require('../models/User');
 const Payment = require('../models/Payment');
@@ -122,8 +122,8 @@ exports.createSubscription = async (req, res, next) => {
       Cashfree.XClientId = process.env.CASHFREE_APP_ID;
       Cashfree.XClientSecret = process.env.CASHFREE_SECRET_KEY;
       Cashfree.XEnvironment = process.env.CASHFREE_ENV === 'PRODUCTION' 
-        ? Cashfree.Environment.PRODUCTION 
-        : Cashfree.Environment.SANDBOX;
+        ? CFEnvironment.PRODUCTION 
+        : CFEnvironment.SANDBOX;
 
       if (!Cashfree.XClientId || !Cashfree.XClientSecret) {
         return next(new AppError('Cashfree payment gateway is not configured.', 500));
@@ -232,8 +232,8 @@ exports.verifyPayment = async (req, res, next) => {
       Cashfree.XClientId = process.env.CASHFREE_APP_ID;
       Cashfree.XClientSecret = process.env.CASHFREE_SECRET_KEY;
       Cashfree.XEnvironment = process.env.CASHFREE_ENV === 'PRODUCTION' 
-        ? Cashfree.Environment.PRODUCTION 
-        : Cashfree.Environment.SANDBOX;
+        ? CFEnvironment.PRODUCTION 
+        : CFEnvironment.SANDBOX;
 
       try {
         const response = await Cashfree.PGOrderFetchPayments("2023-08-01", cashfreeOrderId);
