@@ -1,6 +1,6 @@
 import React from "react";
 import StaticPageLayout from "./StaticPageLayout";
-import { Smartphone, Instagram, Send, MessageSquare, Globe, ArrowRight, Zap, Code, Shield } from "lucide-react";
+import { Smartphone, Instagram, Send, MessageSquare, Globe, ArrowRight, Zap, Code, Shield, Target } from "lucide-react";
 
 export default function Integrations() {
   const integrationList = [

@@ -105,7 +105,14 @@ exports.getPartnerDashboard = catchAsync(async (req, res, next) => {
       totalEarned,
       pendingPayout,
       paidOut,
-      referredUsers,
+      referredUsers: referredUsers.map(u => {
+        const userComms = commissions.filter(c => c.referredUser.toString() === u._id.toString() && (c.status === 'APPROVED' || c.status === 'PAID'));
+        const earned = userComms.reduce((sum, c) => sum + c.commissionAmount, 0);
+        return {
+          ...u.toObject(),
+          commissionEarned: earned
+        };
+      }),
       recentCommissions: commissions.slice(0, 10)
     }
   });

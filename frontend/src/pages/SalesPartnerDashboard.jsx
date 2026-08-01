@@ -14,6 +14,14 @@ import {
   Sparkles
 } from 'lucide-react';
 
+const maskEmail = (email) => {
+  if (!email) return '';
+  const [name, domain] = email.split('@');
+  if (!domain) return email;
+  if (name.length <= 2) return `${name}***@${domain}`;
+  return `${name.substring(0, 2)}***@${domain}`;
+};
+
 export default function SalesPartnerDashboard() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
@@ -179,6 +187,7 @@ export default function SalesPartnerDashboard() {
                   <th className="p-3">Client Name</th>
                   <th className="p-3">Email</th>
                   <th className="p-3">Plan</th>
+                  <th className="p-3">Earnings</th>
                   <th className="p-3">Joined Date</th>
                 </tr>
               </thead>
@@ -186,13 +195,16 @@ export default function SalesPartnerDashboard() {
                 {data?.referredUsers?.map((client) => (
                   <tr key={client._id} className="hover:bg-white/5 transition">
                     <td className="p-3 font-semibold text-white">{client.name}</td>
-                    <td className="p-3 text-slate-400">{client.email}</td>
+                    <td className="p-3 text-slate-400">{maskEmail(client.email)}</td>
                     <td className="p-3">
                       <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-bold uppercase ${
                         client.subscription?.plan === 'free' ? 'bg-slate-800 text-slate-400' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                       }`}>
                         {client.subscription?.plan || 'free'}
                       </span>
+                    </td>
+                    <td className="p-3 font-medium text-emerald-400">
+                      {client.commissionEarned > 0 ? `₹${client.commissionEarned.toLocaleString()}` : '-'}
                     </td>
                     <td className="p-3 text-slate-400">{new Date(client.createdAt).toLocaleDateString()}</td>
                   </tr>
