@@ -457,6 +457,8 @@ exports.getSystemSettings = async (req, res, next) => {
       { key: 'maintenance_mode', value: false, description: 'Block all non-admin traffic' },
       { key: 'registration_enabled', value: true, description: 'Allow new user signups' },
       { key: 'billing_enabled', value: true, description: 'Enable/Disable Payments/Billing' },
+      { key: 'razorpay_enabled', value: true, description: 'Enable/Disable Razorpay Gateway' },
+      { key: 'cashfree_enabled', value: true, description: 'Enable/Disable Cashfree Gateway' },
       { key: 'whatsapp_enabled', value: true, description: 'Enable/Disable WhatsApp Service' },
       { key: 'whatsapp_audio_enabled', value: true, description: 'Enable/Disable WhatsApp Audio Replies' },
       { key: 'telegram_enabled', value: true, description: 'Enable/Disable Telegram Service' },
