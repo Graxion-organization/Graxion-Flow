@@ -100,8 +100,20 @@ exports.createSubscription = async (req, res, next) => {
 
     // Check if Cashfree is selected
     const gateway = req.body.gateway || 'razorpay';
-    const amountInRupees = planInfo.price || 999;
     
+    // Fetch plan
+    let planInfo = await Plan.findOne({ code: planId, isActive: true });
+    if (!planInfo) {
+      const defaultPlans = {
+        starter: { name: 'Starter', price: 999, messageLimit: 1000, agentLimit: 3, credits: 500 },
+        pro: { name: 'Pro', price: 2999, messageLimit: 5000, agentLimit: 10, credits: 2000 },
+        enterprise: { name: 'Enterprise', price: 9999, messageLimit: 50000, agentLimit: 50, credits: 10000 },
+      };
+      planInfo = defaultPlans[planId];
+    }
+    if (!planInfo) return next(new AppError('Invalid plan selected.', 400));
+    
+    const amountInRupees = planInfo.price || 999;
     // Calculate tax
     const taxInfo = calculateTax(planInfo.price, customerStateCode);
     const amountInPaisa = Math.round(taxInfo.totalAmount * 100);
