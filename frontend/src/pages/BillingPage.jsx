@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Check, Zap, Crown, Building2, Loader2, CreditCard, AlertCircle } from 'lucide-react';
 import { billingAPI } from '../services/api';
-import { useAuthStore } from '../store';
+import { useAuthStore, useBrandingStore } from '../store';
 import toast from 'react-hot-toast';
 
 const PLAN_ICONS = { starter: Zap, pro: Crown, enterprise: Building2 };
@@ -20,6 +20,17 @@ export default function BillingPage() {
   const [gateway, setGateway] = useState('razorpay');
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
   const { user, fetchUser } = useAuthStore();
+  const { branding } = useBrandingStore();
+  const isRazorpayEnabled = branding?.razorpay_enabled !== false;
+  const isCashfreeEnabled = branding?.cashfree_enabled !== false;
+
+  useEffect(() => {
+    if (!isRazorpayEnabled && isCashfreeEnabled) {
+      setGateway('cashfree');
+    } else if (isRazorpayEnabled && !isCashfreeEnabled) {
+      setGateway('razorpay');
+    }
+  }, [isRazorpayEnabled, isCashfreeEnabled]);
 
   useEffect(() => {
     Promise.all([
@@ -36,6 +47,11 @@ export default function BillingPage() {
   }, []);
 
   const handleUpgrade = async (planId) => {
+    if (!isRazorpayEnabled && !isCashfreeEnabled) {
+      toast.error('Payments are currently disabled.');
+      return;
+    }
+
     setPaying(planId);
     try {
       const orderRes = await billingAPI.createOrder(planId, gateway);
@@ -192,17 +208,29 @@ export default function BillingPage() {
         </div>
       )}
 
-      {currentPlan !== 'enterprise' && (
+      {currentPlan !== 'enterprise' && (isRazorpayEnabled || isCashfreeEnabled) && (
         <div className="flex justify-end gap-3 mt-4 items-center">
           <span className={`text-sm font-semibold ${'text-slate-600 dark:text-slate-400'}`}>Payment Gateway:</span>
-          <select 
-            value={gateway} 
-            onChange={(e) => setGateway(e.target.value)} 
-            className={`text-sm px-3 py-1.5 rounded-lg border outline-none font-medium ${'bg-white text-slate-900 border-slate-300 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700 focus:border-[#FF6A00]'}`}
-          >
-            <option value="razorpay">Razorpay</option>
-            <option value="cashfree">Cashfree</option>
-          </select>
+          {isRazorpayEnabled && isCashfreeEnabled ? (
+            <select 
+              value={gateway} 
+              onChange={(e) => setGateway(e.target.value)} 
+              className={`text-sm px-3 py-1.5 rounded-lg border outline-none font-medium ${'bg-white text-slate-900 border-slate-300 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700 focus:border-[#FF6A00]'}`}
+            >
+              <option value="razorpay">Razorpay</option>
+              <option value="cashfree">Cashfree</option>
+            </select>
+          ) : (
+            <span className={`text-sm font-medium px-3 py-1.5 rounded-lg border bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 ${'text-slate-900 dark:text-slate-200'}`}>
+              {isRazorpayEnabled ? 'Razorpay' : 'Cashfree'}
+            </span>
+          )}
+        </div>
+      )}
+      
+      {currentPlan !== 'enterprise' && !isRazorpayEnabled && !isCashfreeEnabled && (
+        <div className="flex justify-end mt-4">
+          <span className="text-sm font-semibold text-rose-500 bg-rose-500/10 px-3 py-1.5 rounded-lg">Payments are currently disabled</span>
         </div>
       )}
 
@@ -253,7 +281,7 @@ export default function BillingPage() {
 
               <button
                 onClick={() => (!isCurrentPlan || isExpired || isLastPlan) && handleUpgrade(plan.id)}
-                disabled={(isCurrentPlan && !isExpired) || paying === plan.id}
+                disabled={(isCurrentPlan && !isExpired) || paying === plan.id || (!isRazorpayEnabled && !isCashfreeEnabled)}
                 className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-60 ${(isCurrentPlan && !isExpired) ? ('bg-gray-100 text-gray-500 cursor-default dark:bg-white/10 dark:text-slate-400 dark:cursor-default') : 'text-white'}`}
                 style={(!isCurrentPlan || isExpired || isLastPlan) ? { background: '#FF6A00' } : undefined}
               >

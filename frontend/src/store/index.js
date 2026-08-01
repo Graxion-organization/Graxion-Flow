@@ -244,7 +244,10 @@ export const useBrandingStore = create((set, get) => ({
     branding_social_linkedin: '',
     branding_social_instagram: '',
     branding_social_youtube: '',
-    branding_features_json: ''
+    branding_features_json: '',
+    registration_enabled: true,
+    razorpay_enabled: true,
+    cashfree_enabled: true
   },
   isLoading: false,
 

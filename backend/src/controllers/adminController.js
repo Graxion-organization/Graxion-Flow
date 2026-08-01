@@ -411,7 +411,11 @@ exports.getPublicSettings = async (req, res, next) => {
       'branding_social_linkedin',
       'branding_social_instagram',
       'branding_social_youtube',
-      'branding_features_json'
+      'branding_features_json',
+      'sidebar_settings',
+      'registration_enabled',
+      'razorpay_enabled',
+      'cashfree_enabled'
     ];
     
     const settings = await SystemSetting.find({ key: { $in: keys } });
@@ -430,6 +434,10 @@ exports.getPublicSettings = async (req, res, next) => {
     if (!config.branding_hero_title) config.branding_hero_title = 'Automate Your Business Communication';
     if (!config.branding_hero_subtitle) config.branding_hero_subtitle = 'Deploy AI-powered agents across WhatsApp, Instagram, and Telegram. Automate customer support, close deals, and scale your operations effortlessly.';
     if (!config.branding_tagline) config.branding_tagline = 'The Next-Gen Automation Platform';
+
+    if (config.registration_enabled === undefined || config.registration_enabled === '') config.registration_enabled = true;
+    if (config.razorpay_enabled === undefined || config.razorpay_enabled === '') config.razorpay_enabled = true;
+    if (config.cashfree_enabled === undefined || config.cashfree_enabled === '') config.cashfree_enabled = true;
 
     res.status(200).json({
       status: 'success',
@@ -1600,35 +1608,4 @@ exports.markContactMessageRead = async (req, res, next) => {
   }
 };
 
-/**
- * Get public settings (Branding, Sidebar settings, etc)
- */
-exports.getPublicSettings = async (req, res, next) => {
-  try {
-    const settings = await SystemSetting.find({
-      key: {
-        $in: [
-          'branding_site_name',
-          'branding_logo_url',
-          'branding_favicon_url',
-          'branding_footer_text',
-          'sidebar_settings',
-          'registration_enabled'
-        ]
-      }
-    });
 
-    // Format response as a key-value object
-    const formattedSettings = settings.reduce((acc, curr) => {
-      acc[curr.key] = curr.value;
-      return acc;
-    }, {});
-
-    res.status(200).json({
-      status: 'success',
-      data: formattedSettings
-    });
-  } catch (err) {
-    next(err);
-  }
-};
