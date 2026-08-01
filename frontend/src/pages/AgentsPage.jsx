@@ -105,8 +105,9 @@ function AgentFormModal({ onClose, onSave, editingAgent, connectedPlatforms, waA
   });
 
   const togglePlatform = (id) => {
-    if (!connectedPlatforms[id]) return; // Block disconnected platforms
-    const next = selectedPlatforms.includes(id)
+    const isSelected = selectedPlatforms.includes(id);
+    if (!connectedPlatforms[id] && !isSelected) return; // Block selecting disconnected platforms
+    const next = isSelected
       ? selectedPlatforms.filter(p => p !== id)
       : [...selectedPlatforms, id];
     setSelectedPlatforms(next);
@@ -183,18 +184,22 @@ function AgentFormModal({ onClose, onSave, editingAgent, connectedPlatforms, waA
               {PLATFORMS.map(({ id, label, color, active, emoji }) => {
                 const isSelected = selectedPlatforms.includes(id);
                 const isConnected = connectedPlatforms[id];
+                const isDisabled = !isConnected && !isSelected;
                 return (
                   <button
                     key={id}
                     type="button"
                     onClick={() => togglePlatform(id)}
-                    disabled={!isConnected}
+                    disabled={isDisabled}
                     className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all font-semibold text-sm
-                      ${!isConnected ? 'opacity-40 grayscale cursor-not-allowed border-transparent bg-slate-100 dark:bg-slate-800' 
-                      : isSelected ? active : `${color} hover:scale-105 hover:shadow-md`}`}
+                      ${isDisabled ? 'opacity-40 grayscale cursor-not-allowed border-transparent bg-slate-100 dark:bg-slate-800' 
+                      : isSelected ? `${active} ${!isConnected ? 'border-red-500/80 ring-2 ring-red-500/20' : ''}` 
+                      : `${color} hover:scale-105 hover:shadow-md`}`}
                   >
                     {!isConnected && (
-                      <div className="absolute top-2 right-2 text-slate-500"><Lock size={14} /></div>
+                      <div className={`absolute top-2 right-2 ${isSelected ? 'text-red-400' : 'text-slate-500'}`} title={isSelected ? 'This account is disconnected' : 'Locked'}>
+                        <Lock size={14} />
+                      </div>
                     )}
                     <span className="text-3xl mb-1">{emoji}</span>
                     {label}
