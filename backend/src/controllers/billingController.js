@@ -119,15 +119,15 @@ exports.createSubscription = async (req, res, next) => {
     const amountInPaisa = Math.round(taxInfo.totalAmount * 100);
 
     if (gateway === 'cashfree') {
-      Cashfree.XClientId = process.env.CASHFREE_APP_ID;
-      Cashfree.XClientSecret = process.env.CASHFREE_SECRET_KEY;
-      Cashfree.XEnvironment = process.env.CASHFREE_ENV === 'PRODUCTION' 
-        ? CFEnvironment.PRODUCTION 
-        : CFEnvironment.SANDBOX;
-
-      if (!Cashfree.XClientId || !Cashfree.XClientSecret) {
+      if (!process.env.CASHFREE_APP_ID || !process.env.CASHFREE_SECRET_KEY) {
         return next(new AppError('Cashfree payment gateway is not configured.', 500));
       }
+
+      const env = process.env.CASHFREE_ENV === 'PRODUCTION' 
+        ? CFEnvironment.PRODUCTION 
+        : CFEnvironment.SANDBOX;
+      
+      const cashfree = new Cashfree(env, process.env.CASHFREE_APP_ID, process.env.CASHFREE_SECRET_KEY);
 
       const request = {
         order_amount: taxInfo.totalAmount,
@@ -144,7 +144,7 @@ exports.createSubscription = async (req, res, next) => {
       };
 
       try {
-        const response = await Cashfree.PGCreateOrder("2023-08-01", request);
+        const response = await cashfree.PGCreateOrder(request);
         
         await Payment.create({
           user: req.user._id,
@@ -229,14 +229,18 @@ exports.verifyPayment = async (req, res, next) => {
         return next(new AppError('Missing required Cashfree order ID.', 400));
       }
       
-      Cashfree.XClientId = process.env.CASHFREE_APP_ID;
-      Cashfree.XClientSecret = process.env.CASHFREE_SECRET_KEY;
-      Cashfree.XEnvironment = process.env.CASHFREE_ENV === 'PRODUCTION' 
+      if (!process.env.CASHFREE_APP_ID || !process.env.CASHFREE_SECRET_KEY) {
+        return next(new AppError('Cashfree payment gateway is not configured.', 500));
+      }
+      
+      const env = process.env.CASHFREE_ENV === 'PRODUCTION' 
         ? CFEnvironment.PRODUCTION 
         : CFEnvironment.SANDBOX;
+        
+      const cashfree = new Cashfree(env, process.env.CASHFREE_APP_ID, process.env.CASHFREE_SECRET_KEY);
 
       try {
-        const response = await Cashfree.PGOrderFetchPayments("2023-08-01", cashfreeOrderId);
+        const response = await cashfree.PGOrderFetchPayments(cashfreeOrderId);
         const payments = response.data;
         const successfulPayment = payments.find(p => p.payment_status === 'SUCCESS');
         
