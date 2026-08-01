@@ -49,23 +49,36 @@ export const loadScript = (url, id) => {
  */
 export const loadFbSdk = () => {
   return new Promise((resolve, reject) => {
-    if (window.FB) {
+    let META_APP_ID = process.env.REACT_APP_META_APP_ID || "928669669524481";
+    let META_API_VERSION = process.env.REACT_APP_META_API_VERSION || "v21.0";
+    
+    // Ensure version starts with 'v' to prevent "init not called with valid version" error
+    META_API_VERSION = META_API_VERSION.trim();
+    if (!META_API_VERSION.startsWith('v')) {
+      META_API_VERSION = `v${META_API_VERSION}`;
+    }
+    if (META_API_VERSION === 'v') META_API_VERSION = 'v21.0';
+
+    const initFB = () => {
+      if (!window.fbInitialized) {
+        window.FB.init({
+          appId            : META_APP_ID,
+          cookie           : true,
+          xfbml            : true,
+          version          : META_API_VERSION
+        });
+        window.fbInitialized = true;
+      }
       resolve(window.FB);
+    };
+
+    if (window.FB) {
+      // If FB stub is already loaded (e.g. by Pixel), initialize and resolve
+      initFB();
       return;
     }
 
-    const META_APP_ID = process.env.REACT_APP_META_APP_ID || "928669669524481";
-    const META_API_VERSION = process.env.REACT_APP_META_API_VERSION || "v21.0";
-
-    window.fbAsyncInit = function() {
-      window.FB.init({
-        appId            : META_APP_ID,
-        cookie           : true,
-        xfbml            : true,
-        version          : META_API_VERSION
-      });
-      resolve(window.FB);
-    };
+    window.fbAsyncInit = initFB;
 
     loadScript('https://connect.facebook.net/en_US/sdk.js', 'facebook-jssdk')
       .catch(err => {
