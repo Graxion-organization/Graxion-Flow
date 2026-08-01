@@ -120,6 +120,14 @@ function AgentFormModal({ onClose, onSave, editingAgent, connectedPlatforms, waA
     if (!editingAgent) setValue('model', PROVIDER_MODELS[provider][0]);
   }, [provider]);
 
+  const onInvalid = (errs) => {
+    console.warn("Validation errors:", errs);
+    const firstError = Object.values(errs)[0];
+    if (firstError) {
+      toast.error(firstError?.message || "Invalid form values");
+    }
+  };
+
   const onSubmit = async (data) => {
     const plats = selectedPlatforms;
     if (plats.length === 0) {
@@ -173,7 +181,7 @@ function AgentFormModal({ onClose, onSave, editingAgent, connectedPlatforms, waA
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-8">
+        <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="p-8 space-y-8">
           {/* Platform Selection */}
           <div>
             <div className="flex items-center gap-2 mb-4">
