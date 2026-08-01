@@ -74,14 +74,6 @@ exports.getAccounts = async (req, res, next) => {
     const orgId = req.organization?._id || req.user?.currentOrganization || req.user?.organization;
     const userId = req.user?._id;
 
-    // Auto-heal: Ensure all accounts created by this user/org are active and linked to current workspace
-    if (userId) {
-      await WhatsappAccount.updateMany(
-        { user: userId, status: { $ne: 'deleted' } },
-        { $set: { isActive: true, status: 'connected', organization: orgId } }
-      );
-    }
-
     // Find all active accounts matching user or organization
     const accounts = await WhatsappAccount.find({
       ...(orgId ? { organization: orgId } : { user: userId }),

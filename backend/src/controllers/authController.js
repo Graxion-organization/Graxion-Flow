@@ -56,7 +56,7 @@ const sendTokens = (user, statusCode, res, req = null) => {
 
 exports.getOnboardingStatus = async (req, res, next) => {
   try {
-    const orgId = req.user.currentOrganization;
+    const orgId = req.organization?._id || req.user.currentOrganization;
     if (!orgId) {
       return res.status(200).json({ status: 'success', data: { hasIntegration: false, hasAgent: false, isCompleted: false } });
     }
