@@ -11,6 +11,15 @@ const paymentSchema = new mongoose.Schema({
   razorpaySignature: String,
   razorpaySubscriptionId: String,
 
+  cashfreeOrderId: String,
+  cashfreePaymentId: String,
+
+  paymentGateway: {
+    type: String,
+    enum: ['razorpay', 'cashfree'],
+    default: 'razorpay'
+  },
+
   plan: {
     type: String,
     enum: ['starter', 'pro', 'enterprise'],
@@ -43,5 +52,6 @@ const paymentSchema = new mongoose.Schema({
 
 paymentSchema.index({ user: 1, status: 1 });
 paymentSchema.index({ razorpayOrderId: 1 });
+paymentSchema.index({ cashfreeOrderId: 1 });
 
 module.exports = mongoose.model('Payment', paymentSchema);

@@ -254,7 +254,7 @@ export const conversationAPI = {
 // Billing
 export const billingAPI = {
   getPlans: () => api.get('/billing/plans'),
-  createOrder: (plan) => api.post('/billing/create-order', { plan }),
+  createOrder: (plan, gateway = 'razorpay') => api.post('/billing/create-order', { plan, gateway }),
   verifyPayment: (data) => api.post('/billing/verify-payment', data),
   getHistory: () => api.get('/billing/history'),
   getCreditsHistory: () => api.get('/billing/credits/history'),

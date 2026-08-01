@@ -17,6 +17,7 @@ export default function BillingPage() {
   const [creditsHistory, setCreditsHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(null);
+  const [gateway, setGateway] = useState('razorpay');
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
   const { user, fetchUser } = useAuthStore();
 
@@ -37,50 +38,87 @@ export default function BillingPage() {
   const handleUpgrade = async (planId) => {
     setPaying(planId);
     try {
-      const orderRes = await billingAPI.createOrder(planId);
-      const { orderId, amount, currency, keyId, planLabel, prefill } = orderRes.data.data;
+      const orderRes = await billingAPI.createOrder(planId, gateway);
+      const { orderId, amount, currency, keyId, planLabel, prefill, paymentSessionId, gateway: responseGateway } = orderRes.data.data;
 
-      if (!window.Razorpay) {
-        const { loadScript } = await import('../utils/scriptLoader');
-        await loadScript('https://checkout.razorpay.com/v1/checkout.js', 'razorpay-checkout-script');
-      }
+      if (responseGateway === 'cashfree') {
+        if (!window.Cashfree) {
+          const { loadScript } = await import('../utils/scriptLoader');
+          await loadScript('https://sdk.cashfree.com/js/v3/cashfree.js', 'cashfree-checkout-script');
+        }
 
-      const options = {
-        key: keyId,
-        amount,
-        currency,
-        name: 'Graxion',
-        description: `${planLabel} Plan Subscription`,
-        order_id: orderId,
-        prefill,
-        theme: { color: '#FF6A00' },
-        handler: async (response) => {
-          try {
-            await billingAPI.verifyPayment({
-              razorpayOrderId: orderId,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpaySignature: response.razorpay_signature,
-              plan: planId,
-            });
+        const cashfree = window.Cashfree({
+          mode: "production" // or sandbox based on env
+        });
+        
+        cashfree.checkout({
+          paymentSessionId: paymentSessionId,
+          redirectTarget: "_modal",
+        }).then(async (result) => {
+          if (result.error) {
+            toast.error(result.error.message || 'Payment failed. Please try again.');
+            setPaying(null);
+          }
+          if (result.redirect) {
             toast.success(`${planLabel} plan activated!`);
             await fetchUser();
             billingAPI.getHistory().then((r) => setHistory(r.data?.data?.payments || []));
             billingAPI.getCreditsHistory().then((r) => setCreditsHistory(r.data?.data?.transactions || []));
-          } catch (err) {
-            toast.error(err.response?.data?.message || 'Payment verification failed. Contact support.');
-          } finally {
             setPaying(null);
           }
-        },
-        modal: { ondismiss: () => setPaying(null) },
-      };
+          if (result.paymentDetails) {
+            // Cashfree sends payment message
+            await fetchUser();
+            billingAPI.getHistory().then((r) => setHistory(r.data?.data?.payments || []));
+            billingAPI.getCreditsHistory().then((r) => setCreditsHistory(r.data?.data?.transactions || []));
+            toast.success(`${planLabel} plan activated!`);
+            setPaying(null);
+          }
+        });
+      } else {
+        if (!window.Razorpay) {
+          const { loadScript } = await import('../utils/scriptLoader');
+          await loadScript('https://checkout.razorpay.com/v1/checkout.js', 'razorpay-checkout-script');
+        }
 
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', (resp) => {
-        toast.error(resp.error?.description || 'Payment failed. Please try again.');
-        setPaying(null);
-      });
-      rzp.open();
+        const options = {
+          key: keyId,
+          amount,
+          currency,
+          name: 'Graxion',
+          description: `${planLabel} Plan Subscription`,
+          order_id: orderId,
+          prefill,
+          theme: { color: '#FF6A00' },
+          handler: async (response) => {
+            try {
+              await billingAPI.verifyPayment({
+                razorpayOrderId: orderId,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+                plan: planId,
+                gateway: 'razorpay',
+              });
+              toast.success(`${planLabel} plan activated!`);
+              await fetchUser();
+              billingAPI.getHistory().then((r) => setHistory(r.data?.data?.payments || []));
+              billingAPI.getCreditsHistory().then((r) => setCreditsHistory(r.data?.data?.transactions || []));
+            } catch (err) {
+              toast.error(err.response?.data?.message || 'Payment verification failed. Contact support.');
+            } finally {
+              setPaying(null);
+            }
+          },
+          modal: { ondismiss: () => setPaying(null) },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', (resp) => {
+          toast.error(resp.error?.description || 'Payment failed. Please try again.');
+          setPaying(null);
+        });
+        rzp.open();
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to initiate payment gateway order');
       setPaying(null);
@@ -133,6 +171,20 @@ export default function BillingPage() {
         <div className={`rounded-2xl p-4 flex items-center gap-3 border ${'bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30'}`}>
           <AlertCircle size={18} className="text-amber-500 shrink-0" />
           <p className={`text-sm ${'text-amber-700 dark:text-amber-200'}`}>You are on the free plan with 100 messages/month. Upgrade to unlock more features.</p>
+        </div>
+      )}
+
+      {currentPlan !== 'enterprise' && (
+        <div className="flex justify-end gap-3 mt-4 items-center">
+          <span className={`text-sm font-semibold ${'text-slate-600 dark:text-slate-400'}`}>Payment Gateway:</span>
+          <select 
+            value={gateway} 
+            onChange={(e) => setGateway(e.target.value)} 
+            className={`text-sm px-3 py-1.5 rounded-lg border outline-none font-medium ${'bg-white text-slate-900 border-slate-300 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700 focus:border-[#FF6A00]'}`}
+          >
+            <option value="razorpay">Razorpay</option>
+            <option value="cashfree">Cashfree</option>
+          </select>
         </div>
       )}
 

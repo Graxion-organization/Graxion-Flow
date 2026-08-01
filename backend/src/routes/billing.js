@@ -6,6 +6,7 @@ const router = express.Router();
 
 // Webhook must be raw body if we use body-parser, but we already handle it in server.js middleware if needed
 router.post('/webhook', billingController.razorpayWebhook);
+router.post('/cashfree-webhook', billingController.cashfreeWebhook);
 
 router.use(protect);
 
