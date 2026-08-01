@@ -380,7 +380,7 @@ exports.verifyPayment = async (req, res, next) => {
           `
         });
       } catch (emailErr) {
-        logger.warn(\`Failed to send activation email: \${emailErr.message}\`);
+        logger.warn(`Failed to send activation email: ${emailErr.message}`);
       }
     }
 
