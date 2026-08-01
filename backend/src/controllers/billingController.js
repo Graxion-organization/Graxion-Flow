@@ -343,6 +343,47 @@ exports.verifyPayment = async (req, res, next) => {
       await processPartnerCommission(user, paymentInRupees, planCode, paymentDoc?._id);
     }
 
+    // Invoice Generation and Email
+    if (user) {
+      const invoiceData = {
+        invoiceNumber: paymentDoc?.razorpayPaymentId || paymentDoc?.cashfreePaymentId || paymentDoc?._id?.toString() || 'INV',
+        customerName: user.name,
+        customerEmail: user.email,
+        planName: planInfo?.name || planCode,
+        baseAmount: paymentDoc?.taxDetails?.totalAmount 
+                    ? (paymentDoc.taxDetails.totalAmount - paymentDoc.taxDetails.totalTax)
+                    : ((paymentDoc?.amount || 0) / 100),
+        tax: paymentDoc?.taxDetails || { igst: 0, cgst: 0, sgst: 0, totalAmount: (paymentDoc?.amount || 0) / 100, totalTax: 0 }
+      };
+      
+      try {
+        const { generateInvoicePDF } = require('../services/invoiceService');
+        const invoicePath = await generateInvoicePDF(invoiceData);
+        logger.info(`Invoice generated at ${invoicePath}`);
+      } catch (invoiceErr) {
+        logger.error('Failed to generate invoice:', invoiceErr.message);
+      }
+
+      try {
+        const { sendEmail } = require('../services/emailService');
+        await sendEmail({
+          to: user.email,
+          subject: 'Your Premium Subscription is Activated!',
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+              <h2 style="color: #FF6A00;">Welcome to Premium!</h2>
+              <p>Hi ${user.name},</p>
+              <p>Thank you for your purchase. Your <strong>${planInfo?.name || planCode}</strong> plan has been successfully activated.</p>
+              <p>You can view your invoice and payment history in your dashboard's Billing section.</p>
+              <p>Enjoy your premium features!</p>
+            </div>
+          `
+        });
+      } catch (emailErr) {
+        logger.warn(\`Failed to send activation email: \${emailErr.message}\`);
+      }
+    }
+
     res.status(200).json({ status: 'success', message: 'Payment verified and plan activated successfully!', data: { user } });
   } catch (err) {
     logger.error('Verify payment error:', err);
