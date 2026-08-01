@@ -39,7 +39,7 @@ export default function BillingPage() {
     setPaying(planId);
     try {
       const orderRes = await billingAPI.createOrder(planId, gateway);
-      const { orderId, amount, currency, keyId, planLabel, prefill, paymentSessionId, gateway: responseGateway } = orderRes.data.data;
+      const { orderId, amount, currency, keyId, planLabel, prefill, paymentSessionId, gateway: responseGateway, environment } = orderRes.data.data;
 
       if (responseGateway === 'cashfree') {
         if (!window.Cashfree) {
@@ -48,7 +48,7 @@ export default function BillingPage() {
         }
 
         const cashfree = window.Cashfree({
-          mode: "production" // or sandbox based on env
+          mode: environment || "sandbox"
         });
         
         cashfree.checkout({

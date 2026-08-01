@@ -145,10 +145,11 @@ exports.createSubscription = async (req, res, next) => {
 
       try {
         const response = await cashfree.PGCreateOrder(request);
+        logger.info('Cashfree raw response data: ' + JSON.stringify(response.data));
         
         await Payment.create({
           user: req.user._id,
-          cashfreeOrderId: response.data.order_id,
+          cashfreeOrderId: response.data.order_id || response.data.cf_order_id,
           plan: planId,
           amount: amountInPaisa,
           paymentGateway: 'cashfree',
@@ -159,11 +160,12 @@ exports.createSubscription = async (req, res, next) => {
         return res.status(201).json({
           status: 'success',
           data: {
-            orderId: response.data.order_id,
+            orderId: response.data.order_id || response.data.cf_order_id,
             paymentSessionId: response.data.payment_session_id,
             amount: taxInfo.totalAmount,
             currency: 'INR',
-            gateway: 'cashfree'
+            gateway: 'cashfree',
+            environment: process.env.CASHFREE_ENV === 'PRODUCTION' ? 'production' : 'sandbox'
           }
         });
       } catch (err) {
