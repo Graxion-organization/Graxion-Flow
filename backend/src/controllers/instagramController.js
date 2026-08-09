@@ -102,7 +102,7 @@ exports.autoConnect = async (req, res, next) => {
 
     const pages = pagesResponse.data.data;
     if (!pages || pages.length === 0) {
-      return next(new AppError('No Facebook Pages found for this account', 404));
+      return next(new AppError('No Facebook Pages found for this account. Ensure you selected a Facebook Page linked to your Instagram account in the popup, and that your token has business_management permissions if the page is in a Business Manager.', 404));
     }
 
     const connectedAccounts = [];
