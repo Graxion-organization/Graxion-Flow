@@ -40,7 +40,11 @@ const INTEGRATIONS_CONFIG = [
     textColor: 'text-emerald-400',
     accentColor: '#10b981',
     features: ['Official API Support', 'Interactive Flow Builder', 'AI Agent Responses'],
-    permissions: ['whatsapp_business_management', 'whatsapp_business_messaging', 'business_management']
+    permissions: [
+      { name: 'whatsapp_business_management', purpose: 'Allows reading and managing your WhatsApp Business metadata.' },
+      { name: 'whatsapp_business_messaging', purpose: 'Enables sending and receiving messages on behalf of your WhatsApp Business account.' },
+      { name: 'business_management', purpose: 'Required to access Facebook Business Manager for account verification.' }
+    ]
   },
   {
     id: 'facebook',
@@ -54,7 +58,14 @@ const INTEGRATIONS_CONFIG = [
     textColor: 'text-blue-400',
     accentColor: '#2563eb',
     features: ['Page Comment Replies', 'Direct Message Automation', 'Instant Leads Sync'],
-    permissions: ['pages_show_list', 'pages_manage_metadata', 'pages_read_engagement', 'pages_manage_posts', 'pages_messaging', 'public_profile']
+    permissions: [
+      { name: 'pages_show_list', purpose: 'Allows the system to see the list of Pages you manage.' },
+      { name: 'pages_manage_metadata', purpose: 'Needed to subscribe to webhooks and manage page settings.' },
+      { name: 'pages_read_engagement', purpose: 'Allows reading comments and interactions on your Page.' },
+      { name: 'pages_manage_posts', purpose: 'Required to reply to comments and manage posts.' },
+      { name: 'pages_messaging', purpose: 'Core permission required to send and receive direct messages.' },
+      { name: 'public_profile', purpose: 'Used to read basic public profile details.' }
+    ]
   },
   {
     id: 'instagram',
@@ -68,7 +79,12 @@ const INTEGRATIONS_CONFIG = [
     textColor: 'text-pink-400',
     accentColor: '#ec4899',
     features: ['DM Auto-Response', 'Story Mention Trigger', 'Comment to DM Flow'],
-    permissions: ['instagram_basic', 'instagram_manage_messages', 'instagram_manage_comments', 'instagram_manage_insights']
+    permissions: [
+      { name: 'instagram_basic', purpose: 'Reads basic account information and media.' },
+      { name: 'instagram_manage_messages', purpose: 'Allows the system to send and receive Instagram DMs.' },
+      { name: 'instagram_manage_comments', purpose: 'Required to read and reply to Instagram post and Reel comments.' },
+      { name: 'instagram_manage_insights', purpose: 'Used to track message and interaction analytics.' }
+    ]
   },
   {
     id: 'youtube',
@@ -82,7 +98,10 @@ const INTEGRATIONS_CONFIG = [
     textColor: 'text-red-400',
     accentColor: '#ef4444',
     features: ['Realtime Comment Sync', 'AI Smart Moderation', 'Subscribe Reminder Automations'],
-    permissions: ['youtube.readonly', 'youtube.force-ssl']
+    permissions: [
+      { name: 'youtube.readonly', purpose: 'Allows viewing your YouTube channel details and videos.' },
+      { name: 'youtube.force-ssl', purpose: 'Required for reading and replying to comments via the YouTube API.' }
+    ]
   },
   {
     id: 'linkedin',
@@ -96,7 +115,12 @@ const INTEGRATIONS_CONFIG = [
     textColor: 'text-sky-400',
     accentColor: '#0ea5e9',
     features: ['Auto Connection Invites', 'AI Warm Outreach Messages', 'Post Engagement Tracking'],
-    permissions: ['r_liteprofile', 'r_emailaddress', 'w_member_social', 'rw_organization_admin']
+    permissions: [
+      { name: 'r_liteprofile', purpose: 'Reads basic profile information for setup.' },
+      { name: 'r_emailaddress', purpose: 'Reads email address for account linkage.' },
+      { name: 'w_member_social', purpose: 'Required to post content and send direct messages.' },
+      { name: 'rw_organization_admin', purpose: 'Needed if automating company page interactions.' }
+    ]
   },
   {
     id: 'telegram',
@@ -110,7 +134,11 @@ const INTEGRATIONS_CONFIG = [
     textColor: 'text-blue-300',
     accentColor: '#38bdf8',
     features: ['Instant Bot Reply', 'AI Assistant Setup', 'Group & Channel Moderation'],
-    permissions: ['bot_api_token', 'send_messages', 'read_messages']
+    permissions: [
+      { name: 'bot_api_token', purpose: 'Used to authenticate and control your Telegram bot.' },
+      { name: 'send_messages', purpose: 'Allows the bot to send text, media, and interactive messages.' },
+      { name: 'read_messages', purpose: 'Allows the bot to read incoming messages from users.' }
+    ]
   },
 
   // Tools & External Apps (API Key based)
@@ -126,7 +154,12 @@ const INTEGRATIONS_CONFIG = [
     textColor: 'text-lime-400',
     accentColor: '#84cc16',
     features: ['Order Sync & Status', 'Abandoned Cart Recovery', 'Inventory Notification Alerts'],
-    permissions: ['read_orders', 'write_orders', 'read_products', 'read_customers'],
+    permissions: [
+      { name: 'read_orders', purpose: 'Reads order history and status for syncing.' },
+      { name: 'write_orders', purpose: 'Allows updating order status.' },
+      { name: 'read_products', purpose: 'Reads product catalog and inventory levels.' },
+      { name: 'read_customers', purpose: 'Reads customer profiles and purchase history.' }
+    ],
     fields: [
       { 
         name: 'shopUrl', 
@@ -156,7 +189,11 @@ const INTEGRATIONS_CONFIG = [
     textColor: 'text-violet-400',
     accentColor: '#8b5cf6',
     features: ['Direct Checkout Links', 'Automatic Invoice Alerts', 'Subscription State Sync'],
-    permissions: ['read_charges', 'write_invoices', 'read_customers'],
+    permissions: [
+      { name: 'read_charges', purpose: 'Reads successful and failed payment charge details.' },
+      { name: 'write_invoices', purpose: 'Allows creating and managing customer invoices.' },
+      { name: 'read_customers', purpose: 'Reads customer details and subscription status.' }
+    ],
     fields: [
       { 
         name: 'apiKey', 
@@ -179,7 +216,11 @@ const INTEGRATIONS_CONFIG = [
     textColor: 'text-orange-400',
     accentColor: '#f97316',
     features: ['Contact Synchronization', 'Custom Timeline Activities', 'Deal pipeline updates'],
-    permissions: ['crm.objects.contacts.read', 'crm.objects.contacts.write', 'timeline'],
+    permissions: [
+      { name: 'crm.objects.contacts.read', purpose: 'Reads contact information from your CRM.' },
+      { name: 'crm.objects.contacts.write', purpose: 'Allows creating leads and updating contact properties.' },
+      { name: 'timeline', purpose: 'Required to push custom chat interactions to the contact timeline.' }
+    ],
     fields: [
       { 
         name: 'accessToken', 
@@ -202,7 +243,9 @@ const INTEGRATIONS_CONFIG = [
     textColor: 'text-emerald-500',
     accentColor: '#059669',
     features: ['Export Contact Lists', 'Log Broadcast Responses', 'Custom Sheets Formatting'],
-    permissions: ['https://www.googleapis.com/auth/spreadsheets'],
+    permissions: [
+      { name: 'spreadsheets', purpose: 'Provides full read and write access to the connected Google Sheets.' }
+    ],
     fields: [
       { 
         name: 'spreadsheetId', 
@@ -738,9 +781,17 @@ export default function IntegrationsPage() {
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block mb-2">Required Permissions</span>
                     <div className="flex flex-wrap gap-1.5">
                       {int.permissions.map((perm, idx) => (
-                        <span key={idx} className="px-2 py-1 bg-white dark:bg-black/20 rounded-md text-[10px] font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10">
-                          {perm}
-                        </span>
+                        <div key={idx} className="group relative">
+                          <span className="inline-block px-2 py-1 bg-white dark:bg-black/20 rounded-md text-[10px] font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 cursor-help transition-colors hover:bg-slate-100 dark:hover:bg-black/40">
+                            {perm.name}
+                          </span>
+                          <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-48 -translate-x-1/2 opacity-0 transition-all group-hover:opacity-100 z-10 translate-y-1 group-hover:-translate-y-0">
+                            <div className="rounded-lg bg-slate-800 dark:bg-slate-700 px-3 py-2.5 text-center text-[10px] text-slate-200 shadow-xl border border-slate-700 dark:border-slate-600 leading-relaxed">
+                              {perm.purpose}
+                              <svg className="absolute left-1/2 top-full -mt-[1px] h-2 w-full -translate-x-1/2 text-slate-800 dark:text-slate-700" x="0px" y="0px" viewBox="0 0 255 255" xmlSpace="preserve"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                            </div>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
