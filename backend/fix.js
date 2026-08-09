@@ -1,0 +1,1 @@
+require('dotenv').config(); const mongoose=require('mongoose'); mongoose.connect(process.env.MONGODB_URI).then(async () => { const WA = require('./src/models/WhatsappAccount'); const res = await WA.updateMany({ user: '6a0769e5feb75f5af9d1fe0a' }, { $set: { organization: '6a076a02feb75f5af9d1fe3b' } }); console.log('Fixed', res.modifiedCount, 'accounts'); process.exit(0); })
