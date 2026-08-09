@@ -18,6 +18,12 @@ const instagramAccountSchema = new mongoose.Schema({
   igUsername: {
     type: String,
   },
+  igName: {
+    type: String,
+  },
+  profilePictureUrl: {
+    type: String,
+  },
   pageId: {
     type: String,
     required: true,

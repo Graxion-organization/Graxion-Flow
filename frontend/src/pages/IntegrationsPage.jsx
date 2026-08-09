@@ -677,9 +677,14 @@ export default function IntegrationsPage() {
                   <div className="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar">
                     {connectedAccounts.map((acc) => (
                       <div key={acc.id} className="flex justify-between items-center bg-white dark:bg-white/[0.01] hover:bg-slate-50 dark:hover:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-lg p-2 text-xs">
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-slate-800 dark:text-slate-200 font-bold truncate max-w-[160px]">{acc.name}</span>
-                          <span className="text-[9px] text-slate-500 dark:text-slate-400">{acc.type}</span>
+                        <div className="flex items-center gap-2 min-w-0">
+                          {acc.avatar && (
+                            <img src={acc.avatar} alt={acc.name} className="h-7 w-7 rounded-full object-cover shrink-0 border border-slate-200 dark:border-white/10" referrerPolicy="no-referrer" />
+                          )}
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-slate-800 dark:text-slate-200 font-bold truncate max-w-[140px]">{acc.name}</span>
+                            <span className="text-[9px] text-slate-500 dark:text-slate-400 truncate">{acc.username ? `@${acc.username}` : acc.type}</span>
+                          </div>
                         </div>
                         <button
                           onClick={() => handleDisconnectChannel(acc)}

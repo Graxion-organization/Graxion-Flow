@@ -122,20 +122,22 @@ exports.autoConnect = async (req, res, next) => {
         if (igBusinessAccount) {
           const igAccountId = igBusinessAccount.id;
           
-          // 3. Get IG Username
+          // 3. Get IG Username and Profile Details
           let igUsername = page.name || 'Instagram Account';
+          let igName = '';
+          let profilePictureUrl = '';
           try {
             const igDetails = await axios.get(`https://graph.facebook.com/${apiVersion}/${igAccountId}`, {
               params: {
-                fields: 'username',
+                fields: 'username,name,profile_picture_url',
                 access_token: page.access_token
               }
             });
-            if (igDetails.data.username) {
-              igUsername = igDetails.data.username;
-            }
+            if (igDetails.data.username) igUsername = igDetails.data.username;
+            if (igDetails.data.name) igName = igDetails.data.name;
+            if (igDetails.data.profile_picture_url) profilePictureUrl = igDetails.data.profile_picture_url;
           } catch (err) {
-            logger.warn(`Could not fetch username for IG Account ${igAccountId}`);
+            logger.warn(`Could not fetch details for IG Account ${igAccountId}`);
           }
 
           // Save to DB
@@ -145,6 +147,8 @@ exports.autoConnect = async (req, res, next) => {
               user: req.user._id,
               organization: req.organization._id,
               igUsername,
+              igName,
+              profilePictureUrl,
               pageId: page.id,
               pageAccessToken: page.access_token,
               status: 'connected',
