@@ -11,8 +11,8 @@ exports.autoConnect = async (req, res, next) => {
     const apiVersion = process.env.META_API_VERSION || 'v19.0';
     let finalUserToken = accessToken;
 
-    const appId = process.env.FACEBOOK_APP_ID || process.env.META_APP_ID;
-    const appSecret = process.env.FACEBOOK_APP_SECRET || process.env.META_APP_SECRET;
+    const appId = (process.env.META_APP_ID || '').trim().replace(/^['"]|['"]$/g, '');
+    const appSecret = (process.env.META_APP_SECRET || '').trim().replace(/^['"]|['"]$/g, '');
 
     if (appId && appSecret) {
       try {
@@ -30,10 +30,10 @@ exports.autoConnect = async (req, res, next) => {
       } catch (err) {
         const metaErr = err.response?.data?.error?.message || err.message;
         logger.error(`Failed to get long-lived token: ${metaErr} (Status: ${err.response?.status})`);
-        return next(new AppError(`Failed to generate long-lived Facebook token: ${metaErr}. Please check FACEBOOK_APP_ID and FACEBOOK_APP_SECRET.`, 400));
+        return next(new AppError(`Failed to generate long-lived Facebook token: ${metaErr}. Please check META_APP_ID and META_APP_SECRET.`, 400));
       }
     } else {
-      return next(new AppError('Server is missing FACEBOOK_APP_ID or FACEBOOK_APP_SECRET environment variables.', 500));
+      return next(new AppError('Server is missing META_APP_ID or META_APP_SECRET environment variables.', 500));
     }
     let pagesResponse;
     try {

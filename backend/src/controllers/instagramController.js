@@ -66,9 +66,9 @@ exports.autoConnect = async (req, res, next) => {
     const apiVersion = process.env.META_API_VERSION || 'v19.0';
     let finalUserToken = accessToken;
 
-    // Dedicated Instagram App ID and App Secret from environment variables
-    const appId = (process.env.INSTAGRAM_APP_ID || process.env.FACEBOOK_APP_ID || process.env.META_APP_ID || '').trim().replace(/^['"]|['"]$/g, '');
-    const appSecret = (process.env.INSTAGRAM_APP_SECRET || process.env.FACEBOOK_APP_SECRET || process.env.META_APP_SECRET || '').trim().replace(/^['"]|['"]$/g, '');
+    // Dedicated Meta App ID and App Secret from environment variables
+    const appId = (process.env.META_APP_ID || '').trim().replace(/^['"]|['"]$/g, '');
+    const appSecret = (process.env.META_APP_SECRET || '').trim().replace(/^['"]|['"]$/g, '');
 
     // Exchange short-lived User token for long-lived User token
     // This ensures that the Page Access Tokens we fetch next are NON-EXPIRING
@@ -89,10 +89,10 @@ exports.autoConnect = async (req, res, next) => {
       } catch (err) {
         const errorMsg = err.response?.data?.error?.message || err.message;
         logger.error(`Failed to get long-lived Instagram token: ${errorMsg}`);
-        return next(new AppError(`Failed to generate long-lived Instagram token: ${errorMsg}. Please ensure INSTAGRAM_APP_ID and INSTAGRAM_APP_SECRET are set correctly in backend .env file.`, 400));
+        return next(new AppError(`Failed to generate long-lived Instagram token: ${errorMsg}. Please ensure META_APP_ID and META_APP_SECRET are set correctly in backend .env file.`, 400));
       }
     } else {
-      return next(new AppError('Server is missing INSTAGRAM_APP_ID or INSTAGRAM_APP_SECRET environment variables in backend .env file.', 500));
+      return next(new AppError('Server is missing META_APP_ID or META_APP_SECRET environment variables in backend .env file.', 500));
     }
     
     // 1. Get Facebook Pages using the (now long-lived) token
