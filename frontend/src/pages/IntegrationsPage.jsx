@@ -39,7 +39,8 @@ const INTEGRATIONS_CONFIG = [
     borderColor: 'border-emerald-500/20',
     textColor: 'text-emerald-400',
     accentColor: '#10b981',
-    features: ['Official API Support', 'Interactive Flow Builder', 'AI Agent Responses']
+    features: ['Official API Support', 'Interactive Flow Builder', 'AI Agent Responses'],
+    permissions: ['whatsapp_business_management', 'whatsapp_business_messaging', 'business_management']
   },
   {
     id: 'facebook',
@@ -52,7 +53,8 @@ const INTEGRATIONS_CONFIG = [
     borderColor: 'border-blue-600/20',
     textColor: 'text-blue-400',
     accentColor: '#2563eb',
-    features: ['Page Comment Replies', 'Direct Message Automation', 'Instant Leads Sync']
+    features: ['Page Comment Replies', 'Direct Message Automation', 'Instant Leads Sync'],
+    permissions: ['pages_show_list', 'pages_manage_metadata', 'pages_read_engagement', 'pages_manage_posts', 'pages_messaging', 'public_profile']
   },
   {
     id: 'instagram',
@@ -65,7 +67,8 @@ const INTEGRATIONS_CONFIG = [
     borderColor: 'border-pink-500/20',
     textColor: 'text-pink-400',
     accentColor: '#ec4899',
-    features: ['DM Auto-Response', 'Story Mention Trigger', 'Comment to DM Flow']
+    features: ['DM Auto-Response', 'Story Mention Trigger', 'Comment to DM Flow'],
+    permissions: ['instagram_basic', 'instagram_manage_messages', 'instagram_manage_comments', 'instagram_manage_insights']
   },
   {
     id: 'youtube',
@@ -78,7 +81,8 @@ const INTEGRATIONS_CONFIG = [
     borderColor: 'border-red-500/20',
     textColor: 'text-red-400',
     accentColor: '#ef4444',
-    features: ['Realtime Comment Sync', 'AI Smart Moderation', 'Subscribe Reminder Automations']
+    features: ['Realtime Comment Sync', 'AI Smart Moderation', 'Subscribe Reminder Automations'],
+    permissions: ['youtube.readonly', 'youtube.force-ssl']
   },
   {
     id: 'linkedin',
@@ -91,7 +95,8 @@ const INTEGRATIONS_CONFIG = [
     borderColor: 'border-sky-500/20',
     textColor: 'text-sky-400',
     accentColor: '#0ea5e9',
-    features: ['Auto Connection Invites', 'AI Warm Outreach Messages', 'Post Engagement Tracking']
+    features: ['Auto Connection Invites', 'AI Warm Outreach Messages', 'Post Engagement Tracking'],
+    permissions: ['r_liteprofile', 'r_emailaddress', 'w_member_social', 'rw_organization_admin']
   },
   {
     id: 'telegram',
@@ -104,7 +109,8 @@ const INTEGRATIONS_CONFIG = [
     borderColor: 'border-blue-400/20',
     textColor: 'text-blue-300',
     accentColor: '#38bdf8',
-    features: ['Instant Bot Reply', 'AI Assistant Setup', 'Group & Channel Moderation']
+    features: ['Instant Bot Reply', 'AI Assistant Setup', 'Group & Channel Moderation'],
+    permissions: ['bot_api_token', 'send_messages', 'read_messages']
   },
 
   // Tools & External Apps (API Key based)
@@ -120,6 +126,7 @@ const INTEGRATIONS_CONFIG = [
     textColor: 'text-lime-400',
     accentColor: '#84cc16',
     features: ['Order Sync & Status', 'Abandoned Cart Recovery', 'Inventory Notification Alerts'],
+    permissions: ['read_orders', 'write_orders', 'read_products', 'read_customers'],
     fields: [
       { 
         name: 'shopUrl', 
@@ -149,6 +156,7 @@ const INTEGRATIONS_CONFIG = [
     textColor: 'text-violet-400',
     accentColor: '#8b5cf6',
     features: ['Direct Checkout Links', 'Automatic Invoice Alerts', 'Subscription State Sync'],
+    permissions: ['read_charges', 'write_invoices', 'read_customers'],
     fields: [
       { 
         name: 'apiKey', 
@@ -171,6 +179,7 @@ const INTEGRATIONS_CONFIG = [
     textColor: 'text-orange-400',
     accentColor: '#f97316',
     features: ['Contact Synchronization', 'Custom Timeline Activities', 'Deal pipeline updates'],
+    permissions: ['crm.objects.contacts.read', 'crm.objects.contacts.write', 'timeline'],
     fields: [
       { 
         name: 'accessToken', 
@@ -193,6 +202,7 @@ const INTEGRATIONS_CONFIG = [
     textColor: 'text-emerald-500',
     accentColor: '#059669',
     features: ['Export Contact Lists', 'Log Broadcast Responses', 'Custom Sheets Formatting'],
+    permissions: ['https://www.googleapis.com/auth/spreadsheets'],
     fields: [
       { 
         name: 'spreadsheetId', 
@@ -721,6 +731,20 @@ export default function IntegrationsPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* Required Permissions */}
+                {int.permissions && (
+                  <div className="mb-6 p-3 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block mb-2">Required Permissions</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {int.permissions.map((perm, idx) => (
+                        <span key={idx} className="px-2 py-1 bg-white dark:bg-black/20 rounded-md text-[10px] font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10">
+                          {perm}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Detail View of Connection */}
                 {connectedDetails}
