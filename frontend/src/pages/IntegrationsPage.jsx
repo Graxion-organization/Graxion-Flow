@@ -781,11 +781,11 @@ export default function IntegrationsPage() {
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block mb-2">Required Permissions</span>
                     <div className="flex flex-wrap gap-1.5">
                       {int.permissions.map((perm, idx) => (
-                        <div key={idx} className="group relative">
+                        <div key={idx} className="group/perm relative">
                           <span className="inline-block px-2 py-1 bg-white dark:bg-black/20 rounded-md text-[10px] font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 cursor-help transition-colors hover:bg-slate-100 dark:hover:bg-black/40">
                             {perm.name}
                           </span>
-                          <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-48 -translate-x-1/2 opacity-0 transition-all group-hover:opacity-100 z-10 translate-y-1 group-hover:-translate-y-0">
+                          <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-48 -translate-x-1/2 opacity-0 transition-all group-hover/perm:opacity-100 z-10 translate-y-1 group-hover/perm:-translate-y-0">
                             <div className="rounded-lg bg-slate-800 dark:bg-slate-700 px-3 py-2.5 text-center text-[10px] text-slate-200 shadow-xl border border-slate-700 dark:border-slate-600 leading-relaxed">
                               {perm.purpose}
                               <svg className="absolute left-1/2 top-full -mt-[1px] h-2 w-full -translate-x-1/2 text-slate-800 dark:text-slate-700" x="0px" y="0px" viewBox="0 0 255 255" xmlSpace="preserve"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
