@@ -219,6 +219,24 @@ async function handleFacebookMessage(event, fbAccount, agent) {
         type: 'text',
         timestamp: new Date(),
       });
+      conversation.lastMessageAt = new Date();
+      conversation.isRead = false;
+      await conversation.save();
+
+      // IMMEDIATE UI UPDATE: Emit event and notification before AI starts processing
+      emitToUser(fbAccount.user.toString(), 'conversation_updated', {
+        conversationId: conversation._id,
+        messages: await conversation.getRecentMessages(),
+        customerPhone: conversation.customerPhone || senderId
+      });
+
+      emitNotification(fbAccount.user.toString(), {
+        type: 'new_message',
+        title: '💬 New Facebook Message',
+        message: `${conversation.customerName || senderId}: ${text.slice(0, 60)}${text.length > 60 ? '…' : ''}`,
+        conversationId: conversation._id,
+        platform: 'facebook',
+      });
 
       const contextMessages = (await conversation.getRecentMessages(20))
         .filter((m) => m.role !== 'system')

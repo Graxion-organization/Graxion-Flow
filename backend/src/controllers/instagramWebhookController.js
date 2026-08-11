@@ -334,6 +334,24 @@ async function handleInstagramDM(event, igAccount, agent) {
         type: 'text',
         timestamp: new Date(),
       });
+      conversation.lastMessageAt = new Date();
+      conversation.isRead = false;
+      await conversation.save();
+
+      // IMMEDIATE UI UPDATE: Emit event and notification before AI starts processing
+      emitToUser(igAccount.user.toString(), 'conversation_updated', {
+        conversationId: conversation._id,
+        messages: await conversation.getRecentMessages(),
+        customerPhone: conversation.customerPhone || senderId
+      });
+
+      emitNotification(igAccount.user.toString(), {
+        type: 'new_message',
+        title: '📸 New Instagram DM',
+        message: `${conversation.customerName || senderId}: ${text.slice(0, 60)}${text.length > 60 ? '…' : ''}`,
+        conversationId: conversation._id,
+        platform: 'instagram',
+      });
 
       const contextMessages = (await conversation.getRecentMessages(20))
         .filter((m) => m.role !== 'system')

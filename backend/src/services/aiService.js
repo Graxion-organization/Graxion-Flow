@@ -144,6 +144,9 @@ class AIService {
       }
  
       let systemPrompt = agent.systemPrompt || 'You are a helpful AI assistant.';
+      
+      // Enforce conciseness and human-like tone to reduce token usage and improve UX
+      systemPrompt += `\n\n[CRITICAL SYSTEM INSTRUCTION]: You are chatting with a user on a messaging app (WhatsApp/IG/Messenger). Keep your replies EXTREMELY CONCISE, short, and conversational (human-like). DO NOT output large blocks of text unless absolutely necessary to answer a complex question. Save tokens by getting straight to the point in as few words as possible.`;
       if (ragContext) {
         systemPrompt += `\n\n[Relevant Knowledge Base Context]:\n${ragContext}`;
       }

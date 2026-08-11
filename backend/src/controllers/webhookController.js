@@ -460,6 +460,24 @@ exports.processWebhookPayload = async (payload) => {
         media: mediaData,
         timestamp: new Date(parseInt(timestamp) * 1000),
       });
+      conversation.lastMessageAt = new Date();
+      conversation.isRead = false;
+      await conversation.save();
+
+      // IMMEDIATE UI UPDATE: Emit event and notification before AI starts processing
+      emitToUser(waAccount.user.toString(), 'conversation_updated', {
+        conversationId: conversation._id,
+        messages: await conversation.getRecentMessages(),
+        customerPhone: conversation.customerPhone || from
+      });
+
+      emitNotification(waAccount.user.toString(), {
+        type: 'new_message',
+        title: '🟢 New WhatsApp Message',
+        message: `${conversation.customerName || from}: ${userMessageText.slice(0, 60)}${userMessageText.length > 60 ? '…' : ''}`,
+        conversationId: conversation._id,
+        platform: 'whatsapp',
+      });
 
       // 8. Check Flow Engine (AI-003)
       const FlowEngine = require('../services/flowEngine');

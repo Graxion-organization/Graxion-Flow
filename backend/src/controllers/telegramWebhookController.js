@@ -297,6 +297,24 @@ exports.receiveMessage = async (req, res) => {
           type: 'text',
           timestamp: new Date(timestamp * 1000),
         });
+        conversation.lastMessageAt = new Date();
+        conversation.isRead = false;
+        await conversation.save();
+
+        // IMMEDIATE UI UPDATE: Emit event and notification before AI starts processing
+        emitToUser(tgAccount.user.toString(), 'conversation_updated', {
+          conversationId: conversation._id,
+          messages: await conversation.getRecentMessages(),
+          customerPhone: conversation.customerPhone || fromId.toString()
+        });
+
+        emitNotification(tgAccount.user.toString(), {
+          type: 'new_message',
+          title: '✈️ New Telegram Message',
+          message: `${conversation.customerName || fromName || fromUsername || fromId}: ${text.slice(0, 60)}${text.length > 60 ? '…' : ''}`,
+          conversationId: conversation._id,
+          platform: 'telegram',
+        });
 
         // 8. Get recent context window
         const contextMessages = (await conversation.getRecentMessages(20))
