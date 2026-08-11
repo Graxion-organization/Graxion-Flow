@@ -181,6 +181,7 @@ export default function ConversationsPage() {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [typingConversations, setTypingConversations] = useState({});
 
   // Template States
   const [showTemplateModal, setShowTemplateModal] = useState(false);
@@ -321,7 +322,17 @@ export default function ConversationsPage() {
       });
     });
 
-    return () => socket.off('conversation_updated');
+    socket.on('ai_typing', (data) => {
+      setTypingConversations((prev) => ({
+        ...prev,
+        [data.conversationId]: data.isTyping
+      }));
+    });
+
+    return () => {
+      socket.off('conversation_updated');
+      socket.off('ai_typing');
+    };
   }, []);
 
   const selectConversation = async (conv) => {
@@ -622,7 +633,11 @@ export default function ConversationsPage() {
                       </div>
                     </div>
                     <p className={`text-xs mt-1 ml-11 truncate ${selected?._id === conv._id ? mutedClass : subtleClass} ${!conv.isRead && selected?._id !== conv._id ? ('font-bold text-gray-800 dark:font-bold dark:text-slate-200') : ''}`}>
-                      {conv.agent?.name} - {conv.totalMessages} msgs
+                      {typingConversations[conv._id] ? (
+                        <span className="italic text-[#FF6A00] animate-pulse">AI is typing...</span>
+                      ) : (
+                        `${conv.agent?.name} - ${conv.totalMessages} msgs`
+                      )}
                     </p>
                   </motion.button>
                 );
@@ -740,6 +755,23 @@ export default function ConversationsPage() {
                       </div>
                     )}
                     {selected.messages?.slice(-visibleMessagesCount).map((msg, i) => <MessageBubble key={i} msg={msg} platform={selected.platform || 'whatsapp'}  />)}
+                    
+                    {typingConversations[selected._id] && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex justify-start mb-2"
+                      >
+                        <div className={`rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1.5 ${'bg-gray-100 text-gray-800 dark:bg-slate-800 dark:border dark:border-white/10'}`}>
+                          <div className="flex gap-1 items-center h-4">
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
                     <div ref={messagesEndRef} />
                   </>
                 )}

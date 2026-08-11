@@ -537,6 +537,7 @@ exports.processWebhookPayload = async (payload) => {
  
       // 9. Generate AI response using OrchestrationEngine
       const OrchestrationEngine = require('../services/orchestrationEngine');
+      emitToUser(waAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: true });
       const aiResult = await OrchestrationEngine.execute({
         organizationId: waAccount.organization,
         conversation,
@@ -545,6 +546,7 @@ exports.processWebhookPayload = async (payload) => {
         from,
         wantsVoice
       });
+      emitToUser(waAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
  
       const targetAgent = aiResult.agent;
  
@@ -665,6 +667,9 @@ exports.processWebhookPayload = async (payload) => {
 
       logger.info(`AI reply sent to ${from} in ${aiResult.responseTime}ms`);
     } catch (err) {
+      if (conversation?._id && waAccount?.user) {
+        emitToUser(waAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
+      }
       logger.error(`Error processing WhatsApp webhook task: ${err.message}`, { stack: err.stack });
     }
   } catch (err) {

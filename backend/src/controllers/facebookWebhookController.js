@@ -279,9 +279,11 @@ async function handleFacebookMessage(event, fbAccount, agent) {
         return; // Skip AI
       }
 
+      emitToUser(fbAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: true });
       const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text, 'facebook');
+      emitToUser(fbAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
+      
       const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'facebook');
-
       const sentMsg = await fbService.sendTextMessage(senderId, cleanReply || "I am currently unable to process that request.");
 
       await conversation.addMessage({
@@ -318,6 +320,9 @@ async function handleFacebookMessage(event, fbAccount, agent) {
       
       await fbService.sendAction(senderId, 'typing_off');
     } catch (err) {
+      if (conversation?._id && fbAccount?.user) {
+        emitToUser(fbAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
+      }
       logger.error(`Error processing Facebook message task: ${err.message}`, { stack: err.stack });
     }
   }, { platform: 'facebook', payload: { senderId, messageId, text } });

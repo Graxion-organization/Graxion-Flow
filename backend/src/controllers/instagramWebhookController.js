@@ -397,7 +397,9 @@ async function handleInstagramDM(event, igAccount, agent) {
         return; // Skip AI
       }
 
+      emitToUser(igAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: true });
       const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text, 'instagram');
+      emitToUser(igAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
       const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'instagram');
 
       let sentMsg;
@@ -484,6 +486,9 @@ async function handleInstagramDM(event, igAccount, agent) {
         $inc: { 'stats.totalMessages': 2, 'stats.totalConversations': conversation.totalMessages === 2 ? 1 : 0 },
       });
     } catch (err) {
+      if (conversation?._id && igAccount?.user) {
+        emitToUser(igAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
+      }
       logger.error(`Error processing Instagram DM task: ${err.message}`, { stack: err.stack });
     }
   }, { platform: 'instagram', payload: { senderId, messageId, text } });

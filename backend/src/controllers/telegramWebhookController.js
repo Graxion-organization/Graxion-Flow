@@ -360,7 +360,9 @@ exports.receiveMessage = async (req, res) => {
           return; // Skip AI
         }
 
+        emitToUser(tgAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: true });
         const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text, 'telegram');
+        emitToUser(tgAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
         const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'telegram');
       
         // 10. Send AI reply
@@ -418,6 +420,9 @@ exports.receiveMessage = async (req, res) => {
 
         logger.info(`AI reply sent to TG ${fromId} in ${aiResult.responseTime}ms`);
       } catch (err) {
+        if (conversation?._id && tgAccount?.user) {
+          emitToUser(tgAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
+        }
         logger.error(`Error processing Telegram webhook task: ${err.message}`, { stack: err.stack });
       }
     }, { platform: 'telegram', payload: { fromId, chatId, messageId, text, contact } });
