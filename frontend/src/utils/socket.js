@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const URL = process.env.REACT_APP_API_URL 
+const SOCKET_URL = process.env.REACT_APP_API_URL 
   ? process.env.REACT_APP_API_URL.replace('/api', '')
   : 'http://localhost:5000';
 
@@ -8,16 +8,28 @@ let socket = null;
 
 /**
  * Returns the singleton socket instance.
- * Creates and connects it on first call.
- * Subsequent calls return the same instance.
+ * Creates and connects it on first call using the JWT from localStorage.
+ * Subsequent calls return the same connected instance.
  */
 export const getSocket = () => {
   if (socket) return socket;
 
-  const token = localStorage.getItem('token');
+  // The app stores the JWT as 'authToken' in localStorage (see store/index.js)
+  const token = localStorage.getItem('authToken');
 
-  socket = io(URL, {
-    auth: { token: token || '' },
+  if (!token) {
+    console.warn('[Socket] No authToken found in localStorage. Socket will not connect.');
+    // Return a dummy no-op object so callers don't crash
+    return {
+      on: () => {},
+      off: () => {},
+      emit: () => {},
+      connected: false,
+    };
+  }
+
+  socket = io(SOCKET_URL, {
+    auth: { token },
     withCredentials: true,
     reconnection: true,
     reconnectionAttempts: Infinity,
