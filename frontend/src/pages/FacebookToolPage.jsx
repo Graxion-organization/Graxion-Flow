@@ -71,6 +71,13 @@ export default function FacebookTool() {
       }
     });
 
+    socket.on('new_facebook_comment', (data) => {
+      const currentMedia = selectedMediaRef.current;
+      if (currentMedia && (!data.mediaId || String(data.mediaId) === String(currentMedia.id))) {
+        fetchComments(currentMedia);
+      }
+    });
+
     return () => {
       socket.disconnect();
     };

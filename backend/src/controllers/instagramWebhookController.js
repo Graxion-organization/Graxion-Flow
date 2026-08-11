@@ -544,15 +544,13 @@ async function handleInstagramComment(commentData, igAccount, agent) {
         }
 
         // Emit socket event to update frontend live for the incoming comment
-        if (commentData?.media?.id) {
-          try {
-            const { emitToUser } = require('../utils/socket');
-            emitToUser(igAccount.user.toString(), 'new_instagram_comment', {
-              accountId: igAccount._id,
-              mediaId: commentData.media.id,
-            });
-          } catch(e) {}
-        }
+        try {
+          const { emitToUser } = require('../utils/socket');
+          emitToUser(igAccount.user.toString(), 'new_instagram_comment', {
+            accountId: igAccount._id,
+            mediaId: commentData?.media?.id || null, // Might be null in some Meta payloads
+          });
+        } catch(e) {}
 
         logger.info(`[COMMENT PROCESSING]: Found enabled bot for ${igAccount.igUsername}. Generating reply for: "${text}"`);
 
@@ -612,15 +610,13 @@ async function handleInstagramComment(commentData, igAccount, agent) {
         logger.info(`Successfully replied to comment ${commentId}`);
         
         // Emit socket event to update frontend live
-        if (commentData?.media?.id) {
-          try {
-            const { emitToUser } = require('../utils/socket');
-            emitToUser(igAccount.user.toString(), 'new_instagram_comment', {
-              accountId: igAccount._id,
-              mediaId: commentData.media.id,
-            });
-          } catch(e) { logger.warn('Failed to emit new_instagram_comment event'); }
-        }
+        try {
+          const { emitToUser } = require('../utils/socket');
+          emitToUser(igAccount.user.toString(), 'new_instagram_comment', {
+            accountId: igAccount._id,
+            mediaId: commentData?.media?.id || null,
+          });
+        } catch(e) { logger.warn('Failed to emit new_instagram_comment event'); }
 
         // We don't save comments in Conversations model to save DB space, but we bill the token usage & deduct credits safely
         await creditHelper.deductCredits(igAccount.user, creditCost);

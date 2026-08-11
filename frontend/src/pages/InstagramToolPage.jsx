@@ -74,7 +74,7 @@ export default function InstagramTool() {
     socket.on('new_instagram_comment', (data) => {
       console.log('[Socket] new_instagram_comment received:', data);
       const currentMedia = selectedMediaRef.current;
-      if (currentMedia && String(data.mediaId) === String(currentMedia.id)) {
+      if (currentMedia && (!data.mediaId || String(data.mediaId) === String(currentMedia.id))) {
         console.log('[Socket] Refreshing comments for media:', currentMedia.id);
         fetchComments(currentMedia);
       }
