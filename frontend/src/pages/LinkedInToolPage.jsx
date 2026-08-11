@@ -45,7 +45,12 @@ export default function LinkedInTool() {
   useEffect(() => {
     // JWT via cookies
     const socketUrl = (process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '');
-    const socket = io(socketUrl, { withCredentials: true, transports: ['websocket'] });
+    const token = localStorage.getItem('token');
+    const socket = io(socketUrl, { 
+      auth: { token },
+      withCredentials: true, 
+      transports: ['websocket'] 
+    });
     socketRef.current = socket;
 
     socket.on('li_auto_reply_progress', (data) => {

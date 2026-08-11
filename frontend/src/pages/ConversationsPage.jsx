@@ -285,7 +285,9 @@ export default function ConversationsPage() {
       ? process.env.REACT_APP_API_URL.replace('/api', '') 
       : 'http://localhost:5000';
       
+    const token = localStorage.getItem('token');
     const socket = io(socketUrl, {
+      auth: { token },
       withCredentials: true,
       transports: ['websocket']
     });
