@@ -306,8 +306,18 @@ export default function ConversationsPage() {
           };
           newConversations.splice(index, 1);
           return [updated, ...newConversations];
+        } else {
+          // New conversation!
+          return [{
+            _id: data.conversationId,
+            messages: data.messages,
+            customerPhone: data.customerPhone,
+            platform: data.platform || 'unknown',
+            status: 'active',
+            lastMessageAt: data.messages[data.messages.length - 1]?.timestamp || new Date(),
+            createdAt: new Date(),
+          }, ...prev];
         }
-        return prev;
       });
     });
 

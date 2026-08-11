@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 
 const SOCKET_URL = process.env.REACT_APP_API_URL 
-  ? process.env.REACT_APP_API_URL.replace('/api', '')
+  ? process.env.REACT_APP_API_URL.replace(/\/api\/?$/, '').replace(/['"]/g, '').replace(/\/$/, '')
   : 'http://localhost:5000';
 
 let socket = null;
@@ -35,7 +35,7 @@ export const getSocket = () => {
     reconnectionAttempts: Infinity,
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
-    transports: ['websocket', 'polling'],
+    transports: ['websocket'],
   });
 
   socket.on('connect', () => {
