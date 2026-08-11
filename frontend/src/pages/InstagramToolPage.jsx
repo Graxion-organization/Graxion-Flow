@@ -61,6 +61,12 @@ export default function InstagramTool() {
       }
     });
 
+    socket.on('new_instagram_comment', (data) => {
+      if (selectedMedia && data.mediaId === selectedMedia.id) {
+        fetchComments(selectedMedia);
+      }
+    });
+
     return () => {
       socket.disconnect();
     };
