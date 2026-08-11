@@ -116,7 +116,16 @@ exports.replyToConversation = async (req, res, next) => {
       const igService = new InstagramService(igAccount.pageAccessToken, igAccount.pageId);
       sentMsg = await igService.sendTextMessage(igAccount.igAccountId, conversation.customerIgId, message);
     } else if (conversation.platform === 'facebook') {
-      const fbAccount = conversation.facebookAccount;
+      let fbAccount = conversation.facebookAccount;
+      if (!fbAccount) {
+        // Fallback: if reference is broken (e.g. integration reconnected), find active account for org
+        const FacebookAccount = require('../models/FacebookAccount');
+        fbAccount = await FacebookAccount.findOne({ 
+          organization: conversation.organization, 
+          status: 'connected', 
+          isActive: true 
+        }).select('+pageAccessToken');
+      }
       if (!fbAccount) return next(new AppError('Facebook account not connected.', 400));
       const fbService = new FacebookService(fbAccount.pageAccessToken, fbAccount.pageId);
       sentMsg = await fbService.sendTextMessage(conversation.customerFbId, message);
