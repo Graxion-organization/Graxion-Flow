@@ -634,7 +634,7 @@ export default function ConversationsPage() {
                     </div>
                     <p className={`text-xs mt-1 ml-11 truncate ${selected?._id === conv._id ? mutedClass : subtleClass} ${!conv.isRead && selected?._id !== conv._id ? ('font-bold text-gray-800 dark:font-bold dark:text-slate-200') : ''}`}>
                       {typingConversations[conv._id] ? (
-                        <span className="italic text-[#FF6A00] animate-pulse">AI is typing...</span>
+                        <span className="italic text-[#FF6A00] animate-pulse">Agent is typing...</span>
                       ) : (
                         `${conv.agent?.name} - ${conv.totalMessages} msgs`
                       )}
@@ -760,13 +760,19 @@ export default function ConversationsPage() {
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="flex justify-start mb-2"
+                        className="flex justify-end mb-2"
                       >
-                        <div className={`rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1.5 ${'bg-gray-100 text-gray-800 dark:bg-slate-800 dark:border dark:border-white/10'}`}>
-                          <div className="flex gap-1 items-center h-4">
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                        <div className={`rounded-2xl rounded-br-sm px-4 py-3 flex items-center gap-2 ${
+                          selected.platform === 'instagram' ? 'bg-gradient-to-r from-purple-500/80 via-pink-500/80 to-orange-500/80 text-white' :
+                          selected.platform === 'facebook' ? 'bg-[#1877F2]/80 text-white' :
+                          selected.platform === 'telegram' ? 'bg-[#229ED9]/80 text-white' :
+                          'bg-whatsapp/80 text-white'
+                        }`}>
+                          <span className="text-xs font-medium italic opacity-90">Agent is typing</span>
+                          <div className="flex gap-1 items-center h-4 ml-1">
+                            <span className="w-1.5 h-1.5 bg-white/80 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                            <span className="w-1.5 h-1.5 bg-white/80 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                            <span className="w-1.5 h-1.5 bg-white/80 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                           </div>
                         </div>
                       </motion.div>
