@@ -41,30 +41,36 @@ export default function YouTubeTool() {
   
   const socketRef = useRef(null);
 
+  const selectedMediaRef = useRef(null);
+  useEffect(() => {
+    selectedMediaRef.current = selectedMedia;
+  }, [selectedMedia]);
+
   // Initialize Socket
   useEffect(() => {
-    // JWT via cookies
-    const socketUrl = (process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '');
-    const token = localStorage.getItem('token'); const socket = io(socketUrl, { auth: { token }, withCredentials: true, transports: ['websocket'] });
+    const { default: socket } = require('../utils/socket');
     socketRef.current = socket;
 
-    socket.on('yt_auto_reply_progress', (data) => {
+    const handleProgress = (data) => {
       // data: { mediaId, processed, total, status }
-      if (data.mediaId === selectedMedia?.id) {
+      const currentMedia = selectedMediaRef.current;
+      if (currentMedia && data.mediaId === currentMedia.id) {
         setAutoReplyProgress(data);
         if (data.status === 'completed') {
           setTimeout(() => {
             setAutoReplyProgress(null);
-            fetchComments(selectedMedia); // refresh to see AI replies
+            fetchComments(currentMedia); // refresh to see AI replies
           }, 2000);
         }
       }
-    });
+    };
+
+    socket.on('yt_auto_reply_progress', handleProgress);
 
     return () => {
-      socket.disconnect();
+      socket.off('yt_auto_reply_progress', handleProgress);
     };
-  }, [selectedMedia]);
+  }, []);
 
   // Fetch Accounts on mount
   useEffect(() => {

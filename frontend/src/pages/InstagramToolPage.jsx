@@ -48,16 +48,10 @@ export default function InstagramTool() {
 
   // Initialize Socket
   useEffect(() => {
-    const socketUrl = (process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '');
-    const token = localStorage.getItem('token');
-    const socket = io(socketUrl, { 
-      auth: { token },
-      withCredentials: true, 
-      transports: ['websocket'] 
-    });
+    const { default: socket } = require('../utils/socket');
     socketRef.current = socket;
 
-    socket.on('ig_auto_reply_progress', (data) => {
+    const handleProgress = (data) => {
       // data: { mediaId, processed, total, status }
       const currentMedia = selectedMediaRef.current;
       if (currentMedia && data.mediaId === currentMedia.id) {
@@ -69,19 +63,23 @@ export default function InstagramTool() {
           }, 2000);
         }
       }
-    });
+    };
 
-    socket.on('new_instagram_comment', (data) => {
+    const handleNewComment = (data) => {
       console.log('[Socket] new_instagram_comment received:', data);
       const currentMedia = selectedMediaRef.current;
       if (currentMedia && (!data.mediaId || String(data.mediaId) === String(currentMedia.id))) {
         console.log('[Socket] Refreshing comments for media:', currentMedia.id);
         fetchComments(currentMedia);
       }
-    });
+    };
+
+    socket.on('ig_auto_reply_progress', handleProgress);
+    socket.on('new_instagram_comment', handleNewComment);
 
     return () => {
-      socket.disconnect();
+      socket.off('ig_auto_reply_progress', handleProgress);
+      socket.off('new_instagram_comment', handleNewComment);
     };
   }, []);
 

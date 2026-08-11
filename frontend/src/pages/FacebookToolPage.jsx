@@ -48,16 +48,10 @@ export default function FacebookTool() {
 
   // Initialize Socket
   useEffect(() => {
-    const socketUrl = (process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '');
-    const token = localStorage.getItem('token');
-    const socket = io(socketUrl, { 
-      auth: { token },
-      withCredentials: true, 
-      transports: ['websocket'] 
-    });
+    const { default: socket } = require('../utils/socket');
     socketRef.current = socket;
 
-    socket.on('fb_auto_reply_progress', (data) => {
+    const handleProgress = (data) => {
       // data: { mediaId, processed, total, status }
       const currentMedia = selectedMediaRef.current;
       if (currentMedia && data.mediaId === currentMedia.id) {
@@ -69,17 +63,21 @@ export default function FacebookTool() {
           }, 2000);
         }
       }
-    });
+    };
 
-    socket.on('new_facebook_comment', (data) => {
+    const handleNewComment = (data) => {
       const currentMedia = selectedMediaRef.current;
       if (currentMedia && (!data.mediaId || String(data.mediaId) === String(currentMedia.id))) {
         fetchComments(currentMedia);
       }
-    });
+    };
+
+    socket.on('fb_auto_reply_progress', handleProgress);
+    socket.on('new_facebook_comment', handleNewComment);
 
     return () => {
-      socket.disconnect();
+      socket.off('fb_auto_reply_progress', handleProgress);
+      socket.off('new_facebook_comment', handleNewComment);
     };
   }, []);
 

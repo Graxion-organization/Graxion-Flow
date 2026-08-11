@@ -1174,20 +1174,15 @@ export default function AIPresenterPage() {
 
   // ── Socket Connection ──────────────────────────────────────
   useEffect(() => {
-    const socketUrl = process.env.REACT_APP_API_URL
-      ? process.env.REACT_APP_API_URL.replace('/api', '')
-      : 'http://localhost:5000';
+    const { default: socket } = require('../utils/socket');
 
-    const socket = io(socketUrl, {
-      withCredentials: true,
-      withCredentials: true
-    });
-
-    socket.on('bot_status', ({ meetingId, status }) => {
+    const handleBotStatus = ({ meetingId, status }) => {
       setBotStatuses(prev => ({ ...prev, [meetingId]: status }));
-    });
+    };
 
-    return () => socket.disconnect();
+    socket.on('bot_status', handleBotStatus);
+
+    return () => socket.off('bot_status', handleBotStatus);
   }, []);
 
   // ── Data Fetching ──────────────────────────────────────────

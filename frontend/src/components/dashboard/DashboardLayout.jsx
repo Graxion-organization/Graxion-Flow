@@ -389,15 +389,22 @@ export default function DashboardLayout() {
   }, [setFromAPI]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    const socketUrl = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace("/api", "") : "http://localhost:5000";
-    const socket = io(socketUrl, { auth: { token }, transports: ["websocket"] });
-    socket.on("new_notification", (notif) => {
+    // Import the centralized socket methods
+    const { default: socket, connectSocket } = require("../../utils/socket");
+    
+    // Connect the socket (if not already connected) using latest token
+    connectSocket();
+
+    const handleNewNotification = (notif) => {
       addNotification(notif);
       toast(notif.title, { icon: notif.type === "human_handoff" ? "!" : "•", duration: 3500, style: { fontSize: "13px" } });
-    });
-    return () => socket.disconnect();
+    };
+
+    socket.on("new_notification", handleNewNotification);
+    
+    return () => {
+      socket.off("new_notification", handleNewNotification);
+    };
   }, [addNotification]);
 
   useEffect(() => {

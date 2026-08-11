@@ -279,18 +279,7 @@ export default function ConversationsPage() {
 
 
   useEffect(() => {
-    // JWT is handled automatically via HttpOnly cookies
-
-    const socketUrl = process.env.REACT_APP_API_URL 
-      ? process.env.REACT_APP_API_URL.replace('/api', '') 
-      : 'http://localhost:5000';
-      
-    const token = localStorage.getItem('token');
-    const socket = io(socketUrl, {
-      auth: { token },
-      withCredentials: true,
-      transports: ['websocket']
-    });
+    const { default: socket } = require('../utils/socket');
 
     socket.on('conversation_updated', (data) => {
       // 1. Update selected conversation if currently viewing
@@ -322,7 +311,7 @@ export default function ConversationsPage() {
       });
     });
 
-    return () => socket.disconnect();
+    return () => socket.off('conversation_updated');
   }, []);
 
   const selectConversation = async (conv) => {
