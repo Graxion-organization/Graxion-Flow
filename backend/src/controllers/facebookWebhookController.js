@@ -282,12 +282,12 @@ async function handleFacebookMessage(event, fbAccount, agent) {
       const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text, 'facebook');
       const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'facebook');
 
-      const sentMsg = await fbService.sendTextMessage(senderId, cleanReply);
+      const sentMsg = await fbService.sendTextMessage(senderId, cleanReply || "I am currently unable to process that request.");
 
       await conversation.addMessage({
         role: 'assistant',
         content: cleanReply,
-        waMessageId: sentMsg.message_id,
+        waMessageId: sentMsg?.message_id,
         type: 'text',
         status: 'sent',
         tokens: aiResult.tokensUsed,

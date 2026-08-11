@@ -438,7 +438,7 @@ async function handleInstagramDM(event, igAccount, agent) {
       }
 
       if (!wantsVoice || !audioSent || !instagramAudioEnabled) {
-        sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, cleanReply);
+        sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, cleanReply || "I am currently unable to process that request.");
       }
 
       await conversation.addMessage({
