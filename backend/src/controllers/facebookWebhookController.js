@@ -279,13 +279,14 @@ async function handleFacebookMessage(event, fbAccount, agent) {
         return; // Skip AI
       }
 
-      const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text);
+      const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text, 'facebook');
+      const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'facebook');
 
-      const sentMsg = await fbService.sendTextMessage(senderId, aiResult.content);
+      const sentMsg = await fbService.sendTextMessage(senderId, cleanReply);
 
       await conversation.addMessage({
         role: 'assistant',
-        content: aiResult.content,
+        content: cleanReply,
         waMessageId: sentMsg.message_id,
         type: 'text',
         status: 'sent',

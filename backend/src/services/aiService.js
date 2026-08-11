@@ -14,6 +14,20 @@ class AIService {
     return sanitized.trim();
   }
 
+  static sanitizeForPlatform(text, platform) {
+    if (!text) return '';
+    if (platform === 'whatsapp') {
+      return this.sanitizeForWhatsApp(text);
+    }
+    // For Facebook, Instagram, Telegram (which don't parse standard raw markdown well in basic text msgs)
+    // Strip bold (**text** -> text), italics, headers
+    let sanitized = text.replace(/\*\*(.*?)\*\*/g, '$1'); // Remove bold asterisks
+    sanitized = sanitized.replace(/\*(.*?)\*/g, '$1');   // Remove single asterisks
+    sanitized = sanitized.replace(/###/g, '');           // Remove headers
+    sanitized = sanitized.replace(/__/g, '');            // Remove underscores
+    return sanitized.trim();
+  }
+
   static isWithinBusinessHours(businessHours) {
     if (!businessHours || !businessHours.enabled) return true;
 
@@ -146,7 +160,11 @@ class AIService {
       let systemPrompt = agent.systemPrompt || 'You are a helpful AI assistant.';
       
       // Enforce conciseness and human-like tone to reduce token usage and improve UX
-      systemPrompt += `\n\n[CRITICAL SYSTEM INSTRUCTION]: You are chatting with a user on a messaging app (WhatsApp/IG/Messenger). Keep your replies EXTREMELY CONCISE, short, and conversational (human-like). DO NOT output large blocks of text unless absolutely necessary to answer a complex question. Save tokens by getting straight to the point in as few words as possible.`;
+      systemPrompt += `\n\n[CRITICAL SYSTEM INSTRUCTION]: You are chatting with a user on a messaging app (${platform}). 
+1. Keep your replies EXTREMELY CONCISE, short, and conversational (human-like).
+2. DO NOT output large blocks of text or bulleted lists of services unless the user explicitly asks for them. 
+3. If the user says a casual greeting (e.g. "Kaise ho aap", "Hi"), respond naturally with a short greeting (e.g. "Main theek hoon, aap bataiye?"). DO NOT introduce yourself or list your services on a casual greeting.
+4. Save tokens by getting straight to the point in as few words as possible. Act like a human friend, not a corporate brochure.`;
       if (ragContext) {
         systemPrompt += `\n\n[Relevant Knowledge Base Context]:\n${ragContext}`;
       }

@@ -360,15 +360,16 @@ exports.receiveMessage = async (req, res) => {
           return; // Skip AI
         }
 
-        const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text);
+        const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text, 'telegram');
+        const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'telegram');
       
         // 10. Send AI reply
-        const sentMsg = await tgService.sendTextMessage(chatId, aiResult.content || "this is new AI reply");
+        const sentMsg = await tgService.sendTextMessage(chatId, cleanReply || "this is new AI reply");
 
         // 11. Save assistant message
         await conversation.addMessage({
           role: 'assistant',
-          content: aiResult.content,
+          content: cleanReply,
           waMessageId: sentMsg?.result?.message_id?.toString(),
           type: 'text',
           status: 'sent',

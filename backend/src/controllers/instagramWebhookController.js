@@ -397,7 +397,8 @@ async function handleInstagramDM(event, igAccount, agent) {
         return; // Skip AI
       }
 
-      const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text);
+      const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text, 'instagram');
+      const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'instagram');
 
       let sentMsg;
       let audioSent = false;
@@ -409,8 +410,8 @@ async function handleInstagramDM(event, igAccount, agent) {
         try {
           logger.info(`Voice intent detected for Instagram DM from ${senderId}. Generating audio...`);
           
-          // Generate local MP3
-          const localAudioPath = await generateSpeech(aiResult.content, agent.language || 'en-US');
+          // Generate local MP3 (use cleanReply for TTS so it doesn't read out markdown characters)
+          const localAudioPath = await generateSpeech(cleanReply, agent.language || 'en-US');
           
           // Convert local MP3 to MP4 video using ffmpeg
           const tempVideoPath = localAudioPath.replace('.mp3', '.mp4');
@@ -437,12 +438,12 @@ async function handleInstagramDM(event, igAccount, agent) {
       }
 
       if (!wantsVoice || !audioSent || !instagramAudioEnabled) {
-        sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, aiResult.content);
+        sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, cleanReply);
       }
 
       await conversation.addMessage({
         role: 'assistant',
-        content: aiResult.content,
+        content: cleanReply,
         waMessageId: sentMsg?.message_id || sentMsg?.id || messageId,
         type: 'text',
         status: 'sent',
