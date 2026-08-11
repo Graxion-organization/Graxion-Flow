@@ -6,6 +6,7 @@ const catchAsync = require('../utils/catchAsync');
 const WhatsAppService = require('../services/whatsappService');
 const TelegramService = require('../services/telegramService');
 const InstagramService = require('../services/instagramService');
+const FacebookService = require('../services/facebookService');
 const { emitToUser } = require('../utils/socket');
 const { decrypt } = require('../utils/encryption');
 const logger = require('../utils/logger');
@@ -92,7 +93,8 @@ exports.replyToConversation = async (req, res, next) => {
     const conversation = await Conversation.findOne({ _id: id, ...getBaseFilter(req) })
       .populate({ path: 'whatsappAccount', select: '+accessToken phoneNumberId' })
       .populate({ path: 'telegramAccount', select: '+botToken' })
-      .populate({ path: 'instagramAccount', select: '+pageAccessToken pageId igAccountId' });
+      .populate({ path: 'instagramAccount', select: '+pageAccessToken pageId igAccountId' })
+      .populate({ path: 'facebookAccount', select: '+pageAccessToken pageId' });
 
     if (!conversation) return next(new AppError('Conversation not found.', 404));
 
@@ -113,6 +115,11 @@ exports.replyToConversation = async (req, res, next) => {
       if (!igAccount) return next(new AppError('Instagram account not connected.', 400));
       const igService = new InstagramService(igAccount.pageAccessToken, igAccount.pageId);
       sentMsg = await igService.sendTextMessage(igAccount.igAccountId, conversation.customerIgId, message);
+    } else if (conversation.platform === 'facebook') {
+      const fbAccount = conversation.facebookAccount;
+      if (!fbAccount) return next(new AppError('Facebook account not connected.', 400));
+      const fbService = new FacebookService(fbAccount.pageAccessToken, fbAccount.pageId);
+      sentMsg = await fbService.sendTextMessage(conversation.customerFbId, message);
     } else {
       return next(new AppError('Unsupported platform.', 400));
     }
