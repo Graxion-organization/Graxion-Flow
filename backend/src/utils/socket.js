@@ -4,6 +4,9 @@ const logger = require('./logger');
 
 let io;
 
+const { createAdapter } = require('@socket.io/redis-adapter');
+const Redis = require('ioredis');
+
 const initSocket = (server) => {
   io = socketIO(server, {
     cors: {
@@ -14,6 +17,33 @@ const initSocket = (server) => {
       credentials: true,
     },
   });
+
+  // Setup Redis Adapter for PM2 Cluster Support
+  try {
+    const redisHost = process.env.REDIS_HOST || '127.0.0.1';
+    const redisPort = process.env.REDIS_PORT || 6379;
+    const redisPassword = process.env.REDIS_PASSWORD;
+    const redisTls = process.env.REDIS_TLS === 'true' ? {} : undefined;
+    
+    // Fallback to REDIS_URL if available
+    let redisConfig = process.env.REDIS_URL || {
+      host: redisHost,
+      port: redisPort,
+      password: redisPassword,
+      tls: redisTls
+    };
+
+    const pubClient = new Redis(redisConfig);
+    const subClient = pubClient.duplicate();
+
+    pubClient.on('error', (err) => logger.error('[Socket Redis] PubClient Error', err));
+    subClient.on('error', (err) => logger.error('[Socket Redis] SubClient Error', err));
+
+    io.adapter(createAdapter(pubClient, subClient));
+    logger.info('[Socket] Redis Adapter attached successfully');
+  } catch (err) {
+    logger.error('[Socket] Failed to attach Redis Adapter', err);
+  }
 
   io.use(async (socket, next) => {
     try {
