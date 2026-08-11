@@ -39,7 +39,7 @@ import {
 } from 'lucide-react';
 import { socialHubAPI, youtubeAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { socket } from '../utils/socket';
+import socket from '../utils/socket';
 import { useAuthStore } from '../store';
 import BrandCopilotTab from '../components/social/BrandCopilotTab';
 import AICaptionWriter from '../components/social/AICaptionWriter';
