@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../services/api';
-import { io } from "socket.io-client";
+import { getSocket } from '../utils/socket';
 
 export default function YouTubeTool() {
   const [accounts, setAccounts] = useState([]);
@@ -48,7 +48,7 @@ export default function YouTubeTool() {
 
   // Initialize Socket
   useEffect(() => {
-    const { default: socket } = require('../utils/socket');
+    const socket = getSocket();
     socketRef.current = socket;
 
     const handleProgress = (data) => {

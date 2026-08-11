@@ -39,7 +39,7 @@ import {
   DollarSign,
   Search
 } from "lucide-react";
-import { io } from "socket.io-client";
+import { getSocket } from "../../utils/socket";
 import { useAuthStore, useNotificationStore, useOrganizationStore, useBrandingStore } from "../../store";
 import { notificationAPI, socialHubAPI, authAPI, organizationAPI } from "../../services/api";
 import toast from "react-hot-toast";
@@ -389,11 +389,7 @@ export default function DashboardLayout() {
   }, [setFromAPI]);
 
   useEffect(() => {
-    // Import the centralized socket methods
-    const { default: socket, connectSocket } = require("../../utils/socket");
-    
-    // Connect the socket (if not already connected) using latest token
-    connectSocket();
+    const socket = getSocket();
 
     const handleNewNotification = (notif) => {
       addNotification(notif);

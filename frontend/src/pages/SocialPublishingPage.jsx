@@ -39,7 +39,7 @@ import {
 } from 'lucide-react';
 import { socialHubAPI, youtubeAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import socket from '../utils/socket';
+import { getSocket } from '../utils/socket';
 import { useAuthStore } from '../store';
 import BrandCopilotTab from '../components/social/BrandCopilotTab';
 import AICaptionWriter from '../components/social/AICaptionWriter';
@@ -209,6 +209,7 @@ export default function SocialPublishingPage() {
     fetchYtPendingComments();
 
     // Listen for real-time publishing updates
+    const socket = getSocket();
     socket.on('social_publish_status', (data) => {
       setFeed((prev) => prev.map(job => {
         if (job.jobId === data.jobId) {

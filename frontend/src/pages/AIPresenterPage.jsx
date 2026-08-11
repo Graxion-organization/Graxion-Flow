@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { agentAPI, meetingAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { io } from 'socket.io-client';
+import { getSocket } from '../utils/socket';
 
 // ─── Global Audio Infrastructure ───────────────────────────────────────────────
 let globalAudioContext = null;
@@ -1174,7 +1174,7 @@ export default function AIPresenterPage() {
 
   // ── Socket Connection ──────────────────────────────────────
   useEffect(() => {
-    const { default: socket } = require('../utils/socket');
+    const socket = getSocket();
 
     const handleBotStatus = ({ meetingId, status }) => {
       setBotStatuses(prev => ({ ...prev, [meetingId]: status }));

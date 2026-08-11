@@ -5,7 +5,7 @@ import { MessageSquare, Search, Filter, CheckCircle2, Clock, UserX, ChevronLeft,
 import { conversationAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import { formatDistanceToNow, format } from 'date-fns';
-import { io } from 'socket.io-client';
+import { getSocket } from '../utils/socket';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import ActionGuard from '../components/dashboard/ActionGuard';
@@ -279,7 +279,7 @@ export default function ConversationsPage() {
 
 
   useEffect(() => {
-    const { default: socket } = require('../utils/socket');
+    const socket = getSocket();
 
     socket.on('conversation_updated', (data) => {
       // 1. Update selected conversation if currently viewing
