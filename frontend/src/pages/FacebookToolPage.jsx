@@ -41,6 +41,11 @@ export default function FacebookTool() {
   
   const socketRef = useRef(null);
 
+  const selectedMediaRef = useRef(null);
+  useEffect(() => {
+    selectedMediaRef.current = selectedMedia;
+  }, [selectedMedia]);
+
   // Initialize Socket
   useEffect(() => {
     // JWT via cookies
@@ -50,12 +55,13 @@ export default function FacebookTool() {
 
     socket.on('fb_auto_reply_progress', (data) => {
       // data: { mediaId, processed, total, status }
-      if (data.mediaId === selectedMedia?.id) {
+      const currentMedia = selectedMediaRef.current;
+      if (currentMedia && data.mediaId === currentMedia.id) {
         setAutoReplyProgress(data);
         if (data.status === 'completed') {
           setTimeout(() => {
             setAutoReplyProgress(null);
-            fetchComments(selectedMedia); // refresh to see AI replies
+            fetchComments(currentMedia); // refresh to see AI replies
           }, 2000);
         }
       }
@@ -64,7 +70,7 @@ export default function FacebookTool() {
     return () => {
       socket.disconnect();
     };
-  }, [selectedMedia]);
+  }, []);
 
   // Fetch Accounts on mount
   useEffect(() => {

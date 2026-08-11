@@ -41,6 +41,11 @@ export default function InstagramTool() {
   
   const socketRef = useRef(null);
 
+  const selectedMediaRef = useRef(null);
+  useEffect(() => {
+    selectedMediaRef.current = selectedMedia;
+  }, [selectedMedia]);
+
   // Initialize Socket
   useEffect(() => {
     // JWT via cookies
@@ -50,27 +55,29 @@ export default function InstagramTool() {
 
     socket.on('ig_auto_reply_progress', (data) => {
       // data: { mediaId, processed, total, status }
-      if (data.mediaId === selectedMedia?.id) {
+      const currentMedia = selectedMediaRef.current;
+      if (currentMedia && data.mediaId === currentMedia.id) {
         setAutoReplyProgress(data);
         if (data.status === 'completed') {
           setTimeout(() => {
             setAutoReplyProgress(null);
-            fetchComments(selectedMedia); // refresh to see AI replies
+            fetchComments(currentMedia); // refresh to see AI replies
           }, 2000);
         }
       }
     });
 
     socket.on('new_instagram_comment', (data) => {
-      if (selectedMedia && data.mediaId === selectedMedia.id) {
-        fetchComments(selectedMedia);
+      const currentMedia = selectedMediaRef.current;
+      if (currentMedia && data.mediaId === currentMedia.id) {
+        fetchComments(currentMedia);
       }
     });
 
     return () => {
       socket.disconnect();
     };
-  }, [selectedMedia]);
+  }, []);
 
   // Fetch Accounts on mount
   useEffect(() => {
