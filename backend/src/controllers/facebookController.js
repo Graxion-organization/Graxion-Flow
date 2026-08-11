@@ -38,7 +38,7 @@ exports.autoConnect = async (req, res, next) => {
     let pagesResponse;
     try {
       pagesResponse = await axios.get(`https://graph.facebook.com/${apiVersion}/me/accounts`, {
-        params: { access_token: finalUserToken }
+        params: { access_token: finalUserToken, fields: 'id,name,access_token,category,picture{url}' }
       });
     } catch (err) {
       const errMsg = err.response?.data?.error?.message || err.message;
@@ -56,6 +56,7 @@ exports.autoConnect = async (req, res, next) => {
 
     for (const page of pages) {
       try {
+        const profilePictureUrl = page.picture?.data?.url || '';
         const account = await FacebookAccount.findOneAndUpdate(
           { pageId: page.id },
           {
@@ -63,6 +64,7 @@ exports.autoConnect = async (req, res, next) => {
             organization: req.organization._id,
             pageName: page.name || 'Facebook Page',
             pageAccessToken: page.access_token,
+            profilePictureUrl,
             status: 'connected',
             isActive: true,
             lastValidatedAt: new Date(),

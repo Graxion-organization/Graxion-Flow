@@ -97,7 +97,7 @@ exports.autoConnect = async (req, res, next) => {
     
     // 1. Get Facebook Pages using the (now long-lived) token
     const pagesResponse = await axios.get(`https://graph.facebook.com/${apiVersion}/me/accounts`, {
-      params: { access_token: finalUserToken }
+      params: { access_token: finalUserToken, fields: 'id,name,access_token,category,picture{url}' }
     });
 
     const pages = pagesResponse.data.data;
@@ -141,6 +141,7 @@ exports.autoConnect = async (req, res, next) => {
           }
 
           // Save to DB
+          const fbPagePictureUrl = page.picture?.data?.url || '';
           const account = await InstagramAccount.findOneAndUpdate(
             { igAccountId },
             {
@@ -150,6 +151,8 @@ exports.autoConnect = async (req, res, next) => {
               igName,
               profilePictureUrl,
               pageId: page.id,
+              pageName: page.name || 'Facebook Page',
+              fbPagePictureUrl,
               pageAccessToken: page.access_token,
               status: 'connected',
               isActive: true,

@@ -28,6 +28,12 @@ const instagramAccountSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  pageName: {
+    type: String,
+  },
+  fbPagePictureUrl: {
+    type: String,
+  },
   pageAccessToken: {
     type: String,
     required: true,

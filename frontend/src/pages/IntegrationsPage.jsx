@@ -527,7 +527,11 @@ export default function IntegrationsPage() {
       if (acc.platform === 'whatsapp') {
         await whatsappAPI.disconnect(acc.modelId);
       } else if (acc.platform === 'facebook') {
-        await facebookAPI.disconnectAccount(acc.modelId);
+        if (acc.id && acc.id.startsWith('fb_native_')) {
+          await facebookAPI.disconnectAccount(acc.modelId);
+        } else {
+          await facebookAPI.disconnectAccount(acc.modelId);
+        }
       } else if (acc.platform === 'instagram') {
         await instagramAPI.disconnect(acc.modelId);
       } else if (acc.platform === 'telegram') {

@@ -53,36 +53,23 @@ exports.getConnectedAccounts = async (req, res, next) => {
         reconnectPath: '/instagram',
         errorMessage: acc.errorMessage || '',
       });
+      // Do not add fake Facebook accounts from Instagram accounts
+    });
 
+    fbAccounts.forEach(acc => {
+      const accId = acc._id.toString();
       accounts.push({
-        id: `fb_${accId}`,
+        id: `fb_native_${accId}`,
         platform: 'facebook',
         name: acc.pageName || 'Facebook Page',
+        avatar: acc.profilePictureUrl || null,
         type: 'Business Page',
         status: acc.status,
         modelId: acc._id,
         tokenValidity: acc.status === 'error' ? 'expired' : 'valid',
-        reconnectPath: '/instagram',
+        reconnectPath: '/facebook',
         errorMessage: acc.errorMessage || '',
       });
-      connectedFbPageIds.add(acc.pageId);
-    });
-
-    fbAccounts.forEach(acc => {
-      if (!connectedFbPageIds.has(acc.pageId)) {
-        const accId = acc._id.toString();
-        accounts.push({
-          id: `fb_native_${accId}`,
-          platform: 'facebook',
-          name: acc.pageName || 'Facebook Page',
-          type: 'Business Page',
-          status: acc.status,
-          modelId: acc._id,
-          tokenValidity: acc.status === 'error' ? 'expired' : 'valid',
-          reconnectPath: '/facebook',
-          errorMessage: acc.errorMessage || '',
-        });
-      }
     });
 
     waAccounts.forEach(acc => {
@@ -498,8 +485,6 @@ exports.getFeed = async (req, res, next) => {
     const user = await User.findById(req.user._id).select('+youtube.accessToken +youtube.refreshToken');
 
     const platformConfigs = [];
-    const connectedFbPageIds = new Set();
-
     ig.forEach(acc => {
       if (acc.status === 'connected') {
         platformConfigs.push({
@@ -509,19 +494,11 @@ exports.getFeed = async (req, res, next) => {
           pageId: acc.pageId,
           igAccountId: acc.igAccountId
         });
-
-        platformConfigs.push({
-          id: `fb_${acc._id}`,
-          platform: 'facebook',
-          accessToken: acc.pageAccessToken,
-          pageId: acc.pageId
-        });
-        connectedFbPageIds.add(acc.pageId);
       }
     });
 
     fbNative.forEach(acc => {
-      if (acc.status === 'connected' && !connectedFbPageIds.has(acc.pageId)) {
+      if (acc.status === 'connected') {
         platformConfigs.push({
           id: `fb_native_${acc._id}`,
           platform: 'facebook',
