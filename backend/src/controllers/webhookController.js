@@ -212,7 +212,8 @@ exports.processWebhookPayload = async (payload) => {
  
       // 3. Find or create conversation
       let conversation = await Conversation.findOne({
-        whatsappAccount: waAccount._id,
+        organization: waAccount.organization,
+        platform: 'whatsapp',
         customerPhone: from,
       }).sort({ createdAt: -1 });
  
@@ -233,14 +234,20 @@ exports.processWebhookPayload = async (payload) => {
           const waService = new WhatsAppService(decrypt(waAccount.accessToken), phoneNumberId);
           await waService.sendTextMessage(from, agent.greetingMessage);
         }
-      } else if (conversation.status === 'closed') {
-        // Reopen closed conversation
-        conversation.status = 'active';
-        await conversation.addMessage({
-          role: 'system',
-          content: 'System: Conversation session was reset/reopened.',
-          timestamp: new Date(),
-        });
+      } else {
+        if (conversation.status === 'closed') {
+          // Reopen closed conversation
+          conversation.status = 'active';
+          await conversation.addMessage({
+            role: 'system',
+            content: 'System: Conversation session was reset/reopened.',
+            timestamp: new Date(),
+          });
+        }
+        if (conversation.whatsappAccount?.toString() !== waAccount._id.toString()) {
+          conversation.whatsappAccount = waAccount._id;
+          await conversation.save();
+        }
       }
 
       const waService = new WhatsAppService(decrypt(waAccount.accessToken), phoneNumberId);

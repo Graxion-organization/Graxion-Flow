@@ -116,9 +116,10 @@ async function handleFacebookMessage(event, fbAccount, agent) {
 
   webhookQueue.enqueue(`facebook_${senderId}`, async () => {
     try {
-      // Find or create conversation
+      // Find or create conversation (Query by organization to prevent duplicates if account is reconnected)
       let conversation = await Conversation.findOne({
-        facebookAccount: fbAccount._id,
+        organization: fbAccount.organization,
+        platform: 'facebook',
         customerFbId: senderId,
       }).sort({ createdAt: -1 });
 
@@ -139,8 +140,14 @@ async function handleFacebookMessage(event, fbAccount, agent) {
           status: 'active',
           lastMessageAt: new Date(),
         });
-      } else if (conversation.status === 'closed') {
-        conversation.status = 'active';
+      } else {
+        if (conversation.status === 'closed') {
+          conversation.status = 'active';
+        }
+        if (conversation.facebookAccount?.toString() !== fbAccount._id.toString()) {
+          conversation.facebookAccount = fbAccount._id;
+          await conversation.save();
+        }
       }
 
       // Handle Human Handoff

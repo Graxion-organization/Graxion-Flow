@@ -160,7 +160,8 @@ async function handleInstagramDM(event, igAccount, agent) {
   webhookQueue.enqueue(`instagram_${senderId}`, async () => {
     try {
       let conversation = await Conversation.findOne({
-        instagramAccount: igAccount._id,
+        organization: igAccount.organization,
+        platform: 'instagram',
         customerIgId: senderId,
       }).sort({ createdAt: -1 });
 
@@ -181,13 +182,19 @@ async function handleInstagramDM(event, igAccount, agent) {
           status: 'active',
           lastMessageAt: new Date(),
         });
-      } else if (conversation.status === 'closed') {
-        conversation.status = 'active';
-        await conversation.addMessage({
-          role: 'system',
-          content: 'System: Conversation session was reset/reopened.',
-          timestamp: new Date(),
-        });
+      } else {
+        if (conversation.status === 'closed') {
+          conversation.status = 'active';
+          await conversation.addMessage({
+            role: 'system',
+            content: 'System: Conversation session was reset/reopened.',
+            timestamp: new Date(),
+          });
+        }
+        if (conversation.instagramAccount?.toString() !== igAccount._id.toString()) {
+          conversation.instagramAccount = igAccount._id;
+          await conversation.save();
+        }
       }
 
       // Deduplicate using Redis atomic lock to prevent double replies on Meta retries
