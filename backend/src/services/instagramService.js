@@ -285,6 +285,24 @@ class InstagramService {
     return chunks;
   }
 
+  async sendAction(igAccountId, recipientId, action = 'typing_on') {
+    try {
+      await axios.post(
+        `${this.baseUrl}/me/messages`,
+        {
+          recipient: { id: recipientId },
+          sender_action: action,
+        },
+        {
+          params: { access_token: this.accessToken },
+        }
+      );
+    } catch (error) {
+      const errDetail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
+      logger.error(`Instagram sendAction error: ${errDetail}`);
+    }
+  }
+
   async sendTextMessage(igAccountId, recipientId, text) {
     try {
       const endpointId = 'me';

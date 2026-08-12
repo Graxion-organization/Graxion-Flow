@@ -326,6 +326,9 @@ exports.receiveMessage = async (req, res) => {
         const matchedTrigger = await checkKeywordMatch(tgAccount.organization, text, 'telegram', 'DM', agent?._id);
         const tgService = new TelegramService(tgAccount.botToken);
 
+        // Typing indicator
+        await tgService.sendAction(chatId, 'typing');
+
         if (matchedTrigger && matchedTrigger.action === 'SEND_MESSAGE') {
           logger.info(`[KEYWORD TRIGGER] Matched trigger ${matchedTrigger._id} for Telegram DM from ${fromId}`);
           let sentMsg;

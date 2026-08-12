@@ -500,6 +500,7 @@ exports.processWebhookPayload = async (payload) => {
       // 8c. Check for Keyword Triggers (WA-011)
       const matchedTrigger = await checkKeywordMatch(waAccount.organization, userMessageText, 'whatsapp', 'DM', agent?._id);
       if (matchedTrigger) {
+        await waService.markAsRead(messageId);
         logger.info(`[KEYWORD TRIGGER] Matched trigger ${matchedTrigger._id} for ${from}`);
  
         if (matchedTrigger.action === 'SEND_MESSAGE') {
@@ -537,6 +538,7 @@ exports.processWebhookPayload = async (payload) => {
  
       // 9. Generate AI response using OrchestrationEngine
       const OrchestrationEngine = require('../services/orchestrationEngine');
+      await waService.markAsRead(messageId);
       emitToUser(waAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: true });
       const aiResult = await OrchestrationEngine.execute({
         organizationId: waAccount.organization,

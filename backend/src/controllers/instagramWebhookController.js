@@ -360,6 +360,9 @@ async function handleInstagramDM(event, igAccount, agent) {
 
       const wantsVoice = isVoiceRequest(text) || isAudioRequest;
 
+      // Typing indicator
+      await igService.sendAction(igAccount.igAccountId, senderId, 'typing_on');
+
       // Check for Keyword Triggers
       const matchedTrigger = await checkKeywordMatch(igAccount.organization, text, 'instagram', 'DM', agent?._id);
       if (matchedTrigger && matchedTrigger.action === 'SEND_MESSAGE') {
@@ -394,6 +397,7 @@ async function handleInstagramDM(event, igAccount, agent) {
         conversation.totalMessages += 2;
         conversation.lastMessageAt = new Date();
         await conversation.save();
+        await igService.sendAction(igAccount.igAccountId, senderId, 'typing_off');
         return; // Skip AI
       }
 

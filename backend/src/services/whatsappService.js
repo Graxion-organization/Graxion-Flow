@@ -36,6 +36,18 @@ class WhatsAppService {
     return payload;
   }
 
+  async markAsRead(messageId) {
+    try {
+      await this.client.post(`/${this.phoneNumberId}/messages`, {
+        messaging_product: 'whatsapp',
+        status: 'read',
+        message_id: messageId,
+      });
+    } catch (err) {
+      logger.error('WhatsApp markAsRead error:', err.response?.data || err.message);
+    }
+  }
+
   async sendTextMessage(to, text, replyToMessageId = null) {
     try {
       const response = await this.client.post(

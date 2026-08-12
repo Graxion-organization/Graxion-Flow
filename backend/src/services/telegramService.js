@@ -7,6 +7,17 @@ class TelegramService {
     this.apiUrl = `https://api.telegram.org/bot${botToken}`;
   }
 
+  async sendAction(chatId, action = 'typing') {
+    try {
+      await axios.post(`${this.apiUrl}/sendChatAction`, {
+        chat_id: chatId,
+        action: action
+      });
+    } catch (error) {
+      logger.error('Error sending Telegram chat action:', error.response?.data || error.message);
+    }
+  }
+
   async sendTextMessage(chatId, text, options = {}) {
     try {
       const response = await axios.post(`${this.apiUrl}/sendMessage`, {
