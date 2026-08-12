@@ -65,7 +65,7 @@ export default function FacebookTool() {
         if (data.status === 'completed') {
           setTimeout(() => {
             setAutoReplyProgress(null);
-            fetchComments(currentMedia, currentAccount); // refresh to see AI replies
+            fetchComments(currentMedia, currentAccount, true); // refresh to see AI replies silently
           }, 2000);
         }
       }
@@ -75,7 +75,7 @@ export default function FacebookTool() {
       const currentMedia = selectedMediaRef.current;
       const currentAccount = selectedAccountRef.current;
       if (currentMedia && currentAccount && (!data.mediaId || String(data.mediaId) === String(currentMedia.id))) {
-        fetchComments(currentMedia, currentAccount);
+        fetchComments(currentMedia, currentAccount, true);
       }
     };
 
@@ -136,19 +136,23 @@ export default function FacebookTool() {
     }
   };
 
-  const fetchComments = async (media, accountOverride = null) => {
+  const fetchComments = async (media, accountOverride = null, isSilent = false) => {
     const accountToUse = accountOverride || selectedAccount;
-    setSelectedMedia(media);
-    setSelectedComment(null);
-    setAutoReplyProgress(null);
-    setLoadingComments(true);
+    
+    if (!isSilent) {
+      setSelectedMedia(media);
+      setSelectedComment(null);
+      setAutoReplyProgress(null);
+      setLoadingComments(true);
+    }
+    
     try {
       const res = await api.get(`/facebook/manual/${accountToUse._id}/media/${media.id}/comments`);
       setComments(res.data.data.comments || []);
     } catch (err) {
-      toast.error('Failed to fetch comments for this post');
+      if (!isSilent) toast.error('Failed to fetch comments for this post');
     } finally {
-      setLoadingComments(false);
+      if (!isSilent) setLoadingComments(false);
     }
   };
 
