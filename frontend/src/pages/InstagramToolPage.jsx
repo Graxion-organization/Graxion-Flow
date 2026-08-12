@@ -164,6 +164,7 @@ export default function InstagramTool() {
     
     try {
       // JWT via cookies
+      const res = await api.get(`/instagram/manual/${accountToUse._id}/media/${media.id}/comments`);
       const fetchedComments = res.data.data.comments || [];
       const sortedComments = [...fetchedComments].sort((a, b) => new Date(b.timestamp || b.createdAt || b.created_time) - new Date(a.timestamp || a.createdAt || a.created_time));
       setComments(sortedComments);

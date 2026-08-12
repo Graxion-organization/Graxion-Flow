@@ -156,6 +156,7 @@ export default function YouTubeTool() {
     }
     
     try {
+      const res = await api.get(`/youtube/manual/${accountToUse._id}/media/${media.id}/comments`);
       const fetchedComments = res.data.data.comments || [];
       const sortedComments = [...fetchedComments].sort((a, b) => {
         const dateA = a.snippet?.topLevelComment?.snippet?.publishedAt || a.publishedAt || a.createdAt;

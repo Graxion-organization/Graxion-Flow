@@ -156,6 +156,7 @@ export default function LinkedInTool() {
     }
     
     try {
+      const res = await api.get(`/social-hub/linkedin/manual/${accountToUse._id}/media/${media.id}/comments`);
       const fetchedComments = res.data.data.comments || res.data.comments || [];
       const sortedComments = [...fetchedComments].sort((a, b) => new Date(b.createdAt || b.created || b.timestamp) - new Date(a.createdAt || a.created || a.timestamp));
       setComments(sortedComments);
