@@ -143,6 +143,22 @@ exports.updateBotSettings = async (req, res, next) => {
 
     if (!account) return next(new AppError('Account not found', 404));
 
+    // Force refresh Meta Webhook subscription to ensure 'messages' and 'feed' fields are active
+    if (updateFields.commentBotEnabled || updateFields.messengerBotEnabled) {
+      try {
+        const apiVersion = process.env.META_API_VERSION || 'v19.0';
+        await axios.post(`https://graph.facebook.com/${apiVersion}/${account.pageId}/subscribed_apps`, null, {
+          params: {
+            subscribed_fields: 'messages,messaging_postbacks,feed',
+            access_token: account.pageAccessToken
+          }
+        });
+        logger.info(`Force-refreshed webhook subscription for FB page ${account.pageId}`);
+      } catch (err) {
+        logger.warn(`Failed to refresh FB Meta subscription: ${err.response?.data?.error?.message || err.message}`);
+      }
+    }
+
     res.status(200).json({
       status: 'success',
       data: { account },
