@@ -64,15 +64,14 @@ exports.receiveMessage = async (req, res) => {
         continue;
       }
 
-      // 2. Find active agent
+      // 2. Find active agent (optional, falls back to account-level settings)
       const agent = await Agent.findOne({
         facebookAccount: fbAccount._id,
         isActive: true,
       });
 
       if (!agent) {
-        logger.warn(`No active agent found for Facebook account Page ID: ${pageId}`);
-        continue;
+        logger.info(`No active agent found for Facebook Page ID: ${pageId}. Will use account-level bot settings if enabled.`);
       }
 
       // 3. Process Messaging Events

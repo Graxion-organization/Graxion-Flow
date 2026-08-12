@@ -83,15 +83,14 @@ exports.receiveMessage = async (req, res) => {
         continue;
       }
 
-      // 2. Find active agent
+      // 2. Find active agent (optional, falls back to account-level settings)
       const agent = await Agent.findOne({
         instagramAccount: igAccount._id,
         isActive: true,
       });
 
       if (!agent) {
-        logger.warn(`No active agent found for Instagram account ID: ${igAccountId}`);
-        continue;
+        logger.info(`No active agent found for Instagram account ID: ${igAccountId}. Will use account-level bot settings if enabled.`);
       }
 
       // 3. Process DMs
