@@ -155,6 +155,9 @@ exports.processWebhookPayload = async (payload) => {
       listReply,
     } = parsed;
 
+    let conversation = null;
+    let waAccount = null;
+
     try {
       logger.info(`Incoming message from ${from} on phone ${phoneNumberId}`);
 
@@ -177,12 +180,7 @@ exports.processWebhookPayload = async (payload) => {
       }
 
       // 1. Find WhatsApp account
-      // const waAccount = await WhatsappAccount.findOne({
-      //   phoneNumberId,
-      //   status: 'connected',
-      //   isActive: true,
-      // });
-      const waAccount = await WhatsappAccount.findOne({
+      waAccount = await WhatsappAccount.findOne({
         phoneNumberId,
         status: 'connected',
         isActive: true,
@@ -211,7 +209,7 @@ exports.processWebhookPayload = async (payload) => {
       }
  
       // 3. Find or create conversation
-      let conversation = await Conversation.findOne({
+      conversation = await Conversation.findOne({
         organization: waAccount.organization,
         platform: 'whatsapp',
         customerPhone: from,
