@@ -74,7 +74,7 @@ export default function FacebookTool() {
     const handleNewComment = (data) => {
       const currentMedia = selectedMediaRef.current;
       const currentAccount = selectedAccountRef.current;
-      if (currentMedia && currentAccount && (!data.mediaId || String(data.mediaId) === String(currentMedia.id))) {
+      if (currentMedia && currentAccount && String(data.accountId) === String(currentAccount._id)) {
         fetchComments(currentMedia, currentAccount, true);
       }
     };

@@ -75,7 +75,9 @@ export default function InstagramTool() {
       console.log('[Socket] new_instagram_comment received:', data);
       const currentMedia = selectedMediaRef.current;
       const currentAccount = selectedAccountRef.current;
-      if (currentMedia && currentAccount && (!data.mediaId || String(data.mediaId) === String(currentMedia.id))) {
+      // Meta webhook mediaId sometimes corresponds to a child carousel item, 
+      // which won't match the parent currentMedia.id. Rely on accountId match instead.
+      if (currentMedia && currentAccount && String(data.accountId) === String(currentAccount._id)) {
         console.log('[Socket] Refreshing comments for media silently:', currentMedia.id);
         fetchComments(currentMedia, currentAccount, true); // true = silent refresh
       }
