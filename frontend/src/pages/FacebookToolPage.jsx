@@ -158,8 +158,9 @@ export default function FacebookTool() {
     }
     
     try {
-      const res = await api.get(`/facebook/manual/${accountToUse._id}/media/${media.id}/comments`);
-      setComments(res.data.data.comments || []);
+      const fetchedComments = res.data.data.comments || [];
+      const sortedComments = [...fetchedComments].sort((a, b) => new Date(b.created_time || b.timestamp || b.createdAt) - new Date(a.created_time || a.timestamp || a.createdAt));
+      setComments(sortedComments);
     } catch (err) {
       if (!isSilent) toast.error('Failed to fetch comments for this post');
     } finally {

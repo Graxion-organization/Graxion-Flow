@@ -156,8 +156,13 @@ export default function YouTubeTool() {
     }
     
     try {
-      const res = await api.get(`/youtube/manual/${accountToUse._id}/media/${media.id}/comments`);
-      setComments(res.data.data.comments || []);
+      const fetchedComments = res.data.data.comments || [];
+      const sortedComments = [...fetchedComments].sort((a, b) => {
+        const dateA = a.snippet?.topLevelComment?.snippet?.publishedAt || a.publishedAt || a.createdAt;
+        const dateB = b.snippet?.topLevelComment?.snippet?.publishedAt || b.publishedAt || b.createdAt;
+        return new Date(dateB) - new Date(dateA);
+      });
+      setComments(sortedComments);
     } catch (err) {
       if (!isSilent) toast.error('Failed to fetch comments for this post');
     } finally {
