@@ -88,6 +88,17 @@ export default function LinkedInTool() {
     };
   }, []);
 
+  // Auto-poll comments every 10 seconds when a post is selected (live refresh)
+  useEffect(() => {
+    if (!selectedMedia || !selectedAccount) return;
+
+    const interval = setInterval(() => {
+      fetchComments(selectedMedia, selectedAccount, true);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [selectedMedia, selectedAccount]);
+
   // Fetch Accounts on mount
   useEffect(() => {
     fetchAccounts();
