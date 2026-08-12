@@ -65,6 +65,14 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const message = error.response?.data?.message || 'Something went wrong.';
+
+    if (message === 'Your token has expired. Please log in again.') {
+      toast.error(message);
+      localStorage.removeItem('authToken');
+      window.location.href = '/login';
+      return Promise.reject(error);
+    }
 
     // Retry CSRF token if request failed with 403 CSRF error
     if (
@@ -111,7 +119,6 @@ api.interceptors.response.use(
       }
     }
 
-    const message = error.response?.data?.message || 'Something went wrong.';
     const isOrgError = message === 'Please select or create an organization to continue.';
     
     if (isOrgError) {
