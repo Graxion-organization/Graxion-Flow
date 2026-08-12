@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Cpu,
-  BarChart3
+  BarChart3,
+  Bot
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
@@ -206,6 +207,20 @@ export default function InstagramTool() {
     }
   };
 
+  const handleToggleBot = async () => {
+    if (!selectedAccount) return;
+    const newState = !selectedAccount.commentBotEnabled;
+    try {
+      // JWT via cookies
+      await api.patch(`/instagram/${selectedAccount._id}/bot`, { commentBotEnabled: newState });
+      setSelectedAccount({ ...selectedAccount, commentBotEnabled: newState });
+      setAccounts(accounts.map(acc => acc._id === selectedAccount._id ? { ...acc, commentBotEnabled: newState } : acc));
+      toast.success(newState ? 'Comment Bot Enabled!' : 'Comment Bot Disabled!');
+    } catch (err) {
+      toast.error('Failed to update bot settings');
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 pb-6 h-auto lg:h-[calc(100vh-120px)] min-h-screen lg:min-h-0">
       
@@ -286,6 +301,21 @@ export default function InstagramTool() {
             ) : (
               <div className="text-slate-400 dark:text-gray-500 text-xs">No stats available</div>
             )}
+            
+            {/* BOT TOGGLE */}
+            <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bot className={`w-4 h-4 ${selectedAccount.commentBotEnabled ? 'text-emerald-500' : 'text-slate-400'}`} />
+                <span className="text-xs font-bold text-slate-700 dark:text-gray-300">Auto-Reply Bot</span>
+              </div>
+              <button 
+                onClick={handleToggleBot}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${selectedAccount.commentBotEnabled ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'}`}
+              >
+                <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${selectedAccount.commentBotEnabled ? 'translate-x-5' : 'translate-x-1'}`} />
+              </button>
+            </div>
+            
           </div>
         )}
 
