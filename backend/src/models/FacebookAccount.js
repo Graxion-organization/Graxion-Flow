@@ -41,6 +41,11 @@ const facebookAccountSchema = new mongoose.Schema({
     type: String, 
     default: "You are a helpful assistant. Reply to this Facebook message in a friendly way. Keep it short." 
   },
+  commentBotEnabled: { type: Boolean, default: false },
+  commentBotPrompt: { 
+    type: String, 
+    default: "You are a helpful assistant. Reply to this Facebook comment in a friendly, professional way. Keep it short and under 2 sentences." 
+  },
 }, { timestamps: true });
 
 facebookAccountSchema.index({ user: 1 });

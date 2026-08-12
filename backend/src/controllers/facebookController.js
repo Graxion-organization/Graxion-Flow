@@ -128,10 +128,16 @@ exports.disconnectAccount = async (req, res, next) => {
 
 exports.updateBotSettings = async (req, res, next) => {
   try {
-    const { messengerBotEnabled, messengerBotPrompt } = req.body;
+    const { messengerBotEnabled, messengerBotPrompt, commentBotEnabled, commentBotPrompt } = req.body;
+    const updateFields = {};
+    if (messengerBotEnabled !== undefined) updateFields.messengerBotEnabled = messengerBotEnabled;
+    if (messengerBotPrompt !== undefined) updateFields.messengerBotPrompt = messengerBotPrompt;
+    if (commentBotEnabled !== undefined) updateFields.commentBotEnabled = commentBotEnabled;
+    if (commentBotPrompt !== undefined) updateFields.commentBotPrompt = commentBotPrompt;
+
     const account = await FacebookAccount.findOneAndUpdate(
       { _id: req.params.id, organization: req.organization._id },
-      { messengerBotEnabled, messengerBotPrompt },
+      updateFields,
       { new: true, runValidators: true }
     );
 

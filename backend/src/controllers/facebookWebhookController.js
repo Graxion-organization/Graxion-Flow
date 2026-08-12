@@ -86,19 +86,12 @@ exports.receiveMessage = async (req, res) => {
         }
       }
 
-      // 4. Process Feed/Comment Events (Live UI Updates)
+      // 4. Process Feed/Comment Events (AI Auto-Reply)
       if (changes) {
         for (const change of changes) {
           if (change.field === 'feed' && change.value && change.value.item === 'comment') {
             logger.info(`Received Facebook comment from ${change.value.from?.name}`);
-            try {
-              emitToUser(fbAccount.user.toString(), 'new_facebook_comment', {
-                accountId: fbAccount._id,
-                mediaId: change.value.post_id || null,
-              });
-            } catch (e) {
-              logger.warn('Failed to emit new_facebook_comment event');
-            }
+            await handleFacebookComment(change.value, fbAccount, agent);
           }
         }
       }
@@ -372,4 +365,155 @@ async function saveMessageAndEmit(conversation, fbAccount, role, content, messag
     conversationId: conversation._id,
     platform: 'facebook',
   });
+}
+
+// ==========================================
+// FACEBOOK COMMENT AUTO-REPLY HANDLER
+// ==========================================
+async function handleFacebookComment(commentData, fbAccount, agent) {
+  try {
+    logger.info(`Processing Facebook comment webhook: ${JSON.stringify(commentData)}`);
+
+    // Ignore comments made by the page itself
+    if (commentData.from?.id === fbAccount.pageId) {
+      logger.info(`Ignored self-comment by page (${fbAccount.pageName || fbAccount.pageId})`);
+      return;
+    }
+
+    const text = commentData.message;
+    const commentId = commentData.comment_id;
+    const postId = commentData.post_id;
+    const commenterId = commentData.from?.id;
+
+    if (!text || !commentId) {
+      logger.warn(`Skipped FB comment due to missing text or commentId. Payload: ${JSON.stringify(commentData)}`);
+      return;
+    }
+
+    // Emit socket event immediately for live UI update
+    try {
+      emitToUser(fbAccount.user.toString(), 'new_facebook_comment', {
+        accountId: fbAccount._id,
+        mediaId: postId || null,
+      });
+    } catch (e) {}
+
+    webhookQueue.enqueue(`facebook_comment_${commenterId}`, async () => {
+      try {
+        // Check if comment bot is enabled
+        let enabled = fbAccount.commentBotEnabled || !!agent;
+        let systemPrompt = fbAccount.commentBotPrompt || agent?.systemPrompt;
+
+        if (!enabled) {
+          logger.info(`[FB COMMENT SKIP]: Comment bot is disabled for page: ${fbAccount.pageName || fbAccount.pageId}`);
+          return;
+        }
+
+        // Deduplicate using Redis
+        let isDuplicate = false;
+        try {
+          const redis = require('../config/redis').redis;
+          const dedupKey = `fb_comment_dedup:${commentId}`;
+          const isNew = await redis.set(dedupKey, '1', 'EX', 3600, 'NX');
+          if (!isNew) isDuplicate = true;
+        } catch (redisErr) {
+          logger.warn(`Redis deduplication failed for FB comment: ${redisErr.message}`);
+        }
+
+        if (isDuplicate) {
+          logger.info(`FB Comment ${commentId} already processed. Skipping duplicate.`);
+          return;
+        }
+
+        logger.info(`[FB COMMENT PROCESSING]: Generating AI reply for comment: "${text}"`);
+
+        // Check credits
+        const user = await User.findById(fbAccount.user).select('+usage +subscription');
+        const Plan = require('../models/Plan');
+        const userPlan = await Plan.findOne({ code: user.subscription?.plan || 'free' });
+        const creditCost = userPlan ? userPlan.agentMsgCreditCost : 1;
+
+        if ((user.subscription?.credits ?? 0) < creditCost) {
+          logger.warn(`User ${user._id} hit credit limit for FB comment auto-reply`);
+          return;
+        }
+
+        // Check custom agent credit spend limit
+        const agentLimit = user.subscription?.agentCreditLimit || 0;
+        const agentUsed = user.usage?.agentCreditsUsedThisMonth || 0;
+        if (agentLimit > 0 && agentUsed >= agentLimit) {
+          logger.warn(`User ${user._id} hit Monthly Agent Credit Spend Limit (${agentUsed}/${agentLimit})`);
+          return;
+        }
+
+        const limits = await user.getPlanLimits();
+        if (user.usage.messagesThisMonth >= limits.messages) {
+          logger.warn(`User ${user._id} hit message limit for FB comment auto-reply`);
+          return;
+        }
+
+        // Check for Keyword Triggers
+        const matchedTrigger = await checkKeywordMatch(fbAccount.organization, text, 'facebook', 'COMMENT', agent?._id);
+        const fbService = new FacebookService(fbAccount.pageAccessToken, fbAccount.pageId);
+
+        if (matchedTrigger && matchedTrigger.action === 'SEND_MESSAGE') {
+          logger.info(`[KEYWORD TRIGGER] Matched trigger for FB Comment ${commentId}`);
+          await fbService.replyToComment(commentId, matchedTrigger.response);
+          logger.info(`Successfully sent keyword reply to FB comment ${commentId}`);
+          // Emit for live UI
+          try {
+            emitToUser(fbAccount.user.toString(), 'new_facebook_comment', {
+              accountId: fbAccount._id,
+              mediaId: postId || null,
+            });
+          } catch (e) {}
+          return;
+        }
+
+        // Generate AI response
+        const fullPrompt = (systemPrompt || "Reply to this Facebook comment.") + "\n\nRules: Keep it short, friendly, and under 2 sentences. Use emojis if appropriate.";
+        const tempAgent = {
+          systemPrompt: fullPrompt,
+          temperature: 0.7,
+          contextWindow: 1
+        };
+
+        const aiResult = await AIService.generate(tempAgent, [], text);
+        logger.info(`AI generated FB comment reply: ${aiResult.content}`);
+
+        await fbService.replyToComment(commentId, aiResult.content);
+        logger.info(`Successfully replied to FB comment ${commentId}`);
+
+        // Emit socket event for live UI update after reply
+        try {
+          emitToUser(fbAccount.user.toString(), 'new_facebook_comment', {
+            accountId: fbAccount._id,
+            mediaId: postId || null,
+          });
+        } catch (e) {}
+
+        // Deduct credits
+        await creditHelper.deductCredits(fbAccount.user, creditCost);
+
+        // Log transaction
+        await creditHelper.logTransaction({
+          userId: fbAccount.user,
+          type: 'deduction',
+          amount: creditCost,
+          description: `AI Agent: Facebook comment reply to comment ID ${commentId}`,
+          metadata: { commentId, platform: 'facebook' },
+        });
+
+        if (agent) {
+          await Agent.findByIdAndUpdate(agent._id, {
+            $inc: { 'stats.totalMessages': 1 },
+          });
+        }
+      } catch (error) {
+        logger.error(`Error processing Facebook comment task: ${error.message}`, { stack: error.stack });
+      }
+    }, { platform: 'facebook', payload: { commenterId, commentId, text } });
+  } catch (error) {
+    logger.error(`Error in handleFacebookComment: ${error.message}`);
+  }
 }
