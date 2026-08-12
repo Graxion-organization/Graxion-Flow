@@ -235,6 +235,13 @@ exports.autoReplyPost = async (req, res, next) => {
              if (success) {
                automation.repliedCommentIds.push(commentId);
                count++;
+               try {
+                 const { emitToUser } = require('../utils/socket');
+                 emitToUser(account.user.toString(), 'new_youtube_comment', {
+                   accountId: account._id,
+                   mediaId: mediaId,
+                 });
+               } catch(e) {}
              }
            }
          } catch(e) {

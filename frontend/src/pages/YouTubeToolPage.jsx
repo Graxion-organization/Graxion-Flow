@@ -65,10 +65,19 @@ export default function YouTubeTool() {
       }
     };
 
+    const handleNewComment = (data) => {
+      const currentMedia = selectedMediaRef.current;
+      if (currentMedia && (!data.mediaId || String(data.mediaId) === String(currentMedia.id))) {
+        fetchComments(currentMedia);
+      }
+    };
+
     socket.on('yt_auto_reply_progress', handleProgress);
+    socket.on('new_youtube_comment', handleNewComment);
 
     return () => {
       socket.off('yt_auto_reply_progress', handleProgress);
+      socket.off('new_youtube_comment', handleNewComment);
     };
   }, []);
 

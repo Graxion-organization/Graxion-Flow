@@ -1019,6 +1019,13 @@ exports.autoReplyLinkedInPost = async (req, res, next) => {
              await liService.replyToComment(commentId, replyText);
              agent.repliedLinkedinComments.push(commentId);
              count++;
+             try {
+               const { emitToUser } = require('../utils/socket');
+               emitToUser(account.user.toString(), 'new_linkedin_comment', {
+                 accountId: account._id,
+                 mediaId: mediaId,
+               });
+             } catch(e) {}
            }
          } catch(e) {
            logger.error(`Error auto-replying to LinkedIn comment ${commentId}: ${e.message}`);

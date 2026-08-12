@@ -40,8 +40,9 @@ exports.receiveMessage = async (req, res) => {
     for (const entry of body.entry) {
       const pageId = entry.id;
       const messaging = entry.messaging;
+      const changes = entry.changes; // For comments
 
-      if (!messaging) continue;
+      if (!messaging && !changes) continue;
 
       // 1. Find Facebook account
       const fbAccount = await FacebookAccount.findOne({
@@ -75,11 +76,30 @@ exports.receiveMessage = async (req, res) => {
       }
 
       // 3. Process Messaging Events
-      for (const event of messaging) {
-        if (event.message && !event.message.is_echo) {
-          await handleFacebookMessage(event, fbAccount, agent);
-        } else {
-          logger.info(`Skipping non-message event: ${JSON.stringify(event)}`);
+      if (messaging) {
+        for (const event of messaging) {
+          if (event.message && !event.message.is_echo) {
+            await handleFacebookMessage(event, fbAccount, agent);
+          } else {
+            logger.info(`Skipping non-message event: ${JSON.stringify(event)}`);
+          }
+        }
+      }
+
+      // 4. Process Feed/Comment Events (Live UI Updates)
+      if (changes) {
+        for (const change of changes) {
+          if (change.field === 'feed' && change.value && change.value.item === 'comment') {
+            logger.info(`Received Facebook comment from ${change.value.from?.name}`);
+            try {
+              emitToUser(fbAccount.user.toString(), 'new_facebook_comment', {
+                accountId: fbAccount._id,
+                mediaId: change.value.post_id || null,
+              });
+            } catch (e) {
+              logger.warn('Failed to emit new_facebook_comment event');
+            }
+          }
         }
       }
     }

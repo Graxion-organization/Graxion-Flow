@@ -65,10 +65,19 @@ export default function LinkedInTool() {
       }
     };
 
+    const handleNewComment = (data) => {
+      const currentMedia = selectedMediaRef.current;
+      if (currentMedia && (!data.mediaId || String(data.mediaId) === String(currentMedia.id))) {
+        fetchComments(currentMedia);
+      }
+    };
+
     socket.on('li_auto_reply_progress', handleProgress);
+    socket.on('new_linkedin_comment', handleNewComment);
 
     return () => {
       socket.off('li_auto_reply_progress', handleProgress);
+      socket.off('new_linkedin_comment', handleNewComment);
     };
   }, []);
 
