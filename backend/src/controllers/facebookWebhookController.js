@@ -136,6 +136,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
       }).sort({ createdAt: -1 });
 
       const fbService = new FacebookService(fbAccount.pageAccessToken, fbAccount.pageId);
+      const agentId = agent ? agent._id : null;
 
       if (!conversation) {
         const profile = await fbService.getCustomerProfile(senderId);
@@ -144,7 +145,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
         conversation = await Conversation.create({
           user: fbAccount.user,
           organization: fbAccount.organization,
-          agent: agent._id,
+          agent: agentId,
           facebookAccount: fbAccount._id,
           platform: 'facebook',
           customerFbId: senderId,
@@ -169,7 +170,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
       }
 
       // Check Handoff Keywords
-      if (AIService.shouldHandoffToHuman(text, agent.humanHandoffKeywords)) {
+      if (agent && AIService.shouldHandoffToHuman(text, agent.humanHandoffKeywords)) {
         conversation.status = 'human_handoff';
         await conversation.addMessage({
           role: 'user',
@@ -250,10 +251,18 @@ async function handleFacebookMessage(event, fbAccount, agent) {
         platform: 'facebook',
       });
 
+      const contextWindow = agent ? agent.contextWindow : 10;
       const contextMessages = (await conversation.getRecentMessages(20))
         .filter((m) => m.role !== 'system')
-        .slice(-(agent.contextWindow * 2))
+        .slice(-(contextWindow * 2))
         .map((m) => ({ role: m.role, content: m.content }));
+
+      // Check if bot is actually enabled
+      let enabled = fbAccount.messengerBotEnabled || !!agent;
+      if (!enabled) {
+        logger.info(`[FB DM SKIP]: Messenger bot is disabled for page: ${fbAccount.pageName}`);
+        return;
+      }
 
       // Typing indicator
       await fbService.sendAction(senderId, 'typing_on');
@@ -292,7 +301,16 @@ async function handleFacebookMessage(event, fbAccount, agent) {
       }
 
       emitToUser(fbAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: true });
-      const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text, 'facebook');
+      
+      const tempAgent = agent || {
+          systemPrompt: fbAccount.messengerBotPrompt || "You are a helpful assistant. Reply to this Facebook message in a friendly way. Keep it short.",
+          temperature: 0.7,
+          contextWindow: 10,
+          aiProvider: 'openai',
+          model: 'gpt-4o-mini'
+      };
+
+      const aiResult = await AIService.generate(tempAgent, contextMessages.slice(0, -1), text, 'facebook');
       emitToUser(fbAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
       
       const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'facebook');

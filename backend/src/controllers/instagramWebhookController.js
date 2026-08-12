@@ -168,11 +168,12 @@ async function handleInstagramDM(event, igAccount, agent) {
         const igService = new InstagramService(igAccount.pageAccessToken, igAccount.pageId);
         const profile = await igService.getCustomerProfile(senderId);
         const customerName = profile?.name || profile?.username || '';
+        const agentId = agent ? agent._id : null;
         
         conversation = await Conversation.create({
           user: igAccount.user,
           organization: igAccount.organization,
-          agent: agent._id,
+          agent: agentId,
           instagramAccount: igAccount._id,
           platform: 'instagram',
           customerIgId: senderId,
@@ -265,8 +266,8 @@ async function handleInstagramDM(event, igAccount, agent) {
         return;
       }
 
-      // Check human handoff keywords
-      if (AIService.shouldHandoffToHuman(text, agent.humanHandoffKeywords)) {
+      // Check Handoff Keywords
+      if (agent && AIService.shouldHandoffToHuman(text, agent.humanHandoffKeywords)) {
         conversation.status = 'human_handoff';
         await conversation.addMessage({
           role: 'user',
@@ -352,10 +353,18 @@ async function handleInstagramDM(event, igAccount, agent) {
         platform: 'instagram',
       });
 
+      const contextWindow = agent ? agent.contextWindow : 10;
       const contextMessages = (await conversation.getRecentMessages(20))
         .filter((m) => m.role !== 'system')
-        .slice(-(agent.contextWindow * 2))
+        .slice(-(contextWindow * 2))
         .map((m) => ({ role: m.role, content: m.content }));
+
+      // Check if bot is actually enabled
+      let enabled = igAccount.messengerBotEnabled || !!agent;
+      if (!enabled) {
+        logger.info(`[IG DM SKIP]: Messenger bot is disabled for account: ${igAccount.igUsername}`);
+        return;
+      }
 
       const wantsVoice = isVoiceRequest(text) || isAudioRequest;
 
@@ -401,7 +410,16 @@ async function handleInstagramDM(event, igAccount, agent) {
       }
 
       emitToUser(igAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: true });
-      const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text, 'instagram');
+      
+      const tempAgent = agent || {
+          systemPrompt: igAccount.messengerBotPrompt || "You are a helpful assistant. Reply to this Instagram message in a friendly way. Keep it short.",
+          temperature: 0.7,
+          contextWindow: 10,
+          aiProvider: 'openai',
+          model: 'gpt-4o-mini'
+      };
+
+      const aiResult = await AIService.generate(tempAgent, contextMessages.slice(0, -1), text, 'instagram');
       emitToUser(igAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
       const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'instagram');
 
