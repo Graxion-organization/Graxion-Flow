@@ -46,6 +46,11 @@ export default function InstagramTool() {
     selectedMediaRef.current = selectedMedia;
   }, [selectedMedia]);
 
+  const selectedAccountRef = useRef(null);
+  useEffect(() => {
+    selectedAccountRef.current = selectedAccount;
+  }, [selectedAccount]);
+
   // Initialize Socket
   useEffect(() => {
     const socket = getSocket();
@@ -54,12 +59,13 @@ export default function InstagramTool() {
     const handleProgress = (data) => {
       // data: { mediaId, processed, total, status }
       const currentMedia = selectedMediaRef.current;
-      if (currentMedia && data.mediaId === currentMedia.id) {
+      const currentAccount = selectedAccountRef.current;
+      if (currentMedia && currentAccount && data.mediaId === currentMedia.id) {
         setAutoReplyProgress(data);
         if (data.status === 'completed') {
           setTimeout(() => {
             setAutoReplyProgress(null);
-            fetchComments(currentMedia); // refresh to see AI replies
+            fetchComments(currentMedia, currentAccount); // refresh to see AI replies
           }, 2000);
         }
       }
@@ -68,9 +74,10 @@ export default function InstagramTool() {
     const handleNewComment = (data) => {
       console.log('[Socket] new_instagram_comment received:', data);
       const currentMedia = selectedMediaRef.current;
-      if (currentMedia && (!data.mediaId || String(data.mediaId) === String(currentMedia.id))) {
+      const currentAccount = selectedAccountRef.current;
+      if (currentMedia && currentAccount && (!data.mediaId || String(data.mediaId) === String(currentMedia.id))) {
         console.log('[Socket] Refreshing comments for media:', currentMedia.id);
-        fetchComments(currentMedia);
+        fetchComments(currentMedia, currentAccount);
       }
     };
 
@@ -131,14 +138,15 @@ export default function InstagramTool() {
     }
   };
 
-  const fetchComments = async (media) => {
+  const fetchComments = async (media, accountOverride = null) => {
+    const accountToUse = accountOverride || selectedAccount;
     setSelectedMedia(media);
     setSelectedComment(null);
     setAutoReplyProgress(null);
     setLoadingComments(true);
     try {
       // JWT via cookies
-      const res = await api.get(`/instagram/manual/${selectedAccount._id}/media/${media.id}/comments`);
+      const res = await api.get(`/instagram/manual/${accountToUse._id}/media/${media.id}/comments`);
       setComments(res.data.data.comments || []);
     } catch (err) {
       toast.error('Failed to fetch comments for this post');
