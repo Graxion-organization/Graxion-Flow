@@ -13,7 +13,7 @@ class YoutubeAutomationService {
     try {
       logger.info('[YouTube Automation] Starting comment check cycle...');
       
-      const automations = await YoutubeAutomation.find({ enabled: true });
+      const automations = await YoutubeAutomation.find({ enabled: true }).populate('user');
       
       for (const automation of automations) {
         try {
@@ -24,7 +24,8 @@ class YoutubeAutomationService {
           // Handle specific OAuth errors by disconnecting if necessary
           if (err.response?.data?.error === 'invalid_grant' || err.message === 'TOKEN_EXPIRED') {
              logger.warn(`[YouTube Automation] Critical OAuth error for ${automation.user?.email}. Disconnecting YouTube.`);
-             await User.findByIdAndUpdate(automation.user._id, { 'youtube.connected': false });
+             const userId = automation.user?._id || automation.user;
+             await User.findByIdAndUpdate(userId, { 'youtube.connected': false });
           }
         }
       }

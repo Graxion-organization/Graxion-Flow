@@ -81,7 +81,7 @@ class YoutubeProvider {
       return { accessToken: access_token, expiry: newExpiry };
     } catch (error) {
       const errorData = error.response?.data || error.message;
-      logger.error('Error refreshing YouTube token for account:', typeof errorData === 'object' ? JSON.stringify(errorData) : errorData);
+      logger.error('Error refreshing YouTube token for account: ' + (typeof errorData === 'object' ? JSON.stringify(errorData) : errorData));
       throw error;
     }
   }
