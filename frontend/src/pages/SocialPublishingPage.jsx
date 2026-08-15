@@ -727,7 +727,7 @@ export default function SocialPublishingPage() {
             postId: actualItem.id, 
             accountId: actualItem.accountId, 
             isJob: actualItem.isJob, 
-            jobId: actualItem.jobId || actualItem.id
+            jobId: actualItem.isJob ? (actualItem.jobId || actualItem.id) : undefined
           });
           setFeed((prev) => prev.filter((item) => item.id !== actualItem.id && item.jobId !== actualItem.jobId));
           successCount++;

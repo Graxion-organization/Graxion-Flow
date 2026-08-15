@@ -569,7 +569,8 @@ exports.deletePost = async (req, res, next) => {
   try {
     const { platform, postId, accountId, isJob, jobId } = req.body;
 
-    if (isJob || jobId) {
+    const isValidObjectId = jobId && typeof jobId === 'string' && jobId.length === 24;
+    if (isJob || isValidObjectId) {
       const deleted = await SocialPostJob.findOneAndDelete({ _id: jobId || postId, organization: req.organization._id });
       if (!deleted) return next(new AppError('Job not found', 404));
       return res.status(200).json({ status: 'success', message: 'Scheduled post deleted' });
