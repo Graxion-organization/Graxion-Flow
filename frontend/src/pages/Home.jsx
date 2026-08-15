@@ -92,10 +92,10 @@ export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Dynamic branding from Admin Settings
-  const brandName = useMemo(() => branding?.branding_site_name || "Graxion Flow", [branding]);
+  // Dynamic branding from Admin Settings (Overridden for Google Compliance)
+  const brandName = "Graxion Flow";
   const heroTitle = useMemo(() => branding?.branding_hero_title || "Automate Your Business Communication", [branding]);
-  const heroSubtitle = useMemo(() => branding?.branding_hero_subtitle || "Deploy AI-powered agents across WhatsApp, Instagram, Telegram, and YouTube. Automate your YouTube channel, manage social media comments, schedule Shorts, and scale your operations effortlessly.", [branding]);
+  const heroSubtitle = "Deploy AI-powered agents across WhatsApp, Instagram, Telegram, and YouTube. Automate your YouTube channel, manage social media comments, schedule Shorts, and scale your operations effortlessly.";
   const tagline = useMemo(() => branding?.branding_tagline || "The Next-Gen Automation Platform", [branding]);
   const contactEmail = useMemo(() => branding?.branding_contact_email || "support@graxion.com", [branding]);
   const contactPhone = useMemo(() => branding?.branding_contact_phone || "+1 (800) 123-4567", [branding]);
@@ -109,16 +109,14 @@ export default function Home() {
 
   // Parse features from admin or use defaults
   const features = useMemo(() => {
-    if (branding?.branding_features_json) {
-      try { return JSON.parse(branding.branding_features_json); } catch { }
-    }
+    // FORCE YOUTUBE FEATURE OVERRIDE FOR GOOGLE COMPLIANCE
     return [
       { icon: 'Bot', title: 'Cognitive AI Agents', description: 'Deploy advanced LLMs that understand context, handle objections, and close deals autonomously across multiple languages.', gradient: 'from-emerald-500/5 to-transparent', span: 'md:col-span-2' },
-      { icon: 'Workflow', title: 'Visual Flow Builder', description: 'Design complex automation sequences with a drag-and-drop interface. No coding required.', gradient: 'from-blue-500/5 to-transparent', span: '' },
+      { icon: 'Youtube', title: 'YouTube Automation', description: 'Schedule YouTube Shorts, auto-reply to comments, and manage your channel growth on autopilot.', gradient: 'from-red-500/5 to-transparent', span: '' },
       { icon: 'Globe', title: 'Omnichannel Inbox', description: 'WhatsApp, Instagram, Telegram, and Facebook — one unified inbox to manage all conversations.', gradient: 'from-purple-500/5 to-transparent', span: '' },
       { icon: 'BarChart3', title: 'Real-Time Analytics & CRM Sync', description: 'Push qualified leads to HubSpot, Zoho, or Salesforce. Track engagement, token usage, and conversion rates live.', gradient: 'from-cyan-500/5 to-transparent', span: 'md:col-span-2' },
       { icon: 'Shield', title: 'Enterprise Security', description: 'End-to-end encryption, GDPR compliance, role-based access controls, and audit logging built in.', gradient: 'from-amber-500/5 to-transparent', span: '' },
-      { icon: 'Send', title: 'Smart Broadcasting', description: 'Send targeted broadcast campaigns with smart segmentation, scheduling, and delivery optimization.', gradient: 'from-rose-500/5 to-transparent', span: '' },
+      { icon: 'Workflow', title: 'Visual Flow Builder', description: 'Design complex automation sequences with a drag-and-drop interface. No coding required.', gradient: 'from-blue-500/5 to-transparent', span: '' },
     ];
   }, [branding]);
 

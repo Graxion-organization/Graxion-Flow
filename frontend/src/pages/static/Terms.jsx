@@ -10,7 +10,7 @@ export default function Terms() {
     },
     {
       title: "2. Use License",
-      content: "Permission is granted to temporarily use our automation platform for personal or commercial business purposes, subject to the restrictions outlined in this section."
+      content: "Permission is granted to temporarily use our automation platform for personal or commercial business purposes, subject to the restrictions outlined in this section. If you connect your YouTube account to Graxion Flow, you also agree to be bound by the YouTube Terms of Service (https://www.youtube.com/t/terms)."
     },
     {
       title: "3. User Responsibilities",
