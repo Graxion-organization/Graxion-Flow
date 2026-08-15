@@ -93,9 +93,9 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Dynamic branding from Admin Settings
-  const brandName = useMemo(() => branding?.branding_site_name || "Graxion", [branding]);
+  const brandName = useMemo(() => branding?.branding_site_name || "Graxion Flow", [branding]);
   const heroTitle = useMemo(() => branding?.branding_hero_title || "Automate Your Business Communication", [branding]);
-  const heroSubtitle = useMemo(() => branding?.branding_hero_subtitle || "Deploy AI-powered agents across WhatsApp, Instagram, and Telegram. Automate customer support, close deals, and scale your operations effortlessly.", [branding]);
+  const heroSubtitle = useMemo(() => branding?.branding_hero_subtitle || "Deploy AI-powered agents across WhatsApp, Instagram, Telegram, and YouTube. Automate your YouTube channel, manage social media comments, schedule Shorts, and scale your operations effortlessly.", [branding]);
   const tagline = useMemo(() => branding?.branding_tagline || "The Next-Gen Automation Platform", [branding]);
   const contactEmail = useMemo(() => branding?.branding_contact_email || "support@graxion.com", [branding]);
   const contactPhone = useMemo(() => branding?.branding_contact_phone || "+1 (800) 123-4567", [branding]);
