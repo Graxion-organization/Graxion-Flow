@@ -76,7 +76,9 @@ exports.getConnectedAccounts = async (req, res, next) => {
       accounts.push({
         id: acc._id,
         platform: 'whatsapp',
-        name: acc.verifiedName || acc.displayPhoneNumber || 'WhatsApp Account',
+        name: acc.verifiedName || 'WhatsApp Account',
+        username: acc.displayPhoneNumber || '',
+        avatar: 'https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg',
         type: 'Business API',
         status: acc.status,
         modelId: acc._id,
