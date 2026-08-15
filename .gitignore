@@ -42,3 +42,5 @@ temp/
 tmp/
 
 .vercel
+.agents/
+.claude/
