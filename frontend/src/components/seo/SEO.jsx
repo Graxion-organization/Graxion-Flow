@@ -9,9 +9,9 @@ export default function SEO({
   image = 'https://flow.graxion.in/og-image.jpg',
   structuredData = null
 }) {
-  const siteTitle = 'Graxion Flow - AI Automation Platform';
+  const siteTitle = 'Graxion Flow — AI-Powered Social Media Automation';
   const fullTitle = title ? `${title} | Graxion Flow` : siteTitle;
-  const metaDesc = description || 'Automate WhatsApp Business API chats with AI agents, send broadcasts, and manage omnichannel social campaigns with Graxion Flow.';
+  const metaDesc = description || 'Graxion Flow is a social media automation platform that helps businesses and marketing teams create, schedule, and publish content across their connected social media accounts from one centralized dashboard.';
   const currentUrl = canonicalUrl || typeof window !== 'undefined' ? window.location.href : 'https://flow.graxion.in';
 
   // Default Organization Schema

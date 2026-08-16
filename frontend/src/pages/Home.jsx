@@ -94,12 +94,12 @@ export default function Home() {
 
   // Dynamic branding from Admin Settings (Overridden for Google Compliance)
   const brandName = "Graxion Flow";
-  const heroTitle = useMemo(() => branding?.branding_hero_title || "Automate Your Business Communication", [branding]);
-  const heroSubtitle = "Deploy AI-powered agents across WhatsApp, Instagram, Telegram, and YouTube. Automate your YouTube channel, manage social media comments, schedule Shorts, and scale your operations effortlessly.";
-  const tagline = useMemo(() => branding?.branding_tagline || "The Next-Gen Automation Platform", [branding]);
-  const contactEmail = useMemo(() => branding?.branding_contact_email || "support@graxion.com", [branding]);
+  const heroTitle = "AI-Powered Social Media Automation";
+  const heroSubtitle = "Graxion Flow helps businesses and marketing teams create, schedule, and publish content across their connected social media accounts from one centralized dashboard.";
+  const tagline = "Graxion Flow is a product by Graxion.";
+  const contactEmail = useMemo(() => branding?.branding_contact_email || "support@graxion.in", [branding]);
   const contactPhone = useMemo(() => branding?.branding_contact_phone || "+1 (800) 123-4567", [branding]);
-  const footerText = useMemo(() => branding?.branding_footer_text || "© 2026 Graxion Inc. All rights reserved.", [branding]);
+  const footerText = useMemo(() => branding?.branding_footer_text || "© 2026 Graxion. All rights reserved.", [branding]);
   const logoUrl = useMemo(() => branding?.branding_logo_url, [branding]);
   const address = useMemo(() => branding?.branding_address || '', [branding]);
   const socialTwitter = useMemo(() => branding?.branding_social_twitter || '', [branding]);
@@ -109,14 +109,13 @@ export default function Home() {
 
   // Parse features from admin or use defaults
   const features = useMemo(() => {
-    // FORCE YOUTUBE FEATURE OVERRIDE FOR GOOGLE COMPLIANCE
     return [
-      { icon: 'Bot', title: 'Cognitive AI Agents', description: 'Deploy advanced LLMs that understand context, handle objections, and close deals autonomously across multiple languages.', gradient: 'from-emerald-500/5 to-transparent', span: 'md:col-span-2' },
-      { icon: 'Youtube', title: 'YouTube Automation', description: 'Schedule YouTube Shorts, auto-reply to comments, and manage your channel growth on autopilot.', gradient: 'from-red-500/5 to-transparent', span: '' },
-      { icon: 'Globe', title: 'Omnichannel Inbox', description: 'WhatsApp, Instagram, Telegram, and Facebook — one unified inbox to manage all conversations.', gradient: 'from-purple-500/5 to-transparent', span: '' },
-      { icon: 'BarChart3', title: 'Real-Time Analytics & CRM Sync', description: 'Push qualified leads to HubSpot, Zoho, or Salesforce. Track engagement, token usage, and conversion rates live.', gradient: 'from-cyan-500/5 to-transparent', span: 'md:col-span-2' },
-      { icon: 'Shield', title: 'Enterprise Security', description: 'End-to-end encryption, GDPR compliance, role-based access controls, and audit logging built in.', gradient: 'from-amber-500/5 to-transparent', span: '' },
-      { icon: 'Workflow', title: 'Visual Flow Builder', description: 'Design complex automation sequences with a drag-and-drop interface. No coding required.', gradient: 'from-blue-500/5 to-transparent', span: '' },
+      { icon: 'Globe', title: 'Social Media Management', description: 'Manage content workflows and oversee all connected social accounts securely.', gradient: 'from-emerald-500/5 to-transparent', span: 'md:col-span-2' },
+      { icon: 'Sparkles', title: 'Content Creation', description: 'Create or upload multimedia content directly within the platform.', gradient: 'from-purple-500/5 to-transparent', span: '' },
+      { icon: 'Workflow', title: 'Content Scheduling', description: 'Schedule your posts for optimal delivery times across channels.', gradient: 'from-blue-500/5 to-transparent', span: '' },
+      { icon: 'Send', title: 'Automated Publishing', description: 'Automatically publish content directly to platforms like YouTube, Facebook, and LinkedIn.', gradient: 'from-cyan-500/5 to-transparent', span: 'md:col-span-2' },
+      { icon: 'Bot', title: 'AI-Assisted Marketing Workflows', description: 'Use AI to streamline content ideation and organize your pipeline efficiently.', gradient: 'from-amber-500/5 to-transparent', span: '' },
+      { icon: 'BarChart3', title: 'Centralized Dashboard', description: 'Monitor activities and handle all publishing tasks from a single interface.', gradient: 'from-red-500/5 to-transparent', span: '' },
     ];
   }, [branding]);
 
@@ -266,8 +265,8 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-[1.08]"
           >
-            <span className="text-white">{heroTitle.split(' ').slice(0, -2).join(' ')} </span>
-            <span className="text-gradient">{heroTitle.split(' ').slice(-2).join(' ')}</span>
+            <span className="text-white">AI-Powered Social Media </span>
+            <span className="text-gradient">Automation</span>
           </motion.h1>
 
           <motion.p
@@ -289,7 +288,7 @@ export default function Home() {
               onClick={() => goAuth('/register')}
               className="w-full sm:w-auto px-8 py-4 rounded-full bg-brand-500 hover:bg-brand-400 text-white font-semibold flex items-center justify-center gap-2 transition-all shadow-[0_0_30px_rgba(34,197,94,0.25)] hover:shadow-[0_0_50px_rgba(34,197,94,0.4)] transform hover:-translate-y-0.5 active:scale-[0.98]"
             >
-              Start Building Free <ArrowRight className="h-5 w-5" />
+              Start Free <ArrowRight className="h-5 w-5" />
             </button>
             <Link
               to="/contact"
@@ -327,10 +326,10 @@ export default function Home() {
             className="grid grid-cols-2 md:grid-cols-4 gap-6"
           >
             {[
-              { value: 50000, suffix: '+', label: 'Messages Processed' },
+              { value: 50000, suffix: '+', label: 'Posts Published' },
               { value: 500, suffix: '+', label: 'Active Users' },
               { value: 99.9, suffix: '%', label: 'Uptime SLA' },
-              { value: 24, suffix: '/7', label: 'AI Agent Support' },
+              { value: 24, suffix: '/7', label: 'Automated Operations' },
             ].map((stat, i) => (
               <div key={i} className="text-center p-6 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
                 <p className="text-3xl lg:text-4xl font-bold text-white mb-2">
@@ -340,6 +339,38 @@ export default function Home() {
               </div>
             ))}
           </motion.div>
+        </div>
+      </section>
+
+      {/* ─── WHAT IS GRAXION FLOW ─── */}
+      <section className="py-24 relative bg-white/[0.02] border-y border-white/[0.05]">
+        <div className="max-w-4xl mx-auto px-5 lg:px-8 text-center">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-brand-400 text-sm font-semibold uppercase tracking-wider mb-4"
+          >
+            About The Product
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-3xl md:text-5xl font-bold mb-8"
+          >
+            What is <span className="text-gradient">Graxion Flow?</span>
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="text-gray-300 text-lg md:text-xl leading-relaxed"
+          >
+            Graxion Flow is a comprehensive social media management and automation platform. It allows businesses and marketing teams to effortlessly manage their content workflows, connect supported social accounts like YouTube and LinkedIn, create or upload content, schedule posts in advance, and manage automated publishing from one centralized dashboard.
+          </motion.p>
         </div>
       </section>
 
@@ -422,9 +453,9 @@ export default function Home() {
             {/* Connecting line */}
             <div className="hidden md:block absolute top-8 left-[16.66%] right-[16.66%] h-[2px] bg-gradient-to-r from-transparent via-brand-500/20 to-transparent" />
 
-            <WorkflowStep number="01" title="Connect Your Channels" description="Link your WhatsApp, Instagram, Telegram, or Facebook accounts in one click." delay={0} />
-            <WorkflowStep number="02" title="Configure AI Agents" description="Set up intelligent AI agents with custom personalities, knowledge bases, and response rules." delay={0.15} />
-            <WorkflowStep number="03" title="Go Live & Scale" description="Start automating conversations, capturing leads, and growing your business instantly." delay={0.3} />
+            <WorkflowStep number="01" title="Connect Your Accounts" description="Link your supported social media profiles like YouTube or LinkedIn securely." delay={0} />
+            <WorkflowStep number="02" title="Create & Schedule" description="Upload your content and schedule posts for optimal times." delay={0.15} />
+            <WorkflowStep number="03" title="Automated Publishing" description="Let Graxion Flow automatically publish your content across channels." delay={0.3} />
           </div>
         </div>
       </section>
@@ -455,7 +486,7 @@ export default function Home() {
                   onClick={() => goAuth('/register')}
                   className="w-full sm:w-auto px-10 py-4 rounded-full bg-brand-500 hover:bg-brand-400 text-white font-semibold flex items-center justify-center gap-2 transition-all shadow-[0_0_30px_rgba(34,197,94,0.25)] hover:shadow-[0_0_50px_rgba(34,197,94,0.4)] transform hover:-translate-y-0.5"
                 >
-                  Get Started Free <ArrowRight className="h-5 w-5" />
+                  Start Free <ArrowRight className="h-5 w-5" />
                 </button>
                 <Link
                   to="/contact"
