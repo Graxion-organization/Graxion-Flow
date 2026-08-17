@@ -263,19 +263,11 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 text-white leading-[1.08]"
+            className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-[1.08]"
           >
-            Graxion Flow
+            <span className="text-white block">Graxion Flow:</span>
+            <span className="text-gradient block mt-2 text-3xl sm:text-4xl lg:text-5xl">AI-Powered Social Media Automation</span>
           </motion.h1>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gradient mb-6"
-          >
-            AI-Powered Social Media Automation
-          </motion.h2>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
