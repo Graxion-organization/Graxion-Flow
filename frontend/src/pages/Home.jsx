@@ -262,21 +262,19 @@ export default function Home() {
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-[1.08]"
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-[1.08]"
           >
-            <span className="text-white">Graxion </span>
-            <span className="text-gradient">Flow</span>
+            <span className="text-white block">Graxion Flow</span>
+            <motion.span 
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+              className="text-gradient text-3xl sm:text-4xl lg:text-5xl block mt-4"
+            >
+              AI-Powered Social Media Automation
+            </motion.span>
           </motion.h1>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-300 mb-6"
-          >
-            AI-Powered Social Media Automation
-          </motion.h2>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -378,7 +376,7 @@ export default function Home() {
             transition={{ delay: 0.2 }}
             className="text-gray-300 text-lg md:text-xl leading-relaxed"
           >
-            Graxion Flow is a comprehensive social media management and automation platform. It allows businesses and marketing teams to effortlessly manage their content workflows, connect supported social accounts like YouTube and LinkedIn, create or upload content, schedule posts in advance, and manage automated publishing from one centralized dashboard.
+            Graxion Flow is a comprehensive social media management and automation platform. It allows businesses and marketing teams to effortlessly manage their content workflows, connect supported social accounts like Meta (Facebook, Instagram, WhatsApp), Google (YouTube), and LinkedIn, create or upload content, schedule posts in advance, and manage automated publishing from one centralized dashboard.
           </motion.p>
         </div>
       </section>
