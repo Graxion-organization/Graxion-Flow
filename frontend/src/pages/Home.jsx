@@ -95,7 +95,7 @@ export default function Home() {
   // Dynamic branding from Admin Settings (Overridden for Google Compliance)
   const brandName = "Graxion Flow";
   const heroTitle = "AI-Powered Social Media Automation";
-  const heroSubtitle = "Graxion Flow is a comprehensive social media management platform that allows businesses to automate their content workflows. Connect your Meta accounts (Facebook, Instagram, WhatsApp), Google (YouTube), and LinkedIn to schedule posts and manage automated publishing from one centralized dashboard.";
+  const heroSubtitle = "Graxion Flow is a social media management and automation platform that helps businesses create, schedule, and publish content across supported social media platforms from one centralized dashboard.";
   const tagline = "Graxion Flow is a product by Graxion.";
   const contactEmail = useMemo(() => branding?.branding_contact_email || "support@graxion.in", [branding]);
   const contactPhone = useMemo(() => branding?.branding_contact_phone || "+1 (800) 123-4567", [branding]);
@@ -323,32 +323,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── STATS SECTION ─── */}
-      <section className="py-16 relative">
-        <div className="max-w-6xl mx-auto px-5 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6"
-          >
-            {[
-              { value: 50000, suffix: '+', label: 'Posts Published' },
-              { value: 500, suffix: '+', label: 'Active Users' },
-              { value: 99.9, suffix: '%', label: 'Uptime SLA' },
-              { value: 24, suffix: '/7', label: 'Automated Operations' },
-            ].map((stat, i) => (
-              <div key={i} className="text-center p-6 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
-                <p className="text-3xl lg:text-4xl font-bold text-white mb-2">
-                  <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-                </p>
-                <p className="text-sm text-gray-500">{stat.label}</p>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
 
       {/* ─── APP PURPOSE SECTION ─── */}
       <section className="py-24 relative bg-white/[0.02] border-y border-white/[0.05]">
@@ -377,7 +351,7 @@ export default function Home() {
             transition={{ delay: 0.2 }}
             className="text-gray-300 text-lg md:text-xl leading-relaxed"
           >
-            Graxion Flow is a comprehensive social media management and automation platform. It allows businesses and marketing teams to effortlessly manage their content workflows, connect supported social accounts like Meta (Facebook, Instagram, WhatsApp), Google (YouTube), and LinkedIn, create or upload content, schedule posts in advance, and manage automated publishing from one centralized dashboard.
+            Graxion Flow is a social media management and automation platform that helps businesses create, schedule, and publish content across supported social media platforms from one centralized dashboard.
           </motion.p>
         </div>
       </section>
