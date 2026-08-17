@@ -265,14 +265,23 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-[1.08]"
           >
-            <span className="text-white">AI-Powered Social Media </span>
-            <span className="text-gradient">Automation</span>
+            <span className="text-white">Graxion </span>
+            <span className="text-gradient">Flow</span>
           </motion.h1>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-300 mb-6"
+          >
+            AI-Powered Social Media Automation
+          </motion.h2>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
             className="text-base sm:text-lg lg:text-xl text-gray-400 max-w-3xl mx-auto mb-10 leading-relaxed"
           >
             {heroSubtitle}
@@ -281,7 +290,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <button
