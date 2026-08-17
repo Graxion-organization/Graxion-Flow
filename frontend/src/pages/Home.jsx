@@ -95,7 +95,7 @@ export default function Home() {
   // Dynamic branding from Admin Settings (Overridden for Google Compliance)
   const brandName = "Graxion Flow";
   const heroTitle = "AI-Powered Social Media Automation";
-  const heroSubtitle = "Graxion Flow helps businesses and marketing teams create, schedule, and publish content across their connected social media accounts from one centralized dashboard.";
+  const heroSubtitle = "Graxion Flow is a comprehensive social media management platform that allows businesses to automate their content workflows. Connect your Meta accounts (Facebook, Instagram, WhatsApp), Google (YouTube), and LinkedIn to schedule posts and manage automated publishing from one centralized dashboard.";
   const tagline = "Graxion Flow is a product by Graxion.";
   const contactEmail = useMemo(() => branding?.branding_contact_email || "support@graxion.in", [branding]);
   const contactPhone = useMemo(() => branding?.branding_contact_phone || "+1 (800) 123-4567", [branding]);
@@ -262,19 +262,20 @@ export default function Home() {
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-[1.08]"
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 text-white leading-[1.08]"
           >
-            <span className="text-white block">Graxion Flow</span>
-            <motion.span 
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-              className="text-gradient text-3xl sm:text-4xl lg:text-5xl block mt-4"
-            >
-              AI-Powered Social Media Automation
-            </motion.span>
+            Graxion Flow
           </motion.h1>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gradient mb-6"
+          >
+            AI-Powered Social Media Automation
+          </motion.h2>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
