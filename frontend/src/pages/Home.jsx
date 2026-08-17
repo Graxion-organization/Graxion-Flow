@@ -263,11 +263,19 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-[1.08]"
+            className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 text-white leading-[1.08]"
           >
-            <span className="text-white block">Graxion Flow:</span>
-            <span className="text-gradient block mt-2 text-3xl sm:text-4xl lg:text-5xl">AI-Powered Social Media Automation</span>
+            Graxion Flow
           </motion.h1>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gradient mb-6"
+          >
+            AI-Powered Social Media Automation
+          </motion.h2>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -342,7 +350,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── WHAT IS GRAXION FLOW ─── */}
+      {/* ─── APP PURPOSE SECTION ─── */}
       <section className="py-24 relative bg-white/[0.02] border-y border-white/[0.05]">
         <div className="max-w-4xl mx-auto px-5 lg:px-8 text-center">
           <motion.p
@@ -351,7 +359,7 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-brand-400 text-sm font-semibold uppercase tracking-wider mb-4"
           >
-            About The Product
+            Application Purpose
           </motion.p>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -360,7 +368,7 @@ export default function Home() {
             transition={{ delay: 0.1 }}
             className="text-3xl md:text-5xl font-bold mb-8"
           >
-            What is <span className="text-gradient">Graxion Flow?</span>
+            Purpose of <span className="text-gradient">Graxion Flow</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
