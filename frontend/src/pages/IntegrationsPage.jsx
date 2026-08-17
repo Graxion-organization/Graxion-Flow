@@ -1308,12 +1308,21 @@ export default function IntegrationsPage() {
             {/* 5. YOUTUBE OAUTH SETUP */}
             {activeModal.id === 'youtube' && (
               <div className="p-6 space-y-4 text-center py-6">
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal mb-2">
                   Connect your YouTube Channel via Google Account. We will synchronize comment replies and enable AI automation on your videos.
                 </p>
+                <div className="text-left bg-slate-100 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 mb-4">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Requested Permissions:</p>
+                  <ul className="text-[11px] text-slate-600 dark:text-slate-300 space-y-1.5 list-disc pl-4">
+                    <li><span className="font-semibold">userinfo.profile</span>: See your personal info, including any personal info you've made publicly available</li>
+                    <li><span className="font-semibold">youtube.readonly</span>: View your YouTube account</li>
+                    <li><span className="font-semibold">youtube.upload</span>: Manage your YouTube videos</li>
+                    <li><span className="font-semibold">youtube.force-ssl</span>: See, edit and permanently delete your YouTube videos, ratings, comments and captions</li>
+                  </ul>
+                </div>
                 <button
                   onClick={handleYoutubeConnect}
-                  className="w-full flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-slate-800 dark:text-white py-3 rounded-xl font-semibold text-xs transition-all shadow-lg shadow-red-600/25"
+                  className="w-full flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-semibold text-xs transition-all shadow-lg shadow-red-600/25"
                 >
                   <Youtube size={16} />
                   <span>Authorize YouTube Channel</span>
