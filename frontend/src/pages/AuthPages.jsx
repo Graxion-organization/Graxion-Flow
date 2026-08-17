@@ -71,7 +71,7 @@ function AuthShell({ children, subtitle, title }) {
   const navigate = useNavigate();
   const { branding } = useBrandingStore();
   const brandName = branding?.branding_site_name || 'Graxion';
-  const logoUrl = branding?.branding_logo_url;
+  const logoUrl = "https://res.cloudinary.com/dh6uiegxw/image/upload/v1784957805/social_hub/qth6s6bzkoawy0q1qprl.png";
   const tagline = branding?.branding_tagline || 'The Next-Gen Automation Platform';
 
   return (
@@ -86,7 +86,7 @@ function AuthShell({ children, subtitle, title }) {
           <div className="relative z-10">
             <button onClick={() => navigate('/')} className="flex items-center gap-3 group">
               {logoUrl ? (
-                <img src={logoUrl} alt={brandName} className="h-10 max-w-[150px] object-contain rounded-lg" />
+                <img src={logoUrl} alt="Graxion Flow Logo" className="h-10 max-w-[150px] object-contain rounded-lg" />
               ) : (
                 <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-400 text-white flex items-center justify-center shadow-glow-sm">
                   <MessageSquare size={18} />
@@ -119,7 +119,7 @@ function AuthShell({ children, subtitle, title }) {
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
             {logoUrl ? (
-              <img src={logoUrl} alt={brandName} className="h-8 w-auto" />
+              <img src={logoUrl} alt="Graxion Flow Logo" className="h-8 w-auto" />
             ) : (
               <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-400 text-white flex items-center justify-center">
                 <MessageSquare size={16} />

@@ -454,13 +454,7 @@ export default function DashboardLayout() {
           <div className={`p-5 border-b transition-colors ${isDark ? "border-white/5" : "border-slate-100"}`}>
             <div className="flex items-center justify-between w-full">
               <div className={`flex items-center min-w-0 ${isSidebarCollapsed ? 'justify-center w-full' : 'gap-3'}`}>
-                {branding.branding_logo_url ? (
-                  <img src={branding.branding_logo_url} alt={branding.branding_site_name} className={`h-9 object-contain rounded-lg transition-all ${isSidebarCollapsed ? 'w-8' : 'w-auto max-w-[140px]'}`} />
-                ) : (
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FF6A00] to-[#FF4500] flex items-center justify-center shadow-lg shadow-[#FF6A00]/20 shrink-0">
-                    <Sparkles size={18} className="text-white" />
-                  </div>
-                )}
+                <img src="https://res.cloudinary.com/dh6uiegxw/image/upload/v1784957805/social_hub/qth6s6bzkoawy0q1qprl.png" alt="Graxion Flow Logo" className={`h-9 object-contain rounded-lg transition-all ${isSidebarCollapsed ? 'w-8' : 'w-auto max-w-[140px]'}`} />
                 {!isSidebarCollapsed && (
                   <div className="min-w-0">
                     <p className="text-[9px] uppercase tracking-[0.2em] text-slate-400 font-bold">Workspace</p>

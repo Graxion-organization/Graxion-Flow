@@ -100,7 +100,7 @@ export default function Home() {
   const contactEmail = useMemo(() => branding?.branding_contact_email || "support@graxion.in", [branding]);
   const contactPhone = useMemo(() => branding?.branding_contact_phone || "+1 (800) 123-4567", [branding]);
   const footerText = useMemo(() => branding?.branding_footer_text || "© 2026 Graxion. All rights reserved.", [branding]);
-  const logoUrl = useMemo(() => branding?.branding_logo_url, [branding]);
+  const logoUrl = "https://res.cloudinary.com/dh6uiegxw/image/upload/v1784957805/social_hub/qth6s6bzkoawy0q1qprl.png";
   const address = useMemo(() => branding?.branding_address || '', [branding]);
   const socialTwitter = useMemo(() => branding?.branding_social_twitter || '', [branding]);
   const socialLinkedin = useMemo(() => branding?.branding_social_linkedin || '', [branding]);
@@ -157,7 +157,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-5 lg:px-8 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
             {logoUrl ? (
-              <img src={logoUrl} alt={brandName} className="h-9 w-auto" />
+              <img src={logoUrl} alt="Graxion Flow Logo" className="h-9 w-auto" />
             ) : (
               <div className="h-10 w-10 bg-gradient-to-br from-brand-500 to-emerald-400 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:shadow-brand-500/40 transition-shadow">
                 <MessageSquare className="text-white h-5 w-5" />
@@ -207,7 +207,7 @@ export default function Home() {
           <div className="flex justify-between items-center p-5">
             <div className="flex items-center gap-3">
               {logoUrl ? (
-                <img src={logoUrl} alt={brandName} className="h-8 w-auto" />
+                <img src={logoUrl} alt="Graxion Flow Logo" className="h-8 w-auto" />
               ) : (
                 <div className="h-9 w-9 bg-gradient-to-br from-brand-500 to-emerald-400 rounded-xl flex items-center justify-center">
                   <MessageSquare className="text-white h-4 w-4" />
@@ -508,7 +508,7 @@ export default function Home() {
             <div className="sm:col-span-2 lg:col-span-1">
               <div className="flex items-center gap-2.5 mb-5">
                 {logoUrl ? (
-                  <img src={logoUrl} alt={brandName} className="h-7 w-auto opacity-90" />
+                  <img src={logoUrl} alt="Graxion Flow Logo" className="h-7 w-auto opacity-90" />
                 ) : (
                   <div className="h-9 w-9 bg-gradient-to-br from-brand-500 to-emerald-400 rounded-xl flex items-center justify-center">
                     <MessageSquare className="text-white h-4 w-4" />

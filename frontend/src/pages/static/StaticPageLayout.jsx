@@ -10,7 +10,7 @@ const StaticNavbar = () => {
   const { branding } = useBrandingStore();
   const navigate = useNavigate();
   const brandName = branding?.branding_site_name || "Graxion";
-  const logoUrl = branding?.branding_logo_url;
+  const logoUrl = "https://res.cloudinary.com/dh6uiegxw/image/upload/v1784957805/social_hub/qth6s6bzkoawy0q1qprl.png";
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -34,7 +34,7 @@ const StaticNavbar = () => {
         <div className="max-w-7xl mx-auto px-5 lg:px-8 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             {logoUrl ? (
-              <img src={logoUrl} alt={brandName} className="h-8 w-auto" />
+              <img src={logoUrl} alt="Graxion Flow Logo" className="h-8 w-auto" />
             ) : (
               <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-brand-500 to-emerald-400 flex items-center justify-center shadow-glow-sm">
                 <MessageSquare className="text-white h-4 w-4" />
@@ -71,7 +71,7 @@ const StaticNavbar = () => {
           <div className="flex justify-between items-center p-5">
             <div className="flex items-center gap-2.5">
               {logoUrl ? (
-                <img src={logoUrl} alt={brandName} className="h-8 w-auto" />
+                <img src={logoUrl} alt="Graxion Flow Logo" className="h-8 w-auto" />
               ) : (
                 <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-brand-500 to-emerald-400 flex items-center justify-center">
                   <MessageSquare className="text-white h-3.5 w-3.5" />
@@ -106,7 +106,7 @@ const StaticNavbar = () => {
 const StaticFooter = () => {
   const { branding } = useBrandingStore();
   const brandName = branding?.branding_site_name || "Graxion";
-  const logoUrl = branding?.branding_logo_url;
+  const logoUrl = "https://res.cloudinary.com/dh6uiegxw/image/upload/v1784957805/social_hub/qth6s6bzkoawy0q1qprl.png";
   const footerText = branding?.branding_footer_text || `© ${new Date().getFullYear()} ${brandName}. All rights reserved.`;
   const contactEmail = branding?.branding_contact_email;
   const contactPhone = branding?.branding_contact_phone;
@@ -122,7 +122,7 @@ const StaticFooter = () => {
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-2.5 mb-5">
               {logoUrl ? (
-                <img src={logoUrl} alt={brandName} className="h-7 w-auto opacity-90" />
+                <img src={logoUrl} alt="Graxion Flow Logo" className="h-7 w-auto opacity-90" />
               ) : (
                 <div className="h-8 w-8 bg-gradient-to-br from-brand-500 to-emerald-400 rounded-xl flex items-center justify-center">
                   <MessageSquare className="text-white h-3.5 w-3.5" />
