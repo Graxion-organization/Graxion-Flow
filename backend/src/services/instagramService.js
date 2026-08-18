@@ -335,6 +335,32 @@ class InstagramService {
     }
   }
 
+  async sendPrivateReply(commentId, text) {
+    try {
+      const endpointId = 'me';
+      const chunks = InstagramService.splitMessage(text, 950);
+      let lastResponse = null;
+
+      for (const chunk of chunks) {
+        if (!chunk.trim()) continue;
+        
+        lastResponse = await axios.post(
+          `${this.baseUrl}/${endpointId}/messages`,
+          {
+            recipient: { comment_id: commentId },
+            message: { text: chunk }
+          },
+          { params: { access_token: this.accessToken } }
+        );
+      }
+      return lastResponse.data;
+    } catch (error) {
+      const errDetail = error.response?.data?.error?.message || error.message;
+      logger.error(`Instagram sendPrivateReply error: ${errDetail}`);
+      throw error;
+    }
+  }
+
   async sendAudioMessage(igAccountId, recipientId, audioUrl) {
     try {
       const endpointId = 'me';

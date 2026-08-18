@@ -636,13 +636,13 @@ async function handleInstagramComment(commentData, igAccount, agent) {
                 return;
               }
 
-              // 1. Send DM
+              // 1. Send DM (Private Reply to Comment)
               if (postAutomation.dmMessage) {
                 try {
-                  await igService.sendTextMessage(igAccount.igAccountId, commenterId, postAutomation.dmMessage);
-                  logger.info(`Successfully sent Post Automation DM to ${commenterId}`);
+                  await igService.sendPrivateReply(commentId, postAutomation.dmMessage);
+                  logger.info(`Successfully sent Post Automation Private Reply DM for comment ${commentId}`);
                 } catch (dmErr) {
-                  logger.error(`Failed to send Post Automation DM: ${dmErr.message}`);
+                  logger.error(`Failed to send Post Automation Private Reply DM: ${dmErr.message}`);
                 }
               }
               
