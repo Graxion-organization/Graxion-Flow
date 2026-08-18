@@ -95,8 +95,7 @@ exports.disconnect = async (req, res, next) => {
 
 exports.getAllAccounts = async (req, res, next) => {
   try {
-    const accounts = await YoutubeAccount.find({ organization: req.organization._id
-    }).select("+accessToken +refreshToken");
+    const accounts = await YoutubeAccount.find({ organization: req.organization._id });
     res.status(200).json({ status: 'success', data: { accounts } });
   } catch (err) {
     next(err);
