@@ -250,6 +250,7 @@ app.use('/api/conversations', conversationRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/youtube', require('./routes/youtubeRoutes'));
 app.use('/api/social-hub', socialHubRoutes);
+app.use('/api/post-automations', require('./routes/postAutomationRoutes'));
 app.use('/api/marketing-copilot', require('./routes/marketingCopilot'));
 app.use('/api/ai', aiRoutes);
 app.use('/api/notifications', notificationRoutes);

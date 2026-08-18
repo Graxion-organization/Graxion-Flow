@@ -635,9 +635,68 @@ async function handleInstagramComment(commentData, igAccount, agent) {
           contextWindow: 1
         };
         
+        // Check for Post-Specific Automation (PostAutomation)
+        const PostAutomation = require('../models/PostAutomation');
+        const mediaId = commentData?.media?.id;
+        const igService = new InstagramService(igAccount.pageAccessToken, igAccount.pageId);
+        
+        if (mediaId) {
+          const postAutomation = await PostAutomation.findOne({
+            platform: 'instagram',
+            accountId: igAccount._id,
+            mediaId: mediaId,
+            isActive: true
+          });
+
+          if (postAutomation) {
+            let matches = false;
+            if (postAutomation.triggerType === 'ALL_COMMENTS') {
+              matches = true;
+            } else if (postAutomation.triggerType === 'KEYWORD' && postAutomation.keywords && postAutomation.keywords.length > 0) {
+              const lowerText = text.toLowerCase();
+              matches = postAutomation.keywords.some(kw => lowerText.includes(kw.toLowerCase()));
+            }
+
+            if (matches) {
+              logger.info(`[POST AUTOMATION] Matched for Instagram Comment ${commentId} on media ${mediaId}`);
+              
+              // 1. Send DM
+              if (postAutomation.dmMessage) {
+                try {
+                  await igService.sendTextMessage(igAccount.igAccountId, commenterId, postAutomation.dmMessage);
+                  logger.info(`Successfully sent Post Automation DM to ${commenterId}`);
+                } catch (dmErr) {
+                  logger.error(`Failed to send Post Automation DM: ${dmErr.message}`);
+                }
+              }
+              
+              // 2. Reply to comment
+              if (postAutomation.commentReply) {
+                try {
+                  await igService.replyToComment(igAccount.igAccountId, commentId, postAutomation.commentReply);
+                  logger.info(`Successfully sent Post Automation reply to comment ${commentId}`);
+                } catch (replyErr) {
+                  logger.error(`Failed to send Post Automation reply: ${replyErr.message}`);
+                }
+              }
+
+              // Deduct credits once if either action was taken
+              await creditHelper.deductCredits(igAccount.user, creditCost);
+              await creditHelper.logTransaction({
+                userId: igAccount.user,
+                type: 'deduction',
+                amount: creditCost,
+                description: `AI Agent: Post Automation reply for media ${mediaId}`,
+                metadata: { commentId, platform: 'instagram' },
+              });
+
+              return; // Skip normal keyword triggers and AI
+            }
+          }
+        }
+
         // Check for Keyword Triggers
         const matchedTrigger = await checkKeywordMatch(igAccount.organization, text, 'instagram', 'COMMENT', agent?._id);
-        const igService = new InstagramService(igAccount.pageAccessToken, igAccount.pageId);
         
         if (matchedTrigger && matchedTrigger.action === 'SEND_MESSAGE') {
             logger.info(`[KEYWORD TRIGGER] Matched trigger ${matchedTrigger._id} for Instagram Comment ${commentId}`);
