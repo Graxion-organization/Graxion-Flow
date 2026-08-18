@@ -11,7 +11,7 @@ exports.saveAutomation = async (req, res, next) => {
     }
 
     let automation = await PostAutomation.findOne({
-      organization: req.user.currentOrganization,
+      organization: req.organization._id,
       platform,
       accountId,
       mediaId
@@ -26,7 +26,7 @@ exports.saveAutomation = async (req, res, next) => {
       await automation.save();
     } else {
       automation = await PostAutomation.create({
-        organization: req.user.currentOrganization,
+        organization: req.organization._id,
         platform,
         accountId,
         mediaId,
@@ -53,7 +53,7 @@ exports.getAutomation = async (req, res, next) => {
     const { platform, accountId, mediaId } = req.params;
 
     const automation = await PostAutomation.findOne({
-      organization: req.user.currentOrganization,
+      organization: req.organization._id,
       platform,
       accountId,
       mediaId
