@@ -155,7 +155,7 @@ exports.getMediaComments = async (req, res, next) => {
 
 exports.replyToComment = async (req, res, next) => {
   try {
-    const { text } = req.body;
+    const { text, type } = req.body;
     if (!text) return next(new AppError('Reply text is required', 400));
 
     const account = await YoutubeAccount.findOne({ _id: req.params.id, organization: req.organization._id }).select("+accessToken +refreshToken");
@@ -167,7 +167,12 @@ exports.replyToComment = async (req, res, next) => {
       await ytProvider.refreshYouTubeTokenForAccount(account);
     }
 
-    const result = await ytProvider.replyToCommentThread(req.params.commentId, text);
+    let result;
+    if (type === 'media') {
+      result = await ytProvider.addComment(req.params.commentId, text);
+    } else {
+      result = await ytProvider.replyToCommentThread(req.params.commentId, text);
+    }
     res.status(200).json({ status: 'success', data: result });
   } catch (err) {
     next(err);

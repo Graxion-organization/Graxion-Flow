@@ -277,6 +277,7 @@ class YoutubeProvider {
           videoId: videoId,
           maxResults: limit,
           order: 'time',
+          textFormat: 'plainText'
         },
         headers: {
           Authorization: `Bearer ${this.accessToken}`,

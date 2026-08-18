@@ -181,7 +181,7 @@ export default function YouTubeTool() {
       const targetId = selectedComment ? selectedComment.id : selectedMedia.id;
       const type = selectedComment ? 'comment' : 'media';
 
-      await api.post(`/youtube/manual/${selectedAccount._id}/comments/${targetId}/reply`, { text: messageText });
+      await api.post(`/youtube/manual/${selectedAccount._id}/comments/${targetId}/reply`, { text: messageText, type });
       
       toast.success(type === 'comment' ? 'Reply sent successfully!' : 'Comment posted successfully!');
       setMessageText('');
