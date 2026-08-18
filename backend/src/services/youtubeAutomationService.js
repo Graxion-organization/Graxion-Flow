@@ -84,7 +84,7 @@ class YoutubeAutomationService {
     if (!threads || threads.length === 0) return;
 
     // Fetch video titles for these threads
-    const videoIds = [...new Set(threads.map(t => t.snippet.videoId))];
+    const videoIds = [...new Set(threads.map(t => t.snippet.videoId).filter(Boolean))];
     const videoDetails = await provider.fetchVideosDetails(videoIds);
     const videoTitleMap = videoDetails.reduce((acc, v) => {
       acc[v.id] = v.snippet.title;
@@ -94,7 +94,7 @@ class YoutubeAutomationService {
     for (const thread of threads) {
       const topComment = thread.snippet.topLevelComment;
       const commentId = topComment.id;
-      const commentText = topComment.snippet.textOriginal;
+      const commentText = topComment.snippet.textOriginal || topComment.snippet.textDisplay;
       const authorName = topComment.snippet.authorDisplayName;
       const videoId = thread.snippet.videoId;
       const videoTitle = videoTitleMap[videoId] || 'YouTube Video';

@@ -217,6 +217,7 @@ class YoutubeProvider {
    * Fetches details for specific videos (titles, etc)
    */
   async fetchVideosDetails(videoIds) {
+    if (!videoIds || videoIds.length === 0) return [];
     try {
       const response = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
         params: {
@@ -245,6 +246,7 @@ class YoutubeProvider {
           allThreadsRelatedToChannelId: this.channelId, // We might need to store channelId in the instance
           maxResults: limit,
           order: 'time',
+          textFormat: 'plainText'
         },
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
