@@ -69,6 +69,17 @@ exports.disconnect = async (req, res, next) => {
       }
     );
 
+    const YoutubeAutomation = require('../models/YoutubeAutomation');
+    await YoutubeAutomation.updateMany(
+      { organization: req.organization._id },
+      {
+        $set: {
+          enabled: false,
+          pendingComments: []
+        }
+      }
+    );
+
     res.status(200).json({
       status: 'success',
       message: 'YouTube account disconnected',

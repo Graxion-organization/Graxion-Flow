@@ -50,6 +50,11 @@ exports.updateSettings = async (req, res, next) => {
 
 exports.getPendingComments = async (req, res, next) => {
   try {
+    const account = await YoutubeAccount.findOne({ organization: req.organization._id, isActive: true });
+    if (!account) {
+      return res.status(200).json({ status: 'success', data: [] });
+    }
+
     const settings = await YoutubeAutomation.findOne({ organization: req.organization._id });
     const pending = settings ? settings.pendingComments.filter(c => c.status === 'pending') : [];
     res.status(200).json({ status: 'success', data: pending });
