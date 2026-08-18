@@ -464,6 +464,24 @@ class InstagramService {
     }
   }
 
+  async getCommentDetails(commentId) {
+    try {
+      const response = await axios.get(
+        `${this.baseUrl}/${commentId}`,
+        {
+          params: {
+            fields: 'media{id}',
+            access_token: this.accessToken
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      logger.error(`Error fetching comment details: ${error.response?.data?.error?.message || error.message}`);
+      return null;
+    }
+  }
+
   async getMediaComments(mediaId) {
     try {
       const response = await axios.get(

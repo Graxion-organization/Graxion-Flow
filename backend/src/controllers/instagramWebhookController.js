@@ -590,9 +590,18 @@ async function handleInstagramComment(commentData, igAccount, agent) {
 
         // Check for Post-Specific Automation (PostAutomation) BEFORE the general enabled check
         const PostAutomation = require('../models/PostAutomation');
-        const mediaId = commentData?.media?.id;
+        let mediaId = commentData?.media?.id;
         const igService = new InstagramService(igAccount.pageAccessToken, igAccount.pageId);
         
+        // Defensive: If webhook payload doesn't include media.id, fetch it
+        if (!mediaId && commentId) {
+          logger.info(`media.id missing from webhook. Fetching comment details for ${commentId}`);
+          const commentDetails = await igService.getCommentDetails(commentId);
+          if (commentDetails && commentDetails.media) {
+            mediaId = commentDetails.media.id;
+          }
+        }
+
         if (mediaId) {
           const postAutomation = await PostAutomation.findOne({
             platform: 'instagram',
@@ -601,17 +610,26 @@ async function handleInstagramComment(commentData, igAccount, agent) {
             isActive: true
           });
 
+          logger.info(`[POST AUTOMATION CHECK] Finding config for media ${mediaId}. Found: ${!!postAutomation}`);
+
           if (postAutomation) {
             let matches = false;
+            logger.info(`[POST AUTOMATION TRIGGERS] text="${text}", type="${postAutomation.triggerType}", keywords=${JSON.stringify(postAutomation.keywords)}`);
+
             if (postAutomation.triggerType === 'ALL_COMMENTS') {
               matches = true;
             } else if (postAutomation.triggerType === 'KEYWORD' && postAutomation.keywords && postAutomation.keywords.length > 0) {
-              const lowerText = text.toLowerCase();
-              matches = postAutomation.keywords.some(kw => lowerText.includes(kw.toLowerCase()));
+              const lowerText = text.toLowerCase().trim();
+              matches = postAutomation.keywords.some(kw => {
+                const lowerKw = kw.toLowerCase().trim();
+                return lowerKw && lowerText.includes(lowerKw);
+              });
             }
 
+            logger.info(`[POST AUTOMATION MATCH RESULT] matches=${matches}`);
+
             if (matches) {
-              logger.info(`[POST AUTOMATION] Matched for Instagram Comment ${commentId} on media ${mediaId}`);
+              logger.info(`[POST AUTOMATION] Executing for Instagram Comment ${commentId} on media ${mediaId}`);
               
               if ((user.subscription?.credits ?? 0) < creditCost) {
                 logger.warn(`User ${user._id} hit credit limit for AI comment responses`);
@@ -652,6 +670,8 @@ async function handleInstagramComment(commentData, igAccount, agent) {
               return; // Stop processing, we handled the comment via Post Automation
             }
           }
+        } else {
+          logger.warn(`[POST AUTOMATION SKIP] Could not determine mediaId for comment ${commentId}`);
         }
 
         const Agent = require('../models/Agent');
