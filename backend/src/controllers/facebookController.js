@@ -89,10 +89,16 @@ exports.autoConnect = async (req, res, next) => {
       }
     }
 
+    const cleanAccounts = connectedAccounts.map(acc => {
+      const obj = acc.toObject();
+      delete obj.pageAccessToken;
+      return obj;
+    });
+
     res.status(200).json({
       status: 'success',
       message: `Successfully connected ${connectedAccounts.length} Facebook page(s).`,
-      data: { accounts: connectedAccounts },
+      data: { accounts: cleanAccounts },
     });
   } catch (err) {
     next(err);
@@ -159,9 +165,12 @@ exports.updateBotSettings = async (req, res, next) => {
       }
     }
 
+    const accountObj = account.toObject();
+    delete accountObj.pageAccessToken;
+
     res.status(200).json({
       status: 'success',
-      data: { account },
+      data: { account: accountObj },
     });
   } catch (err) {
     next(err);

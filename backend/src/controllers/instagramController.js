@@ -48,10 +48,13 @@ exports.connectAccount = async (req, res, next) => {
       logger.warn(`Failed to auto-subscribe page ${pageId} to webhooks. You may need to do it manually in the Meta App Dashboard.`);
     }
 
+    const accountObj = account.toObject();
+    delete accountObj.pageAccessToken;
+
     res.status(200).json({
       status: 'success',
       message: 'Instagram account connected successfully and page subscribed to webhooks.',
-      data: { account },
+      data: { account: accountObj },
     });
   } catch (err) {
     next(err);
@@ -184,10 +187,16 @@ exports.autoConnect = async (req, res, next) => {
       return next(new AppError('No connected Instagram Professional Accounts found on your Facebook Pages. Please link your Instagram account to a Facebook page first.', 404));
     }
 
+    const cleanAccounts = connectedAccounts.map(acc => {
+      const obj = acc.toObject();
+      delete obj.pageAccessToken;
+      return obj;
+    });
+
     res.status(200).json({
       status: 'success',
       message: `Successfully connected ${connectedAccounts.length} Instagram account(s).`,
-      data: { accounts: connectedAccounts },
+      data: { accounts: cleanAccounts },
     });
   } catch (err) {
     next(err);
@@ -248,10 +257,13 @@ exports.updateBotSettings = async (req, res, next) => {
       }
     }
 
+    const accountObj = account.toObject();
+    delete accountObj.pageAccessToken;
+
     res.status(200).json({
       status: 'success',
       message: 'Bot settings updated successfully',
-      data: { account },
+      data: { account: accountObj },
     });
   } catch (err) {
     next(err);
@@ -265,7 +277,7 @@ exports.getUserInstagramAccounts = async (req, res, next) => {
     const accounts = await InstagramAccount.find({ 
       organization: req.organization._id, 
       isActive: true 
-    }).select('+pageAccessToken');
+    });
     res.status(200).json({ status: 'success', data: { accounts } });
   } catch (err) {
     next(err);
