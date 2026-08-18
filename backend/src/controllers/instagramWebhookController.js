@@ -556,20 +556,6 @@ async function handleInstagramComment(commentData, igAccount, agent) {
 
     webhookQueue.enqueue(`instagram_comment_${commenterId}`, async () => {
       try {
-        const Agent = require('../models/Agent');
-        const agent = await Agent.findOne({
-          instagramAccount: igAccount._id,
-          isActive: true
-        });
-
-        // 1. Check if bot is enabled for this account specifically OR via Agent
-        let enabled = igAccount.commentBotEnabled || !!agent;
-        let systemPrompt = igAccount.commentBotPrompt || agent?.systemPrompt;
-
-        if (!enabled) {
-          logger.info(`[COMMENT SKIP]: Bot is disabled in settings for account: ${igAccount.igUsername || igAccount.igAccountId}`);
-          return;
-        }
 
         // 1.5 Deduplicate comments
         let isDuplicate = false;
@@ -597,45 +583,12 @@ async function handleInstagramComment(commentData, igAccount, agent) {
           });
         } catch(e) {}
 
-        logger.info(`[COMMENT PROCESSING]: Found enabled bot for ${igAccount.igUsername}. Generating reply for: "${text}"`);
-
-        // Check limits & credits
         const user = await User.findById(igAccount.user).select('+usage +subscription');
         const Plan = require('../models/Plan');
         const userPlan = await Plan.findOne({ code: user.subscription?.plan || 'free' });
         const creditCost = userPlan ? userPlan.agentMsgCreditCost : 1;
 
-        if ((user.subscription?.credits ?? 0) < creditCost) {
-          logger.warn(`User ${user._id} hit credit limit for AI comment responses`);
-          return;
-        }
-
-        // Check custom agent credit spend limit
-        const agentLimit = user.subscription?.agentCreditLimit || 0;
-        const agentUsed = user.usage?.agentCreditsUsedThisMonth || 0;
-        if (agentLimit > 0 && agentUsed >= agentLimit) {
-          logger.warn(`User ${user._id} hit custom Monthly Agent Credit Spend Limit (${agentUsed}/${agentLimit})`);
-          return;
-        }
-
-        const limits = await user.getPlanLimits();
-        if (user.usage.messagesThisMonth >= limits.messages) {
-          logger.warn(`User ${user._id} hit message limit for AI comment responses`);
-          return;
-        }
-
-        // 2. Generate AI response
-        const contextMessages = [];
-        const fullPrompt = (systemPrompt || "Reply to this Instagram comment.") + "\n\nRules: Keep it short, friendly, and under 2 sentences. Use emojis if appropriate.";
-
-        // We can use a minimal mock agent object for AIService.generate
-        const tempAgent = { 
-          systemPrompt: fullPrompt,
-          temperature: 0.7,
-          contextWindow: 1
-        };
-        
-        // Check for Post-Specific Automation (PostAutomation)
+        // Check for Post-Specific Automation (PostAutomation) BEFORE the general enabled check
         const PostAutomation = require('../models/PostAutomation');
         const mediaId = commentData?.media?.id;
         const igService = new InstagramService(igAccount.pageAccessToken, igAccount.pageId);
@@ -660,6 +613,11 @@ async function handleInstagramComment(commentData, igAccount, agent) {
             if (matches) {
               logger.info(`[POST AUTOMATION] Matched for Instagram Comment ${commentId} on media ${mediaId}`);
               
+              if ((user.subscription?.credits ?? 0) < creditCost) {
+                logger.warn(`User ${user._id} hit credit limit for AI comment responses`);
+                return;
+              }
+
               // 1. Send DM
               if (postAutomation.dmMessage) {
                 try {
@@ -681,6 +639,7 @@ async function handleInstagramComment(commentData, igAccount, agent) {
               }
 
               // Deduct credits once if either action was taken
+              const creditHelper = require('../utils/creditHelper');
               await creditHelper.deductCredits(igAccount.user, creditCost);
               await creditHelper.logTransaction({
                 userId: igAccount.user,
@@ -689,12 +648,77 @@ async function handleInstagramComment(commentData, igAccount, agent) {
                 description: `AI Agent: Post Automation reply for media ${mediaId}`,
                 metadata: { commentId, platform: 'instagram' },
               });
-
-              return; // Skip normal keyword triggers and AI
+              
+              return; // Stop processing, we handled the comment via Post Automation
             }
           }
         }
 
+        const Agent = require('../models/Agent');
+        const agent = await Agent.findOne({
+          instagramAccount: igAccount._id,
+          isActive: true
+        });
+
+        // 1. Check if bot is enabled for this account specifically OR via Agent
+        let enabled = igAccount.commentBotEnabled || !!agent;
+        let systemPrompt = igAccount.commentBotPrompt || agent?.systemPrompt;
+
+        if (!enabled) {
+          logger.info(`[COMMENT SKIP]: Bot is disabled in settings for account: ${igAccount.igUsername || igAccount.igAccountId}`);
+          return;
+        }
+
+        logger.info(`[COMMENT PROCESSING]: Found enabled bot for ${igAccount.igUsername}. Generating reply for: "${text}"`);
+
+        // Check limits & credits
+
+        const user = await User.findById(igAccount.user).select('+usage +subscription');
+        const Plan = require('../models/Plan');
+        const userPlan = await Plan.findOne({ code: user.subscription?.plan || 'free' });
+        const creditCost = userPlan ? userPlan.agentMsgCreditCost : 1;
+
+        if ((user.subscription?.credits ?? 0) < creditCost) {
+          logger.warn(`User ${user._id} hit credit limit for AI comment responses`);
+          return;
+        }
+
+        // Check custom agent credit spend limit
+        const agentLimit = user.subscription?.agentCreditLimit || 0;
+        const agentUsed = user.usage?.agentCreditsUsedThisMonth || 0;
+        if (agentLimit > 0 && agentUsed >= agentLimit) {
+          logger.warn(`User ${user._id} hit custom Monthly Agent Credit Spend Limit (${agentUsed}/${agentLimit})`);
+          return;
+        }
+
+        const limits = await user.getPlanLimits();
+        if (user.usage.messagesThisMonth >= limits.messages) {
+          logger.warn(`User ${user._id} hit message limit for AI comment responses`);
+          return;
+        }
+
+        // Emit socket event to update frontend live for the incoming comment
+        try {
+          const { emitToUser } = require('../utils/socket');
+          emitToUser(igAccount.user.toString(), 'new_instagram_comment', {
+            accountId: igAccount._id,
+            mediaId: commentData?.media?.id || null, // Might be null in some Meta payloads
+          });
+        } catch(e) {}
+
+        logger.info(`[COMMENT PROCESSING]: Found enabled bot for ${igAccount.igUsername}. Generating reply for: "${text}"`);
+
+        // 2. Generate AI response
+        const contextMessages = [];
+        const fullPrompt = (systemPrompt || "Reply to this Instagram comment.") + "\n\nRules: Keep it short, friendly, and under 2 sentences. Use emojis if appropriate.";
+
+        // We can use a minimal mock agent object for AIService.generate
+        const tempAgent = { 
+          systemPrompt: fullPrompt,
+          temperature: 0.7,
+          contextWindow: 1
+        };
+        
         // Check for Keyword Triggers
         const matchedTrigger = await checkKeywordMatch(igAccount.organization, text, 'instagram', 'COMMENT', agent?._id);
         
