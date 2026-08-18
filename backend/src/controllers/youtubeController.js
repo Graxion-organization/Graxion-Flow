@@ -59,6 +59,16 @@ exports.callback = async (req, res, next) => {
 
 exports.disconnect = async (req, res, next) => {
   try {
+    const account = await YoutubeAccount.findOne({ organization: req.organization._id }).select('+accessToken');
+    if (account && account.accessToken) {
+      try {
+        const axios = require('axios');
+        await axios.post(`https://oauth2.googleapis.com/revoke?token=${account.accessToken}`);
+      } catch (err) {
+        logger.warn('Failed to revoke Google token: ' + err.message);
+      }
+    }
+
     await YoutubeAccount.updateMany(
       { organization: req.organization._id },
       {
