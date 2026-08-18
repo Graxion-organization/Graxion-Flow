@@ -671,17 +671,7 @@ async function handleInstagramComment(commentData, igAccount, agent) {
 
         logger.info(`[COMMENT PROCESSING]: Found enabled bot for ${igAccount.igUsername}. Generating reply for: "${text}"`);
 
-        // Check limits & credits
 
-        const user = await User.findById(igAccount.user).select('+usage +subscription');
-        const Plan = require('../models/Plan');
-        const userPlan = await Plan.findOne({ code: user.subscription?.plan || 'free' });
-        const creditCost = userPlan ? userPlan.agentMsgCreditCost : 1;
-
-        if ((user.subscription?.credits ?? 0) < creditCost) {
-          logger.warn(`User ${user._id} hit credit limit for AI comment responses`);
-          return;
-        }
 
         // Check custom agent credit spend limit
         const agentLimit = user.subscription?.agentCreditLimit || 0;
