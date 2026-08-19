@@ -55,10 +55,10 @@ export default function SalesPartnerDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-8 flex items-center justify-center">
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-sm text-slate-400">Loading Partner Dashboard...</span>
+          <span className="text-sm text-slate-500 dark:text-slate-400">Loading Partner Dashboard...</span>
         </div>
       </div>
     );
@@ -67,39 +67,39 @@ export default function SalesPartnerDashboard() {
   const referralLink = `${window.location.origin}/register?ref=${data?.partnerCode || ''}`;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-6 space-y-8 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-6 space-y-8 max-w-7xl mx-auto">
       
       {/* Header Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-emerald-900/40 via-slate-900 to-teal-900/30 border border-emerald-500/20 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
+      <div className="relative overflow-hidden bg-gradient-to-r from-emerald-50 via-white to-teal-50 dark:from-emerald-900/40 dark:via-slate-900 dark:to-teal-900/30 border border-emerald-200 dark:border-emerald-500/20 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-400 text-xs font-bold mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-full text-emerald-600 dark:text-emerald-400 text-xs font-bold mb-3">
               <Award size={14} /> Official Sales Partner
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-white bg-clip-text text-transparent">
+            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-600 via-teal-500 to-slate-800 dark:from-emerald-400 dark:via-teal-300 dark:to-white bg-clip-text text-transparent">
               Sales Partner Dashboard
             </h1>
-            <p className="text-slate-400 text-sm mt-1">
-              Earn <span className="text-emerald-400 font-bold">{data?.commissionRate}% commission</span> on every client who subscribes through your referral link.
+            <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
+              Earn <span className="text-emerald-600 dark:text-emerald-400 font-bold">{data?.commissionRate}% commission</span> on every client who subscribes through your referral link.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="bg-slate-900/80 border border-white/10 rounded-2xl p-4 text-center min-w-[130px]">
-              <span className="text-xs text-slate-400 uppercase font-semibold">Min. Payout</span>
-              <p className="text-lg font-bold text-emerald-400 mt-0.5">₹{data?.minPayoutThreshold}</p>
+            <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-center min-w-[130px]">
+              <span className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Min. Payout</span>
+              <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">₹{data?.minPayoutThreshold}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Referral Link Copy Card */}
-      <div className="bg-slate-900/80 border border-white/10 rounded-2xl p-6 backdrop-blur-md shadow-xl space-y-3">
+      <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 rounded-2xl p-6 backdrop-blur-md shadow-xl space-y-3">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <Share2 size={14} className="text-emerald-400" /> Your Exclusive Partner Referral Link
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+            <Share2 size={14} className="text-emerald-600 dark:text-emerald-400" /> Your Exclusive Partner Referral Link
           </label>
-          <span className="text-xs text-slate-500">Code: <code className="text-emerald-400 font-mono font-bold">{data?.partnerCode}</code></span>
+          <span className="text-xs text-slate-500">Code: <code className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">{data?.partnerCode}</code></span>
         </div>
 
         <div className="flex items-center gap-3">
@@ -107,7 +107,7 @@ export default function SalesPartnerDashboard() {
             type="text" 
             readOnly 
             value={referralLink} 
-            className="flex-1 bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 font-mono outline-none focus:border-emerald-500/50"
+            className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-slate-200 font-mono outline-none focus:border-emerald-500/50"
           />
           <button
             onClick={copyReferralLink}
@@ -122,56 +122,56 @@ export default function SalesPartnerDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         
-        <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
+        <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Total Referrals</span>
-            <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
               <Users size={18} />
             </div>
           </div>
-          <p className="text-2xl font-black text-white">{data?.totalReferrals || 0}</p>
+          <p className="text-2xl font-black text-slate-900 dark:text-white">{data?.totalReferrals || 0}</p>
           <p className="text-[11px] text-slate-500 mt-1">Referred accounts created</p>
         </div>
 
-        <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
+        <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Total Profit Earned</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
               <TrendingUp size={18} />
             </div>
           </div>
-          <p className="text-2xl font-black text-emerald-400">₹{data?.totalEarned?.toLocaleString() || 0}</p>
+          <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">₹{data?.totalEarned?.toLocaleString() || 0}</p>
           <p className="text-[11px] text-slate-500 mt-1">Lifetime total earnings</p>
         </div>
 
-        <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
+        <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Pending Payout</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
               <Clock size={18} />
             </div>
           </div>
-          <p className="text-2xl font-black text-amber-400">₹{data?.pendingPayout?.toLocaleString() || 0}</p>
+          <p className="text-2xl font-black text-amber-600 dark:text-amber-400">₹{data?.pendingPayout?.toLocaleString() || 0}</p>
           <p className="text-[11px] text-slate-500 mt-1">Awaiting admin processing</p>
         </div>
 
-        <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
+        <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Paid Out</span>
-            <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
               <CreditCard size={18} />
             </div>
           </div>
-          <p className="text-2xl font-black text-purple-400">₹{data?.paidOut?.toLocaleString() || 0}</p>
+          <p className="text-2xl font-black text-purple-600 dark:text-purple-400">₹{data?.paidOut?.toLocaleString() || 0}</p>
           <p className="text-[11px] text-slate-500 mt-1">Successfully transferred</p>
         </div>
 
       </div>
 
       {/* Referred Clients Table */}
-      <div className="bg-slate-900/80 border border-white/10 rounded-2xl p-6 backdrop-blur-md shadow-xl space-y-4">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <Users className="w-5 h-5 text-emerald-400" /> Referred Clients ({data?.referredUsers?.length || 0})
+      <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 rounded-2xl p-6 backdrop-blur-md shadow-xl space-y-4">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Users className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Referred Clients ({data?.referredUsers?.length || 0})
         </h2>
 
         {data?.referredUsers?.length === 0 ? (
@@ -181,8 +181,8 @@ export default function SalesPartnerDashboard() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-300">
-              <thead className="bg-slate-950 text-xs font-semibold uppercase text-slate-400 border-b border-white/10">
+            <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+              <thead className="bg-slate-50 dark:bg-slate-950 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-white/10">
                 <tr>
                   <th className="p-3">Client Name</th>
                   <th className="p-3">Email</th>
@@ -191,22 +191,22 @@ export default function SalesPartnerDashboard() {
                   <th className="p-3">Joined Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-slate-200 dark:divide-white/5">
                 {data?.referredUsers?.map((client) => (
-                  <tr key={client._id} className="hover:bg-white/5 transition">
-                    <td className="p-3 font-semibold text-white">{client.name}</td>
-                    <td className="p-3 text-slate-400">{maskEmail(client.email)}</td>
+                  <tr key={client._id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition">
+                    <td className="p-3 font-semibold text-slate-900 dark:text-white">{client.name}</td>
+                    <td className="p-3 text-slate-600 dark:text-slate-400">{maskEmail(client.email)}</td>
                     <td className="p-3">
                       <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-bold uppercase ${
-                        client.subscription?.plan === 'free' ? 'bg-slate-800 text-slate-400' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                        client.subscription?.plan === 'free' ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400' : 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30'
                       }`}>
                         {client.subscription?.plan || 'free'}
                       </span>
                     </td>
-                    <td className="p-3 font-medium text-emerald-400">
+                    <td className="p-3 font-medium text-emerald-600 dark:text-emerald-400">
                       {client.commissionEarned > 0 ? `₹${client.commissionEarned.toLocaleString()}` : '-'}
                     </td>
-                    <td className="p-3 text-slate-400">{new Date(client.createdAt).toLocaleDateString()}</td>
+                    <td className="p-3 text-slate-600 dark:text-slate-400">{new Date(client.createdAt).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>
@@ -218,3 +218,4 @@ export default function SalesPartnerDashboard() {
     </div>
   );
 }
+
