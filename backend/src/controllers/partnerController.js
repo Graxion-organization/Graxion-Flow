@@ -26,6 +26,15 @@ const generateUniquePartnerCode = async () => {
   return code;
 };
 
+// Helper to mask email to protect contact info
+const maskEmail = (email) => {
+  if (!email) return '';
+  const [name, domain] = email.split('@');
+  if (!domain) return email;
+  if (name.length <= 2) return `${name}***@${domain}`;
+  return `${name.substring(0, 2)}***@${domain}`;
+};
+
 // --- SALES PARTNER ENDPOINTS ---
 
 // GET /api/partner/dashboard
@@ -108,8 +117,12 @@ exports.getPartnerDashboard = catchAsync(async (req, res, next) => {
       referredUsers: referredUsers.map(u => {
         const userComms = commissions.filter(c => c.referredUser.toString() === u._id.toString() && (c.status === 'APPROVED' || c.status === 'PAID'));
         const earned = userComms.reduce((sum, c) => sum + c.commissionAmount, 0);
+        const userObj = u.toObject();
+        if (userObj.email) {
+          userObj.email = maskEmail(userObj.email);
+        }
         return {
-          ...u.toObject(),
+          ...userObj,
           commissionEarned: earned
         };
       }),
@@ -124,9 +137,17 @@ exports.getPartnerPayouts = catchAsync(async (req, res, next) => {
     .populate('referredUser', 'name email')
     .sort('-createdAt');
 
+  const maskedCommissions = commissions.map(c => {
+    const commObj = c.toObject();
+    if (commObj.referredUser && commObj.referredUser.email) {
+      commObj.referredUser.email = maskEmail(commObj.referredUser.email);
+    }
+    return commObj;
+  });
+
   res.status(200).json({
     status: 'success',
-    data: { commissions }
+    data: { commissions: maskedCommissions }
   });
 });
 
@@ -311,3 +332,4 @@ exports.processPayout = catchAsync(async (req, res, next) => {
     message: `Successfully processed payout for ${pendingCommissions.length} commissions.`
   });
 });
+
