@@ -1,6 +1,6 @@
 import React, { useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import { Toaster, toast } from "react-hot-toast";
 import { useAuthStore, useBrandingStore, useFeatureFlagStore } from "./store";
 import { fetchCsrfToken } from "./services/api";
 import { HelmetProvider } from "react-helmet-async";
@@ -112,6 +112,19 @@ export default function App() {
   useEffect(() => {
     fetchCsrfToken();
     fetchBranding();
+
+    if (!sessionStorage.getItem('render_sleep_notice_shown')) {
+      toast("Notice for Reviewers: The first request may take 1 to 1.5 minutes to load as our backend wakes up from sleep.", {
+        icon: '⏳',
+        duration: 15000,
+        style: {
+          background: '#374151',
+          color: '#fff',
+          maxWidth: '500px'
+        }
+      });
+      sessionStorage.setItem('render_sleep_notice_shown', 'true');
+    }
   }, [fetchBranding]);
 
   useEffect(() => {
