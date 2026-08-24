@@ -197,9 +197,9 @@ class AIService {
           
           // God-Tier Ultimate Fallback Loop
           const openRouterFallbacks = [
-            'meta-llama/llama-3.3-70b-instruct:free',
-            'google/gemma-4-26b-a4b-it:free',
-            'nousresearch/hermes-3-llama-3.1-405b:free'
+            'meta-llama/llama-3.1-8b-instruct:free',
+            'google/gemma-2-9b-it:free',
+            'microsoft/phi-3-mini-128k-instruct:free'
           ];
           
           let success = false;
