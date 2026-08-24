@@ -630,9 +630,13 @@ export default function DashboardLayout() {
                   onClick={() => setUserMenuOpen((o) => !o)}
                   className={`flex items-center gap-2.5 pl-2 pr-3 py-1.5 rounded-xl transition-all border ${isDark ? "bg-white/5 border-white/5 hover:bg-white/10" : "bg-white border-slate-200 hover:bg-slate-50 shadow-sm"}`}
                 >
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FF6A00] to-[#FF4500] text-white flex items-center justify-center text-sm font-bold shadow-md">
-                    {user?.name?.[0]?.toUpperCase()}
-                  </div>
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-lg object-cover shadow-md" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FF6A00] to-[#FF4500] text-white flex items-center justify-center text-sm font-bold shadow-md">
+                      {user?.name?.[0]?.toUpperCase()}
+                    </div>
+                  )}
                   <div className="hidden sm:flex flex-col items-start min-w-[80px]">
                     <span className="text-[13px] font-semibold truncate w-full text-left leading-tight">{user?.name}</span>
                     <span className="text-[10px] text-slate-400 capitalize font-medium">{user?.role}</span>

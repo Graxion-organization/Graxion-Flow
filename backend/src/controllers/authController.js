@@ -231,7 +231,7 @@ exports.graxionSSOLogin = async (req, res, next) => {
       return next(new AppError('Invalid or expired SSO token.', 401));
     }
 
-    const { email, name, accountId } = decoded;
+    const { email, name, accountId, avatar } = decoded;
 
     // Check if user exists in Flow
     let user = await User.findOne({ email: email.toLowerCase().trim() });
@@ -247,6 +247,7 @@ exports.graxionSSOLogin = async (req, res, next) => {
         name,
         email: email.toLowerCase().trim(),
         password: randomPassword,
+        avatar: avatar || '',
         role: 'user',
         isEmailVerified: true // Assume trusted since it comes from main Graxion
       });
@@ -259,6 +260,11 @@ exports.graxionSSOLogin = async (req, res, next) => {
       });
       user.currentOrganization = existingOrg._id;
       await user.save({ validateBeforeSave: false });
+    } else {
+      // If user exists, update their avatar if one is provided by SSO
+      if (avatar && user.avatar !== avatar) {
+        user.avatar = avatar;
+      }
     }
 
     // Optional: We can do a server-to-server webhook here to tell Auth that Flow is now linked.
