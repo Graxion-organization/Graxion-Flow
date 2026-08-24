@@ -221,6 +221,7 @@ exports.createSubscription = async (req, res, next) => {
       paymentGateway: 'razorpay',
       status: 'created',
       taxDetails: taxInfo,
+      numberOfOrgs: numberOfOrgs,
       notes: `Bought ${numberOfOrgs} organizations`
     });
 
@@ -337,7 +338,9 @@ exports.verifyPayment = async (req, res, next) => {
       let numberOfOrgs = 1;
       const paymentQuery = gateway === 'cashfree' ? { cashfreeOrderId } : { razorpayOrderId };
       const paymentRecord = await Payment.findOne(paymentQuery);
-      if (paymentRecord && paymentRecord.notes) {
+      if (paymentRecord && paymentRecord.numberOfOrgs) {
+        numberOfOrgs = paymentRecord.numberOfOrgs;
+      } else if (paymentRecord && paymentRecord.notes) {
         const match = paymentRecord.notes.match(/Bought (\d+) organizations/);
         if (match && match[1]) {
           numberOfOrgs = parseInt(match[1]);

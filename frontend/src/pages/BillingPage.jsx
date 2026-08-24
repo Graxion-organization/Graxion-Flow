@@ -26,6 +26,12 @@ export default function BillingPage() {
   const isCashfreeEnabled = branding?.cashfree_enabled !== false;
 
   useEffect(() => {
+    if (user?.subscription?.orgLimit) {
+      setNumberOfOrgs(user.subscription.orgLimit);
+    }
+  }, [user?.subscription?.orgLimit]);
+
+  useEffect(() => {
     if (!isRazorpayEnabled && isCashfreeEnabled) {
       setGateway('cashfree');
     } else if (isRazorpayEnabled && !isCashfreeEnabled) {
@@ -272,6 +278,9 @@ export default function BillingPage() {
           const isLastPlan = lastPlan === plan.id;
           const isBest = plan.id === 'pro';
           const bg = 'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10';
+          const currentOrgLimit = user?.subscription?.orgLimit || 1;
+          const isUpdatingOrgs = isCurrentPlan && numberOfOrgs !== currentOrgLimit;
+          const isDisabled = (!isCurrentPlan && paying === plan.id) || (isCurrentPlan && !isExpired && !isUpdatingOrgs) || (!isRazorpayEnabled && !isCashfreeEnabled);
 
           let pricePerOrg = plan.amountInRupees;
           if (numberOfOrgs >= 5) {
@@ -319,15 +328,15 @@ export default function BillingPage() {
               </ul>
 
               <button
-                onClick={() => (!isCurrentPlan || isExpired || isLastPlan) && handleUpgrade(plan.id)}
-                disabled={(isCurrentPlan && !isExpired) || paying === plan.id || (!isRazorpayEnabled && !isCashfreeEnabled)}
-                className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-60 ${(isCurrentPlan && !isExpired) ? ('bg-gray-100 text-gray-500 cursor-default dark:bg-white/10 dark:text-slate-400 dark:cursor-default') : 'text-white'}`}
-                style={(!isCurrentPlan || isExpired || isLastPlan) ? { background: '#FF6A00' } : undefined}
+                onClick={() => (!isDisabled) && handleUpgrade(plan.id)}
+                disabled={isDisabled}
+                className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-60 ${(isCurrentPlan && !isExpired && !isUpdatingOrgs) ? ('bg-gray-100 text-gray-500 cursor-default dark:bg-white/10 dark:text-slate-400 dark:cursor-default') : 'text-white'}`}
+                style={(!isCurrentPlan || isExpired || isLastPlan || isUpdatingOrgs) ? { background: '#FF6A00' } : undefined}
               >
                 {paying === plan.id ? (
                   <><Loader2 size={15} className="animate-spin" /> Processing...</>
                 ) : isCurrentPlan ? (
-                  isExpired ? 'Renew Plan' : 'Active Plan'
+                  isExpired ? 'Renew Plan' : isUpdatingOrgs ? 'Update Organizations' : 'Active Plan'
                 ) : isLastPlan ? (
                   'Renew Plan'
                 ) : (

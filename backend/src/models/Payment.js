@@ -45,6 +45,8 @@ const paymentSchema = new mongoose.Schema({
     end: Date,
   },
   invoiceUrl: String,
+  notes: String,
+  numberOfOrgs: { type: Number, default: 1 },
   metadata: mongoose.Schema.Types.Mixed,
 }, {
   timestamps: true,
