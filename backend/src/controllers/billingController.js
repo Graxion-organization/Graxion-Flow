@@ -70,6 +70,21 @@ const processPartnerCommission = async (user, paymentAmountInRupees, planCode, p
 
 exports.getPlans = async (req, res, next) => {
   try {
+    // Auto-seed or update plans
+    const defaultPlans = [
+      { name: 'Starter', code: 'starter', price: 599, credits: 500, messageLimit: 1000, agentLimit: 3 },
+      { name: 'Pro', code: 'pro', price: 799, credits: 2000, messageLimit: 5000, agentLimit: 10 },
+      { name: 'Enterprise', code: 'enterprise', price: 999, credits: 10000, messageLimit: 50000, agentLimit: 50 }
+    ];
+    
+    for (const dp of defaultPlans) {
+      await Plan.findOneAndUpdate(
+        { code: dp.code }, 
+        { price: dp.price, messageLimit: dp.messageLimit, agentLimit: dp.agentLimit, credits: dp.credits },
+        { upsert: true, setDefaultsOnInsert: true }
+      );
+    }
+
     const plans = await Plan.find({ isActive: true });
     res.status(200).json({
       status: 'success',

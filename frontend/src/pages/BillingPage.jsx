@@ -235,29 +235,27 @@ export default function BillingPage() {
         </div>
       )}
 
-      {currentPlan !== 'enterprise' && (
-        <div className={`mt-8 p-6 rounded-2xl border ${'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10'}`}>
-          <h3 className={`font-semibold mb-4 text-lg ${'text-slate-800 dark:text-slate-100'}`}>How many organizations do you need?</h3>
-          <div className="flex items-center gap-6">
-            <input 
-              type="range" 
-              min="1" 
-              max="20" 
-              value={numberOfOrgs} 
-              onChange={(e) => setNumberOfOrgs(parseInt(e.target.value))}
-              className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#FF6A00]"
-            />
-            <div className={`text-2xl font-bold ${'text-slate-900 dark:text-white'} min-w-[3rem] text-center`}>
-              {numberOfOrgs}
-            </div>
-          </div>
-          <div className="mt-4 flex justify-between text-sm text-slate-500 dark:text-slate-400">
-            <span>1 Org: Base Price</span>
-            <span>2-4 Orgs: 15% Off</span>
-            <span>5+ Orgs: 30% Off</span>
+      <div className={`mt-8 p-6 rounded-2xl border ${'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10'}`}>
+        <h3 className={`font-semibold mb-4 text-lg ${'text-slate-800 dark:text-slate-100'}`}>How many organizations do you need?</h3>
+        <div className="flex items-center gap-6">
+          <input 
+            type="range" 
+            min="1" 
+            max="20" 
+            value={numberOfOrgs} 
+            onChange={(e) => setNumberOfOrgs(parseInt(e.target.value))}
+            className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#FF6A00]"
+          />
+          <div className={`text-2xl font-bold ${'text-slate-900 dark:text-white'} min-w-[3rem] text-center`}>
+            {numberOfOrgs}
           </div>
         </div>
-      )}
+        <div className="mt-4 flex justify-between text-sm text-slate-500 dark:text-slate-400">
+          <span>1 Org: Base Price</span>
+          <span>2-4 Orgs: 15% Off</span>
+          <span>5+ Orgs: 30% Off</span>
+        </div>
+      </div>
 
       <div className="grid md:grid-cols-3 gap-5 mt-6">
         {plans.map((plan) => {
