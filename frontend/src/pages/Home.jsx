@@ -133,8 +133,13 @@ export default function Home() {
   }, [brandName, tagline]);
 
   const goAuth = (path) => {
-    if (isAuthenticated) navigate('/app/dashboard');
-    else navigate(path);
+    if (isAuthenticated) {
+      navigate('/app/dashboard');
+      return;
+    }
+    const currentUrl = encodeURIComponent(window.location.origin);
+    const authAction = path.includes('register') ? 'register' : 'login';
+    window.location.href = `https://accounts.graxion.in/${authAction}?redirect_to=${currentUrl}&product=flow`;
   };
 
   const navLinks = [

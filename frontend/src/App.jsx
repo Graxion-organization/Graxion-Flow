@@ -27,6 +27,7 @@ const IntegrationsPage = lazy(() => import("./pages/IntegrationsPage"));
 const SocialPublishingPage = lazy(() => import("./pages/SocialPublishingPage"));
 const LeadsDashboardPage = lazy(() => import("./pages/LeadsDashboardPage"));
 const CallbackPage = lazy(() => import("./pages/CallbackPage"));
+const SsoCallbackPage = lazy(() => import("./pages/SsoCallbackPage"));
 const WhatsAppSignup = lazy(() => import("./pages/watsapphd"));
 const AIPresenterPage = lazy(() => import("./pages/AIPresenterPage"));
 const YoutubeCallbackPage = lazy(() => import("./pages/YoutubeCallbackPage"));
@@ -196,6 +197,7 @@ export default function App() {
           <Route path="/verify-email" element={<VerifyEmailPage />} />
 
           {/* 🚀 Auth Callbacks */}
+          <Route path="/sso-callback" element={<SsoCallbackPage />} />
           <Route path="/callback" element={<CallbackPage />} />
           <Route path="/youtube-callback" element={<YoutubeCallbackPage />} />
           <Route path="/linkedin-callback" element={<LinkedinCallbackPage />} />

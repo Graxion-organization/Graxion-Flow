@@ -149,6 +149,7 @@ api.interceptors.response.use(
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
+  ssoLogin: (data) => api.post('/auth/sso/graxion', data),
   adminLogin: (data) => api.post('/auth/admin/login', data),
   adminRegister: (data) => api.post('/auth/admin/register', data),
   logout: () => api.post('/auth/logout'),

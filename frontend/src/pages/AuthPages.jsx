@@ -189,6 +189,23 @@ export function LoginPage() {
   return (
     <AuthShell title="Welcome Back" subtitle="Sign in to continue managing conversations and growth.">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        
+        {/* SSO Button */}
+        <button
+          type="button"
+          onClick={() => window.location.href = `https://accounts.graxion.in/login?redirect_to=${encodeURIComponent(window.location.origin)}&product=flow`}
+          className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 mb-6"
+        >
+          <div className="h-6 w-6 rounded bg-gradient-to-br from-brand-500 to-brand-400 text-white flex items-center justify-center text-xs font-bold">G</div>
+          Continue with Graxion Account
+        </button>
+
+        <div className="relative flex items-center py-2">
+          <div className="flex-grow border-t border-white/10"></div>
+          <span className="flex-shrink-0 mx-4 text-xs text-gray-500 uppercase tracking-widest">Or sign in with email</span>
+          <div className="flex-grow border-t border-white/10"></div>
+        </div>
+
         <AuthInput label="Email" error={errors.email?.message}>
           <input
             {...register('email')}
@@ -305,6 +322,23 @@ export function RegisterPage() {
   return (
     <AuthShell title="Create Account" subtitle="Start with a premium onboarding flow and launch quickly.">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        
+        {/* SSO Button */}
+        <button
+          type="button"
+          onClick={() => window.location.href = `https://accounts.graxion.in/register?redirect_to=${encodeURIComponent(window.location.origin)}&product=flow`}
+          className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 mb-6"
+        >
+          <div className="h-6 w-6 rounded bg-gradient-to-br from-brand-500 to-brand-400 text-white flex items-center justify-center text-xs font-bold">G</div>
+          Sign up with Graxion Account
+        </button>
+
+        <div className="relative flex items-center py-2 mb-2">
+          <div className="flex-grow border-t border-white/10"></div>
+          <span className="flex-shrink-0 mx-4 text-xs text-gray-500 uppercase tracking-widest">Or create with email</span>
+          <div className="flex-grow border-t border-white/10"></div>
+        </div>
+
         {[
           { name: 'name', label: 'Full Name', type: 'text', placeholder: 'John Doe' },
           { name: 'email', label: 'Email Address', type: 'email', placeholder: 'you@example.com' },

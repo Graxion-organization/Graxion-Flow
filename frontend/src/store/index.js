@@ -23,12 +23,26 @@ export const useAuthStore = create(
           return { success: true };
         } catch (err) {
           set({ isLoading: false });
-          return {
-            success: false,
-            message: err.response?.data?.message,
-            action: err.response?.data?.action,
-            otpToken: err.response?.data?.otpToken
-          };
+          if (err.response?.data?.action === 'require_otp') {
+            return { success: false, action: 'require_otp', otpToken: err.response.data.otpToken, message: err.response.data.message };
+          }
+          return { success: false, message: err.response?.data?.message || 'Login failed' };
+        }
+      },
+
+      loginWithSsoToken: async (ssoToken) => {
+        set({ isLoading: true });
+        try {
+          const res = await authAPI.ssoLogin({ token: ssoToken });
+          const token = res.data.token || res.data.data?.token;
+          if (token) localStorage.setItem('authToken', token);
+          const { data } = res.data;
+          useOrganizationStore.getState().clearOrganizations();
+          set({ user: data.user, isAuthenticated: true, isLoading: false });
+          return { success: true };
+        } catch (err) {
+          set({ isLoading: false });
+          return { success: false, message: err.response?.data?.message || 'SSO Login failed' };
         }
       },
 
