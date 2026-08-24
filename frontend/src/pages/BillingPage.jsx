@@ -235,30 +235,38 @@ export default function BillingPage() {
         </div>
       )}
 
-      <div className={`mt-8 p-6 rounded-2xl border ${'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10'}`}>
-        <h3 className={`font-semibold mb-4 text-lg ${'text-slate-800 dark:text-slate-100'}`}>How many organizations do you need?</h3>
-        <div className="flex items-center gap-6">
+      <div className={`mt-6 p-5 rounded-2xl border ${'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10'} max-w-2xl mx-auto`}>
+        <h3 className={`font-semibold mb-3 text-base ${'text-slate-800 dark:text-slate-100'}`}>How many organizations do you need?</h3>
+        <div className="flex items-center gap-4">
           <input 
             type="range" 
             min="1" 
-            max="20" 
+            max="21" 
             value={numberOfOrgs} 
             onChange={(e) => setNumberOfOrgs(parseInt(e.target.value))}
-            className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#FF6A00]"
+            className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#FF6A00]"
           />
-          <div className={`text-2xl font-bold ${'text-slate-900 dark:text-white'} min-w-[3rem] text-center`}>
-            {numberOfOrgs}
+          <div className={`text-xl font-bold ${'text-slate-900 dark:text-white'} min-w-[4rem] text-right`}>
+            {numberOfOrgs === 21 ? '20+' : numberOfOrgs}
           </div>
         </div>
-        <div className="mt-4 flex justify-between text-sm text-slate-500 dark:text-slate-400">
+        <div className="mt-3 flex justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
           <span>1 Org: Base Price</span>
           <span>2-4 Orgs: 15% Off</span>
           <span>5+ Orgs: 30% Off</span>
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-5 mt-6">
-        {plans.map((plan) => {
+      {numberOfOrgs === 21 ? (
+        <div className="mt-6 rounded-2xl border p-8 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 text-center max-w-2xl mx-auto">
+          <Building2 size={40} className="mx-auto text-[#FF6A00] mb-4" />
+          <h3 className="text-2xl font-bold text-white mb-2">Custom Enterprise Solutions</h3>
+          <p className="text-slate-300 mb-6 text-sm">Need more than 20 organizations? Contact our sales team for custom volume pricing, dedicated infrastructure, and premium SLA guarantees.</p>
+          <a href="mailto:sales@graxion.in" className="inline-block bg-[#FF6A00] text-white px-6 py-2.5 rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity">Contact Sales</a>
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-3 gap-5 mt-6">
+          {plans.filter(p => p.id !== 'free').map((plan) => {
           const Icon = PLAN_ICONS[plan.id] || Zap;
           const isCurrentPlan = currentPlan === plan.id;
           const isLastPlan = lastPlan === plan.id;
@@ -329,7 +337,8 @@ export default function BillingPage() {
             </div>
           );
         })}
-      </div>
+        </div>
+      )}
 
       {currentPlan !== 'free' && (
         <div className={`rounded-2xl border p-5 ${'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10'}`}>

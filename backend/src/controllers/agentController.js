@@ -12,6 +12,13 @@ const path = require('path');
 exports.createAgent = async (req, res, next) => {
   try {
     const { whatsappAccountIds, ...agentData } = req.body;
+    
+    // Check agent limits
+    const agentCount = await Agent.countDocuments({ organization: req.organization._id });
+    const agentLimit = req.user.subscription?.agentLimit || 1;
+    if (agentCount >= agentLimit) {
+      return next(new AppError(`You have reached your limit of ${agentLimit} agent(s). Please upgrade your plan.`, 403));
+    }
 
     // Make sure whatsappAccountIds is an array
     const waIds = Array.isArray(whatsappAccountIds) ? whatsappAccountIds : (whatsappAccountIds ? [whatsappAccountIds] : []);
