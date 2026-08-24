@@ -193,7 +193,7 @@ export function LoginPage() {
         {/* SSO Button */}
         <button
           type="button"
-          onClick={() => window.location.href = `https://accounts.graxion.in/login?redirect_to=${encodeURIComponent(window.location.origin)}&product=flow`}
+          onClick={() => window.location.href = `https://accounts.graxion.in/login?redirect_to=${encodeURIComponent(`${window.location.origin}/sso-callback`)}&product=flow`}
           className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 mb-6"
         >
           <div className="h-6 w-6 rounded bg-gradient-to-br from-brand-500 to-brand-400 text-white flex items-center justify-center text-xs font-bold">G</div>
@@ -326,7 +326,7 @@ export function RegisterPage() {
         {/* SSO Button */}
         <button
           type="button"
-          onClick={() => window.location.href = `https://accounts.graxion.in/register?redirect_to=${encodeURIComponent(window.location.origin)}&product=flow`}
+          onClick={() => window.location.href = `https://accounts.graxion.in/register?redirect_to=${encodeURIComponent(`${window.location.origin}/sso-callback`)}&product=flow`}
           className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 mb-6"
         >
           <div className="h-6 w-6 rounded bg-gradient-to-br from-brand-500 to-brand-400 text-white flex items-center justify-center text-xs font-bold">G</div>
