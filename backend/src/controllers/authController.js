@@ -212,6 +212,69 @@ exports.login = async (req, res, next) => {
 };
 
 /**
+ * SECURE SSO LOGIN FROM MAIN GRAXION ACCOUNT
+ */
+exports.graxionSSOLogin = async (req, res, next) => {
+  try {
+    const { token } = req.body;
+    if (!token) return next(new AppError('No SSO token provided.', 401));
+
+    if (!process.env.GRAXION_SSO_SECRET) {
+      return next(new AppError('SSO is not configured on this server.', 500));
+    }
+
+    // Verify token using shared secret
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.GRAXION_SSO_SECRET);
+    } catch (err) {
+      return next(new AppError('Invalid or expired SSO token.', 401));
+    }
+
+    const { email, name, accountId } = decoded;
+
+    // Check if user exists in Flow
+    let user = await User.findOne({ email: email.toLowerCase().trim() });
+    let isNewUser = false;
+
+    if (!user) {
+      isNewUser = true;
+      // Auto-register the user if they don't exist in Flow
+      // We generate a secure random password since they use SSO
+      const randomPassword = crypto.randomBytes(16).toString('hex');
+      
+      user = await User.create({
+        name,
+        email: email.toLowerCase().trim(),
+        password: randomPassword,
+        role: 'user',
+        isEmailVerified: true // Assume trusted since it comes from main Graxion
+      });
+
+      const Organization = require('../models/Organization');
+      const existingOrg = await Organization.create({
+        name: `${user.name}'s Workspace`,
+        owner: user._id,
+        members: [{ user: user._id, role: 'admin' }]
+      });
+      user.currentOrganization = existingOrg._id;
+      await user.save({ validateBeforeSave: false });
+    }
+
+    // Optional: We can do a server-to-server webhook here to tell Auth that Flow is now linked.
+    // For now, the user is successfully mapped to Flow.
+    user.lastLogin = new Date();
+    await user.save({ validateBeforeSave: false });
+
+    // Send Flow's standard JWT tokens
+    sendTokens(user, isNewUser ? 201 : 200, res, req);
+  } catch (err) {
+    logger.error('SSO Login error:', err);
+    next(err);
+  }
+};
+
+/**
  * SECURE ADMIN REGISTER
  * Requires MASTER_ADMIN_KEY in request body or environment
  */

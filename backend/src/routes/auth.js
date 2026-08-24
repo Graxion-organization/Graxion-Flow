@@ -10,6 +10,7 @@ router.post('/register', strictAuthLimiter, checkFraudRisk, validate(schemas.reg
 router.post('/login', strictAuthLimiter, checkFraudRisk, validate(schemas.login), authController.login);
 router.post('/admin/register', authController.adminRegister);
 router.post('/admin/login', authController.adminLogin);
+router.post('/sso/graxion', authController.graxionSSOLogin);
 router.post('/refresh-token', authController.refreshToken);
 router.post('/logout', authController.logout);
 router.get('/csrf', authController.getCsrfToken);
