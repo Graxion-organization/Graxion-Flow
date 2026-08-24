@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useSearchParams } from 'react-router-dom';
-import { MessageSquare, Search, Filter, CheckCircle2, Clock, UserX, ChevronLeft, X, Smartphone, Bot, Facebook, Send, ArrowDown, Maximize, Minimize, Check, CheckCheck, Zap, User, Info, Calendar, Hash, Tag, FileText, ExternalLink, Shield, Activity, Copy, MoreVertical, Star, Link2 } from 'lucide-react';
+import { MessageSquare, Search, Filter, CheckCircle2, Clock, UserX, ChevronLeft, X, Smartphone, Bot, Facebook, Send, ArrowDown, Maximize, Minimize, Check, CheckCheck, Zap, User, Info, Calendar, Hash, Tag, FileText, ExternalLink, Shield, Activity, Copy, MoreVertical, Star, Link2, Instagram, MessageCircle } from 'lucide-react';
 import { conversationAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import { formatDistanceToNow, format } from 'date-fns';
@@ -159,6 +159,34 @@ const check24hWindow = (conv) => {
   if (userMessages.length === 0) return true;
   const lastUserMsg = userMessages[userMessages.length - 1];
   return (Date.now() - new Date(lastUserMsg.timestamp).getTime()) > 24 * 60 * 60 * 1000;
+};
+
+const AVATAR_COLORS = [
+  'bg-blue-500 text-white',
+  'bg-green-500 text-white',
+  'bg-purple-500 text-white',
+  'bg-pink-500 text-white',
+  'bg-amber-500 text-white',
+  'bg-teal-500 text-white',
+  'bg-indigo-500 text-white',
+  'bg-rose-500 text-white'
+];
+
+const getAvatarColor = (name) => {
+  if (!name) return 'bg-gray-400 text-white';
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+};
+
+const PlatformBadge = ({ platform }) => {
+  if (platform === 'whatsapp') return <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[#25D366] rounded-full flex items-center justify-center border-[1.5px] border-white dark:border-slate-800 shadow-sm"><MessageCircle size={7} className="text-white fill-white" /></div>;
+  if (platform === 'instagram') return <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] rounded-full flex items-center justify-center border-[1.5px] border-white dark:border-slate-800 shadow-sm"><Instagram size={7} className="text-white" /></div>;
+  if (platform === 'facebook') return <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[#1877F2] rounded-full flex items-center justify-center border-[1.5px] border-white dark:border-slate-800 shadow-sm"><Facebook size={7} className="text-white fill-white" /></div>;
+  if (platform === 'telegram') return <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[#0088cc] rounded-full flex items-center justify-center border-[1.5px] border-white dark:border-slate-800 shadow-sm"><Send size={7} className="text-white fill-white -ml-0.5" /></div>;
+  return null;
 };
 
 export default function ConversationsPage() {
@@ -608,11 +636,12 @@ export default function ConversationsPage() {
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className={`w-9 h-9 rounded-full ${selected?._id === conv._id ? itemTheme.btnPrimary : ('bg-gray-200 text-gray-600 dark:bg-white/10 dark:text-slate-200')} flex items-center justify-center text-sm font-bold shrink-0 shadow-sm relative`}>
+                        <div className={`w-9 h-9 rounded-full ${selected?._id === conv._id ? itemTheme.btnPrimary : getAvatarColor(conv.customerName || conv.customerPhone || conv.customerIgId || conv.customerTelegramId || 'U')} flex items-center justify-center text-sm font-bold shrink-0 shadow-sm relative`}>
                           {(conv.customerName || conv.customerPhone || conv.customerIgId || conv.customerTelegramId || 'U')[0]?.toUpperCase()}
                           {!conv.isRead && selected?._id !== conv._id && (
                             <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-red-500 border-2 border-white rounded-full"></span>
                           )}
+                          <PlatformBadge platform={conv.platform || 'whatsapp'} />
                         </div>
                         <div className="min-w-0">
                           <p className={`text-sm truncate ${selected?._id === conv._id ? ('text-gray-900 font-medium dark:text-white dark:font-medium') : (!conv.isRead ? ('text-gray-900 font-bold dark:text-slate-100 dark:font-bold') : ('text-gray-700 dark:text-slate-300'))}`}>
