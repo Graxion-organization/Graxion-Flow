@@ -9,6 +9,14 @@ exports.createOrganization = async (req, res, next) => {
   try {
     const { name } = req.body;
     
+    // Check organization limit
+    const orgCount = await Organization.countDocuments({ owner: req.user._id });
+    const orgLimit = req.user.subscription?.orgLimit || 1;
+    
+    if (orgCount >= orgLimit) {
+      return next(new AppError(`You have reached your limit of ${orgLimit} organization(s). Please upgrade your plan to create more.`, 403));
+    }
+    
     const organization = await Organization.create({
       name,
       owner: req.user._id,

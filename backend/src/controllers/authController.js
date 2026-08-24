@@ -231,7 +231,7 @@ exports.graxionSSOLogin = async (req, res, next) => {
       return next(new AppError('Invalid or expired SSO token.', 401));
     }
 
-    const { email, name, accountId, avatar, subscription } = decoded;
+    const { email, name, accountId, avatar } = decoded;
 
     // Check if user exists in Flow
     let user = await User.findOne({ email: email.toLowerCase().trim() });
@@ -249,7 +249,6 @@ exports.graxionSSOLogin = async (req, res, next) => {
         password: randomPassword,
         avatar: avatar || '',
         role: 'user',
-        subscription: subscription || { plan: 'free', status: 'active', credits: 100 },
         isEmailVerified: true // Assume trusted since it comes from main Graxion
       });
 
@@ -262,14 +261,10 @@ exports.graxionSSOLogin = async (req, res, next) => {
       user.currentOrganization = existingOrg._id;
       await user.save({ validateBeforeSave: false });
     } else {
-      // If user exists, update their avatar and subscription if provided by SSO
+      // If user exists, update their avatar if provided by SSO
       let isModified = false;
       if (avatar && user.avatar !== avatar) {
         user.avatar = avatar;
-        isModified = true;
-      }
-      if (subscription) {
-        user.subscription = subscription;
         isModified = true;
       }
       if (isModified) {

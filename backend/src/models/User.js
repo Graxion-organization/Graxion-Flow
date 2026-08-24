@@ -56,6 +56,7 @@ const userSchema = new mongoose.Schema({
     totalCredits: { type: Number, default: 100 },
     agentCreditLimit: { type: Number, default: 0 }, // 0 = unlimited
     postingCreditLimit: { type: Number, default: 0 }, // 0 = unlimited
+    orgLimit: { type: Number, default: 1 },
   },
 
   // Usage tracking

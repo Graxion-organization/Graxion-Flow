@@ -96,6 +96,7 @@ exports.getPlans = async (req, res, next) => {
 exports.createSubscription = async (req, res, next) => {
   try {
     const planId = req.body.planId || req.body.plan;
+    const numberOfOrgs = parseInt(req.body.numberOfOrgs) || 1;
     const { customerStateCode } = req.body;
 
     // Check if Cashfree is selected
@@ -105,17 +106,26 @@ exports.createSubscription = async (req, res, next) => {
     let planInfo = await Plan.findOne({ code: planId, isActive: true });
     if (!planInfo) {
       const defaultPlans = {
-        starter: { name: 'Starter', price: 999, messageLimit: 1000, agentLimit: 3, credits: 500 },
-        pro: { name: 'Pro', price: 2999, messageLimit: 5000, agentLimit: 10, credits: 2000 },
-        enterprise: { name: 'Enterprise', price: 9999, messageLimit: 50000, agentLimit: 50, credits: 10000 },
+        starter: { name: 'Starter', price: 599, messageLimit: 1000, agentLimit: 3, credits: 500 },
+        pro: { name: 'Pro', price: 799, messageLimit: 5000, agentLimit: 10, credits: 2000 },
+        enterprise: { name: 'Enterprise', price: 999, messageLimit: 50000, agentLimit: 50, credits: 10000 },
       };
-      planInfo = defaultPlans[planId];
+      planInfo = defaultPlans[planId] || defaultPlans.starter;
     }
     if (!planInfo) return next(new AppError('Invalid plan selected.', 400));
     
-    const amountInRupees = planInfo.price || 999;
+    let pricePerOrg = planInfo.price;
+    // Volume Discount Logic
+    if (numberOfOrgs >= 5) {
+      pricePerOrg = Math.round(pricePerOrg * 0.7); // 30% discount
+    } else if (numberOfOrgs >= 2) {
+      pricePerOrg = Math.round(pricePerOrg * 0.85); // 15% discount
+    }
+    
+    const amountInRupees = pricePerOrg * numberOfOrgs;
+    
     // Calculate tax
-    const taxInfo = calculateTax(planInfo.price, customerStateCode);
+    const taxInfo = calculateTax(amountInRupees, customerStateCode);
     const amountInPaisa = Math.round(taxInfo.totalAmount * 100);
 
     if (gateway === 'cashfree') {
@@ -185,7 +195,7 @@ exports.createSubscription = async (req, res, next) => {
       amount: amountInPaisa,
       currency: 'INR',
       receipt: `rcpt_${req.user._id.toString().slice(-8)}_${Date.now()}`,
-      notes: { userId: req.user._id.toString(), plan: planId, isSubscription: "true" },
+      notes: { userId: req.user._id.toString(), plan: planId, isSubscription: "true", numberOfOrgs: numberOfOrgs.toString() },
     });
 
     await Payment.create({
@@ -195,7 +205,8 @@ exports.createSubscription = async (req, res, next) => {
       amount: amountInPaisa,
       paymentGateway: 'razorpay',
       status: 'created',
-      taxDetails: taxInfo
+      taxDetails: taxInfo,
+      notes: `Bought ${numberOfOrgs} organizations`
     });
 
     res.status(201).json({
@@ -307,8 +318,20 @@ exports.verifyPayment = async (req, res, next) => {
       user.subscription.lastPlan = null; // Clear expiry state
       user.subscription.currentPeriodStart = now;
       user.subscription.currentPeriodEnd = periodEnd;
+      // Get the payment record to find out how many organizations were bought
+      let numberOfOrgs = 1;
+      const paymentQuery = gateway === 'cashfree' ? { cashfreeOrderId } : { razorpayOrderId };
+      const paymentRecord = await Payment.findOne(paymentQuery);
+      if (paymentRecord && paymentRecord.notes) {
+        const match = paymentRecord.notes.match(/Bought (\d+) organizations/);
+        if (match && match[1]) {
+          numberOfOrgs = parseInt(match[1]);
+        }
+      }
+
       user.subscription.messageLimit = planInfo.messageLimit || 1000;
       user.subscription.agentLimit = planInfo.agentLimit || 3;
+      user.subscription.orgLimit = numberOfOrgs;
       user.subscription.credits = (user.subscription.credits || 0) + (planInfo.credits || 500);
       user.subscription.totalCredits = (user.subscription.totalCredits || 0) + (planInfo.credits || 500);
       await user.save();

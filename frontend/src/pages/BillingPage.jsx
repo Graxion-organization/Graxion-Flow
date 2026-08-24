@@ -18,6 +18,7 @@ export default function BillingPage() {
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(null);
   const [gateway, setGateway] = useState('razorpay');
+  const [numberOfOrgs, setNumberOfOrgs] = useState(1);
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
   const { user, fetchUser } = useAuthStore();
   const { branding } = useBrandingStore();
@@ -54,7 +55,7 @@ export default function BillingPage() {
 
     setPaying(planId);
     try {
-      const orderRes = await billingAPI.createOrder(planId, gateway);
+      const orderRes = await billingAPI.createOrder(planId, gateway, numberOfOrgs);
       const { orderId, amount, currency, keyId, planLabel, prefill, paymentSessionId, gateway: responseGateway, environment } = orderRes.data.data;
 
       if (responseGateway === 'cashfree') {
@@ -234,13 +235,45 @@ export default function BillingPage() {
         </div>
       )}
 
-      <div className="grid md:grid-cols-3 gap-5">
+      {currentPlan !== 'enterprise' && (
+        <div className={`mt-8 p-6 rounded-2xl border ${'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10'}`}>
+          <h3 className={`font-semibold mb-4 text-lg ${'text-slate-800 dark:text-slate-100'}`}>How many organizations do you need?</h3>
+          <div className="flex items-center gap-6">
+            <input 
+              type="range" 
+              min="1" 
+              max="20" 
+              value={numberOfOrgs} 
+              onChange={(e) => setNumberOfOrgs(parseInt(e.target.value))}
+              className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#FF6A00]"
+            />
+            <div className={`text-2xl font-bold ${'text-slate-900 dark:text-white'} min-w-[3rem] text-center`}>
+              {numberOfOrgs}
+            </div>
+          </div>
+          <div className="mt-4 flex justify-between text-sm text-slate-500 dark:text-slate-400">
+            <span>1 Org: Base Price</span>
+            <span>2-4 Orgs: 15% Off</span>
+            <span>5+ Orgs: 30% Off</span>
+          </div>
+        </div>
+      )}
+
+      <div className="grid md:grid-cols-3 gap-5 mt-6">
         {plans.map((plan) => {
           const Icon = PLAN_ICONS[plan.id] || Zap;
           const isCurrentPlan = currentPlan === plan.id;
           const isLastPlan = lastPlan === plan.id;
           const isBest = plan.id === 'pro';
           const bg = 'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10';
+
+          let pricePerOrg = plan.amountInRupees;
+          if (numberOfOrgs >= 5) {
+            pricePerOrg = Math.round(pricePerOrg * 0.7);
+          } else if (numberOfOrgs >= 2) {
+            pricePerOrg = Math.round(pricePerOrg * 0.85);
+          }
+          const dynamicPrice = pricePerOrg * numberOfOrgs;
 
           return (
             <div key={plan.id} className={`relative rounded-2xl border p-6 transition-all hover:shadow-xl ${bg} ${isCurrentPlan ? 'ring-2 ring-[#FF6A00]' : isLastPlan ? 'ring-2 ring-rose-500/40' : ''}`}>
@@ -266,7 +299,7 @@ export default function BillingPage() {
 
               <h3 className={`text-lg font-bold capitalize ${'text-slate-900 dark:text-slate-100'}`}>{plan.label}</h3>
               <div className="mt-2 mb-4">
-                <span className={`text-3xl font-bold ${'text-slate-900 dark:text-slate-100'}`}>₹{plan.amountInRupees}</span>
+                <span className={`text-3xl font-bold ${'text-slate-900 dark:text-slate-100'}`}>₹{dynamicPrice.toLocaleString()}</span>
                 <span className={`${'text-slate-500 dark:text-slate-400'} text-sm`}>/month</span>
               </div>
 
