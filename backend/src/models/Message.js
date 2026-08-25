@@ -21,6 +21,9 @@ const messageSchema = new mongoose.Schema({
     type: String,
     index: true,
   }, // Meta's message ID
+  replyToMessageId: {
+    type: String, // To track quoted replies
+  },
   type: {
     type: String,
     enum: ['text', 'image', 'audio', 'document', 'location', 'interactive', 'button', 'list', 'template'],

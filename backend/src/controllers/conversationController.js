@@ -138,6 +138,7 @@ exports.replyToConversation = async (req, res, next) => {
       role: 'assistant',
       content: message,
       waMessageId: sentMsg?.messages?.[0]?.id || sentMsg?.message_id || '',
+      replyToMessageId: replyToMessageId || null,
       type: 'text',
       status: 'sent',
       timestamp: new Date(),

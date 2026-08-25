@@ -24,7 +24,7 @@ const StatusIndicator = ({ status }) => {
   return <div className="w-2 h-2 rounded-full bg-gray-300"></div>;
 };
 
-function MessageBubble({ msg, platform, isDark, onReply }) {
+function MessageBubble({ msg, platform, isDark, onReply, quotedMsg }) {
   const isBot = msg.role === 'assistant';
   const isSystem = msg.role === 'system';
 
@@ -61,7 +61,19 @@ function MessageBubble({ msg, platform, isDark, onReply }) {
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 17 4 12 9 7"></polyline><path d="M20 18v-2a4 4 0 0 0-4-4H4"></path></svg>
         </button>
       )}
-      <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm ${isBot ? `${userBgClass} rounded-br-sm` : `${'bg-gray-100 text-gray-800 dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-white/10'} rounded-bl-sm`}`}>
+      <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm flex flex-col ${isBot ? `${userBgClass} rounded-br-sm` : `${'bg-gray-100 text-gray-800 dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-white/10'} rounded-bl-sm`}`}>
+        
+        {quotedMsg && (
+          <div className={`mb-2 px-3 py-1.5 rounded-xl border-l-4 text-xs opacity-90 ${
+            isBot 
+              ? 'bg-black/10 border-white/40 text-white' 
+              : 'bg-white/50 dark:bg-black/20 border-gray-400 dark:border-slate-500'
+          }`}>
+            <div className="font-bold mb-0.5 capitalize">{quotedMsg.role}</div>
+            <div className="truncate opacity-80">{quotedMsg.content}</div>
+          </div>
+        )}
+
         <div className={`markdown-content text-sm leading-relaxed ${isBot ? 'prose-invert' : 'prose-gray'}`}>
           <ReactMarkdown
             components={{
@@ -794,7 +806,21 @@ export default function ConversationsPage() {
                         </span>
                       </div>
                     )}
-                    {selected.messages?.slice(-visibleMessagesCount).map((msg, i) => <MessageBubble key={i} msg={msg} platform={selected.platform || 'whatsapp'} isDark={isDark} onReply={setReplyingToMessage} />)}
+                    {selected.messages?.slice(-visibleMessagesCount).map((msg, i) => {
+                      const quotedMsg = msg.replyToMessageId 
+                        ? selected.messages.find(m => m.waMessageId === msg.replyToMessageId) 
+                        : null;
+                      return (
+                        <MessageBubble 
+                          key={i} 
+                          msg={msg} 
+                          quotedMsg={quotedMsg}
+                          platform={selected.platform || 'whatsapp'} 
+                          isDark={isDark} 
+                          onReply={setReplyingToMessage} 
+                        />
+                      );
+                    })}
                     
                     {typingConversations[selected._id] && (
                       <motion.div

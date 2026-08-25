@@ -143,6 +143,7 @@ exports.receiveMessage = async (req, res) => {
 async function handleInstagramDM(event, igAccount, agent) {
   const senderId = event?.sender?.id;
   const messageId = event?.message?.mid;
+  const replyToMessageId = event?.message?.reply_to?.mid || null;
   let text = event?.message?.text;
   const attachments = event?.message?.attachments;
 
@@ -256,9 +257,11 @@ async function handleInstagramDM(event, igAccount, agent) {
       if (conversation.status === 'human_handoff') {
         await conversation.addMessage({
           role: 'user',
-          content: text || '[Audio Message]',
+          content: isAudioRequest ? userMessageText : (text || '[Audio Message]'),
           waMessageId: messageId,
-          type: 'text',
+          replyToMessageId: replyToMessageId,
+          type: isAudioRequest ? 'audio' : 'text',
+          media: isAudioRequest ? { url: audioUrl } : undefined,
           timestamp: new Date(),
         });
         conversation.lastMessageAt = new Date();
@@ -286,8 +289,9 @@ async function handleInstagramDM(event, igAccount, agent) {
         conversation.status = 'human_handoff';
         await conversation.addMessage({
           role: 'user',
-          content: text,
+          content: text || '[Audio Message]',
           waMessageId: messageId,
+          replyToMessageId: replyToMessageId,
           type: 'text',
           timestamp: new Date(),
         });
@@ -375,6 +379,7 @@ async function handleInstagramDM(event, igAccount, agent) {
         role: 'user',
         content: text || '[Audio Message]',
         waMessageId: messageId,
+        replyToMessageId: replyToMessageId,
         type: 'text',
         timestamp: new Date(),
       });
@@ -459,6 +464,7 @@ async function handleInstagramDM(event, igAccount, agent) {
           role: 'assistant',
           content: matchedTrigger.response || '[Media Sent]',
           waMessageId: sentMsg?.message_id || sentMsg?.id || messageId,
+          replyToMessageId: targetMessageId,
           type: matchedTrigger.mediaType !== 'none' ? matchedTrigger.mediaType : 'text',
           media: matchedTrigger.mediaUrl ? { url: matchedTrigger.mediaUrl } : null,
           status: 'sent',
@@ -543,6 +549,7 @@ async function handleInstagramDM(event, igAccount, agent) {
         role: 'assistant',
         content: cleanReply,
         waMessageId: sentMsg?.message_id || sentMsg?.id || messageId,
+        replyToMessageId: shouldQuote ? messageId : null,
         type: 'text',
         status: 'sent',
         tokens: aiResult.tokensUsed,
