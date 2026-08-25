@@ -45,8 +45,11 @@ class RateLimitService {
       const endOfDay = new Date();
       endOfDay.setHours(23, 59, 59, 999);
       
+      const mongoose = require('mongoose');
+      const userObjectId = typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId;
+
       const dailyUsageAggr = await ApiUsageLog.aggregate([
-        { $match: { user: userId, platform, bucketTime: { $gte: startOfDay, $lte: endOfDay } } },
+        { $match: { user: userObjectId, platform, bucketTime: { $gte: startOfDay, $lte: endOfDay } } },
         { $group: { _id: null, totalApi: { $sum: '$apiCalls' } } }
       ]);
       const currentDayCalls = dailyUsageAggr.length > 0 ? dailyUsageAggr[0].totalApi : 0;
