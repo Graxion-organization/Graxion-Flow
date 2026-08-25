@@ -16,5 +16,6 @@ router.get('/ai', analyticsController.getAiMetrics);
 router.get('/templates', analyticsController.getTemplatePerformance);
 router.get('/broadcasts', analyticsController.getBroadcastAnalytics);
 router.get('/agents', analyticsController.getAgentPerformance);
+router.get('/agency-overview', analyticsController.getAgencyOverview);
 
 module.exports = router;

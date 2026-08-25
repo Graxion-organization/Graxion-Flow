@@ -1,11 +1,14 @@
 const Conversation = require('../models/Conversation');
 const User = require('../models/User');
+const Organization = require('../models/Organization');
 const Campaign = require('../models/Campaign');
 const Agent = require('../models/Agent');
 const Message = require('../models/Message');
 const Deal = require('../models/Deal');
 const Broadcast = require('../models/Broadcast');
 const Contact = require('../models/Contact');
+const SocialPostJob = require('../models/SocialPostJob');
+const ApiUsageLog = require('../models/ApiUsageLog');
 
 // Helper to get start and end dates based on timeframe
 const getDateRange = (timeframe) => {
@@ -65,7 +68,17 @@ exports.getMessageVolume = async (req, res, next) => {
       }
     }
 
-    res.status(200).json({ status: 'success', data: { volume: data } });
+    // 4. Calculate total Posts and Comments (approximated via webhooks)
+    const [totalPosts, usageLogs] = await Promise.all([
+      SocialPostJob.countDocuments({ ...orgFilter, publishedAt: { $gte: start, $lte: end } }),
+      ApiUsageLog.aggregate([
+        { $match: { ...orgFilter, bucketTime: { $gte: start, $lte: end } } },
+        { $group: { _id: null, totalWebhooks: { $sum: '$webhooks' } } }
+      ])
+    ]);
+    const totalComments = usageLogs[0]?.totalWebhooks || 0;
+
+    res.status(200).json({ status: 'success', data: { volume: data, totalPosts, totalComments } });
   } catch (err) {
     next(err);
   }
@@ -245,6 +258,71 @@ exports.getAgentPerformance = async (req, res, next) => {
     }));
 
     res.status(200).json({ status: 'success', data: { performance } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getAgencyOverview = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    // Fetch all active organizations the user is a member of
+    const userOrgs = await Organization.find({ 'members.user': userId, isActive: true })
+      .select('name slug')
+      .lean();
+    
+    if (!userOrgs.length) {
+      return res.status(200).json({ status: 'success', data: { organizations: [], globalQuota: null } });
+    }
+
+    const orgIds = userOrgs.map(o => o._id);
+    const orgMap = {};
+    userOrgs.forEach(o => { orgMap[o._id.toString()] = o; });
+
+    // Aggregate conversation stats grouped by organization
+    const orgStats = await Conversation.aggregate([
+      { $match: { organization: { $in: orgIds } } },
+      { $group: {
+        _id: '$organization',
+        totalMessages: { $sum: '$totalMessages' },
+        totalTokens: { $sum: '$totalTokensUsed' },
+        conversations: { $sum: 1 }
+      }}
+    ]);
+
+    let totalAgencyMessages = 0;
+    const organizationMetrics = userOrgs.map(org => {
+      const stats = orgStats.find(s => s._id.toString() === org._id.toString()) || { totalMessages: 0, totalTokens: 0, conversations: 0 };
+      totalAgencyMessages += stats.totalMessages;
+      return {
+        _id: org._id,
+        name: org.name,
+        slug: org.slug,
+        messages: stats.totalMessages,
+        tokens: stats.totalTokens,
+        conversations: stats.conversations
+      };
+    });
+
+    // Sort by messages descending
+    organizationMetrics.sort((a, b) => b.messages - a.messages);
+
+    const limits = await req.user.getPlanLimits();
+    const globalQuota = {
+      messagesLimit: limits.messages || 0,
+      messagesUsed: req.user.usage.messagesThisMonth || totalAgencyMessages,
+      creditsTotal: req.user.subscription?.totalCredits || 0,
+      creditsUsed: req.user.usage?.agentCreditsUsedThisMonth || 0,
+    };
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        globalQuota,
+        organizations: organizationMetrics
+      }
+    });
   } catch (err) {
     next(err);
   }

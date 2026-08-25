@@ -4,7 +4,7 @@ import {
   BarChart3, TrendingUp, MessageSquare, Bot, Users, Zap,
   DollarSign, Send, Eye, AlertTriangle, ArrowUpRight,
   ArrowDownRight, Activity, Filter, RefreshCw, Award,
-  Briefcase, Radio
+  Briefcase, Radio, PlayCircle, Share2
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -49,6 +49,8 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState('7d');
   const [volumeData, setVolumeData] = useState([]);
+  const [totalPosts, setTotalPosts] = useState(0);
+  const [totalComments, setTotalComments] = useState(0);
   const [aiMetrics, setAiMetrics] = useState(null);
   const [creditData, setCreditData] = useState(null);
   const [broadcastStats, setBroadcastStats] = useState(null);
@@ -85,6 +87,8 @@ export default function AnalyticsPage() {
         total: d.sent + d.received
       }));
       setVolumeData(vol);
+      setTotalPosts(volRes.data?.data?.totalPosts || 0);
+      setTotalComments(volRes.data?.data?.totalComments || 0);
       setAiMetrics(aiRes.data?.data?.metrics);
       setCreditData(creditRes.data?.data);
       setBroadcastStats(broadcastRes.data?.data?.stats);
@@ -158,10 +162,42 @@ export default function AnalyticsPage() {
       {/* Top KPI Row */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <MiniStat isDark={isDark} icon={MessageSquare} label="Total Messages" value={totalMessages.toLocaleString()} sub={`${totalSent} sent / ${totalReceived} received`} tint="#3B82F6" />
-        <MiniStat isDark={isDark} icon={Users} label="Conversations" value={(aiMetrics?.totalConversations || 0).toLocaleString()} sub={`${aiMetrics?.closedConversations || 0} resolved`} tint="#10B981" />
-        <MiniStat isDark={isDark} icon={Zap} label="AI Tokens Used" value={(aiMetrics?.tokensUsed || 0).toLocaleString()} sub={aiMetrics?.costSaved ? `${aiMetrics.costSaved} saved` : '-'} tint="#8B5CF6" />
-        <MiniStat isDark={isDark} icon={Activity} label="Avg Response" value={aiMetrics?.averageResponseTime || '-'} sub="AI speed" tint="#F59E0B" />
-        <MiniStat isDark={isDark} icon={DollarSign} label="Pipeline Value" value={`₹${(dashStats?.pipelineValue || 0).toLocaleString('en-IN')}`} sub={`${dashStats?.dealsCount || 0} deals`} tint="#10B981" />
+        <MiniStat isDark={isDark} icon={MessageSquare} label="Total Comments" value={totalComments.toLocaleString()} sub="Via Webhooks" tint="#F59E0B" />
+        <MiniStat isDark={isDark} icon={Send} label="Total Posts" value={totalPosts.toLocaleString()} sub="Published" tint="#10B981" />
+        <MiniStat isDark={isDark} icon={Users} label="Conversations" value={(aiMetrics?.totalConversations || 0).toLocaleString()} sub={`${aiMetrics?.closedConversations || 0} resolved`} tint="#8B5CF6" />
+        <MiniStat isDark={isDark} icon={Zap} label="Tokens Used" value={(aiMetrics?.tokensUsed || 0).toLocaleString()} sub={aiMetrics?.costSaved ? `${aiMetrics.costSaved} saved` : '-'} tint="#EC4899" />
+      </div>
+
+      {/* Platform Deep-Dives Row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <button onClick={() => navigate('/app/instagram')} className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200 ${isDark ? 'bg-gradient-to-r from-pink-500/10 to-purple-500/10 border-pink-500/20 hover:bg-pink-500/20' : 'bg-gradient-to-r from-pink-50 to-purple-50 border-pink-100 hover:bg-pink-100'}`}>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 text-white"><Radio size={16} /></div>
+            <span className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>Instagram Live Analysis</span>
+          </div>
+          <ArrowUpRight size={16} className="text-pink-500" />
+        </button>
+        <button onClick={() => navigate('/app/youtube')} className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200 ${isDark ? 'bg-rose-500/10 border-rose-500/20 hover:bg-rose-500/20' : 'bg-rose-50 border-rose-100 hover:bg-rose-100'}`}>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-rose-500 text-white"><PlayCircle size={16} /></div>
+            <span className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>YouTube Automation</span>
+          </div>
+          <ArrowUpRight size={16} className="text-rose-500" />
+        </button>
+        <button onClick={() => navigate('/app/facebook')} className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200 ${isDark ? 'bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20' : 'bg-blue-50 border-blue-100 hover:bg-blue-100'}`}>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-blue-600 text-white"><Share2 size={16} /></div>
+            <span className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>Facebook Engagement</span>
+          </div>
+          <ArrowUpRight size={16} className="text-blue-500" />
+        </button>
+        <button onClick={() => navigate('/app/whatsapp')} className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200 ${isDark ? 'bg-emerald-500/10 border-emerald-500/20 hover:bg-emerald-500/20' : 'bg-emerald-50 border-emerald-100 hover:bg-emerald-100'}`}>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-emerald-500 text-white"><MessageSquare size={16} /></div>
+            <span className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>WhatsApp Campaigns</span>
+          </div>
+          <ArrowUpRight size={16} className="text-emerald-500" />
+        </button>
       </div>
 
       {/* Charts Row 1: Message Volume + Platform Split */}

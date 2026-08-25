@@ -470,7 +470,8 @@ export const analyticsAPI = {
   getAi: () => api.get('/analytics/ai'),
   getTemplates: () => api.get('/analytics/templates'),
   getBroadcasts: () => api.get('/analytics/broadcasts'),
-  getAgents: () => api.get('/analytics/agents')
+  getAgents: () => api.get('/analytics/agents'),
+  getAgencyOverview: () => api.get('/analytics/agency-overview'),
 };
 
 // Admin Analytics
