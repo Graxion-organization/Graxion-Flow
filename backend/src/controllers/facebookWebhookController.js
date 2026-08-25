@@ -128,6 +128,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
 
   webhookQueue.enqueue(`facebook_${senderId}`, async () => {
     try {
+      console.log(`[RENDER_LOG] [FACEBOOK_DM] Webhook enqueued for senderId: ${senderId}, messageId: ${messageId}`);
       // Find or create conversation (Query by organization to prevent duplicates if account is reconnected)
       let conversation = await Conversation.findOne({
         organization: fbAccount.organization,
@@ -310,11 +311,14 @@ async function handleFacebookMessage(event, fbAccount, agent) {
           model: 'gpt-4o-mini'
       };
 
+      console.log(`[RENDER_LOG] [FACEBOOK_DM] Passing to AI with text: "${text}"`);
       const aiResult = await AIService.generate(tempAgent, contextMessages.slice(0, -1), text, 'facebook');
+      console.log(`[RENDER_LOG] [FACEBOOK_DM] AI generated reply: "${aiResult.content}"`);
       emitToUser(fbAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
       
       const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'facebook');
       const sentMsg = await fbService.sendTextMessage(senderId, cleanReply || "I am currently unable to process that request.");
+      console.log(`[RENDER_LOG] [FACEBOOK_DM] Successfully sent reply to Facebook user.`);
 
       await conversation.addMessage({
         role: 'assistant',
@@ -350,6 +354,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
       
       await fbService.sendAction(senderId, 'typing_off');
     } catch (err) {
+      console.error(`[RENDER_LOG] [FACEBOOK_DM] Error processing DM: ${err.message}`, err.stack);
       if (conversation?._id && fbAccount?.user) {
         emitToUser(fbAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
       }

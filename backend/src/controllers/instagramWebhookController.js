@@ -158,6 +158,7 @@ async function handleInstagramDM(event, igAccount, agent) {
   // Find or create conversation
   webhookQueue.enqueue(`instagram_${senderId}`, async () => {
     try {
+      console.log(`[RENDER_LOG] [INSTAGRAM_DM] Webhook enqueued for senderId: ${senderId}, messageId: ${messageId}`);
       let conversation = await Conversation.findOne({
         organization: igAccount.organization,
         platform: 'instagram',
@@ -419,7 +420,9 @@ async function handleInstagramDM(event, igAccount, agent) {
           model: 'gpt-4o-mini'
       };
 
+      console.log(`[RENDER_LOG] [INSTAGRAM_DM] Passing to AI with text: "${text}"`);
       const aiResult = await AIService.generate(tempAgent, contextMessages.slice(0, -1), text, 'instagram');
+      console.log(`[RENDER_LOG] [INSTAGRAM_DM] AI generated reply: "${aiResult.content}"`);
       emitToUser(igAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
       const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'instagram');
 
@@ -461,7 +464,11 @@ async function handleInstagramDM(event, igAccount, agent) {
       }
 
       if (!wantsVoice || !audioSent || !instagramAudioEnabled) {
+        if (wantsVoice && (!audioSent || !instagramAudioEnabled)) {
+            console.log(`[RENDER_LOG] [INSTAGRAM_DM] Voice generation failed or disabled. Falling back to text message.`);
+        }
         sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, cleanReply || "I am currently unable to process that request.");
+        console.log(`[RENDER_LOG] [INSTAGRAM_DM] Successfully sent text message reply to Instagram user.`);
       }
 
       await conversation.addMessage({
@@ -507,6 +514,7 @@ async function handleInstagramDM(event, igAccount, agent) {
         $inc: { 'stats.totalMessages': 2, 'stats.totalConversations': conversation.totalMessages === 2 ? 1 : 0 },
       });
     } catch (err) {
+      console.error(`[RENDER_LOG] [INSTAGRAM_DM] Error processing DM: ${err.message}`, err.stack);
       if (conversation?._id && igAccount?.user) {
         emitToUser(igAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
       }
