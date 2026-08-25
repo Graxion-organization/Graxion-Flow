@@ -369,6 +369,12 @@ export default function AnalyticsPage() {
                       <Cell key={i} fill={entry.color || PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
                   </Pie>
+                  <text x="50%" y="45%" textAnchor="middle" dominantBaseline="middle" className={`text-2xl font-bold ${isDark ? 'fill-slate-100' : 'fill-slate-900'}`}>
+                    {((creditData?.totalCredits || 0) - (creditData?.creditsRemaining || 0)).toLocaleString()}
+                  </text>
+                  <text x="50%" y="55%" textAnchor="middle" dominantBaseline="middle" className={`text-[10px] ${isDark ? 'fill-slate-400' : 'fill-slate-500'}`}>
+                    Used
+                  </text>
                   <Tooltip contentStyle={{ borderRadius: '12px', background: isDark ? '#1e293b' : '#fff', border: isDark ? '1px solid rgba(255,255,255,0.1)' : 'none', color: isDark ? '#f8fafc' : '#0f172a' }} />
                   <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '10px', color: isDark ? '#94a3b8' : '#64748b' }} />
                 </PieChart>
