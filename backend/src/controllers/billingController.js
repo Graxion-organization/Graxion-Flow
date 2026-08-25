@@ -617,8 +617,18 @@ exports.getBillingHistory = async (req, res, next) => {
 
 exports.getCreditsHistory = async (req, res, next) => {
   try {
-    const transactions = await CreditTransaction.find({ user: req.user._id }).sort({ createdAt: -1 }).lean();
-    res.status(200).json({ status: 'success', data: { transactions } });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const total = await CreditTransaction.countDocuments({ user: req.user._id });
+    const transactions = await CreditTransaction.find({ user: req.user._id })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+      
+    res.status(200).json({ status: 'success', data: { transactions, total, page, limit } });
   } catch (err) {
     next(err);
   }

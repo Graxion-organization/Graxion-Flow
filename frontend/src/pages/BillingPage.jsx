@@ -20,7 +20,9 @@ export default function BillingPage() {
   const [gateway, setGateway] = useState('razorpay');
   const [numberOfOrgs, setNumberOfOrgs] = useState(1);
   const [showAllHistory, setShowAllHistory] = useState(false);
-  const [showAllCredits, setShowAllCredits] = useState(false);
+  const [creditsPage, setCreditsPage] = useState(1);
+  const [creditsTotal, setCreditsTotal] = useState(0);
+  const [loadingCredits, setLoadingCredits] = useState(false);
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
   const { user, fetchUser } = useAuthStore();
   const { branding } = useBrandingStore();
@@ -45,7 +47,10 @@ export default function BillingPage() {
     Promise.all([
       billingAPI.getPlans().then((r) => setPlans(r.data.data.plans)),
       billingAPI.getHistory().then((r) => setHistory(r.data.data.payments)),
-      billingAPI.getCreditsHistory().then((r) => setCreditsHistory(r.data.data.transactions)),
+      billingAPI.getCreditsHistory({ page: 1, limit: 10 }).then((r) => {
+        setCreditsHistory(r.data.data.transactions || []);
+        setCreditsTotal(r.data.data.total || (r.data.data.transactions?.length || 0));
+      }),
     ]).finally(() => setLoading(false));
   }, []);
 
@@ -54,6 +59,16 @@ export default function BillingPage() {
     window.addEventListener('app-theme-change', sync);
     return () => window.removeEventListener('app-theme-change', sync);
   }, []);
+
+  const loadMoreCredits = () => {
+    const nextPage = creditsPage + 1;
+    setLoadingCredits(true);
+    billingAPI.getCreditsHistory({ page: nextPage, limit: 10 }).then((r) => {
+      setCreditsHistory(prev => [...prev, ...(r.data.data.transactions || [])]);
+      setCreditsPage(nextPage);
+      setCreditsTotal(r.data.data.total || 0);
+    }).finally(() => setLoadingCredits(false));
+  };
 
   const handleUpgrade = async (planId) => {
     if (!isRazorpayEnabled && !isCashfreeEnabled) {
@@ -400,14 +415,6 @@ export default function BillingPage() {
               <Zap size={16} style={{ color: '#FF6A00' }} />
               <h3 className={`font-semibold ${'text-slate-800 dark:text-slate-100'}`}>Credits Transaction History</h3>
             </div>
-            {creditsHistory.length > 5 && (
-              <button 
-                onClick={() => setShowAllCredits(!showAllCredits)}
-                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#FF6A00]/10 text-[#FF6A00] hover:bg-[#FF6A00]/20 transition-colors"
-              >
-                {showAllCredits ? 'Show Less' : `View All (${creditsHistory.length})`}
-              </button>
-            )}
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -415,7 +422,7 @@ export default function BillingPage() {
                 <tr>{['Date', 'Type', 'Amount', 'Description'].map((h) => <th key={h} className={`text-left text-xs font-medium px-6 py-3 ${'text-slate-500 dark:text-slate-400'}`}>{h}</th>)}</tr>
               </thead>
               <tbody className={'divide-y divide-slate-100 dark:divide-y dark:divide-white/10'}>
-                {(showAllCredits ? creditsHistory : creditsHistory.slice(0, 5)).map((t) => (
+                {creditsHistory.map((t) => (
                   <tr key={t._id} className={'hover:bg-slate-50 dark:hover:bg-white/5'}>
                     <td className={`px-6 py-3 text-sm ${'text-slate-600 dark:text-slate-300'}`}>{new Date(t.createdAt).toLocaleDateString()}</td>
                     <td className="px-6 py-3"><span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: '#FF6A0022', color: '#FF6A00' }}>{t.type === 'addition' ? 'Credit Added' : 'Credit Deducted'}</span></td>
@@ -426,6 +433,17 @@ export default function BillingPage() {
               </tbody>
             </table>
           </div>
+          {creditsHistory.length < creditsTotal && (
+            <div className={`p-4 border-t flex justify-center ${'border-slate-100 dark:border-white/10'}`}>
+              <button
+                onClick={loadMoreCredits}
+                disabled={loadingCredits}
+                className={`text-xs font-semibold px-4 py-2 rounded-xl transition-colors disabled:opacity-50 ${'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-white/5 dark:hover:bg-white/10 dark:text-slate-300'}`}
+              >
+                {loadingCredits ? 'Loading...' : 'Load More'}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
