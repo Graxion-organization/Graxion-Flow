@@ -6,7 +6,6 @@ const Conversation = require('../models/Conversation');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 const { emitToUser, emitNotification } = require('../utils/socket');
-const TranscriptionService = require('../services/transcriptionService');
 const rateLimitService = require('../services/rateLimitService');
 const creditHelper = require('../utils/creditHelper');
 const webhookQueue = require('../utils/webhookQueue');
