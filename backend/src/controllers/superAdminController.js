@@ -5,18 +5,39 @@ const WebhookLog = require('../models/WebhookLog');
 
 exports.getGlobalStats = async (req, res, next) => {
   try {
-    const usageByPlatform = await ApiUsageLog.aggregate([
-      {
-        $group: {
-          _id: '$platform',
-          totalApi: { $sum: '$apiCalls' },
-          totalWebhooks: { $sum: '$webhooks' }
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const [usageByPlatform, todayUsageByPlatform] = await Promise.all([
+      ApiUsageLog.aggregate([
+        {
+          $group: {
+            _id: '$platform',
+            totalApi: { $sum: '$apiCalls' },
+            totalWebhooks: { $sum: '$webhooks' }
+          }
         }
-      }
+      ]),
+      ApiUsageLog.aggregate([
+        { $match: { bucketTime: { $gte: startOfDay } } },
+        {
+          $group: {
+            _id: '$platform',
+            totalApi: { $sum: '$apiCalls' },
+            totalWebhooks: { $sum: '$webhooks' }
+          }
+        }
+      ])
     ]);
 
     // Format for frontend chart
     const formattedStats = usageByPlatform.map(u => ({
+      platform: u._id,
+      apiCalls: u.totalApi,
+      webhooks: u.totalWebhooks
+    }));
+
+    const formattedTodayStats = todayUsageByPlatform.map(u => ({
       platform: u._id,
       apiCalls: u.totalApi,
       webhooks: u.totalWebhooks
@@ -29,11 +50,19 @@ exports.getGlobalStats = async (req, res, next) => {
       return acc;
     }, { apiCalls: 0, webhooks: 0 });
 
+    const todayTotals = formattedTodayStats.reduce((acc, curr) => {
+      acc.apiCalls += curr.apiCalls;
+      acc.webhooks += curr.webhooks;
+      return acc;
+    }, { apiCalls: 0, webhooks: 0 });
+
     res.status(200).json({
       status: 'success',
       data: {
         stats: formattedStats,
-        totals
+        todayStats: formattedTodayStats,
+        totals,
+        todayTotals
       }
     });
   } catch (err) {
