@@ -15,6 +15,8 @@ const os = require('os');
 const path = require('path');
 const { checkKeywordMatch } = require('../utils/keywordMatcher');
 
+const aiDebounceTimeouts = new Map();
+
 const isVoiceRequest = (message) => {
   if (!message) return false;
   const keywords = ["voice", "audio", "recording", "awaz", "aawaz", "bol", "bolke", "bol ke", "sunao", "voice note", "audio me", "voice me", "speak", "speech"];
@@ -395,11 +397,27 @@ async function handleInstagramDM(event, igAccount, agent) {
         platform: 'instagram',
       });
 
-      const contextWindow = agent ? agent.contextWindow : 10;
-      const contextMessages = (await conversation.getRecentMessages(20))
-        .filter((m) => m.role !== 'system')
-        .slice(-(contextWindow * 2))
-        .map((m) => ({ role: m.role, content: m.content }));
+      // --- AI Debouncing Logic ---
+      const convIdStr = conversation._id.toString();
+      if (aiDebounceTimeouts.has(convIdStr)) {
+        clearTimeout(aiDebounceTimeouts.get(convIdStr));
+      }
+
+      const timeoutId = setTimeout(async () => {
+        aiDebounceTimeouts.delete(convIdStr);
+        try {
+          // Re-fetch conversation to get all batched messages
+          const conversation = await Conversation.findById(convIdStr);
+          if (!conversation) return;
+          
+          const contextWindow = agent ? agent.contextWindow : 10;
+          const contextMessages = (await conversation.getRecentMessages(20))
+            .filter((m) => m.role !== 'system')
+            .slice(-(contextWindow * 2))
+            .map((m) => ({ role: m.role, content: m.content }));
+            
+          // Use the last message text as the current user text
+          const text = contextMessages.length > 0 ? contextMessages[contextMessages.length - 1].content : '';
 
       // Check if bot is actually enabled
       let enabled = igAccount.messengerBotEnabled || !!agent;
@@ -426,13 +444,13 @@ async function handleInstagramDM(event, igAccount, agent) {
         } else if (matchedTrigger.mediaType === 'audio' && matchedTrigger.mediaUrl) {
           sentMsg = await igService.sendAudioMessage(igAccount.igAccountId, senderId, matchedTrigger.mediaUrl);
         } else {
-          sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, matchedTrigger.response);
+          sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, matchedTrigger.response, messageId);
         }
         logger.info('[FLOW] Message res send hua: Keyword trigger response sent successfully');
 
         // If caption provided with media on instagram, we must send a separate text message since the API does not support captions in attachment directly
         if (matchedTrigger.mediaType !== 'none' && matchedTrigger.response) {
-            await igService.sendTextMessage(igAccount.igAccountId, senderId, matchedTrigger.response);
+            await igService.sendTextMessage(igAccount.igAccountId, senderId, matchedTrigger.response, messageId);
         }
 
         await conversation.addMessage({
@@ -513,7 +531,7 @@ async function handleInstagramDM(event, igAccount, agent) {
         if (wantsVoice && (!audioSent || !instagramAudioEnabled)) {
             logger.info(`[RENDER_LOG] [INSTAGRAM_DM] Voice generation failed or disabled. Falling back to text message.`);
         }
-        sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, cleanReply || "I am currently unable to process that request.");
+        sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, cleanReply || "I am currently unable to process that request.", messageId);
         logger.info(`[RENDER_LOG] [INSTAGRAM_DM] Successfully sent text message reply to Instagram user.`);
         logger.info('[FLOW] Message res send hua: Text response sent successfully');
       }
@@ -561,6 +579,13 @@ async function handleInstagramDM(event, igAccount, agent) {
         $inc: { 'stats.totalMessages': 2, 'stats.totalConversations': conversation.totalMessages === 2 ? 1 : 0 },
       });
       logger.info('[FLOW] Complete hua: Webhook processing completed successfully');
+        } catch (debounceErr) {
+          logger.error(`Error in debounced AI processing: ${debounceErr.message}`);
+        }
+      }, 4000); // 4 seconds debounce
+      
+      aiDebounceTimeouts.set(convIdStr, timeoutId);
+
     } catch (err) {
       logger.error(`[RENDER_LOG] [INSTAGRAM_DM] Error processing DM: ${err.message}`, err.stack);
       logger.info('[FLOW] Fallback hua: Error occurred during webhook processing');

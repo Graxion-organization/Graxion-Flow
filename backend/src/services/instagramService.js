@@ -303,22 +303,33 @@ class InstagramService {
     }
   }
 
-  async sendTextMessage(igAccountId, recipientId, text) {
+  async sendTextMessage(igAccountId, recipientId, text, replyToMessageId = null) {
     try {
       const endpointId = 'me';
       const chunks = InstagramService.splitMessage(text, 950);
       let lastResponse = null;
 
-      for (const chunk of chunks) {
+      // 50% random chance to use swipe-to-reply feature
+      const useReplyTo = replyToMessageId && Math.random() > 0.5;
+
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
         if (!chunk.trim()) continue;
         
+        const payload = {
+          messaging_type: 'RESPONSE',
+          recipient: { id: recipientId },
+          message: { text: chunk },
+        };
+
+        // Only attach reply_to to the very first chunk to avoid repeating quotes
+        if (useReplyTo && i === 0) {
+          payload.reply_to = { mid: replyToMessageId };
+        }
+
         lastResponse = await axios.post(
           `${this.baseUrl}/${endpointId}/messages`,
-          {
-            messaging_type: 'RESPONSE',
-            recipient: { id: recipientId },
-            message: { text: chunk },
-          },
+          payload,
           {
             params: { access_token: this.accessToken },
           }
