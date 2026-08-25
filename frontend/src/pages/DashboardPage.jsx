@@ -15,12 +15,16 @@ const COLORS = ['#FF6A00', '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EC4899'
 export default function DashboardPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [timeframe, setTimeframe] = useState('current');
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchAgencyData();
+  }, [timeframe]);
+
+  useEffect(() => {
     const sync = () => setIsDark((localStorage.getItem('app-theme') || 'dark') === 'dark');
     window.addEventListener('app-theme-change', sync);
     return () => window.removeEventListener('app-theme-change', sync);
@@ -29,7 +33,7 @@ export default function DashboardPage() {
   const fetchAgencyData = async () => {
     try {
       setLoading(true);
-      const res = await analyticsAPI.getAgencyOverview();
+      const res = await analyticsAPI.getAgencyOverview({ timeframe });
       setData(res.data.data);
     } catch (err) {
       toast.error('Failed to load agency overview');
@@ -71,6 +75,17 @@ export default function DashboardPage() {
           <p className={`${isDark ? 'text-slate-400' : 'text-slate-500'} text-sm mt-1`}>
             Overview of all client organizations and global consumption.
           </p>
+        </div>
+        
+        <div className={`flex rounded-xl border overflow-hidden ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
+          {['current', 'all'].map(tf => (
+            <button key={tf} onClick={() => setTimeframe(tf)}
+              className={`px-3 py-1.5 text-xs font-semibold transition-all ${timeframe === tf
+                ? 'bg-[#FF6A00] text-white'
+                : isDark ? 'text-slate-300 hover:bg-white/10' : 'text-slate-600 hover:bg-slate-50'}`}>
+              {tf === 'current' ? 'Current Billing Cycle' : 'All Time'}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -219,6 +234,12 @@ export default function DashboardPage() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
+                  <text x="50%" y="45%" textAnchor="middle" dominantBaseline="middle" className={`text-3xl font-bold ${isDark ? 'fill-slate-100' : 'fill-slate-900'}`}>
+                    {totalOrgs}
+                  </text>
+                  <text x="50%" y="55%" textAnchor="middle" dominantBaseline="middle" className={`text-xs ${isDark ? 'fill-slate-400' : 'fill-slate-500'}`}>
+                    Organizations
+                  </text>
                   <Tooltip 
                     contentStyle={{ 
                       borderRadius: '12px', 

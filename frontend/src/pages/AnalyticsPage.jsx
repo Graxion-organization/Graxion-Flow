@@ -162,8 +162,8 @@ export default function AnalyticsPage() {
       {/* Top KPI Row */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <MiniStat isDark={isDark} icon={MessageSquare} label="Total Messages" value={totalMessages.toLocaleString()} sub={`${totalSent} sent / ${totalReceived} received`} tint="#3B82F6" />
-        <MiniStat isDark={isDark} icon={MessageSquare} label="Total Comments" value={totalComments.toLocaleString()} sub="Via Webhooks" tint="#F59E0B" />
-        <MiniStat isDark={isDark} icon={Send} label="Total Posts" value={totalPosts.toLocaleString()} sub="Published" tint="#10B981" />
+        <MiniStat isDark={isDark} icon={Award} label="Active Agents" value={agentPerformance.length.toLocaleString()} sub="Handling conversations" tint="#F59E0B" />
+        <MiniStat isDark={isDark} icon={Radio} label="Broadcasts Sent" value={(broadcastStats?.totalSent || 0).toLocaleString()} sub="Marketing messages" tint="#10B981" />
         <MiniStat isDark={isDark} icon={Users} label="Conversations" value={(aiMetrics?.totalConversations || 0).toLocaleString()} sub={`${aiMetrics?.closedConversations || 0} resolved`} tint="#8B5CF6" />
         <MiniStat isDark={isDark} icon={Zap} label="Tokens Used" value={(aiMetrics?.tokensUsed || 0).toLocaleString()} sub={aiMetrics?.costSaved ? `${aiMetrics.costSaved} saved` : '-'} tint="#EC4899" />
       </div>
@@ -244,6 +244,12 @@ export default function AnalyticsPage() {
                       <Cell key={i} fill={PLATFORM_COLORS[entry.name] || PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
                   </Pie>
+                  <text x="50%" y="40%" textAnchor="middle" dominantBaseline="middle" className={`text-3xl font-bold ${isDark ? 'fill-slate-100' : 'fill-slate-900'}`}>
+                    {platformData.length}
+                  </text>
+                  <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className={`text-xs ${isDark ? 'fill-slate-400' : 'fill-slate-500'}`}>
+                    Channels
+                  </text>
                   <Tooltip contentStyle={{ borderRadius: '12px', border: isDark ? '1px solid rgba(255,255,255,0.1)' : 'none', background: isDark ? '#1e293b' : '#fff', color: isDark ? '#f8fafc' : '#0f172a' }} />
                   <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#64748b' }} />
                 </PieChart>
@@ -269,6 +275,12 @@ export default function AnalyticsPage() {
                     <Pie data={statusData} cx="50%" cy="50%" innerRadius={55} outerRadius={80} paddingAngle={4} dataKey="value" stroke="none">
                       {statusData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
                     </Pie>
+                    <text x="50%" y="45%" textAnchor="middle" dominantBaseline="middle" className={`text-2xl font-bold ${isDark ? 'fill-slate-100' : 'fill-slate-900'}`}>
+                      {aiMetrics?.totalConversations || 0}
+                    </text>
+                    <text x="50%" y="55%" textAnchor="middle" dominantBaseline="middle" className={`text-[10px] ${isDark ? 'fill-slate-400' : 'fill-slate-500'}`}>
+                      Total
+                    </text>
                     <Tooltip contentStyle={{ borderRadius: '12px', background: isDark ? '#1e293b' : '#fff', border: isDark ? '1px solid rgba(255,255,255,0.1)' : 'none', color: isDark ? '#f8fafc' : '#0f172a' }} />
                   </PieChart>
                 </ResponsiveContainer>

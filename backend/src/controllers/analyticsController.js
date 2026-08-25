@@ -266,6 +266,7 @@ exports.getAgentPerformance = async (req, res, next) => {
 exports.getAgencyOverview = async (req, res, next) => {
   try {
     const userId = req.user._id;
+    const { timeframe } = req.query; // 'all' or 'current'
 
     // Fetch all active organizations the user is a member of
     const userOrgs = await Organization.find({ 'members.user': userId, isActive: true })
@@ -280,9 +281,18 @@ exports.getAgencyOverview = async (req, res, next) => {
     const orgMap = {};
     userOrgs.forEach(o => { orgMap[o._id.toString()] = o; });
 
+    const matchStage = { organization: { $in: orgIds } };
+    
+    if (timeframe !== 'all') {
+      const startDate = req.user.subscription?.currentPeriodStart || req.user.usage?.lastResetDate;
+      if (startDate) {
+        matchStage.createdAt = { $gte: new Date(startDate) };
+      }
+    }
+
     // Aggregate conversation stats grouped by organization
     const orgStats = await Conversation.aggregate([
-      { $match: { organization: { $in: orgIds } } },
+      { $match: matchStage },
       { $group: {
         _id: '$organization',
         totalMessages: { $sum: '$totalMessages' },
