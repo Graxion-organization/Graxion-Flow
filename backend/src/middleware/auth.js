@@ -11,7 +11,7 @@ const protect = async (req, res, next) => {
       process.env.GRAXION_PROXY_SECRET &&
       req.headers['x-graxion-proxy-secret'] === process.env.GRAXION_PROXY_SECRET
     ) {
-      req.user = { role: 'admin', _id: 'graxion-proxy-admin' };
+      req.user = { role: 'superadmin', _id: 'graxion-proxy-admin' };
       return next();
     }
 
