@@ -318,6 +318,34 @@ async function handleInstagramDM(event, igAccount, agent) {
         return;
       }
 
+      // Detect Bot Loop (Rate Limiter: max 10 messages per minute per conversation)
+      try {
+        const redis = require('../config/redis').redis;
+        const loopKey = `bot_loop_ig:${conversation._id}`;
+        const msgCount = await redis.incr(loopKey);
+        if (msgCount === 1) await redis.expire(loopKey, 60);
+        
+        if (msgCount > 10) {
+          logger.warn(`[BOT LOOP DETECTED] Instagram Conversation ${conversation._id} exceeded 10 msgs/min. Pausing AI.`);
+          if (conversation.status !== 'human_handoff') {
+            conversation.status = 'human_handoff';
+            await conversation.addMessage({
+              role: 'system',
+              content: 'System: 🔴 AUTOMATIC BOT LOOP DETECTED. Rate limit exceeded (>10 messages per minute). AI Agent has been paused for safety. Admin must manually re-enable AI for this chat.',
+              timestamp: new Date(),
+            });
+            await conversation.save();
+            emitToUser(igAccount.user.toString(), 'conversation_updated', {
+              conversationId: conversation._id,
+              messages: await conversation.getRecentMessages(),
+            });
+          }
+          return;
+        }
+      } catch (loopErr) {
+        logger.error(`Error in bot loop detection (IG): ${loopErr.message}`);
+      }
+
       // Check limits & credits
       const user = await User.findById(igAccount.user).select('+usage +subscription');
       const Plan = require('../models/Plan');

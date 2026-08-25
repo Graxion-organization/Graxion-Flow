@@ -216,6 +216,34 @@ async function handleFacebookMessage(event, fbAccount, agent) {
         return;
       }
 
+      // Detect Bot Loop (Rate Limiter: max 10 messages per minute per conversation)
+      try {
+        const redis = require('../config/redis').redis;
+        const loopKey = `bot_loop_fb:${conversation._id}`;
+        const msgCount = await redis.incr(loopKey);
+        if (msgCount === 1) await redis.expire(loopKey, 60);
+        
+        if (msgCount > 10) {
+          logger.warn(`[BOT LOOP DETECTED] Facebook Conversation ${conversation._id} exceeded 10 msgs/min. Pausing AI.`);
+          if (conversation.status !== 'human_handoff') {
+            conversation.status = 'human_handoff';
+            await conversation.addMessage({
+              role: 'system',
+              content: 'System: 🔴 AUTOMATIC BOT LOOP DETECTED. Rate limit exceeded (>10 messages per minute). AI Agent has been paused for safety. Admin must manually re-enable AI for this chat.',
+              timestamp: new Date(),
+            });
+            await conversation.save();
+            emitToUser(fbAccount.user.toString(), 'conversation_updated', {
+              conversationId: conversation._id,
+              messages: await conversation.getRecentMessages(),
+            });
+          }
+          return;
+        }
+      } catch (loopErr) {
+        logger.error(`Error in bot loop detection (FB): ${loopErr.message}`);
+      }
+
       // AI Response Logic & Credit Checks
       const user = await User.findById(fbAccount.user).select('+usage +subscription');
       const Plan = require('../models/Plan');
