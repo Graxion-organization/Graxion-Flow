@@ -170,7 +170,7 @@ export default function DashboardLayout() {
   const notifRef = useRef(null);
   const userMenuRef = useRef(null);
   const quickActionRef = useRef(null);
-  const { user, logout } = useAuthStore();
+  const { user, logout, fetchUser } = useAuthStore();
   const { currentOrganization, organizations, addOrganization, setCurrentOrganization: setGlobalCurrentOrg } = useOrganizationStore();
   const { branding, fetchBranding } = useBrandingStore();
   const navigate = useNavigate();
@@ -181,6 +181,11 @@ export default function DashboardLayout() {
   useEffect(() => {
     fetchBranding().catch(() => {});
   }, [fetchBranding]);
+
+  // Sync usage limits and user profile dynamically across navigation
+  useEffect(() => {
+    fetchUser().catch(() => {});
+  }, [fetchUser, location.pathname]);
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'hi' : 'en';
