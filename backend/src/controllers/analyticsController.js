@@ -318,10 +318,26 @@ exports.getAgencyOverview = async (req, res, next) => {
     // Sort by messages descending
     organizationMetrics.sort((a, b) => b.messages - a.messages);
 
+    // Calculate exact quota usage for the current billing cycle to match sum of orgs
+    const trueCurrentQuotaStats = await Conversation.aggregate([
+      { $match: { 
+          organization: { $in: orgIds },
+          ...(req.user.subscription?.currentPeriodStart ? { createdAt: { $gte: new Date(req.user.subscription.currentPeriodStart) } } : {}) 
+      }},
+      { $group: { _id: null, totalMessages: { $sum: '$totalMessages' } } }
+    ]);
+    const trueCurrentMessagesUsed = trueCurrentQuotaStats.length ? trueCurrentQuotaStats[0].totalMessages : 0;
+
+    // Resync user's usage if it's wildly out of sync to prevent premature blocking
+    if (req.user.usage.messagesThisMonth > trueCurrentMessagesUsed) {
+      req.user.usage.messagesThisMonth = trueCurrentMessagesUsed;
+      await req.user.save();
+    }
+
     const limits = await req.user.getPlanLimits();
     const globalQuota = {
       messagesLimit: limits.messages || 0,
-      messagesUsed: req.user.usage.messagesThisMonth || totalAgencyMessages,
+      messagesUsed: trueCurrentMessagesUsed,
       creditsTotal: req.user.subscription?.totalCredits || 0,
       creditsUsed: req.user.usage?.agentCreditsUsedThisMonth || 0,
     };
