@@ -193,8 +193,8 @@ const SidebarStatusWidget = ({ user, isDark, isSidebarCollapsed }) => {
   }
 
   // Quota Logic
-  const usedMessages = user.usage?.messagesThisMonth || 0;
-  const limitMessages = user.subscription?.messageLimit || 1000;
+  const usedMessages = user?.usage?.messagesThisMonth || 0;
+  const limitMessages = user?.subscription?.messageLimit || 1000;
   const usagePercent = Math.min((usedMessages / Math.max(limitMessages, 1)) * 100, 100);
   const isNearLimit = usagePercent > 80;
   const isOverLimit = usagePercent >= 100;
