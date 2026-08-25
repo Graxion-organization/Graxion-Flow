@@ -148,8 +148,7 @@ function NotificationItem({ notif, onNavigate, isDark }) {
   );
 }
 
-const SubscriptionBanner = () => {
-  const { user, isDark } = useAuth();
+const SubscriptionBanner = ({ user, isDark }) => {
   const navigate = useNavigate();
 
   if (!user?.subscription) return null;
@@ -606,7 +605,7 @@ export default function DashboardLayout() {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <SubscriptionBanner />
+        <SubscriptionBanner user={user} isDark={isDark} />
         <header className={`relative z-30 px-4 lg:px-6 py-3 border-b backdrop-blur-2xl transition-colors ${isDark ? "bg-[#0b101e]/80 border-white/5" : "bg-white/80 border-slate-200/80"}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
