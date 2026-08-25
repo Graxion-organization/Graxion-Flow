@@ -37,7 +37,8 @@ import {
   FileText,
   Shield,
   DollarSign,
-  Search
+  Search,
+  Server
 } from "lucide-react";
 import { getSocket } from "../../utils/socket";
 import { useAuthStore, useNotificationStore, useOrganizationStore, useBrandingStore } from "../../store";
@@ -107,6 +108,7 @@ const SIDEBAR_GROUPS = [
       { to: "/app/partner-dashboard", icon: DollarSign, label: "Sales Partner", minRole: "sales_partner" },
       { to: "/app/settings", icon: Settings, label: "Settings", minRole: "viewer" },
       { to: "/app/billing", icon: CreditCard, label: "Billing", minRole: "viewer" },
+      { to: "/app/superadmin", icon: Server, label: "System Admin", minRole: "superadmin" },
     ]
   }
 ];

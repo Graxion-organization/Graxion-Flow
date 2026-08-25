@@ -248,6 +248,9 @@ app.use('/api/facebook', facebookRoutes);
 app.use('/api/agents', agentRoutes);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/billing', billingRoutes);
+
+const superAdminRoutes = require('./routes/superAdminRoutes');
+app.use('/api/superadmin', superAdminRoutes);
 app.use('/api/youtube', require('./routes/youtubeRoutes'));
 app.use('/api/social-hub', socialHubRoutes);
 app.use('/api/post-automations', require('./routes/postAutomationRoutes'));

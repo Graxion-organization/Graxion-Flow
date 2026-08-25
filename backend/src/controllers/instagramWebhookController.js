@@ -6,6 +6,8 @@ const Conversation = require('../models/Conversation');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 const { emitToUser, emitNotification } = require('../utils/socket');
+const TranscriptionService = require('../services/transcriptionService');
+const rateLimitService = require('../services/rateLimitService');
 const creditHelper = require('../utils/creditHelper');
 const webhookQueue = require('../utils/webhookQueue');
 const SystemSetting = require('../models/SystemSetting');
@@ -211,6 +213,9 @@ async function handleInstagramDM(event, igAccount, agent) {
           await conversation.save();
         }
       }
+
+      // Record Webhook Usage
+      await rateLimitService.recordWebhook(igAccount.user, 'instagram');
 
       // Deduplicate using Redis atomic lock to prevent double replies on Meta retries
       let isDuplicate = false;
@@ -429,6 +434,18 @@ async function handleInstagramDM(event, igAccount, agent) {
       if (!enabled) {
         logger.info(`[RENDER_LOG] [INSTAGRAM_DM] Bot is disabled in settings for account: ${igAccount.igUsername}. Skipping AI.`);
         logger.info(`[IG DM SKIP]: Messenger bot is disabled for account: ${igAccount.igUsername}`);
+        return;
+      }
+
+      // --- Rate Limit Check ---
+      const isAllowed = await rateLimitService.checkAndRecordApiCall(igAccount.user, 'instagram');
+      if (!isAllowed) {
+        logger.warn(`Rate limit exceeded for user ${igAccount.user} on instagram`);
+        await conversation.addMessage({
+          role: 'system',
+          content: 'System: 🔴 Message limit exceeded. Automated responses paused.',
+          timestamp: new Date(),
+        });
         return;
       }
 
