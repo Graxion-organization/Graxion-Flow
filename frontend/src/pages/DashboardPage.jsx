@@ -53,7 +53,8 @@ export default function DashboardPage() {
   const { globalQuota, organizations } = data || { globalQuota: {}, organizations: [] };
   const messagesLimit = globalQuota?.messagesLimit || 1000;
   const messagesUsed = globalQuota?.messagesUsed || 0;
-  const usagePercent = Math.min(Math.round((messagesUsed / Math.max(messagesLimit, 1)) * 100), 100);
+  const displayPercent = Math.round((messagesUsed / Math.max(messagesLimit, 1)) * 100);
+  const usagePercent = Math.min(displayPercent, 100);
 
   const totalOrgs = organizations?.length || 0;
   const totalTokens = organizations?.reduce((acc, org) => acc + (org.tokens || 0), 0) || 0;
@@ -67,7 +68,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-10">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between">
         <div>
           <h1 className={`text-2xl font-extrabold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
             Agency Command Center
@@ -77,12 +78,12 @@ export default function DashboardPage() {
           </p>
         </div>
         
-        <div className={`flex rounded-xl border overflow-hidden ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
+        <div className={`mt-0.5 flex rounded-xl border overflow-hidden ${isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-slate-50'}`}>
           {['current', 'all'].map(tf => (
             <button key={tf} onClick={() => setTimeframe(tf)}
               className={`px-3 py-1.5 text-xs font-semibold transition-all ${timeframe === tf
-                ? 'bg-[#FF6A00] text-white'
-                : isDark ? 'text-slate-300 hover:bg-white/10' : 'text-slate-600 hover:bg-slate-50'}`}>
+                ? (isDark ? 'bg-slate-700 text-white' : 'bg-slate-200 text-slate-900')
+                : (isDark ? 'text-slate-400 hover:bg-white/5 hover:text-slate-300' : 'text-slate-500 hover:bg-white hover:text-slate-700')}`}>
               {tf === 'current' ? 'Current Billing Cycle' : 'All Time'}
             </button>
           ))}
@@ -94,13 +95,13 @@ export default function DashboardPage() {
         <div className={`flex items-start gap-3 p-4 rounded-xl border ${usagePercent >= 100
           ? (isDark ? 'bg-rose-500/10 border-rose-500/30' : 'bg-rose-50 border-rose-200')
           : (isDark ? 'bg-amber-500/10 border-amber-500/30' : 'bg-amber-50 border-amber-200')}`}>
-          <AlertCircle size={18} className={usagePercent >= 100 ? 'text-rose-400 mt-0.5' : 'text-amber-400 mt-0.5'} />
+          <AlertCircle size={18} className={displayPercent >= 100 ? 'text-rose-400 mt-0.5' : 'text-amber-400 mt-0.5'} />
           <div>
-            <h3 className={`text-sm font-bold ${usagePercent >= 100 ? 'text-rose-500' : 'text-amber-600'}`}>
-              {usagePercent >= 100 ? 'Quota Exceeded' : 'Approaching Global Limit'}
-            </h3>
-            <p className={`text-xs mt-1 ${usagePercent >= 100 ? 'text-rose-400' : 'text-amber-500'}`}>
-              Your agency has used {usagePercent}% of its global message quota. Consider upgrading your plan to avoid service interruption for your clients.
+            <h2 className={`text-sm font-bold ${displayPercent >= 100 ? 'text-rose-500' : 'text-amber-600'}`}>
+              {displayPercent >= 100 ? 'Quota Exceeded' : 'Approaching Global Limit'}
+            </h2>
+            <p className={`text-xs mt-1 ${displayPercent >= 100 ? 'text-rose-400' : 'text-amber-500'}`}>
+              Your agency has used {displayPercent}% of its global message quota. Consider upgrading your plan to avoid service interruption for your clients.
             </p>
           </div>
         </div>
@@ -148,11 +149,11 @@ export default function DashboardPage() {
         <div className={`p-5 rounded-2xl border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200'} flex flex-col justify-center`}>
           <div className="flex justify-between text-sm mb-2">
             <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>Global Quota</span>
-            <span className={`font-bold ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>{usagePercent}%</span>
+            <span className={`font-bold ${displayPercent > 100 ? 'text-rose-500' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>{displayPercent}%</span>
           </div>
           <div className={`h-2 rounded-full overflow-hidden ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}>
             <div 
-              className={`h-full rounded-full transition-all duration-500 ${usagePercent >= 90 ? 'bg-rose-500' : usagePercent >= 75 ? 'bg-amber-500' : 'bg-[#FF6A00]'}`}
+              className={`h-full rounded-full transition-all duration-500 ${displayPercent > 100 ? 'bg-rose-500' : displayPercent >= 90 ? 'bg-rose-500' : displayPercent >= 75 ? 'bg-amber-500' : 'bg-[#FF6A00]'}`}
               style={{ width: `${usagePercent}%` }} 
             />
           </div>

@@ -492,7 +492,7 @@ export default function DashboardLayout() {
             {filteredGroups.map((group, idx) => (
               <div key={idx} className="space-y-1">
                 {!isSidebarCollapsed && (
-                  <p className="px-3 mb-1.5 text-[10px] font-bold text-slate-400/80 uppercase tracking-[0.15em]">
+                  <p className="px-3 mb-1.5 text-[11px] font-bold text-slate-400">
                     {group.title}
                   </p>
                 )}
@@ -527,26 +527,6 @@ export default function DashboardLayout() {
               </div>
             ))}
           </nav>
-
-          {!isSidebarCollapsed && (
-            <div className={`p-4 border-t transition-colors ${isDark ? "border-white/5" : "border-slate-100"}`}>
-              <div className={`rounded-xl p-3 border ${isDark ? "bg-white/5 border-white/5" : "bg-slate-50 border-slate-200/50"}`}>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-medium text-slate-500">Plan limits</span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider ${isDark ? "bg-[#FF6A00]/20 text-[#FF6A00]" : "bg-[#FF6A00]/10 text-[#FF6A00]"}`}>
-                    {plan}
-                  </span>
-                </div>
-                <div className="flex justify-between text-[11px] mb-1.5 font-medium text-slate-400">
-                  <span>{usedMessages.toLocaleString()} msgs</span>
-                  <span>{limitMessages.toLocaleString()}</span>
-                </div>
-                <div className={`h-1.5 rounded-full overflow-hidden ${isDark ? "bg-white/10" : "bg-slate-200"}`}>
-                  <div className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-[#FF6A00] to-[#FF4500]" style={{ width: `${usagePercent}%` }} />
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </aside>
 
@@ -828,7 +808,7 @@ export default function DashboardLayout() {
                         </div>
                         <button
                           onClick={() => navigate('/app/billing')}
-                          className="text-xs font-bold text-orange-500 hover:underline shrink-0 text-left"
+                          className="px-3 py-1.5 rounded-lg bg-orange-500 text-white text-xs font-bold shadow hover:bg-orange-600 transition-colors shrink-0 text-center"
                         >
                           Billing Details ➔
                         </button>
