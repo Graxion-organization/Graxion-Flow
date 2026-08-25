@@ -309,9 +309,6 @@ class InstagramService {
       const chunks = InstagramService.splitMessage(text, 950);
       let lastResponse = null;
 
-      // 50% random chance to use swipe-to-reply feature
-      const useReplyTo = replyToMessageId && Math.random() > 0.5;
-
       for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
         if (!chunk.trim()) continue;
@@ -321,11 +318,6 @@ class InstagramService {
           recipient: { id: recipientId },
           message: { text: chunk },
         };
-
-        // Only attach reply_to to the very first chunk to avoid repeating quotes
-        if (useReplyTo && i === 0) {
-          payload.reply_to = { mid: replyToMessageId };
-        }
 
         lastResponse = await axios.post(
           `${this.baseUrl}/${endpointId}/messages`,
