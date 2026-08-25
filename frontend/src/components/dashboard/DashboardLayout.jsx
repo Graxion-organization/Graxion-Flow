@@ -148,6 +148,81 @@ function NotificationItem({ notif, onNavigate, isDark }) {
   );
 }
 
+const SubscriptionBanner = () => {
+  const { user, isDark } = useAuth();
+  const navigate = useNavigate();
+
+  if (!user?.subscription) return null;
+  if (user.subscription.plan === 'free') return null;
+  
+  const isPastDue = user.subscription.status === 'past_due';
+  const end = user.subscription.currentPeriodEnd;
+  const endMs = end ? new Date(end).getTime() : 0;
+  const nowMs = Date.now();
+  const timeDiff = endMs - nowMs;
+  
+  const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+  const isExpired = isPastDue || (end && timeDiff <= 0);
+
+  if (isExpired) {
+    return (
+      <div className="w-full px-4 py-2.5 bg-rose-600 border-b border-rose-700 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 z-50">
+        <div className="flex items-center gap-2 text-white">
+          <AlertTriangle size={16} />
+          <span className="text-xs font-semibold">Subscription Expired! Your workspaces and agents are disabled.</span>
+        </div>
+        <button onClick={() => navigate('/app/billing')} className="px-4 py-1.5 bg-white text-rose-600 rounded-md text-[11px] font-bold hover:bg-rose-50 transition-colors shadow-sm">
+          Renew Now
+        </button>
+      </div>
+    );
+  }
+
+  if (daysRemaining <= 1) {
+    return (
+      <div className="w-full px-4 py-2.5 bg-red-500 border-b border-red-600 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 z-50">
+        <div className="flex items-center gap-2 text-white">
+          <AlertTriangle size={16} />
+          <span className="text-xs font-semibold">Critical: Subscription expires in less than 24 hours.</span>
+        </div>
+        <button onClick={() => navigate('/app/billing')} className="px-4 py-1.5 bg-white text-red-600 rounded-md text-[11px] font-bold hover:bg-red-50 transition-colors shadow-sm">
+          Update Billing
+        </button>
+      </div>
+    );
+  }
+  
+  if (daysRemaining <= 3) {
+    return (
+      <div className="w-full px-4 py-2 bg-amber-500 border-b border-amber-600 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 z-50">
+        <div className="flex items-center gap-2 text-white">
+          <Info size={16} />
+          <span className="text-xs font-semibold">Your plan expires in {daysRemaining} days. Renew early to prevent automation pauses.</span>
+        </div>
+        <button onClick={() => navigate('/app/billing')} className="px-4 py-1 bg-white text-amber-600 rounded-md text-[11px] font-bold hover:bg-amber-50 transition-colors shadow-sm">
+          Renew Plan
+        </button>
+      </div>
+    );
+  }
+  
+  if (daysRemaining <= 7) {
+    return (
+      <div className={`w-full px-4 py-2 border-b flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 z-50 ${isDark ? 'bg-orange-500/20 border-orange-500/30 text-orange-200' : 'bg-orange-50 border-orange-200 text-orange-800'}`}>
+        <div className="flex items-center gap-2">
+          <Info size={16} className={isDark ? 'text-orange-400' : 'text-orange-600'} />
+          <span className="text-xs font-semibold">Your plan expires in {daysRemaining} days.</span>
+        </div>
+        <button onClick={() => navigate('/app/billing')} className={`px-4 py-1 rounded-md text-[11px] font-bold transition-colors shadow-sm ${isDark ? 'bg-orange-500 text-white hover:bg-orange-600' : 'bg-orange-100 text-orange-800 hover:bg-orange-200'}`}>
+          Billing Details
+        </button>
+      </div>
+    );
+  }
+  
+  return null;
+};
+
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -531,6 +606,7 @@ export default function DashboardLayout() {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
+        <SubscriptionBanner />
         <header className={`relative z-30 px-4 lg:px-6 py-3 border-b backdrop-blur-2xl transition-colors ${isDark ? "bg-[#0b101e]/80 border-white/5" : "bg-white/80 border-slate-200/80"}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -680,145 +756,7 @@ export default function DashboardLayout() {
               </div>
             ) : (
               <div className="space-y-6">
-                {/* Subscription Expiry Warning Banner */}
-                {(() => {
-                  if (!user?.subscription) return null;
-                  
-                  const isPastDue = user.subscription.status === 'past_due';
-                  
-                  // If expired
-                  if (isPastDue) {
-                    return (
-                      <div className="p-4 sm:p-5 rounded-2xl bg-rose-600/10 border border-rose-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-pulse">
-                        <div className="flex items-start sm:items-center gap-3">
-                          <div className="p-2 bg-rose-500 rounded-xl text-white shrink-0">
-                            <AlertTriangle size={20} />
-                          </div>
-                          <div>
-                            <h4 className="font-extrabold text-rose-500 text-sm">Subscription / Trial Expired!</h4>
-                            <p className={`text-xs mt-1 ${isDark ? 'text-rose-200/80' : 'text-rose-800/80'}`}>
-                              Your active workspace and all automatic agents are currently disabled. Renew your subscription immediately to resume operations.
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => navigate('/app/billing')}
-                          className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all shrink-0 active:scale-95"
-                        >
-                          Renew / Upgrade Plan
-                        </button>
-                      </div>
-                    );
-                  }
-
-                  if (user.subscription.plan === 'free') return null;
-                  
-                  const end = user.subscription.currentPeriodEnd;
-                  if (!end) return null;
-                  
-                  const endMs = new Date(end).getTime();
-                  const nowMs = Date.now();
-                  const timeDiff = endMs - nowMs;
-                  
-                  if (timeDiff <= 0) {
-                    return (
-                      <div className="p-4 sm:p-5 rounded-2xl bg-rose-600/10 border border-rose-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-pulse">
-                        <div className="flex items-start sm:items-center gap-3">
-                          <div className="p-2 bg-rose-500 rounded-xl text-white shrink-0">
-                            <AlertTriangle size={20} />
-                          </div>
-                          <div>
-                            <h4 className="font-extrabold text-rose-500 text-sm">Subscription / Trial Expired!</h4>
-                            <p className={`text-xs mt-1 ${isDark ? 'text-rose-200/80' : 'text-rose-800/80'}`}>
-                              Your active workspace and all automatic agents are currently disabled. Renew your subscription immediately to resume operations.
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => navigate('/app/billing')}
-                          className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all shrink-0 active:scale-95"
-                        >
-                          Renew / Upgrade Plan
-                        </button>
-                      </div>
-                    );
-                  }
-
-                  const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-                  
-                  // If expiring in 1 day (Last Day / Today)
-                  if (daysRemaining <= 1) {
-                    return (
-                      <div className="p-4 sm:p-5 rounded-2xl bg-red-600/10 border border-red-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-bounce">
-                        <div className="flex items-start sm:items-center gap-3">
-                          <div className="p-2 bg-red-500 rounded-xl text-white shrink-0">
-                            <AlertTriangle size={20} />
-                          </div>
-                          <div>
-                            <h4 className="font-extrabold text-red-500 text-sm">Critical Alert: Expiry Today!</h4>
-                            <p className={`text-xs mt-1 ${isDark ? 'text-red-200/80' : 'text-red-800/80'}`}>
-                              Your subscription/trial will expire in less than 24 hours. Your workspaces will be suspended. Please update billing now!
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => navigate('/app/billing')}
-                          className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shrink-0 active:scale-95 shadow-lg shadow-red-500/20"
-                        >
-                          Extend Subscription
-                        </button>
-                      </div>
-                    );
-                  }
-                  
-                  // If expiring in 3 days
-                  if (daysRemaining <= 3) {
-                    return (
-                      <div className="p-4 sm:p-5 rounded-2xl bg-amber-600/10 border border-amber-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex items-start sm:items-center gap-3">
-                          <div className="p-2 bg-amber-500 rounded-xl text-white shrink-0">
-                            <Info size={20} />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-amber-500 text-sm">Subscription Expiring Soon</h4>
-                            <p className={`text-xs mt-1 ${isDark ? 'text-amber-200/80' : 'text-amber-800/80'}`}>
-                              Your current plan expires in {daysRemaining} days. Renew your subscription early to prevent automation pauses.
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => navigate('/app/billing')}
-                          className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shrink-0 active:scale-95"
-                        >
-                          Renew Plan
-                        </button>
-                      </div>
-                    );
-                  }
-                  
-                  // If expiring in 7 days
-                  if (daysRemaining <= 7) {
-                    return (
-                      <div className="p-5 rounded-xl bg-orange-500/10 border border-orange-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex items-start sm:items-center gap-2">
-                          <Info size={18} className="text-orange-500 shrink-0" />
-                          <p className={`text-sm ${isDark ? 'text-orange-300' : 'text-orange-800'}`}>
-                            Your plan expires in {daysRemaining} days. You can renew your subscription anytime from Settings.
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => navigate('/app/billing')}
-                          className="px-3 py-1.5 rounded-lg bg-orange-500 text-white text-xs font-bold shadow hover:bg-orange-600 transition-colors shrink-0 text-center"
-                        >
-                          Billing Details ➔
-                        </button>
-                      </div>
-                    );
-                  }
-                  
-                  return null;
-                })()}
-                
+                {/* Removed inner banner, moved to top of layout */}
                 <Outlet key={currentOrganization._id} context={{ onboardingStatus }} />
               </div>
             )}
