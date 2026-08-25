@@ -313,28 +313,51 @@ class InstagramService {
         const chunk = chunks[i];
         if (!chunk.trim()) continue;
         
-        const payload = {
+        let payload = {
           messaging_type: 'RESPONSE',
           recipient: { id: recipientId },
           message: { text: chunk },
         };
 
-        lastResponse = await axios.post(
-          `${this.baseUrl}/${endpointId}/messages`,
-          payload,
-          {
-            params: { access_token: this.accessToken },
+        // Attach reply_to only to the very first chunk
+        if (replyToMessageId && i === 0) {
+          payload.reply_to = { mid: replyToMessageId };
+        }
+
+        try {
+          lastResponse = await axios.post(
+            `${this.baseUrl}/${endpointId}/messages`,
+            payload,
+            {
+              params: { access_token: this.accessToken },
+            }
+          );
+        } catch (innerError) {
+          // Fallback: If Meta rejects the message because of reply_to, retry without it
+          if (replyToMessageId && i === 0) {
+            delete payload.reply_to;
+            lastResponse = await axios.post(
+              `${this.baseUrl}/${endpointId}/messages`,
+              payload,
+              {
+                params: { access_token: this.accessToken },
+              }
+            );
+          } else {
+            throw innerError;
           }
-        );
+        }
+        
         // Small delay to ensure sequential delivery on Meta's servers
         await new Promise(resolve => setTimeout(resolve, 100));
       }
       
       return lastResponse ? lastResponse.data : null;
     } catch (error) {
-      const errDetail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
-      logger.error(`Instagram sendTextMessage error: ${errDetail}`);
-      throw error;
+      if (error.response) {
+        throw new Error(`Failed to send text message: ${error.response.data.error?.message || error.message}`);
+      }
+      throw new Error(`Failed to send text message: ${error.message}`);
     }
   }
 

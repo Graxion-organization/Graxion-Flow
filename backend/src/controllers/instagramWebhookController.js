@@ -437,6 +437,8 @@ async function handleInstagramDM(event, igAccount, agent) {
       if (matchedTrigger && matchedTrigger.action === 'SEND_MESSAGE') {
         logger.info(`[KEYWORD TRIGGER] Matched trigger ${matchedTrigger._id} for Instagram DM from ${senderId}`);
         let sentMsg;
+        const shouldQuote = Math.random() > 0.5;
+        const targetMessageId = shouldQuote ? messageId : null;
         if (matchedTrigger.mediaType === 'image' && matchedTrigger.mediaUrl) {
           sentMsg = await igService.sendImageMessage(igAccount.igAccountId, senderId, matchedTrigger.mediaUrl);
         } else if (matchedTrigger.mediaType === 'video' && matchedTrigger.mediaUrl) {
@@ -444,13 +446,13 @@ async function handleInstagramDM(event, igAccount, agent) {
         } else if (matchedTrigger.mediaType === 'audio' && matchedTrigger.mediaUrl) {
           sentMsg = await igService.sendAudioMessage(igAccount.igAccountId, senderId, matchedTrigger.mediaUrl);
         } else {
-          sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, matchedTrigger.response, messageId);
+          sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, matchedTrigger.response, targetMessageId);
         }
         logger.info('[FLOW] Message res send hua: Keyword trigger response sent successfully');
 
         // If caption provided with media on instagram, we must send a separate text message since the API does not support captions in attachment directly
         if (matchedTrigger.mediaType !== 'none' && matchedTrigger.response) {
-            await igService.sendTextMessage(igAccount.igAccountId, senderId, matchedTrigger.response, messageId);
+            await igService.sendTextMessage(igAccount.igAccountId, senderId, matchedTrigger.response, targetMessageId);
         }
 
         await conversation.addMessage({
@@ -531,7 +533,8 @@ async function handleInstagramDM(event, igAccount, agent) {
         if (wantsVoice && (!audioSent || !instagramAudioEnabled)) {
             logger.info(`[RENDER_LOG] [INSTAGRAM_DM] Voice generation failed or disabled. Falling back to text message.`);
         }
-        sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, cleanReply || "I am currently unable to process that request.", messageId);
+        const shouldQuote = Math.random() > 0.5;
+        sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, cleanReply || "I am currently unable to process that request.", shouldQuote ? messageId : null);
         logger.info(`[RENDER_LOG] [INSTAGRAM_DM] Successfully sent text message reply to Instagram user.`);
         logger.info('[FLOW] Message res send hua: Text response sent successfully');
       }

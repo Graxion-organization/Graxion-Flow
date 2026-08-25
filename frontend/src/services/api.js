@@ -249,7 +249,7 @@ export const conversationAPI = {
   getAll: (params) => api.get('/conversations', { params }),
   getOne: (id) => api.get(`/conversations/${id}`),
   getMessages: (id, params) => api.get(`/conversations/${id}/messages`, { params }),
-  reply: (id, message) => api.post(`/conversations/${id}/reply`, { message }),
+  reply: (id, message, replyToMessageId = null) => api.post(`/conversations/${id}/reply`, { message, replyToMessageId }),
   close: (id) => api.patch(`/conversations/${id}/close`),
   getStats: () => api.get('/conversations/stats'),
   getLeads: (params) => api.get('/conversations/leads', { params }),

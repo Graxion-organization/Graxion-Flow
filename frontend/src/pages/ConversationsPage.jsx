@@ -24,7 +24,7 @@ const StatusIndicator = ({ status }) => {
   return <div className="w-2 h-2 rounded-full bg-gray-300"></div>;
 };
 
-function MessageBubble({ msg, platform, isDark }) {
+function MessageBubble({ msg, platform, isDark, onReply }) {
   const isBot = msg.role === 'assistant';
   const isSystem = msg.role === 'system';
 
@@ -50,8 +50,17 @@ function MessageBubble({ msg, platform, isDark }) {
       initial={{ opacity: 0, y: 8, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
-      className={`flex ${isBot ? 'justify-end' : 'justify-start'} mb-2`}
+      className={`flex ${isBot ? 'justify-end' : 'justify-start'} mb-2 group`}
     >
+      {!isBot && onReply && (
+        <button
+          onClick={() => onReply(msg)}
+          className="opacity-0 group-hover:opacity-100 p-1.5 mr-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-400 dark:text-slate-400 self-center transition-all"
+          title="Reply"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 17 4 12 9 7"></polyline><path d="M20 18v-2a4 4 0 0 0-4-4H4"></path></svg>
+        </button>
+      )}
       <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm ${isBot ? `${userBgClass} rounded-br-sm` : `${'bg-gray-100 text-gray-800 dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-white/10'} rounded-bl-sm`}`}>
         <div className={`markdown-content text-sm leading-relaxed ${isBot ? 'prose-invert' : 'prose-gray'}`}>
           <ReactMarkdown
@@ -204,6 +213,7 @@ export default function ConversationsPage() {
   const [total, setTotal] = useState(0);
   const [showDetail, setShowDetail] = useState(false);
   const [replyMessage, setReplyMessage] = useState('');
+  const [replyingToMessage, setReplyingToMessage] = useState(null);
   const [sendingReply, setSendingReply] = useState(false);
   const [visibleMessagesCount, setVisibleMessagesCount] = useState(12);
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -398,8 +408,9 @@ export default function ConversationsPage() {
     
     setSendingReply(true);
     try {
-      await conversationAPI.reply(selected._id, replyMessage.trim());
+      await conversationAPI.reply(selected._id, replyMessage.trim(), replyingToMessage?.waMessageId);
       setReplyMessage('');
+      setReplyingToMessage(null);
       // Optimistic update is not strictly needed because the socket will instantly give us the conversation_updated event.
     } catch (err) {
       toast.error('Failed to send reply');
@@ -783,7 +794,7 @@ export default function ConversationsPage() {
                         </span>
                       </div>
                     )}
-                    {selected.messages?.slice(-visibleMessagesCount).map((msg, i) => <MessageBubble key={i} msg={msg} platform={selected.platform || 'whatsapp'}  />)}
+                    {selected.messages?.slice(-visibleMessagesCount).map((msg, i) => <MessageBubble key={i} msg={msg} platform={selected.platform || 'whatsapp'} isDark={isDark} onReply={setReplyingToMessage} />)}
                     
                     {typingConversations[selected._id] && (
                       <motion.div
@@ -858,7 +869,23 @@ export default function ConversationsPage() {
                       </button>
                     </div>
                   ) : (
-                    <form onSubmit={handleReply} className="px-5 pb-4 flex gap-2">
+                    <div className="flex flex-col">
+                      {replyingToMessage && (
+                        <div className={`mx-5 mt-3 mb-1 px-4 py-2 rounded-xl flex items-center justify-between border-l-4 ${theme.activeList} ${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'} text-xs relative`}>
+                          <div className="flex-1 min-w-0 pr-4">
+                            <p className="font-bold mb-0.5 capitalize">{replyingToMessage.role}</p>
+                            <p className="truncate text-gray-500 dark:text-slate-400">{replyingToMessage.content}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setReplyingToMessage(null)}
+                            className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-400 transition-colors"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      )}
+                      <form onSubmit={handleReply} className="px-5 pb-4 pt-2 flex gap-2">
                       <input
                         type="text"
                         value={replyMessage}
@@ -876,6 +903,7 @@ export default function ConversationsPage() {
                         <span className="hidden sm:inline">Send</span>
                       </button>
                     </form>
+                    </div>
                   )
                 )}
               </motion.div>

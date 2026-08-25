@@ -87,7 +87,7 @@ exports.getConversation = async (req, res, next) => {
 exports.replyToConversation = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { message } = req.body;
+    const { message, replyToMessageId } = req.body;
     if (!message) return next(new AppError('Message is required.', 400));
 
     const conversation = await Conversation.findOne({ _id: id, ...getBaseFilter(req) })
@@ -104,17 +104,17 @@ exports.replyToConversation = async (req, res, next) => {
       const waAccount = conversation.whatsappAccount;
       if (!waAccount) return next(new AppError('WhatsApp account not connected.', 400));
       const waService = new WhatsAppService(decrypt(waAccount.accessToken), waAccount.phoneNumberId);
-      sentMsg = await waService.sendTextMessage(conversation.customerPhone, message);
+      sentMsg = await waService.sendTextMessage(conversation.customerPhone, message, replyToMessageId);
     } else if (conversation.platform === 'telegram') {
       const tgAccount = conversation.telegramAccount;
       if (!tgAccount) return next(new AppError('Telegram account not connected.', 400));
       const tgService = new TelegramService(tgAccount.botToken);
-      sentMsg = await tgService.sendTextMessage(conversation.customerTgId, message);
+      sentMsg = await tgService.sendTextMessage(conversation.customerTgId, message, replyToMessageId);
     } else if (conversation.platform === 'instagram') {
       const igAccount = conversation.instagramAccount;
       if (!igAccount) return next(new AppError('Instagram account not connected.', 400));
       const igService = new InstagramService(igAccount.pageAccessToken, igAccount.pageId);
-      sentMsg = await igService.sendTextMessage(igAccount.igAccountId, conversation.customerIgId, message);
+      sentMsg = await igService.sendTextMessage(igAccount.igAccountId, conversation.customerIgId, message, replyToMessageId);
     } else if (conversation.platform === 'facebook') {
       let fbAccount = conversation.facebookAccount;
       if (!fbAccount) {
@@ -128,7 +128,7 @@ exports.replyToConversation = async (req, res, next) => {
       }
       if (!fbAccount) return next(new AppError('Facebook account not connected.', 400));
       const fbService = new FacebookService(fbAccount.pageAccessToken, fbAccount.pageId);
-      sentMsg = await fbService.sendTextMessage(conversation.customerFbId, message);
+      sentMsg = await fbService.sendTextMessage(conversation.customerFbId, message, replyToMessageId);
     } else {
       return next(new AppError('Unsupported platform.', 400));
     }
