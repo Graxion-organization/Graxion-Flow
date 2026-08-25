@@ -78,6 +78,12 @@ const CustomerPortal = lazy(() => import("./pages/CustomerPortal"));
 const QualityRatingPage = lazy(() => import("./pages/QualityRatingPage"));
 const TeamManagementPage = lazy(() => import("./pages/TeamManagementPage"));
 
+// Dedicated Enterprise Analytics Pages
+const InstagramAnalyticsPage = lazy(() => import("./pages/InstagramAnalyticsPage"));
+const YouTubeAnalyticsPage = lazy(() => import("./pages/YouTubeAnalyticsPage"));
+const FacebookAnalyticsPage = lazy(() => import("./pages/FacebookAnalyticsPage"));
+const WhatsAppAnalyticsPage = lazy(() => import("./pages/WhatsAppAnalyticsPage"));
+
 // Centered loading fallback design
 const LoadingFallback = () => (
   <div className="h-screen w-full bg-[#030712] flex items-center justify-center">
@@ -260,9 +266,15 @@ export default function App() {
             {/* <Route path="ai-presenter" element={<AIPresenterPage />} /> */}
             <Route path="leads" element={<LeadsDashboardPage />} />
             <Route path="deals" element={<DealsPipeline />} />
-            <Route path="whatsapp" element={<Navigate to="integrations" replace />} />
             <Route path="quality" element={<QualityRatingPage />} />
             <Route path="social-hub" element={<SocialPublishingPage />} />
+
+            {/* Platform Analytics Deep-Dives */}
+            <Route path="instagram" element={<InstagramAnalyticsPage />} />
+            <Route path="youtube" element={<YouTubeAnalyticsPage />} />
+            <Route path="facebook" element={<FacebookAnalyticsPage />} />
+            <Route path="whatsapp" element={<WhatsAppAnalyticsPage />} />
+            
             <Route path="billing" element={<BillingPage />} />
             <Route path="partner-dashboard" element={<SalesPartnerDashboard />} />
             <Route path="team" element={<TeamManagementPage />} />
