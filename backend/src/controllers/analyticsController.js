@@ -319,10 +319,11 @@ exports.getAgencyOverview = async (req, res, next) => {
     organizationMetrics.sort((a, b) => b.messages - a.messages);
 
     // Calculate exact quota usage for the current billing cycle to match sum of orgs
+    const currentQuotaStartDate = req.user.subscription?.currentPeriodStart || req.user.usage?.lastResetDate;
     const trueCurrentQuotaStats = await Conversation.aggregate([
       { $match: { 
           organization: { $in: orgIds },
-          ...(req.user.subscription?.currentPeriodStart ? { createdAt: { $gte: new Date(req.user.subscription.currentPeriodStart) } } : {}) 
+          ...(currentQuotaStartDate ? { createdAt: { $gte: new Date(currentQuotaStartDate) } } : {}) 
       }},
       { $group: { _id: null, totalMessages: { $sum: '$totalMessages' } } }
     ]);
