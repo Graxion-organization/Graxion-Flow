@@ -112,16 +112,11 @@ class SocialMediaHubService {
             }));
           case 'facebook':
             const fbService = new FacebookService(p.accessToken, p.pageId);
-            posts = await fbService.getMedia();
+            posts = await fbService.getPagePosts();
             return posts.map(post => {
-              // Extract media URL and type from attachments if available
-              let mediaUrl = null;
-              let type = post.type;
-              if (post.attachments && post.attachments.data && post.attachments.data.length > 0) {
-                const attachment = post.attachments.data[0];
-                mediaUrl = attachment.media?.image?.src || attachment.url;
-                if (!type) type = attachment.type;
-              }
+              // Extract media URL from full_picture
+              let mediaUrl = post.full_picture || null;
+              let type = post.status_type === 'added_video' ? 'video' : (mediaUrl ? 'image' : 'text');
 
               return {
                 id: post.id,
