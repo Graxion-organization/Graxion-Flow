@@ -40,10 +40,7 @@ function MessageBubble({ msg, platform, isDark, onReply, quotedMsg }) {
     );
   }
 
-  let userBgClass = 'bg-whatsapp text-white';
-  if (platform === 'instagram') userBgClass = 'bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white';
-  if (platform === 'facebook') userBgClass = 'bg-[#1877F2] text-white';
-  if (platform === 'telegram') userBgClass = 'bg-[#229ED9] text-white';
+  let userBgClass = 'bg-[#FF6A00] text-white shadow-sm';
 
   return (
     <motion.div
@@ -93,6 +90,7 @@ function MessageBubble({ msg, platform, isDark, onReply, quotedMsg }) {
           </ReactMarkdown>
         </div>
         <div className={`flex items-center justify-end gap-1 text-[10px] mt-1.5 ${isBot ? 'text-white/80' : ('text-gray-400 dark:text-slate-400')}`}>
+          {isBot && <Bot size={10} className="mr-0.5 opacity-80" />}
           <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
           {msg.tokens && <span> · {msg.tokens} tokens</span>}
           {isBot && (
@@ -584,7 +582,7 @@ export default function ConversationsPage() {
           <div className={`p-4 border-b space-y-3 shrink-0 ${sectionBorder}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h2 className={`font-bold text-lg tracking-tight ${titleClass}`}>Chats</h2>
+                <h1 className={`font-bold text-lg tracking-tight ${titleClass}`}>Chats</h1>
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${'bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-slate-200'}`}>{total}</span>
               </div>
               <button onClick={() => setIsFullScreen(!isFullScreen)} className={`p-1.5 rounded-lg transition-colors ${'text-gray-500 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-white/10'}`} title="Toggle Full Screen">
@@ -653,7 +651,7 @@ export default function ConversationsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.18, delay: Math.min(index * 0.015, 0.18) }}
                     onClick={() => selectConversation(conv)}
-                    className={`w-full text-left px-4 py-3.5 border-b transition-all duration-200 ${'border-gray-50 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5'}
+                    className={`w-full text-left px-3 py-2.5 border-b transition-all duration-200 ${'border-gray-50 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5'}
                       ${selected?._id === conv._id ? `${itemTheme.activeList} border-l-2` : 'border-l-2 border-l-transparent'}
                       ${!conv.isRead ? ('font-semibold bg-gray-50/50 dark:font-semibold dark:bg-white/5') : ''}`}
                   >
@@ -731,13 +729,13 @@ export default function ConversationsPage() {
                 <div className="flex items-center gap-2">
                   {/* Status Toggle */}
                   {selected.status !== 'closed' && (
-                    <div className={`flex p-0.5 rounded-xl border ${'bg-gray-100 border-gray-200 dark:bg-white/10 dark:border-white/10'}`}>
+                    <div className="flex p-0.5 rounded-xl bg-gray-200/50 dark:bg-black/20 border border-gray-200/50 dark:border-white/5">
                       <button
                         onClick={() => handleToggleStatus(selected._id, 'active')}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                           selected.status === 'active' 
-                            ? ('bg-white text-[#FF6A00] shadow-sm dark:bg-slate-800 dark:text-[#FF6A00] dark:shadow-sm') 
-                            : ('text-gray-500 hover:text-gray-700 dark:text-slate-300 dark:hover:text-white')
+                            ? 'bg-white shadow-sm text-[#FF6A00] dark:bg-slate-700 dark:text-[#FF6A00]' 
+                            : 'text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200'
                         }`}
                         title="AI Agent Mode"
                       >
@@ -748,8 +746,8 @@ export default function ConversationsPage() {
                         onClick={() => handleToggleStatus(selected._id, 'human_handoff')}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                           selected.status === 'human_handoff' 
-                            ? ('bg-white text-amber-600 shadow-sm dark:bg-slate-800 dark:text-amber-400 dark:shadow-sm') 
-                            : ('text-gray-500 hover:text-gray-700 dark:text-slate-300 dark:hover:text-white')
+                            ? 'bg-white shadow-sm text-blue-600 dark:bg-slate-700 dark:text-blue-400' 
+                            : 'text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200'
                         }`}
                         title="Human Mode"
                       >
@@ -866,7 +864,7 @@ export default function ConversationsPage() {
                 transition={{ duration: 0.2 }}
                 className={`border-t shrink-0 z-10 ${'bg-white border-gray-100 dark:bg-slate-900/70 dark:border-white/10'}`}
               >
-                <div className={`px-5 py-2 flex items-center justify-between text-[11px] ${subtleClass}`}>
+                <div className={`px-5 py-2 flex items-center justify-between text-xs ${subtleClass}`}>
                   <span>Messages: {selected.totalMessages} - Tokens: {selected.totalTokensUsed || 0}</span>
                   {selected.agent && <span>Agent: {selected.agent.name}</span>}
                 </div>
