@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Camera, Plus, Trash2, Loader2, X, Zap, MessageCircle } from 'lucide-react';
+import { Camera, Plus, Trash2, Loader2, X, Zap, MessageCircle, CheckCircle } from 'lucide-react';
 import { instagramAPI } from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -104,6 +104,7 @@ export default function InstagramPage() {
   const [showAddPanel, setShowAddPanel] = useState(false);
   const [showManual, setShowManual] = useState(false);
   const [autoConnecting, setAutoConnecting] = useState(false);
+  const [showSuccessSteps, setShowSuccessSteps] = useState(false);
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
 
   useEffect(() => {
@@ -132,6 +133,7 @@ export default function InstagramPage() {
     });
     setShowAddPanel(false);
     setShowManual(false);
+    setShowSuccessSteps(true);
   };
 
   const handleAutoConnect = async (accessToken) => {
@@ -150,6 +152,7 @@ export default function InstagramPage() {
       });
       setShowAddPanel(false);
       setShowManual(false);
+      setShowSuccessSteps(true);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Auto-connect failed');
     } finally {
@@ -247,6 +250,46 @@ export default function InstagramPage() {
               <CommentBotSettings account={acc} onUpdate={fetchAccounts} />
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Success Steps Modal */}
+      {showSuccessSteps && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className={`w-full max-w-lg rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-slate-900 border border-slate-800' : 'bg-white'}`}>
+            {/* Header */}
+            <div className="text-center mb-6">
+              <div className="mx-auto w-16 h-16 bg-emerald-100 dark:bg-emerald-500/20 rounded-full flex items-center justify-center mb-4">
+                <CheckCircle className="w-8 h-8 text-emerald-500" />
+              </div>
+              <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Connection Complete!</h2>
+              <p className={`mt-2 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
+                Your Instagram profile is successfully connected. Please complete the final step below so the bot can read messages.
+              </p>
+            </div>
+
+            {/* Instruction Steps */}
+            <div className={`p-4 rounded-xl mb-6 ${isDark ? 'bg-slate-800/50 border border-slate-700/50' : 'bg-gray-50 border border-gray-100'}`}>
+              <h3 className={`font-semibold mb-3 ${isDark ? 'text-slate-200' : 'text-gray-800'}`}>Required Action (1 Minute)</h3>
+              <ol className={`space-y-3 text-sm list-decimal list-inside ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
+                <li>Open the <strong>Instagram app</strong> on your phone.</li>
+                <li>Go to your <strong>Profile page</strong> and tap the <strong>3 lines menu</strong> (top right).</li>
+                <li>Scroll down and tap <strong>Messages and story replies</strong>.</li>
+                <li>Tap <strong>Message controls</strong>.</li>
+                <li>Under "Connected tools", turn ON <strong>Allow access to messages</strong> (Select <strong>Everyone</strong>).</li>
+              </ol>
+            </div>
+
+            {/* Action */}
+            <button
+              onClick={() => setShowSuccessSteps(false)}
+              className="w-full py-3.5 rounded-xl text-white font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+              style={{ background: '#FF6A00' }}
+            >
+              <CheckCircle size={18} />
+              I have turned it ON - OK
+            </button>
+          </div>
         </div>
       )}
     </div>
