@@ -3,6 +3,7 @@ import { Check, Zap, Crown, Building2, Loader2, CreditCard, AlertCircle, Send } 
 import api, { billingAPI } from '../services/api';
 import { useAuthStore, useBrandingStore } from '../store';
 import toast from 'react-hot-toast';
+import CustomQuoteModal from '../components/dashboard/CustomQuoteModal';
 
 const PLAN_ICONS = { starter: Zap, pro: Crown, enterprise: Building2 };
 const PLAN_FEATURES = {
@@ -23,8 +24,7 @@ export default function BillingPage() {
   const [creditsPage, setCreditsPage] = useState(1);
   const [creditsTotal, setCreditsTotal] = useState(0);
   const [loadingCredits, setLoadingCredits] = useState(false);
-  const [customQuoteStatus, setCustomQuoteStatus] = useState('idle');
-  const [customQuoteMsg, setCustomQuoteMsg] = useState('');
+  const [isCustomQuoteModalOpen, setIsCustomQuoteModalOpen] = useState(false);
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
   const { user, fetchUser } = useAuthStore();
   const { branding } = useBrandingStore();
@@ -70,24 +70,6 @@ export default function BillingPage() {
       setCreditsPage(nextPage);
       setCreditsTotal(r.data.data.total || 0);
     }).finally(() => setLoadingCredits(false));
-  };
-
-  const handleCustomQuote = async (e) => {
-    e.preventDefault();
-    setCustomQuoteStatus('sending');
-    try {
-      await api.post('/public/contact', {
-        name: user?.name || 'Dashboard User',
-        email: user?.email || 'Unknown',
-        subject: 'Enterprise Plan Request (20+ Orgs)',
-        message: customQuoteMsg || 'I am interested in a custom enterprise plan for more than 20 organizations.'
-      });
-      setCustomQuoteStatus('success');
-      toast.success('Request sent successfully! Our team will contact you soon.');
-    } catch (err) {
-      setCustomQuoteStatus('idle');
-      toast.error('Failed to send request. Please try again.');
-    }
   };
 
   const handleUpgrade = async (planId) => {
@@ -306,29 +288,12 @@ export default function BillingPage() {
           <h3 className="text-2xl font-bold text-white mb-2">Custom Enterprise Solutions</h3>
           <p className="text-slate-300 mb-6 text-sm">Need more than 20 organizations? Tell us your requirements and our team will get back to you with custom volume pricing.</p>
           
-          {customQuoteStatus === 'success' ? (
-            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl flex items-center justify-center gap-2 font-medium">
-              <Check size={18} /> Request received! We'll be in touch shortly.
-            </div>
-          ) : (
-            <form onSubmit={handleCustomQuote} className="text-left space-y-4 max-w-md mx-auto">
-              <textarea 
-                rows="3" 
-                required
-                value={customQuoteMsg}
-                onChange={(e) => setCustomQuoteMsg(e.target.value)}
-                placeholder="I run an agency and need a custom plan..."
-                className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#FF6A00] resize-none transition-colors"
-              />
-              <button 
-                type="submit" 
-                disabled={customQuoteStatus === 'sending'}
-                className="w-full bg-[#FF6A00] hover:bg-[#FF6A00]/90 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all disabled:opacity-70 flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(255,106,0,0.3)]"
-              >
-                {customQuoteStatus === 'sending' ? 'Sending...' : <><Send size={16} /> Request Custom Quote</>}
-              </button>
-            </form>
-          )}
+          <button 
+            onClick={() => setIsCustomQuoteModalOpen(true)}
+            className="bg-[#FF6A00] hover:bg-[#FF6A00]/90 text-white px-8 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,106,0,0.3)] hover:shadow-[0_0_20px_rgba(255,106,0,0.4)] hover:-translate-y-0.5 mx-auto"
+          >
+            <Send size={18} /> Request Custom Quote
+          </button>
         </div>
       ) : (
         <div className="grid md:grid-cols-3 gap-5 mt-6">
@@ -488,6 +453,13 @@ export default function BillingPage() {
             </div>
           )}
         </div>
+      )}
+      
+      {isCustomQuoteModalOpen && (
+        <CustomQuoteModal 
+          user={user} 
+          onClose={() => setIsCustomQuoteModalOpen(false)} 
+        />
       )}
     </div>
   );
