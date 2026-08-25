@@ -39,7 +39,7 @@ exports.verifyWebhook = (req, res) => {
 };
 
 exports.receiveMessage = async (req, res) => {
-  console.log(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] >>> ENDPOINT HIT: ${req.method} ${req.originalUrl}`);
+  logger.info(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] >>> ENDPOINT HIT: ${req.method} ${req.originalUrl}`);
   // 1. Immediate Heartbeat Log to verify connectivity
   logger.info(`>>> INSTAGRAM WEBHOOK ENDPOINT HIT: ${req.method} ${req.originalUrl}`);
   
@@ -47,11 +47,11 @@ exports.receiveMessage = async (req, res) => {
 
   try {
     const { body } = req;
-    console.log(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Received payload: ${JSON.stringify(body)}`);
+    logger.info(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Received payload: ${JSON.stringify(body)}`);
     logger.info(`[INSTAGRAM WEBHOOK RECEIVED]: ${JSON.stringify(body, null, 2)}`);
 
     if (body.object !== 'instagram') {
-      console.log(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Object is not 'instagram'. Skipping.`);
+      logger.info(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Object is not 'instagram'. Skipping.`);
       return;
     }
 
@@ -61,7 +61,7 @@ exports.receiveMessage = async (req, res) => {
       const messaging = entry.messaging; // For DMs
 
       if (igAccountId === '0') {
-        console.log(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Received Meta test webhook event (ID: 0). Skipping.`);
+        logger.info(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Received Meta test webhook event (ID: 0). Skipping.`);
         logger.info('Received Meta test webhook event (ID: 0). Skipping processing.');
         continue;
       }
@@ -77,17 +77,17 @@ exports.receiveMessage = async (req, res) => {
       }).select('+pageAccessToken +pageId');
 
       if (!igAccount) {
-        console.log(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Account not found in DB or disconnected for ID: ${igAccountId}. Skipping.`);
+        logger.info(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Account not found in DB or disconnected for ID: ${igAccountId}. Skipping.`);
         logger.warn(`Instagram account not found in DB or disconnected for ID: ${igAccountId}`);
         continue;
       }
-      console.log(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Found IG Account: ${igAccount.igUsername || igAccountId}`);
+      logger.info(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Found IG Account: ${igAccount.igUsername || igAccountId}`);
 
       // Verify organization is active (leakage prevention)
       const Organization = require('../models/Organization');
       const org = await Organization.findOne({ _id: igAccount.organization, isActive: true });
       if (!org) {
-        console.log(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Organization ${igAccount.organization} is suspended/inactive. Skipping.`);
+        logger.info(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Organization ${igAccount.organization} is suspended/inactive. Skipping.`);
         logger.warn(`Organization ${igAccount.organization} is suspended/inactive. Blocking Instagram automation.`);
         continue;
       }
@@ -154,7 +154,7 @@ async function handleInstagramDM(event, igAccount, agent) {
   logger.info(`Received Instagram DM from ${senderId}`);
 
   if (!senderId || !messageId || (!text && !audioUrl)) {
-    console.log(`[RENDER_LOG] [INSTAGRAM_DM] Skipping DM event due to missing senderId, messageId, or text/audio`);
+    logger.info(`[RENDER_LOG] [INSTAGRAM_DM] Skipping DM event due to missing senderId, messageId, or text/audio`);
     logger.info(`Skipping DM event due to missing fields`);
     return;
   }
@@ -168,7 +168,7 @@ async function handleInstagramDM(event, igAccount, agent) {
   // Find or create conversation
   webhookQueue.enqueue(`instagram_${senderId}`, async () => {
     try {
-      console.log(`[RENDER_LOG] [INSTAGRAM_DM] Webhook enqueued for senderId: ${senderId}, messageId: ${messageId}`);
+      logger.info(`[RENDER_LOG] [INSTAGRAM_DM] Webhook enqueued for senderId: ${senderId}, messageId: ${messageId}`);
       let conversation = await Conversation.findOne({
         organization: igAccount.organization,
         platform: 'instagram',
@@ -222,7 +222,7 @@ async function handleInstagramDM(event, igAccount, agent) {
       }
       
       if (isDuplicate) {
-        console.log(`[RENDER_LOG] [INSTAGRAM_DM] DUPLICATE DETECTED: Message ${messageId} already processed. Skipping.`);
+        logger.info(`[RENDER_LOG] [INSTAGRAM_DM] DUPLICATE DETECTED: Message ${messageId} already processed. Skipping.`);
         logger.info(`Message ${messageId} from Instagram user ${senderId} already processing/processed. Skipping duplicate webhook.`);
         return;
       }
@@ -324,7 +324,7 @@ async function handleInstagramDM(event, igAccount, agent) {
       const creditCost = userPlan ? userPlan.agentMsgCreditCost : 1;
 
       if ((user.subscription?.credits ?? 0) < creditCost) {
-        console.log(`[RENDER_LOG] [INSTAGRAM_DM] User ${user._id} hit credit limit (${user.subscription?.credits} credits). Skipping AI.`);
+        logger.info(`[RENDER_LOG] [INSTAGRAM_DM] User ${user._id} hit credit limit (${user.subscription?.credits} credits). Skipping AI.`);
         logger.warn(`User ${user._id} hit credit limit for AI agent responses`);
         return;
       }
@@ -375,7 +375,7 @@ async function handleInstagramDM(event, igAccount, agent) {
       // Check if bot is actually enabled
       let enabled = igAccount.messengerBotEnabled || !!agent;
       if (!enabled) {
-        console.log(`[RENDER_LOG] [INSTAGRAM_DM] Bot is disabled in settings for account: ${igAccount.igUsername}. Skipping AI.`);
+        logger.info(`[RENDER_LOG] [INSTAGRAM_DM] Bot is disabled in settings for account: ${igAccount.igUsername}. Skipping AI.`);
         logger.info(`[IG DM SKIP]: Messenger bot is disabled for account: ${igAccount.igUsername}`);
         return;
       }
@@ -433,9 +433,9 @@ async function handleInstagramDM(event, igAccount, agent) {
           model: 'gpt-4o-mini'
       };
 
-      console.log(`[RENDER_LOG] [INSTAGRAM_DM] Passing to AI with text: "${text}"`);
+      logger.info(`[RENDER_LOG] [INSTAGRAM_DM] Passing to AI with text: "${text}"`);
       const aiResult = await AIService.generate(tempAgent, contextMessages.slice(0, -1), text, 'instagram');
-      console.log(`[RENDER_LOG] [INSTAGRAM_DM] AI generated reply: "${aiResult.content}"`);
+      logger.info(`[RENDER_LOG] [INSTAGRAM_DM] AI generated reply: "${aiResult.content}"`);
       emitToUser(igAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
       const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'instagram');
 
@@ -478,10 +478,10 @@ async function handleInstagramDM(event, igAccount, agent) {
 
       if (!wantsVoice || !audioSent || !instagramAudioEnabled) {
         if (wantsVoice && (!audioSent || !instagramAudioEnabled)) {
-            console.log(`[RENDER_LOG] [INSTAGRAM_DM] Voice generation failed or disabled. Falling back to text message.`);
+            logger.info(`[RENDER_LOG] [INSTAGRAM_DM] Voice generation failed or disabled. Falling back to text message.`);
         }
         sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, cleanReply || "I am currently unable to process that request.");
-        console.log(`[RENDER_LOG] [INSTAGRAM_DM] Successfully sent text message reply to Instagram user.`);
+        logger.info(`[RENDER_LOG] [INSTAGRAM_DM] Successfully sent text message reply to Instagram user.`);
       }
 
       await conversation.addMessage({
@@ -527,7 +527,7 @@ async function handleInstagramDM(event, igAccount, agent) {
         $inc: { 'stats.totalMessages': 2, 'stats.totalConversations': conversation.totalMessages === 2 ? 1 : 0 },
       });
     } catch (err) {
-      console.error(`[RENDER_LOG] [INSTAGRAM_DM] Error processing DM: ${err.message}`, err.stack);
+      logger.error(`[RENDER_LOG] [INSTAGRAM_DM] Error processing DM: ${err.message}`, err.stack);
       if (conversation?._id && igAccount?.user) {
         emitToUser(igAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
       }

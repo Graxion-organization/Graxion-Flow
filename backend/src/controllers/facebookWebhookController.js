@@ -27,18 +27,18 @@ exports.verifyWebhook = (req, res) => {
 };
 
 exports.receiveMessage = async (req, res) => {
-  console.log(`[RENDER_LOG] [FACEBOOK_WEBHOOK] >>> ENDPOINT HIT: ${req.method} ${req.originalUrl}`);
+  logger.info(`[RENDER_LOG] [FACEBOOK_WEBHOOK] >>> ENDPOINT HIT: ${req.method} ${req.originalUrl}`);
   logger.info(`>>> FACEBOOK WEBHOOK ENDPOINT HIT: ${req.method} ${req.originalUrl}`);
   
   res.status(200).send('EVENT_RECEIVED');
 
   try {
     const { body } = req;
-    console.log(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Received payload: ${JSON.stringify(body)}`);
+    logger.info(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Received payload: ${JSON.stringify(body)}`);
     logger.info(`[FACEBOOK WEBHOOK RECEIVED]: ${JSON.stringify(body, null, 2)}`);
 
     if (body.object !== 'page') {
-      console.log(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Object is not 'page'. Skipping.`);
+      logger.info(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Object is not 'page'. Skipping.`);
       return;
     }
 
@@ -57,17 +57,17 @@ exports.receiveMessage = async (req, res) => {
       }).select('+pageAccessToken');
 
       if (!fbAccount) {
-        console.log(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Account not found or disconnected for Page ID: ${pageId}. Skipping.`);
+        logger.info(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Account not found or disconnected for Page ID: ${pageId}. Skipping.`);
         logger.warn(`Facebook account not found or disconnected for Page ID: ${pageId}`);
         continue;
       }
-      console.log(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Found FB Account: ${fbAccount.pageName || pageId}`);
+      logger.info(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Found FB Account: ${fbAccount.pageName || pageId}`);
 
       // Verify organization is active (leakage prevention)
       const Organization = require('../models/Organization');
       const org = await Organization.findOne({ _id: fbAccount.organization, isActive: true });
       if (!org) {
-        console.log(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Organization ${fbAccount.organization} is suspended/inactive. Skipping.`);
+        logger.info(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Organization ${fbAccount.organization} is suspended/inactive. Skipping.`);
         logger.warn(`Organization ${fbAccount.organization} is suspended/inactive. Blocking Facebook automation.`);
         continue;
       }
@@ -116,7 +116,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
   logger.info(`Received Facebook message from ${senderId}`);
 
   if (!senderId || !messageId || !text) {
-    console.log(`[RENDER_LOG] [FACEBOOK_DM] Skipping DM event due to missing senderId, messageId, or text`);
+    logger.info(`[RENDER_LOG] [FACEBOOK_DM] Skipping DM event due to missing senderId, messageId, or text`);
     return;
   }
 
@@ -133,14 +133,14 @@ async function handleFacebookMessage(event, fbAccount, agent) {
   }
   
   if (isDuplicate) {
-    console.log(`[RENDER_LOG] [FACEBOOK_DM] DUPLICATE DETECTED: Message ${messageId} already processed. Skipping.`);
+    logger.info(`[RENDER_LOG] [FACEBOOK_DM] DUPLICATE DETECTED: Message ${messageId} already processed. Skipping.`);
     logger.info(`Facebook message ${messageId} already processing/processed. Skipping duplicate webhook.`);
     return;
   }
 
   webhookQueue.enqueue(`facebook_${senderId}`, async () => {
     try {
-      console.log(`[RENDER_LOG] [FACEBOOK_DM] Webhook enqueued for senderId: ${senderId}, messageId: ${messageId}`);
+      logger.info(`[RENDER_LOG] [FACEBOOK_DM] Webhook enqueued for senderId: ${senderId}, messageId: ${messageId}`);
       // Find or create conversation (Query by organization to prevent duplicates if account is reconnected)
       let conversation = await Conversation.findOne({
         organization: fbAccount.organization,
@@ -223,7 +223,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
       const creditCost = userPlan ? userPlan.agentMsgCreditCost : 1;
 
       if ((user.subscription?.credits ?? 0) < creditCost) {
-        console.log(`[RENDER_LOG] [FACEBOOK_DM] User ${user._id} hit credit limit (${user.subscription?.credits} credits). Skipping AI.`);
+        logger.info(`[RENDER_LOG] [FACEBOOK_DM] User ${user._id} hit credit limit (${user.subscription?.credits} credits). Skipping AI.`);
         logger.warn(`User ${user._id} hit credit limit for AI agent responses`);
         return;
       }
@@ -274,7 +274,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
       // Check if bot is actually enabled
       let enabled = fbAccount.messengerBotEnabled || !!agent;
       if (!enabled) {
-        console.log(`[RENDER_LOG] [FACEBOOK_DM] Bot is disabled in settings for page: ${fbAccount.pageName}. Skipping AI.`);
+        logger.info(`[RENDER_LOG] [FACEBOOK_DM] Bot is disabled in settings for page: ${fbAccount.pageName}. Skipping AI.`);
         logger.info(`[FB DM SKIP]: Messenger bot is disabled for page: ${fbAccount.pageName}`);
         return;
       }
@@ -325,14 +325,14 @@ async function handleFacebookMessage(event, fbAccount, agent) {
           model: 'gpt-4o-mini'
       };
 
-      console.log(`[RENDER_LOG] [FACEBOOK_DM] Passing to AI with text: "${text}"`);
+      logger.info(`[RENDER_LOG] [FACEBOOK_DM] Passing to AI with text: "${text}"`);
       const aiResult = await AIService.generate(tempAgent, contextMessages.slice(0, -1), text, 'facebook');
-      console.log(`[RENDER_LOG] [FACEBOOK_DM] AI generated reply: "${aiResult.content}"`);
+      logger.info(`[RENDER_LOG] [FACEBOOK_DM] AI generated reply: "${aiResult.content}"`);
       emitToUser(fbAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
       
       const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'facebook');
       const sentMsg = await fbService.sendTextMessage(senderId, cleanReply || "I am currently unable to process that request.");
-      console.log(`[RENDER_LOG] [FACEBOOK_DM] Successfully sent reply to Facebook user.`);
+      logger.info(`[RENDER_LOG] [FACEBOOK_DM] Successfully sent reply to Facebook user.`);
 
       await conversation.addMessage({
         role: 'assistant',
@@ -368,7 +368,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
       
       await fbService.sendAction(senderId, 'typing_off');
     } catch (err) {
-      console.error(`[RENDER_LOG] [FACEBOOK_DM] Error processing DM: ${err.message}`, err.stack);
+      logger.error(`[RENDER_LOG] [FACEBOOK_DM] Error processing DM: ${err.message}`, err.stack);
       if (conversation?._id && fbAccount?.user) {
         emitToUser(fbAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
       }
