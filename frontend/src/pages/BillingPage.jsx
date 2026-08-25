@@ -365,7 +365,7 @@ export default function BillingPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className={'bg-slate-50 dark:bg-white/5'}>
-                <tr>{['Date', 'Plan', 'Amount', 'Status', 'Payment ID'].map((h) => <th key={h} className={`text-left text-xs font-medium px-6 py-3 ${'text-slate-500 dark:text-slate-400'}`}>{h}</th>)}</tr>
+                <tr>{['Date', 'Plan', 'Amount', 'Status'].map((h) => <th key={h} className={`text-left text-xs font-medium px-6 py-3 ${'text-slate-500 dark:text-slate-400'}`}>{h}</th>)}</tr>
               </thead>
               <tbody className={'divide-y divide-slate-100 dark:divide-y dark:divide-white/10'}>
                 {history.map((p) => (
@@ -374,7 +374,6 @@ export default function BillingPage() {
                     <td className={`px-6 py-3 text-sm font-medium capitalize ${'text-slate-900 dark:text-slate-100'}`}>{p.plan}</td>
                     <td className={`px-6 py-3 text-sm ${'text-slate-600 dark:text-slate-300'}`}>₹{(p.amount / 100).toLocaleString()}</td>
                     <td className="px-6 py-3"><span className="text-xs px-2.5 py-1 rounded-full font-medium capitalize" style={{ background: '#FF6A0022', color: '#FF6A00' }}>{p.status}</span></td>
-                    <td className={`px-6 py-3 text-xs font-mono ${'text-slate-400 dark:text-slate-500'}`}>{p.razorpayPaymentId || p.cashfreePaymentId || '—'}</td>
                   </tr>
                 ))}
               </tbody>
