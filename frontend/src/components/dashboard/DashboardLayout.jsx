@@ -148,12 +148,12 @@ function NotificationItem({ notif, onNavigate, isDark }) {
   );
 }
 
-const SubscriptionBanner = ({ user, isDark }) => {
+const SubscriptionBanner = ({ user, isDark, isSidebarCollapsed }) => {
   const navigate = useNavigate();
 
-  if (!user?.subscription) return null;
-  if (user.subscription.plan === 'free') return null;
+  if (!user?.subscription || user.subscription.plan === 'free') return null;
   
+  const isCanceled = user.subscription.cancel_at_period_end;
   const isPastDue = user.subscription.status === 'past_due';
   const end = user.subscription.currentPeriodEnd;
   const endMs = end ? new Date(end).getTime() : 0;
@@ -163,63 +163,83 @@ const SubscriptionBanner = ({ user, isDark }) => {
   const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
   const isExpired = isPastDue || (end && timeDiff <= 0);
 
-  if (isExpired) {
+  if (!isExpired && daysRemaining > 7 && !isCanceled) return null;
+
+  if (isSidebarCollapsed) {
+    const iconColor = isExpired ? "text-rose-500 bg-rose-500/10" : "text-amber-500 bg-amber-500/10";
     return (
-      <div className="w-full px-4 py-2.5 bg-rose-600 border-b border-rose-700 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 z-50">
-        <div className="flex items-center gap-2 text-white">
-          <AlertTriangle size={16} />
-          <span className="text-xs font-semibold">Subscription Expired! Your workspaces and agents are disabled.</span>
-        </div>
-        <button onClick={() => navigate('/app/billing')} className="px-4 py-1.5 bg-white text-rose-600 rounded-md text-[11px] font-bold hover:bg-rose-50 transition-colors shadow-sm">
-          Renew Now
+      <div className="px-3 pb-4 flex justify-center">
+        <button onClick={() => navigate('/app/billing')} className={`p-2.5 rounded-xl transition-colors ${iconColor}`} title="Billing Alert">
+          <AlertTriangle size={18} />
         </button>
       </div>
     );
   }
 
-  if (daysRemaining <= 1) {
-    return (
-      <div className="w-full px-4 py-2.5 bg-red-500 border-b border-red-600 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 z-50">
-        <div className="flex items-center gap-2 text-white">
-          <AlertTriangle size={16} />
-          <span className="text-xs font-semibold">Critical: Subscription expires in less than 24 hours.</span>
+  let colorConfig = {
+    bg: isDark ? 'bg-orange-500/10' : 'bg-orange-50',
+    border: isDark ? 'border-orange-500/20' : 'border-orange-200',
+    text: isDark ? 'text-orange-300' : 'text-orange-800',
+    icon: 'text-orange-500',
+    btn: 'bg-orange-500 hover:bg-orange-600 text-white',
+    title: `Expires in ${daysRemaining} days`,
+    desc: 'Renew to keep your agents running.',
+    btnText: 'Billing Details'
+  };
+
+  if (isExpired) {
+    colorConfig = {
+      bg: isDark ? 'bg-rose-500/10' : 'bg-rose-50',
+      border: isDark ? 'border-rose-500/20' : 'border-rose-200',
+      text: isDark ? 'text-rose-300' : 'text-rose-800',
+      icon: 'text-rose-500',
+      btn: 'bg-rose-600 hover:bg-rose-700 text-white',
+      title: 'Plan Expired!',
+      desc: 'Workspaces disabled. Renew now.',
+      btnText: 'Renew Now'
+    };
+  } else if (isCanceled) {
+    colorConfig = {
+      bg: isDark ? 'bg-amber-500/10' : 'bg-amber-50',
+      border: isDark ? 'border-amber-500/20' : 'border-amber-200',
+      text: isDark ? 'text-amber-300' : 'text-amber-800',
+      icon: 'text-amber-500',
+      btn: 'bg-amber-500 hover:bg-amber-600 text-white',
+      title: `Cancels in ${daysRemaining} days`,
+      desc: 'Your plan is cancelling. Renew to stay active.',
+      btnText: 'Renew Plan'
+    };
+  } else if (daysRemaining <= 1) {
+    colorConfig = {
+      bg: isDark ? 'bg-red-500/10' : 'bg-red-50',
+      border: isDark ? 'border-red-500/20' : 'border-red-200',
+      text: isDark ? 'text-red-300' : 'text-red-800',
+      icon: 'text-red-500',
+      btn: 'bg-red-600 hover:bg-red-700 text-white',
+      title: 'Expires Today!',
+      desc: 'Update billing to prevent pauses.',
+      btnText: 'Update Billing'
+    };
+  }
+
+  return (
+    <div className="px-4 pb-4">
+      <div className={`p-3.5 rounded-2xl border flex flex-col gap-2.5 ${colorConfig.bg} ${colorConfig.border}`}>
+        <div className="flex items-start gap-2">
+          <AlertTriangle size={16} className={`shrink-0 mt-0.5 ${colorConfig.icon}`} />
+          <div>
+            <h4 className={`text-xs font-bold ${colorConfig.icon}`}>{colorConfig.title}</h4>
+            <p className={`text-[10px] mt-0.5 leading-relaxed ${colorConfig.text}`}>
+              {colorConfig.desc}
+            </p>
+          </div>
         </div>
-        <button onClick={() => navigate('/app/billing')} className="px-4 py-1.5 bg-white text-red-600 rounded-md text-[11px] font-bold hover:bg-red-50 transition-colors shadow-sm">
-          Update Billing
+        <button onClick={() => navigate('/app/billing')} className={`w-full py-1.5 rounded-lg text-[11px] font-bold transition-all shadow-sm ${colorConfig.btn}`}>
+          {colorConfig.btnText}
         </button>
       </div>
-    );
-  }
-  
-  if (daysRemaining <= 3) {
-    return (
-      <div className="w-full px-4 py-2 bg-amber-500 border-b border-amber-600 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 z-50">
-        <div className="flex items-center gap-2 text-white">
-          <Info size={16} />
-          <span className="text-xs font-semibold">Your plan expires in {daysRemaining} days. Renew early to prevent automation pauses.</span>
-        </div>
-        <button onClick={() => navigate('/app/billing')} className="px-4 py-1 bg-white text-amber-600 rounded-md text-[11px] font-bold hover:bg-amber-50 transition-colors shadow-sm">
-          Renew Plan
-        </button>
-      </div>
-    );
-  }
-  
-  if (daysRemaining <= 7) {
-    return (
-      <div className={`w-full px-4 py-2 border-b flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 z-50 ${isDark ? 'bg-orange-500/20 border-orange-500/30 text-orange-200' : 'bg-orange-50 border-orange-200 text-orange-800'}`}>
-        <div className="flex items-center gap-2">
-          <Info size={16} className={isDark ? 'text-orange-400' : 'text-orange-600'} />
-          <span className="text-xs font-semibold">Your plan expires in {daysRemaining} days.</span>
-        </div>
-        <button onClick={() => navigate('/app/billing')} className={`px-4 py-1 rounded-md text-[11px] font-bold transition-colors shadow-sm ${isDark ? 'bg-orange-500 text-white hover:bg-orange-600' : 'bg-orange-100 text-orange-800 hover:bg-orange-200'}`}>
-          Billing Details
-        </button>
-      </div>
-    );
-  }
-  
-  return null;
+    </div>
+  );
 };
 
 export default function DashboardLayout() {
@@ -601,11 +621,12 @@ export default function DashboardLayout() {
               </div>
             ))}
           </nav>
+          
+          <SubscriptionBanner user={user} isDark={isDark} isSidebarCollapsed={isSidebarCollapsed} />
         </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <SubscriptionBanner user={user} isDark={isDark} />
         <header className={`relative z-30 px-4 lg:px-6 py-3 border-b backdrop-blur-2xl transition-colors ${isDark ? "bg-[#0b101e]/80 border-white/5" : "bg-white/80 border-slate-200/80"}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
