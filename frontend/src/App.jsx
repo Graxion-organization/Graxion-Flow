@@ -77,7 +77,6 @@ const DealsPipeline = lazy(() => import("./pages/DealsPipeline"));
 const CustomerPortal = lazy(() => import("./pages/CustomerPortal"));
 const QualityRatingPage = lazy(() => import("./pages/QualityRatingPage"));
 const TeamManagementPage = lazy(() => import("./pages/TeamManagementPage"));
-const SuperAdminDashboard = lazy(() => import("./pages/SuperAdminDashboard"));
 
 // Centered loading fallback design
 const LoadingFallback = () => (
@@ -268,7 +267,6 @@ export default function App() {
             <Route path="partner-dashboard" element={<SalesPartnerDashboard />} />
             <Route path="team" element={<TeamManagementPage />} />
             <Route path="settings" element={<SettingsPage />} />
-            <Route path="superadmin" element={<SuperAdminDashboard />} />
 
             {/* 🔥 Nested 404 */}
             <Route path="*" element={<Navigate to="/not-found" replace />} />
