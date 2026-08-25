@@ -1,6 +1,7 @@
 const Conversation = require('../models/Conversation');
 const Deal = require('../models/Deal');
 const Broadcast = require('../models/Broadcast');
+const Organization = require('../models/Organization');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 const WhatsAppService = require('../services/whatsappService');
@@ -12,7 +13,12 @@ const { decrypt } = require('../utils/encryption');
 const logger = require('../utils/logger');
 
 // Helper to get consistent base filter for multi-tenancy
-const getBaseFilter = (req) => {
+const getBaseFilter = async (req) => {
+  if (req.query?.global === 'true' && req.user) {
+    const orgs = await Organization.find({ 'members.user': req.user._id, isActive: true }).select('_id');
+    const orgIds = orgs.map(org => org._id);
+    return { organization: { $in: orgIds } };
+  }
   return req.organization 
     ? { organization: req.organization._id }
     : { user: req.user._id };
@@ -21,7 +27,7 @@ const getBaseFilter = (req) => {
 exports.getConversations = async (req, res, next) => {
   try {
     const { status, agentId, platform, page = 1, limit = 20, search } = req.query;
-    const filter = getBaseFilter(req);
+    const filter = await getBaseFilter(req);
 
     if (status) filter.status = status;
     if (platform) filter.platform = platform;
@@ -163,7 +169,7 @@ exports.replyToConversation = async (req, res, next) => {
 exports.closeConversation = async (req, res, next) => {
   try {
     const conversation = await Conversation.findOneAndUpdate(
-      { _id: req.params.id, ...getBaseFilter(req) },
+      { _id: req.params.id, ...(await getBaseFilter(req)) },
       { status: 'closed', resolvedAt: new Date() },
       { new: true }
     );
@@ -190,7 +196,7 @@ exports.toggleStatus = async (req, res, next) => {
     }
 
     const conversation = await Conversation.findOneAndUpdate(
-      { _id: req.params.id, ...getBaseFilter(req) },
+      { _id: req.params.id, ...(await getBaseFilter(req)) },
       { status },
       { new: true }
     );
@@ -216,7 +222,7 @@ exports.toggleStatus = async (req, res, next) => {
 
 exports.getDashboardStats = async (req, res, next) => {
   try {
-    const baseFilter = getBaseFilter(req);
+    const baseFilter = await getBaseFilter(req);
     const userId = req.user._id;
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -324,7 +330,7 @@ exports.getLeadsDashboard = async (req, res, next) => {
       'kitna', 'khareedna', 'lena hai', 'batao', 'chahiye', 'karna hai',
     ];
 
-    const baseFilter = getBaseFilter(req);
+    const baseFilter = await getBaseFilter(req);
     const filter = { ...baseFilter };
     if (platform) filter.platform = platform;
     if (status) filter.status = status;
@@ -403,7 +409,7 @@ exports.getLeadsDashboard = async (req, res, next) => {
     });
 
     // ── Summary aggregations ──────────────────────────────────────────────────
-    const baseSummaryFilter = getBaseFilter(req);
+    const baseSummaryFilter = await getBaseFilter(req);
     const [
       platformBreakdown,
       handoffCount,
@@ -443,7 +449,7 @@ exports.getLeadsDashboard = async (req, res, next) => {
 exports.getConversationTemplates = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const conversation = await Conversation.findOne({ _id: id, ...getBaseFilter(req) })
+    const conversation = await Conversation.findOne({ _id: id, ...(await getBaseFilter(req)) })
       .populate({ path: 'whatsappAccount', select: '+accessToken phoneNumberId wabaId' });
 
     if (!conversation) return next(new AppError('Conversation not found.', 404));

@@ -67,8 +67,8 @@ export default function DashboardPage() {
     try {
       setLoading(true);
       const [statsRes, leadsRes] = await Promise.all([
-        conversationAPI.getStats(),
-        conversationAPI.getLeads({ limit: 10 })
+        conversationAPI.getStats({ global: true }),
+        conversationAPI.getLeads({ limit: 10, global: true })
       ]);
       setStats(statsRes.data.data);
       setLeadsData(leadsRes.data.data);

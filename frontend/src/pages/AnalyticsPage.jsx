@@ -367,7 +367,69 @@ export default function AnalyticsPage() {
         </ChartCard>
       </div>
 
-      {/* Row 4: Template Performance Table */}
+      {/* Row 4: Deals & Agents */}
+      <div className="grid lg:grid-cols-2 gap-6 mt-6">
+        {/* Recent Deals Widget */}
+        <ChartCard title="Recent Deals" icon={Briefcase} isDark={isDark}>
+          <div className="flex-1 space-y-3">
+            {dashStats?.recentDeals && dashStats.recentDeals.length > 0 ? (
+              dashStats.recentDeals.map((deal) => (
+                <div key={deal._id} onClick={() => navigate(`/app/deals`)} className={`p-3 rounded-xl border cursor-pointer transition-all ${isDark ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'} flex justify-between items-center`}>
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${isDark ? 'bg-white/5 text-[#10B981]' : 'bg-emerald-50 text-emerald-600'}`}>
+                      <Briefcase size={16} />
+                    </div>
+                    <div>
+                      <p className={`text-sm font-semibold truncate max-w-[120px] sm:max-w-[150px] ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{deal.title}</p>
+                      <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{deal.stage}</p>
+                    </div>
+                  </div>
+                  <div className={`text-sm font-bold ${isDark ? 'text-[#10B981]' : 'text-emerald-600'}`}>
+                    ₹{(deal.amount || 0).toLocaleString('en-IN')}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className={`h-full flex flex-col items-center justify-center text-center ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                <div className={`p-3 rounded-full mb-3 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
+                  <Briefcase size={24} className="opacity-50" />
+                </div>
+                <p className="text-sm">No recent deals</p>
+              </div>
+            )}
+          </div>
+        </ChartCard>
+
+        {/* Top Agents Widget */}
+        <ChartCard title="Top Performing Agents" icon={Award} isDark={isDark}>
+          <div className="flex-1 space-y-4">
+            {dashStats?.topAgents && dashStats.topAgents.length > 0 ? (
+              dashStats.topAgents.map((agent, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 flex items-center justify-center rounded-full font-bold text-xs ${index === 0 ? 'bg-amber-100 text-amber-600' : index === 1 ? 'bg-slate-200 text-slate-600' : 'bg-orange-100 text-orange-600'}`}>
+                      #{index + 1}
+                    </div>
+                    <div>
+                      <p className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{agent.name}</p>
+                      <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{agent.count} conversations</p>
+                    </div>
+                  </div>
+                  <div className="w-1/3">
+                    <div className={`h-1.5 rounded-full ${isDark ? 'bg-white/10' : 'bg-slate-100'}`}>
+                      <div className="h-full rounded-full bg-[#FF6A00]" style={{ width: `${Math.min((agent.count / (dashStats.topAgents[0]?.count || 1)) * 100, 100)}%` }} />
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>No agent data available.</p>
+            )}
+          </div>
+        </ChartCard>
+      </div>
+
+      {/* Row 5: Template Performance Table */}
       {templatePerf.length > 0 && (
         <ChartCard title="Template & Broadcast Performance" icon={Send} isDark={isDark}>
           <div className="overflow-x-auto">

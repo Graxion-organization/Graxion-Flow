@@ -251,7 +251,7 @@ export const conversationAPI = {
   getMessages: (id, params) => api.get(`/conversations/${id}/messages`, { params }),
   reply: (id, message, replyToMessageId = null) => api.post(`/conversations/${id}/reply`, { message, replyToMessageId }),
   close: (id) => api.patch(`/conversations/${id}/close`),
-  getStats: () => api.get('/conversations/stats'),
+  getStats: (params) => api.get('/conversations/stats', { params }),
   getLeads: (params) => api.get('/conversations/leads', { params }),
   toggleStatus: (id, status) => api.patch(`/conversations/${id}/toggle-status`, { status }),
   getTemplates: (id) => api.get(`/conversations/${id}/templates`),
