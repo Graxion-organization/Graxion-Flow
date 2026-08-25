@@ -176,3 +176,66 @@ exports.deleteRateLimit = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getWebhookLogs = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const query = {};
+    if (req.query.status) query.status = req.query.status;
+    if (req.query.platform) query.platform = req.query.platform;
+
+    const logs = await WebhookLog.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+      
+    const total = await WebhookLog.countDocuments(query);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        logs,
+        total,
+        page,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getApiRequestLogs = async (req, res, next) => {
+  try {
+    const ApiRequestLog = require('../models/ApiRequestLog');
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const query = {};
+    if (req.query.status) query.status = req.query.status;
+    if (req.query.provider) query.provider = req.query.provider;
+
+    const logs = await ApiRequestLog.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+      
+    const total = await ApiRequestLog.countDocuments(query);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        logs,
+        total,
+        page,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};

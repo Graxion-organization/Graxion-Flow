@@ -25,4 +25,7 @@ router.route('/rate-limits')
 
 router.delete('/rate-limits/:id', superAdminController.deleteRateLimit);
 
+router.get('/logs/webhooks', superAdminController.getWebhookLogs);
+router.get('/logs/api-requests', superAdminController.getApiRequestLogs);
+
 module.exports = router;

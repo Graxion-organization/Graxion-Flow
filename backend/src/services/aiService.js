@@ -2,10 +2,28 @@ const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@googl
 const Agent = require('../models/Agent');
 const logger = require('../utils/logger');
 const redis = require('../config/redis').redis;
+const ApiRequestLog = require('../models/ApiRequestLog');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'MOCK_KEY');
 
 class AIService {
+  static async logApiRequest(provider, modelName, requestPayload, responsePayload, status, error, startTime) {
+    try {
+      const processingTimeMs = Date.now() - startTime;
+      await ApiRequestLog.create({
+        provider,
+        modelName,
+        requestPayload,
+        responsePayload,
+        status,
+        error: error ? error.toString() : null,
+        processingTimeMs
+      });
+    } catch (err) {
+      logger.error('Failed to log API request:', err);
+    }
+  }
+
   static sanitizeForWhatsApp(text) {
     if (!text) return '';
     let sanitized = text.replace(/\*\*(.*?)\*\*/g, '*$1*');
@@ -58,86 +76,123 @@ class AIService {
   }
 
   static async callGemini(modelName, systemPrompt, effectiveContext, userMessageText, temperature) {
-    const model = genAI.getGenerativeModel({
-      model: modelName,
-      systemInstruction: systemPrompt,
-    });
+    const startTime = Date.now();
+    let history = [];
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        systemInstruction: systemPrompt,
+      });
 
-    const chat = model.startChat({
-      history: effectiveContext.map((msg) => ({
+      history = effectiveContext.map((msg) => ({
         role: msg.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: msg.content }],
-      })),
-      generationConfig: {
-        temperature: temperature || 0.7,
-      },
-    });
+      }));
 
-    const result = await chat.sendMessage(userMessageText);
-    return result.response.text();
+      const chat = model.startChat({
+        history,
+        generationConfig: {
+          temperature: temperature || 0.7,
+        },
+      });
+
+      const result = await chat.sendMessage(userMessageText);
+      const responseText = result.response.text();
+      await AIService.logApiRequest('gemini', modelName, { systemPrompt, history, userMessageText }, { responseText }, 'SUCCESS', null, startTime);
+      return responseText;
+    } catch (error) {
+      await AIService.logApiRequest('gemini', modelName, { systemPrompt, history, userMessageText }, null, 'FAILED', error, startTime);
+      throw error;
+    }
   }
 
   static async callOpenAI(modelName, systemPrompt, effectiveContext, userMessageText, temperature) {
-    const { OpenAI } = require('openai');
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    
-    const messages = [{ role: 'system', content: systemPrompt }];
-    effectiveContext.forEach(msg => {
-      messages.push({ role: msg.role === 'assistant' ? 'assistant' : 'user', content: msg.content });
-    });
-    messages.push({ role: 'user', content: userMessageText });
+    const startTime = Date.now();
+    let messages = [];
+    try {
+      const { OpenAI } = require('openai');
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      
+      messages = [{ role: 'system', content: systemPrompt }];
+      effectiveContext.forEach(msg => {
+        messages.push({ role: msg.role === 'assistant' ? 'assistant' : 'user', content: msg.content });
+      });
+      messages.push({ role: 'user', content: userMessageText });
 
-    const completion = await openai.chat.completions.create({
-      model: modelName,
-      messages: messages,
-      temperature: temperature || 0.7,
-    });
-    return completion.choices[0].message.content;
+      const completion = await openai.chat.completions.create({
+        model: modelName,
+        messages: messages,
+        temperature: temperature || 0.7,
+      });
+      const responseText = completion.choices[0].message.content;
+      await AIService.logApiRequest('openai', modelName, messages, completion, 'SUCCESS', null, startTime);
+      return responseText;
+    } catch (error) {
+      await AIService.logApiRequest('openai', modelName, messages, null, 'FAILED', error, startTime);
+      throw error;
+    }
   }
 
   static async callAnthropic(modelName, systemPrompt, effectiveContext, userMessageText, temperature) {
-    const Anthropic = require('@anthropic-ai/sdk');
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    
-    const messages = [];
-    effectiveContext.forEach(msg => {
-      messages.push({ role: msg.role === 'assistant' ? 'assistant' : 'user', content: msg.content });
-    });
-    messages.push({ role: 'user', content: userMessageText });
+    const startTime = Date.now();
+    let messages = [];
+    try {
+      const Anthropic = require('@anthropic-ai/sdk');
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      
+      effectiveContext.forEach(msg => {
+        messages.push({ role: msg.role === 'assistant' ? 'assistant' : 'user', content: msg.content });
+      });
+      messages.push({ role: 'user', content: userMessageText });
 
-    const msg = await anthropic.messages.create({
-      model: modelName,
-      system: systemPrompt,
-      max_tokens: 1024,
-      temperature: temperature || 0.7,
-      messages: messages,
-    });
-    return msg.content[0].text;
+      const msg = await anthropic.messages.create({
+        model: modelName,
+        system: systemPrompt,
+        max_tokens: 1024,
+        temperature: temperature || 0.7,
+        messages: messages,
+      });
+      const responseText = msg.content[0].text;
+      await AIService.logApiRequest('anthropic', modelName, { systemPrompt, messages }, msg, 'SUCCESS', null, startTime);
+      return responseText;
+    } catch (error) {
+      await AIService.logApiRequest('anthropic', modelName, { systemPrompt, messages }, null, 'FAILED', error, startTime);
+      throw error;
+    }
   }
 
   static async callOpenRouter(modelName, systemPrompt, effectiveContext, userMessageText, temperature) {
-    const { OpenAI } = require('openai');
-    const openai = new OpenAI({
-      baseURL: "https://openrouter.ai/api/v1",
-      apiKey: process.env.OPENROUTER_API_KEY,
-      defaultHeaders: {
-        "HTTP-Referer": process.env.FRONTEND_URL || "http://localhost:3000",
-        "X-Title": "WhatsApp SaaS",
-      }
-    });
-    
-    const messages = [{ role: 'system', content: systemPrompt }];
-    effectiveContext.forEach(msg => {
-      messages.push({ role: msg.role === 'assistant' ? 'assistant' : 'user', content: msg.content });
-    });
-    messages.push({ role: 'user', content: userMessageText });
+    const startTime = Date.now();
+    let messages = [];
+    try {
+      const { OpenAI } = require('openai');
+      const openai = new OpenAI({
+        baseURL: "https://openrouter.ai/api/v1",
+        apiKey: process.env.OPENROUTER_API_KEY,
+        defaultHeaders: {
+          "HTTP-Referer": process.env.FRONTEND_URL || "http://localhost:3000",
+          "X-Title": "WhatsApp SaaS",
+        }
+      });
+      
+      messages = [{ role: 'system', content: systemPrompt }];
+      effectiveContext.forEach(msg => {
+        messages.push({ role: msg.role === 'assistant' ? 'assistant' : 'user', content: msg.content });
+      });
+      messages.push({ role: 'user', content: userMessageText });
 
-    const completion = await openai.chat.completions.create({
-      model: modelName,
-      messages: messages,
-      temperature: temperature || 0.7,
-    });
-    return completion.choices[0].message.content;
+      const completion = await openai.chat.completions.create({
+        model: modelName,
+        messages: messages,
+        temperature: temperature || 0.7,
+      });
+      const responseText = completion.choices[0].message.content;
+      await AIService.logApiRequest('openrouter', modelName, messages, completion, 'SUCCESS', null, startTime);
+      return responseText;
+    } catch (error) {
+      await AIService.logApiRequest('openrouter', modelName, messages, null, 'FAILED', error, startTime);
+      throw error;
+    }
   }
 
   // WA-011: Redis Caching & WA-009: Memory Summarization
