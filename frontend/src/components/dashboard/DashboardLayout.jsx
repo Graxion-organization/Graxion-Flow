@@ -153,11 +153,9 @@ const SidebarStatusWidget = ({ user, isDark, isSidebarCollapsed }) => {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
 
-  if (!user) return null;
-
   // Expiration Logic
   let expirationConfig = null;
-  if (user.subscription && user.subscription.plan !== 'free') {
+  if (user?.subscription && user.subscription.plan !== 'free') {
     const isCanceled = user.subscription.cancel_at_period_end;
     const isPastDue = user.subscription.status === 'past_due';
     const end = user.subscription.currentPeriodEnd;
@@ -222,6 +220,8 @@ const SidebarStatusWidget = ({ user, isDark, isSidebarCollapsed }) => {
   }, [slides.length]);
 
   const activeSlide = slides[activeIndex] || slides[0];
+
+  if (!user) return null;
 
   if (isSidebarCollapsed) {
     const iconColor = expirationConfig ? expirationConfig.icon : (isOverLimit ? "text-rose-500" : isNearLimit ? "text-amber-500" : "text-slate-400");
