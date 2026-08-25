@@ -19,6 +19,8 @@ export default function BillingPage() {
   const [paying, setPaying] = useState(null);
   const [gateway, setGateway] = useState('razorpay');
   const [numberOfOrgs, setNumberOfOrgs] = useState(1);
+  const [showAllHistory, setShowAllHistory] = useState(false);
+  const [showAllCredits, setShowAllCredits] = useState(false);
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
   const { user, fetchUser } = useAuthStore();
   const { branding } = useBrandingStore();
@@ -359,21 +361,30 @@ export default function BillingPage() {
 
       {history.length > 0 && (
         <div className={`rounded-2xl border overflow-hidden ${'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10'}`}>
-          <div className={`px-6 py-4 border-b ${'border-slate-100 dark:border-white/10'}`}>
+          <div className={`px-6 py-4 border-b flex items-center justify-between ${'border-slate-100 dark:border-white/10'}`}>
             <h3 className={`font-semibold flex items-center gap-2 ${'text-slate-800 dark:text-slate-100'}`}><CreditCard size={16} /> Payment History</h3>
+            {history.length > 3 && (
+              <button 
+                onClick={() => setShowAllHistory(!showAllHistory)}
+                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#FF6A00]/10 text-[#FF6A00] hover:bg-[#FF6A00]/20 transition-colors"
+              >
+                {showAllHistory ? 'Show Less' : `View All (${history.length})`}
+              </button>
+            )}
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className={'bg-slate-50 dark:bg-white/5'}>
-                <tr>{['Date', 'Plan', 'Amount', 'Status'].map((h) => <th key={h} className={`text-left text-xs font-medium px-6 py-3 ${'text-slate-500 dark:text-slate-400'}`}>{h}</th>)}</tr>
+                <tr>{['Date', 'Plan', 'Amount', 'Status', 'Payment ID'].map((h) => <th key={h} className={`text-left text-xs font-medium px-6 py-3 ${'text-slate-500 dark:text-slate-400'}`}>{h}</th>)}</tr>
               </thead>
               <tbody className={'divide-y divide-slate-100 dark:divide-y dark:divide-white/10'}>
-                {history.map((p) => (
+                {(showAllHistory ? history : history.slice(0, 3)).map((p) => (
                   <tr key={p._id} className={'hover:bg-slate-50 dark:hover:bg-white/5'}>
                     <td className={`px-6 py-3 text-sm ${'text-slate-600 dark:text-slate-300'}`}>{new Date(p.createdAt).toLocaleDateString()}</td>
                     <td className={`px-6 py-3 text-sm font-medium capitalize ${'text-slate-900 dark:text-slate-100'}`}>{p.plan}</td>
                     <td className={`px-6 py-3 text-sm ${'text-slate-600 dark:text-slate-300'}`}>₹{(p.amount / 100).toLocaleString()}</td>
                     <td className="px-6 py-3"><span className="text-xs px-2.5 py-1 rounded-full font-medium capitalize" style={{ background: '#FF6A0022', color: '#FF6A00' }}>{p.status}</span></td>
+                    <td className={`px-6 py-3 text-xs font-mono ${'text-slate-400 dark:text-slate-500'}`}>{p.razorpayPaymentId || p.cashfreePaymentId || '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -384,9 +395,19 @@ export default function BillingPage() {
 
       {creditsHistory && creditsHistory.length > 0 && (
         <div className={`rounded-2xl border overflow-hidden ${'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10'}`}>
-          <div className={`px-6 py-4 border-b flex items-center gap-2 ${'border-slate-100 dark:border-white/10'}`}>
-            <Zap size={16} style={{ color: '#FF6A00' }} />
-            <h3 className={`font-semibold ${'text-slate-800 dark:text-slate-100'}`}>Credits Transaction History</h3>
+          <div className={`px-6 py-4 border-b flex items-center justify-between ${'border-slate-100 dark:border-white/10'}`}>
+            <div className="flex items-center gap-2">
+              <Zap size={16} style={{ color: '#FF6A00' }} />
+              <h3 className={`font-semibold ${'text-slate-800 dark:text-slate-100'}`}>Credits Transaction History</h3>
+            </div>
+            {creditsHistory.length > 5 && (
+              <button 
+                onClick={() => setShowAllCredits(!showAllCredits)}
+                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#FF6A00]/10 text-[#FF6A00] hover:bg-[#FF6A00]/20 transition-colors"
+              >
+                {showAllCredits ? 'Show Less' : `View All (${creditsHistory.length})`}
+              </button>
+            )}
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -394,7 +415,7 @@ export default function BillingPage() {
                 <tr>{['Date', 'Type', 'Amount', 'Description'].map((h) => <th key={h} className={`text-left text-xs font-medium px-6 py-3 ${'text-slate-500 dark:text-slate-400'}`}>{h}</th>)}</tr>
               </thead>
               <tbody className={'divide-y divide-slate-100 dark:divide-y dark:divide-white/10'}>
-                {creditsHistory.map((t) => (
+                {(showAllCredits ? creditsHistory : creditsHistory.slice(0, 5)).map((t) => (
                   <tr key={t._id} className={'hover:bg-slate-50 dark:hover:bg-white/5'}>
                     <td className={`px-6 py-3 text-sm ${'text-slate-600 dark:text-slate-300'}`}>{new Date(t.createdAt).toLocaleDateString()}</td>
                     <td className="px-6 py-3"><span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: '#FF6A0022', color: '#FF6A00' }}>{t.type === 'addition' ? 'Credit Added' : 'Credit Deducted'}</span></td>
