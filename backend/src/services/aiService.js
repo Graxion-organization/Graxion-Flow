@@ -172,7 +172,7 @@ class AIService {
         systemPrompt += `\n\n[Context Memory/Learned Profile]:\n${memoryContext}`;
       }
  
-      const modelName = agent.model || 'gemini-1.5-flash';
+      const modelName = agent.model || 'gemini-2.5-flash';
       let responseText = '';
 
       try {
@@ -192,22 +192,22 @@ class AIService {
       } catch (providerError) {
         logger.error(`[RENDER_LOG] [AI_SERVICE] Primary AI Provider Error (${modelName}): ${providerError.message}`);
         logger.error(`Primary AI Provider Error (${modelName}):`, providerError.message);
-        logger.info(`[RENDER_LOG] [AI_SERVICE] Falling back to default Gemini model (gemini-1.5-flash)...`);
-        logger.info('Falling back to default Gemini model (gemini-1.5-flash)...');
+        logger.info(`[RENDER_LOG] [AI_SERVICE] Falling back to default Gemini model (gemini-2.5-flash)...`);
+        logger.info('Falling back to default Gemini model (gemini-2.5-flash)...');
         
         try {
           // Fallback to default Gemini if primary fails
-          responseText = await this.callGemini('gemini-1.5-flash', systemPrompt, effectiveContext, userMessageText, agent.temperature);
+          responseText = await this.callGemini('gemini-2.5-flash', systemPrompt, effectiveContext, userMessageText, agent.temperature);
         } catch (geminiError) {
           logger.error(`[RENDER_LOG] [AI_SERVICE] Fallback Gemini Error: ${geminiError.message}`);
           logger.error(`Fallback Gemini Error:`, geminiError.message);
           
           // God-Tier Ultimate Fallback Loop
           const openRouterFallbacks = [
-            'meta-llama/llama-3.3-70b-instruct:free',
-            'google/gemini-2.5-flash:free',
-            'qwen/qwen-2.5-72b-instruct:free',
-            'meta-llama/llama-3.1-8b-instruct:free'
+            'meta-llama/llama-3.3-70b-instruct',
+            'google/gemini-2.5-flash',
+            'qwen/qwen-2.5-72b-instruct',
+            'meta-llama/llama-3.1-8b-instruct'
           ];
           
           let success = false;
@@ -260,7 +260,7 @@ class AIService {
 
   static async summarizeContext(messages) {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
       const prompt =
         'Summarize the following chat history into a dense paragraph retaining all important facts and user intents: \n' +
         JSON.stringify(messages);
