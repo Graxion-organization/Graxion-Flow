@@ -27,15 +27,20 @@ exports.verifyWebhook = (req, res) => {
 };
 
 exports.receiveMessage = async (req, res) => {
+  console.log(`[RENDER_LOG] [FACEBOOK_WEBHOOK] >>> ENDPOINT HIT: ${req.method} ${req.originalUrl}`);
   logger.info(`>>> FACEBOOK WEBHOOK ENDPOINT HIT: ${req.method} ${req.originalUrl}`);
   
   res.status(200).send('EVENT_RECEIVED');
 
   try {
     const { body } = req;
+    console.log(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Received payload: ${JSON.stringify(body)}`);
     logger.info(`[FACEBOOK WEBHOOK RECEIVED]: ${JSON.stringify(body, null, 2)}`);
 
-    if (body.object !== 'page') return;
+    if (body.object !== 'page') {
+      console.log(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Object is not 'page'. Skipping.`);
+      return;
+    }
 
     for (const entry of body.entry) {
       const pageId = entry.id;
@@ -52,14 +57,17 @@ exports.receiveMessage = async (req, res) => {
       }).select('+pageAccessToken');
 
       if (!fbAccount) {
+        console.log(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Account not found or disconnected for Page ID: ${pageId}. Skipping.`);
         logger.warn(`Facebook account not found or disconnected for Page ID: ${pageId}`);
         continue;
       }
+      console.log(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Found FB Account: ${fbAccount.pageName || pageId}`);
 
       // Verify organization is active (leakage prevention)
       const Organization = require('../models/Organization');
       const org = await Organization.findOne({ _id: fbAccount.organization, isActive: true });
       if (!org) {
+        console.log(`[RENDER_LOG] [FACEBOOK_WEBHOOK] Organization ${fbAccount.organization} is suspended/inactive. Skipping.`);
         logger.warn(`Organization ${fbAccount.organization} is suspended/inactive. Blocking Facebook automation.`);
         continue;
       }
@@ -107,7 +115,10 @@ async function handleFacebookMessage(event, fbAccount, agent) {
 
   logger.info(`Received Facebook message from ${senderId}`);
 
-  if (!senderId || !messageId || !text) return;
+  if (!senderId || !messageId || !text) {
+    console.log(`[RENDER_LOG] [FACEBOOK_DM] Skipping DM event due to missing senderId, messageId, or text`);
+    return;
+  }
 
   // Deduplicate using Redis atomic lock
   let isDuplicate = false;
@@ -122,6 +133,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
   }
   
   if (isDuplicate) {
+    console.log(`[RENDER_LOG] [FACEBOOK_DM] DUPLICATE DETECTED: Message ${messageId} already processed. Skipping.`);
     logger.info(`Facebook message ${messageId} already processing/processed. Skipping duplicate webhook.`);
     return;
   }
@@ -211,6 +223,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
       const creditCost = userPlan ? userPlan.agentMsgCreditCost : 1;
 
       if ((user.subscription?.credits ?? 0) < creditCost) {
+        console.log(`[RENDER_LOG] [FACEBOOK_DM] User ${user._id} hit credit limit (${user.subscription?.credits} credits). Skipping AI.`);
         logger.warn(`User ${user._id} hit credit limit for AI agent responses`);
         return;
       }
@@ -261,6 +274,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
       // Check if bot is actually enabled
       let enabled = fbAccount.messengerBotEnabled || !!agent;
       if (!enabled) {
+        console.log(`[RENDER_LOG] [FACEBOOK_DM] Bot is disabled in settings for page: ${fbAccount.pageName}. Skipping AI.`);
         logger.info(`[FB DM SKIP]: Messenger bot is disabled for page: ${fbAccount.pageName}`);
         return;
       }

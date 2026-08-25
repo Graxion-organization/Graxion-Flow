@@ -39,6 +39,7 @@ exports.verifyWebhook = (req, res) => {
 };
 
 exports.receiveMessage = async (req, res) => {
+  console.log(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] >>> ENDPOINT HIT: ${req.method} ${req.originalUrl}`);
   // 1. Immediate Heartbeat Log to verify connectivity
   logger.info(`>>> INSTAGRAM WEBHOOK ENDPOINT HIT: ${req.method} ${req.originalUrl}`);
   
@@ -46,9 +47,13 @@ exports.receiveMessage = async (req, res) => {
 
   try {
     const { body } = req;
+    console.log(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Received payload: ${JSON.stringify(body)}`);
     logger.info(`[INSTAGRAM WEBHOOK RECEIVED]: ${JSON.stringify(body, null, 2)}`);
 
-    if (body.object !== 'instagram') return;
+    if (body.object !== 'instagram') {
+      console.log(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Object is not 'instagram'. Skipping.`);
+      return;
+    }
 
     for (const entry of body.entry) {
       const igAccountId = entry.id; // Instagram account ID that received the message
@@ -56,6 +61,7 @@ exports.receiveMessage = async (req, res) => {
       const messaging = entry.messaging; // For DMs
 
       if (igAccountId === '0') {
+        console.log(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Received Meta test webhook event (ID: 0). Skipping.`);
         logger.info('Received Meta test webhook event (ID: 0). Skipping processing.');
         continue;
       }
@@ -71,14 +77,17 @@ exports.receiveMessage = async (req, res) => {
       }).select('+pageAccessToken +pageId');
 
       if (!igAccount) {
+        console.log(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Account not found in DB or disconnected for ID: ${igAccountId}. Skipping.`);
         logger.warn(`Instagram account not found in DB or disconnected for ID: ${igAccountId}`);
         continue;
       }
+      console.log(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Found IG Account: ${igAccount.igUsername || igAccountId}`);
 
       // Verify organization is active (leakage prevention)
       const Organization = require('../models/Organization');
       const org = await Organization.findOne({ _id: igAccount.organization, isActive: true });
       if (!org) {
+        console.log(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Organization ${igAccount.organization} is suspended/inactive. Skipping.`);
         logger.warn(`Organization ${igAccount.organization} is suspended/inactive. Blocking Instagram automation.`);
         continue;
       }
@@ -145,6 +154,7 @@ async function handleInstagramDM(event, igAccount, agent) {
   logger.info(`Received Instagram DM from ${senderId}`);
 
   if (!senderId || !messageId || (!text && !audioUrl)) {
+    console.log(`[RENDER_LOG] [INSTAGRAM_DM] Skipping DM event due to missing senderId, messageId, or text/audio`);
     logger.info(`Skipping DM event due to missing fields`);
     return;
   }
@@ -212,6 +222,7 @@ async function handleInstagramDM(event, igAccount, agent) {
       }
       
       if (isDuplicate) {
+        console.log(`[RENDER_LOG] [INSTAGRAM_DM] DUPLICATE DETECTED: Message ${messageId} already processed. Skipping.`);
         logger.info(`Message ${messageId} from Instagram user ${senderId} already processing/processed. Skipping duplicate webhook.`);
         return;
       }
@@ -313,6 +324,7 @@ async function handleInstagramDM(event, igAccount, agent) {
       const creditCost = userPlan ? userPlan.agentMsgCreditCost : 1;
 
       if ((user.subscription?.credits ?? 0) < creditCost) {
+        console.log(`[RENDER_LOG] [INSTAGRAM_DM] User ${user._id} hit credit limit (${user.subscription?.credits} credits). Skipping AI.`);
         logger.warn(`User ${user._id} hit credit limit for AI agent responses`);
         return;
       }
@@ -363,6 +375,7 @@ async function handleInstagramDM(event, igAccount, agent) {
       // Check if bot is actually enabled
       let enabled = igAccount.messengerBotEnabled || !!agent;
       if (!enabled) {
+        console.log(`[RENDER_LOG] [INSTAGRAM_DM] Bot is disabled in settings for account: ${igAccount.igUsername}. Skipping AI.`);
         logger.info(`[IG DM SKIP]: Messenger bot is disabled for account: ${igAccount.igUsername}`);
         return;
       }

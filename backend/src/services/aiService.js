@@ -177,22 +177,29 @@ class AIService {
 
       try {
         if (modelName.startsWith('gpt')) {
+          console.log(`[RENDER_LOG] [AI_SERVICE] Calling OpenAI model: ${modelName}`);
           responseText = await this.callOpenAI(modelName, systemPrompt, effectiveContext, userMessageText, agent.temperature);
         } else if (modelName.startsWith('claude')) {
+          console.log(`[RENDER_LOG] [AI_SERVICE] Calling Anthropic model: ${modelName}`);
           responseText = await this.callAnthropic(modelName, systemPrompt, effectiveContext, userMessageText, agent.temperature);
         } else if (modelName.includes('/')) {
+          console.log(`[RENDER_LOG] [AI_SERVICE] Calling OpenRouter model: ${modelName}`);
           responseText = await this.callOpenRouter(modelName, systemPrompt, effectiveContext, userMessageText, agent.temperature);
         } else {
+          console.log(`[RENDER_LOG] [AI_SERVICE] Calling Gemini model: ${modelName}`);
           responseText = await this.callGemini(modelName, systemPrompt, effectiveContext, userMessageText, agent.temperature);
         }
       } catch (providerError) {
+        console.error(`[RENDER_LOG] [AI_SERVICE] Primary AI Provider Error (${modelName}): ${providerError.message}`);
         logger.error(`Primary AI Provider Error (${modelName}):`, providerError.message);
+        console.log(`[RENDER_LOG] [AI_SERVICE] Falling back to default Gemini model (gemini-1.5-flash)...`);
         logger.info('Falling back to default Gemini model (gemini-1.5-flash)...');
         
         try {
           // Fallback to default Gemini if primary fails
           responseText = await this.callGemini('gemini-1.5-flash', systemPrompt, effectiveContext, userMessageText, agent.temperature);
         } catch (geminiError) {
+          console.error(`[RENDER_LOG] [AI_SERVICE] Fallback Gemini Error: ${geminiError.message}`);
           logger.error(`Fallback Gemini Error:`, geminiError.message);
           
           // God-Tier Ultimate Fallback Loop
@@ -208,17 +215,23 @@ class AIService {
           
           for (const fallbackModel of openRouterFallbacks) {
             try {
+              console.log(`[RENDER_LOG] [AI_SERVICE] Attempting Ultimate Fallback to OpenRouter (${fallbackModel})...`);
               logger.info(`Attempting Ultimate Fallback to OpenRouter (${fallbackModel})...`);
               responseText = await this.callOpenRouter(fallbackModel, systemPrompt, effectiveContext, userMessageText, agent.temperature);
+              console.log(`[RENDER_LOG] [AI_SERVICE] Ultimate Fallback Success with ${fallbackModel}`);
               success = true;
               break;
             } catch (openRouterErr) {
+              console.error(`[RENDER_LOG] [AI_SERVICE] OpenRouter fallback ${fallbackModel} failed: ${openRouterErr.message}`);
               logger.warn(`OpenRouter fallback ${fallbackModel} failed: ${openRouterErr.message}`);
               lastErr = openRouterErr;
             }
           }
           
-          if (!success && lastErr) throw lastErr;
+          if (!success && lastErr) {
+            console.error(`[RENDER_LOG] [AI_SERVICE] ALL FALLBACKS EXHAUSTED! Final error: ${lastErr.message}`);
+            throw lastErr;
+          }
         }
       }
 
