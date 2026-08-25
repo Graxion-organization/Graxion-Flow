@@ -40,7 +40,10 @@ function MessageBubble({ msg, platform, isDark, onReply, quotedMsg }) {
     );
   }
 
-  let userBgClass = 'bg-[#FF6A00] text-white shadow-sm';
+  let userBgClass = 'bg-whatsapp text-white shadow-sm';
+  if (platform === 'instagram') userBgClass = 'bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white shadow-sm';
+  if (platform === 'facebook') userBgClass = 'bg-[#1877F2] text-white shadow-sm';
+  if (platform === 'telegram') userBgClass = 'bg-[#229ED9] text-white shadow-sm';
 
   return (
     <motion.div
@@ -127,7 +130,7 @@ const getTheme = (platform) => {
     case 'whatsapp':
       return {
         bgChat: 'bg-[#efeae2]/40',
-        activeList: 'bg-whatsapp/5 border-l-whatsapp',
+        activeList: 'bg-whatsapp/5 dark:bg-whatsapp/20 border-l-whatsapp',
         btnPrimary: 'bg-whatsapp hover:bg-green-600 text-white',
         ringPrimary: 'focus:ring-whatsapp/30 focus:border-whatsapp/50',
         iconColor: 'text-whatsapp',
@@ -136,7 +139,7 @@ const getTheme = (platform) => {
     case 'instagram':
       return {
         bgChat: 'bg-gradient-to-br from-purple-50/30 via-pink-50/30 to-orange-50/30',
-        activeList: 'bg-pink-50 border-l-pink-500',
+        activeList: 'bg-pink-50 dark:bg-pink-500/20 border-l-pink-500',
         btnPrimary: 'bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white hover:opacity-90',
         ringPrimary: 'focus:ring-pink-300 focus:border-pink-300',
         iconColor: 'text-pink-500',
@@ -145,7 +148,7 @@ const getTheme = (platform) => {
     case 'telegram':
       return {
         bgChat: 'bg-[#9DBBDB]/20',
-        activeList: 'bg-blue-50 border-l-[#229ED9]',
+        activeList: 'bg-blue-50 dark:bg-[#229ED9]/20 border-l-[#229ED9]',
         btnPrimary: 'bg-[#229ED9] hover:bg-[#1E8CC2] text-white',
         ringPrimary: 'focus:ring-[#229ED9]/30 focus:border-[#229ED9]/50',
         iconColor: 'text-[#229ED9]',
@@ -154,7 +157,7 @@ const getTheme = (platform) => {
     case 'facebook':
       return {
         bgChat: 'bg-blue-50/30',
-        activeList: 'bg-blue-50 border-l-[#1877F2]',
+        activeList: 'bg-blue-50 dark:bg-[#1877F2]/20 border-l-[#1877F2]',
         btnPrimary: 'bg-[#1877F2] hover:bg-[#166FE5] text-white',
         ringPrimary: 'focus:ring-[#1877F2]/30 focus:border-[#1877F2]/50',
         iconColor: 'text-[#1877F2]',
@@ -163,7 +166,7 @@ const getTheme = (platform) => {
     default:
       return {
         bgChat: 'bg-gray-50/50',
-        activeList: 'bg-gray-50 border-l-gray-800',
+        activeList: 'bg-gray-50 dark:bg-gray-800 border-l-gray-800 dark:border-l-gray-400',
         btnPrimary: 'bg-gray-800 hover:bg-gray-700 text-white',
         ringPrimary: 'focus:ring-gray-300 focus:border-gray-300',
         iconColor: 'text-gray-500',
@@ -651,7 +654,7 @@ export default function ConversationsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.18, delay: Math.min(index * 0.015, 0.18) }}
                     onClick={() => selectConversation(conv)}
-                    className={`w-full text-left px-3 py-2.5 border-b transition-all duration-200 ${'border-gray-50 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5'}
+                    className={`w-full text-left px-3 py-2.5 border-b transition-all duration-200 ${'border-gray-50 hover:bg-gray-100 dark:border-white/10 dark:hover:bg-white/10'}
                       ${selected?._id === conv._id ? `${itemTheme.activeList} border-l-2` : 'border-l-2 border-l-transparent'}
                       ${!conv.isRead ? ('font-semibold bg-gray-50/50 dark:font-semibold dark:bg-white/5') : ''}`}
                   >
