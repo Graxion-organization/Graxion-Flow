@@ -49,6 +49,7 @@ exports.receiveMessage = async (req, res) => {
     const { body } = req;
     logger.info(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Received payload: ${JSON.stringify(body)}`);
     logger.info(`[INSTAGRAM WEBHOOK RECEIVED]: ${JSON.stringify(body, null, 2)}`);
+    logger.info('[FLOW] Webhook aaya: Instagram webhook payload received');
 
     if (body.object !== 'instagram') {
       logger.info(`[RENDER_LOG] [INSTAGRAM_WEBHOOK] Object is not 'instagram'. Skipping.`);
@@ -399,6 +400,7 @@ async function handleInstagramDM(event, igAccount, agent) {
         } else {
           sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, matchedTrigger.response);
         }
+        logger.info('[FLOW] Message res send hua: Keyword trigger response sent successfully');
 
         // If caption provided with media on instagram, we must send a separate text message since the API does not support captions in attachment directly
         if (matchedTrigger.mediaType !== 'none' && matchedTrigger.response) {
@@ -434,6 +436,7 @@ async function handleInstagramDM(event, igAccount, agent) {
       };
 
       logger.info(`[RENDER_LOG] [INSTAGRAM_DM] Passing to AI with text: "${text}"`);
+      logger.info('[FLOW] AI ko gya: Request sent to AI for processing');
       const aiResult = await AIService.generate(tempAgent, contextMessages.slice(0, -1), text, 'instagram');
       logger.info(`[RENDER_LOG] [INSTAGRAM_DM] AI generated reply: "${aiResult.content}"`);
       emitToUser(igAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
@@ -465,6 +468,7 @@ async function handleInstagramDM(event, igAccount, agent) {
           // Send video message via Instagram
           sentMsg = await igService.sendVideoMessage(igAccount.igAccountId, senderId, uploadResult.url);
           logger.info(`Audio video message sent to Instagram user ${senderId}`);
+          logger.info('[FLOW] Message res send hua: Video/Audio response sent successfully');
           audioSent = true;
 
           // Cleanup local files
@@ -472,6 +476,7 @@ async function handleInstagramDM(event, igAccount, agent) {
           await deleteTempAudio(tempVideoPath);
         } catch (audioError) {
           logger.error(`Error in Instagram TTS flow for ${senderId}: ${audioError.message}`);
+          logger.info('[FLOW] Fallback hua: Audio generation failed, falling back to text');
           // Fallback to text
         }
       }
@@ -482,6 +487,7 @@ async function handleInstagramDM(event, igAccount, agent) {
         }
         sentMsg = await igService.sendTextMessage(igAccount.igAccountId, senderId, cleanReply || "I am currently unable to process that request.");
         logger.info(`[RENDER_LOG] [INSTAGRAM_DM] Successfully sent text message reply to Instagram user.`);
+        logger.info('[FLOW] Message res send hua: Text response sent successfully');
       }
 
       await conversation.addMessage({
@@ -526,8 +532,10 @@ async function handleInstagramDM(event, igAccount, agent) {
       await Agent.findByIdAndUpdate(agent._id, {
         $inc: { 'stats.totalMessages': 2, 'stats.totalConversations': conversation.totalMessages === 2 ? 1 : 0 },
       });
+      logger.info('[FLOW] Complete hua: Webhook processing completed successfully');
     } catch (err) {
       logger.error(`[RENDER_LOG] [INSTAGRAM_DM] Error processing DM: ${err.message}`, err.stack);
+      logger.info('[FLOW] Fallback hua: Error occurred during webhook processing');
       if (conversation?._id && igAccount?.user) {
         emitToUser(igAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
       }
