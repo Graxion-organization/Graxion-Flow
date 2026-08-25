@@ -48,6 +48,7 @@ import { formatDistanceToNow } from "date-fns";
 import OrganizationSwitcher from "./OrganizationSwitcher";
 import OnboardingGateway from "./OnboardingGateway";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 // "Sunte Hi Pata Chal Jaye" - Intuitive Sidebar Grouping
 const SIDEBAR_GROUPS = [
@@ -148,96 +149,138 @@ function NotificationItem({ notif, onNavigate, isDark }) {
   );
 }
 
-const SubscriptionBanner = ({ user, isDark, isSidebarCollapsed }) => {
+const SidebarStatusWidget = ({ user, isDark, isSidebarCollapsed }) => {
   const navigate = useNavigate();
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  if (!user?.subscription || user.subscription.plan === 'free') return null;
-  
-  const isCanceled = user.subscription.cancel_at_period_end;
-  const isPastDue = user.subscription.status === 'past_due';
-  const end = user.subscription.currentPeriodEnd;
-  const endMs = end ? new Date(end).getTime() : 0;
-  const nowMs = Date.now();
-  const timeDiff = endMs - nowMs;
-  
-  const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-  const isExpired = isPastDue || (end && timeDiff <= 0);
+  if (!user) return null;
 
-  if (!isExpired && daysRemaining > 7 && !isCanceled) return null;
+  // Expiration Logic
+  let expirationConfig = null;
+  if (user.subscription && user.subscription.plan !== 'free') {
+    const isCanceled = user.subscription.cancel_at_period_end;
+    const isPastDue = user.subscription.status === 'past_due';
+    const end = user.subscription.currentPeriodEnd;
+    const endMs = end ? new Date(end).getTime() : 0;
+    const nowMs = Date.now();
+    const timeDiff = endMs - nowMs;
+    const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    const isExpired = isPastDue || (end && timeDiff <= 0);
+
+    if (isExpired) {
+      expirationConfig = {
+        bg: isDark ? 'bg-rose-500/10' : 'bg-rose-50', border: isDark ? 'border-rose-500/20' : 'border-rose-200',
+        text: isDark ? 'text-rose-300' : 'text-rose-800', icon: 'text-rose-500', btn: 'bg-rose-600 hover:bg-rose-700 text-white',
+        title: 'Plan Expired!', desc: 'Workspaces disabled.', btnText: 'Renew Now', iconType: 'alert'
+      };
+    } else if (isCanceled) {
+      expirationConfig = {
+        bg: isDark ? 'bg-amber-500/10' : 'bg-amber-50', border: isDark ? 'border-amber-500/20' : 'border-amber-200',
+        text: isDark ? 'text-amber-300' : 'text-amber-800', icon: 'text-amber-500', btn: 'bg-amber-500 hover:bg-amber-600 text-white',
+        title: `Cancels in ${daysRemaining}d`, desc: 'Your plan is cancelling.', btnText: 'Renew', iconType: 'alert'
+      };
+    } else if (daysRemaining <= 3) {
+      expirationConfig = {
+        bg: isDark ? 'bg-red-500/10' : 'bg-red-50', border: isDark ? 'border-red-500/20' : 'border-red-200',
+        text: isDark ? 'text-red-300' : 'text-red-800', icon: 'text-red-500', btn: 'bg-red-600 hover:bg-red-700 text-white',
+        title: daysRemaining <= 1 ? 'Expires Today!' : `Expires in ${daysRemaining}d`, desc: 'Update billing now.', btnText: 'Billing', iconType: 'alert'
+      };
+    } else if (daysRemaining <= 7) {
+      expirationConfig = {
+        bg: isDark ? 'bg-orange-500/10' : 'bg-orange-50', border: isDark ? 'border-orange-500/20' : 'border-orange-200',
+        text: isDark ? 'text-orange-300' : 'text-orange-800', icon: 'text-orange-500', btn: 'bg-orange-500 hover:bg-orange-600 text-white',
+        title: `Expires in ${daysRemaining}d`, desc: 'Renew to keep agents running.', btnText: 'Billing', iconType: 'info'
+      };
+    }
+  }
+
+  // Quota Logic
+  const usedMessages = user.usage?.messagesThisMonth || 0;
+  const limitMessages = user.subscription?.messageLimit || 1000;
+  const usagePercent = Math.min((usedMessages / Math.max(limitMessages, 1)) * 100, 100);
+  const isNearLimit = usagePercent > 80;
+  const isOverLimit = usagePercent >= 100;
+  
+  const quotaConfig = {
+    bg: isDark ? 'bg-[#1f2937]/50' : 'bg-white',
+    border: isDark ? 'border-white/5' : 'border-slate-200',
+    progressBg: isOverLimit ? 'bg-rose-500' : isNearLimit ? 'bg-amber-500' : 'bg-[#FF6A00]',
+    progressTrack: isDark ? 'bg-slate-800' : 'bg-slate-100',
+    text: isDark ? 'text-slate-300' : 'text-slate-600'
+  };
+
+  const slides = [];
+  if (expirationConfig) slides.push({ id: 'expiry', content: expirationConfig });
+  slides.push({ id: 'quota', content: quotaConfig });
+
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % slides.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [slides.length]);
+
+  const activeSlide = slides[activeIndex] || slides[0];
 
   if (isSidebarCollapsed) {
-    const iconColor = isExpired ? "text-rose-500 bg-rose-500/10" : "text-amber-500 bg-amber-500/10";
+    const iconColor = expirationConfig ? expirationConfig.icon : (isOverLimit ? "text-rose-500" : isNearLimit ? "text-amber-500" : "text-slate-400");
     return (
       <div className="px-3 pb-4 flex justify-center">
-        <button onClick={() => navigate('/app/billing')} className={`p-2.5 rounded-xl transition-colors ${iconColor}`} title="Billing Alert">
-          <AlertTriangle size={18} />
+        <button onClick={() => navigate('/app/billing')} className={`p-2.5 rounded-xl transition-colors ${expirationConfig ? expirationConfig.bg : (isDark ? 'bg-white/5 hover:bg-white/10' : 'bg-slate-100 hover:bg-slate-200')} ${iconColor}`} title="Limits & Billing">
+          {expirationConfig ? <AlertTriangle size={18} /> : <Zap size={18} />}
         </button>
       </div>
     );
   }
 
-  let colorConfig = {
-    bg: isDark ? 'bg-orange-500/10' : 'bg-orange-50',
-    border: isDark ? 'border-orange-500/20' : 'border-orange-200',
-    text: isDark ? 'text-orange-300' : 'text-orange-800',
-    icon: 'text-orange-500',
-    btn: 'bg-orange-500 hover:bg-orange-600 text-white',
-    title: `Expires in ${daysRemaining} days`,
-    desc: 'Renew to keep your agents running.',
-    btnText: 'Billing Details'
-  };
-
-  if (isExpired) {
-    colorConfig = {
-      bg: isDark ? 'bg-rose-500/10' : 'bg-rose-50',
-      border: isDark ? 'border-rose-500/20' : 'border-rose-200',
-      text: isDark ? 'text-rose-300' : 'text-rose-800',
-      icon: 'text-rose-500',
-      btn: 'bg-rose-600 hover:bg-rose-700 text-white',
-      title: 'Plan Expired!',
-      desc: 'Workspaces disabled. Renew now.',
-      btnText: 'Renew Now'
-    };
-  } else if (isCanceled) {
-    colorConfig = {
-      bg: isDark ? 'bg-amber-500/10' : 'bg-amber-50',
-      border: isDark ? 'border-amber-500/20' : 'border-amber-200',
-      text: isDark ? 'text-amber-300' : 'text-amber-800',
-      icon: 'text-amber-500',
-      btn: 'bg-amber-500 hover:bg-amber-600 text-white',
-      title: `Cancels in ${daysRemaining} days`,
-      desc: 'Your plan is cancelling. Renew to stay active.',
-      btnText: 'Renew Plan'
-    };
-  } else if (daysRemaining <= 1) {
-    colorConfig = {
-      bg: isDark ? 'bg-red-500/10' : 'bg-red-50',
-      border: isDark ? 'border-red-500/20' : 'border-red-200',
-      text: isDark ? 'text-red-300' : 'text-red-800',
-      icon: 'text-red-500',
-      btn: 'bg-red-600 hover:bg-red-700 text-white',
-      title: 'Expires Today!',
-      desc: 'Update billing to prevent pauses.',
-      btnText: 'Update Billing'
-    };
-  }
-
   return (
-    <div className="px-4 pb-4">
-      <div className={`p-3.5 rounded-2xl border flex flex-col gap-2.5 ${colorConfig.bg} ${colorConfig.border}`}>
-        <div className="flex items-start gap-2">
-          <AlertTriangle size={16} className={`shrink-0 mt-0.5 ${colorConfig.icon}`} />
-          <div>
-            <h4 className={`text-xs font-bold ${colorConfig.icon}`}>{colorConfig.title}</h4>
-            <p className={`text-[10px] mt-0.5 leading-relaxed ${colorConfig.text}`}>
-              {colorConfig.desc}
-            </p>
-          </div>
-        </div>
-        <button onClick={() => navigate('/app/billing')} className={`w-full py-1.5 rounded-lg text-[11px] font-bold transition-all shadow-sm ${colorConfig.btn}`}>
-          {colorConfig.btnText}
-        </button>
-      </div>
+    <div className="px-3 pb-4 overflow-hidden relative min-h-[115px]">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeSlide.id}
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 10 }}
+          transition={{ duration: 0.3 }}
+          className="absolute inset-x-3 top-0"
+        >
+          {activeSlide.id === 'expiry' ? (
+            <div className={`p-3.5 rounded-2xl border flex flex-col gap-2.5 ${activeSlide.content.bg} ${activeSlide.content.border}`}>
+              <div className="flex items-start gap-2">
+                {activeSlide.content.iconType === 'alert' ? <AlertTriangle size={16} className={`shrink-0 mt-0.5 ${activeSlide.content.icon}`} /> : <Info size={16} className={`shrink-0 mt-0.5 ${activeSlide.content.icon}`} />}
+                <div>
+                  <h4 className={`text-[11px] font-bold ${activeSlide.content.icon}`}>{activeSlide.content.title}</h4>
+                  <p className={`text-[10px] mt-0.5 leading-relaxed ${activeSlide.content.text}`}>
+                    {activeSlide.content.desc}
+                  </p>
+                </div>
+              </div>
+              <button onClick={() => navigate('/app/billing')} className={`w-full py-1.5 rounded-lg text-[10px] font-bold transition-all shadow-sm ${activeSlide.content.btn}`}>
+                {activeSlide.content.btnText}
+              </button>
+            </div>
+          ) : (
+            <div className={`p-3.5 rounded-2xl border flex flex-col gap-2.5 ${activeSlide.content.bg} ${activeSlide.content.border} cursor-pointer hover:border-[#FF6A00]/30 transition-colors shadow-sm`} onClick={() => navigate('/app/billing')}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Zap size={14} className={isOverLimit ? 'text-rose-500' : isNearLimit ? 'text-amber-500' : 'text-[#FF6A00]'} />
+                  <span className={`text-[11px] font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>Messages Quota</span>
+                </div>
+                <span className={`text-[10px] font-bold ${activeSlide.content.text}`}>
+                  {usedMessages.toLocaleString()} / {limitMessages.toLocaleString()}
+                </span>
+              </div>
+              <div className={`w-full h-1.5 rounded-full overflow-hidden ${activeSlide.content.progressTrack}`}>
+                <div className={`h-full rounded-full ${activeSlide.content.progressBg} transition-all duration-500`} style={{ width: `${usagePercent}%` }} />
+              </div>
+              <p className={`text-[9.5px] font-medium mt-0.5 ${isOverLimit ? 'text-rose-500' : activeSlide.content.text}`}>
+                {isOverLimit ? 'Quota exceeded! Upgrade plan.' : `${(100 - usagePercent).toFixed(1)}% remaining`}
+              </p>
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };
@@ -622,7 +665,7 @@ export default function DashboardLayout() {
             ))}
           </nav>
           
-          <SubscriptionBanner user={user} isDark={isDark} isSidebarCollapsed={isSidebarCollapsed} />
+          <SidebarStatusWidget user={user} isDark={isDark} isSidebarCollapsed={isSidebarCollapsed} />
         </div>
       </aside>
 
