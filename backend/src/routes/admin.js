@@ -69,4 +69,14 @@ router.get('/analytics/webhook-health', adminController.getWebhookHealth);
 router.get('/analytics/api-usage', adminController.getApiUsage);
 router.post('/payments/:id/refund', adminController.refundPayment);
 
+// Render Infrastructure Monitoring
+const renderAdminController = require('../controllers/renderAdminController');
+router.get('/render/overview', renderAdminController.getOverview);
+router.get('/render/services', renderAdminController.getServices);
+router.get('/render/services/:serviceId', renderAdminController.getServiceDetails);
+router.get('/render/services/:serviceId/metrics', renderAdminController.getServiceMetrics);
+router.get('/render/services/:serviceId/http-requests', renderAdminController.getServiceHttpRequests);
+router.get('/render/services/:serviceId/deployments', renderAdminController.getServiceDeployments);
+router.get('/render/rate-limit', renderAdminController.getRateLimit);
+
 module.exports = router;
