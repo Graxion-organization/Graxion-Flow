@@ -312,7 +312,7 @@ class AIService {
     } catch (error) {
       logger.error('AI generation final fallback failed:', error);
       return {
-        content: "I'm experiencing some technical difficulties right now.",
+        content: `I'm experiencing some technical difficulties right now. Error: ${error.message}`,
         isVoiceResponse: false,
         tokensUsed: 0,
       };
