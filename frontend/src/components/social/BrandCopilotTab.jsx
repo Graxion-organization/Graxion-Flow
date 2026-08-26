@@ -329,7 +329,7 @@ export default function BrandCopilotTab({}) {
   // --- Render Steps (Form) ---
   if (!campaign || !campaign.strategy?.overallHook) {
     return (
-      <div className={`max-w-4xl mx-auto rounded-3xl border p-5 md:p-6 transition-all duration-300 relative overflow-hidden backdrop-blur-md ${
+      <div className={`w-full max-w-7xl mx-auto rounded-3xl border p-5 md:p-6 transition-all duration-300 relative overflow-hidden backdrop-blur-md ${
         'bg-white border-slate-200 shadow-xl dark:bg-slate-900/80 dark:border-white/10 dark:shadow-2xl'
       }`}>
         {/* Background glow effects */}
