@@ -650,7 +650,7 @@ export default function DashboardLayout() {
                       }`
                     }
                   >
-                    <Icon size={isSidebarCollapsed ? 22 : 18} className={({isActive}) => isActive ? "text-[#FF6A00]" : (isGloballyDisabled ? "text-inherit opacity-60 grayscale" : "text-inherit")} />
+                    <Icon size={18} className={({isActive}) => isActive ? "text-[#FF6A00]" : (isGloballyDisabled ? "text-inherit opacity-60 grayscale" : "text-inherit")} />
                     {!isSidebarCollapsed && (
                       <div className="flex items-center justify-between w-full">
                         <span className={isGloballyDisabled ? "line-through decoration-slate-600/50" : ""}>{t(`nav.${label.toLowerCase().replace(/ /g, '')}`, label)}</span>
