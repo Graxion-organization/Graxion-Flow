@@ -398,7 +398,9 @@ export default function BrandCopilotTab({}) {
                 animate={{ opacity: 1, x: 0 }} 
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3 }}
-                <div className="space-y-3">
+                className="space-y-3"
+              >
+                <div>
                   <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Business Name</label>
                   <input 
                     type="text" 
