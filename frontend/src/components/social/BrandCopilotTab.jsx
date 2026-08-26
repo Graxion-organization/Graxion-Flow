@@ -398,24 +398,22 @@ export default function BrandCopilotTab({}) {
                 animate={{ opacity: 1, x: 0 }} 
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-6"
-              >
-                <div>
-                  <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${'text-slate-600 dark:text-slate-300'}`}>Business Name</label>
+                <div className="space-y-3">
+                  <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Business Name</label>
                   <input 
                     type="text" 
                     value={formData.name} 
                     onChange={e => handleFormChange('name', e.target.value)} 
                     placeholder="e.g. Mocha Magic Cafe"
-                    className={`w-full p-4 text-sm font-semibold rounded-2xl outline-none border transition-all ${
+                    className={`w-full px-3 py-2.5 text-sm font-semibold rounded-xl outline-none border transition-all ${
                       'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                     }`} 
                   />
                 </div>
 
-                <div>
-                  <label className={`block text-xs font-black uppercase tracking-widest mb-3 ${'text-slate-600 dark:text-slate-300'}`}>Business Model</label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Business Model</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {MODEL_OPTIONS.map(opt => {
                       const Icon = opt.icon;
                       const isSelected = formData.businessModel === opt.value;
@@ -424,7 +422,7 @@ export default function BrandCopilotTab({}) {
                           key={opt.value}
                           type="button"
                           onClick={() => handleFormChange('businessModel', opt.value)}
-                          className={`p-5 rounded-2xl border text-left flex items-start gap-4 transition-all duration-300 ${
+                          className={`p-3.5 rounded-xl border text-left flex items-start gap-3 transition-all duration-300 ${
                             isSelected 
                               ? 'border-[#FF6A00] bg-[#FF6A00]/5 ring-2 ring-[#FF6A00]/20 shadow-md' 
                               : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/50 hover:border-slate-300 dark:bg-slate-950 dark:border-white/5 dark:text-slate-300 dark:hover:bg-slate-800/50 dark:hover:border-white/15'
@@ -443,27 +441,27 @@ export default function BrandCopilotTab({}) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${'text-slate-600 dark:text-slate-300'}`}>Business Category</label>
+                    <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Business Category</label>
                     <input 
                       type="text" 
                       value={formData.category} 
                       onChange={e => handleFormChange('category', e.target.value)}
                       placeholder="e.g. Coffee shop, SaaS Software, Yoga Studio"
-                      className={`w-full p-4 text-sm font-semibold rounded-2xl outline-none border transition-all ${
+                      className={`w-full px-3 py-2.5 text-sm font-semibold rounded-xl outline-none border transition-all ${
                         'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                       }`}
                     />
                   </div>
                   <div>
-                    <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${'text-slate-600 dark:text-slate-300'}`}>Hours & Timings</label>
+                    <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Hours & Timings</label>
                     <input 
                       type="text" 
                       value={formData.timings} 
                       onChange={e => handleFormChange('timings', e.target.value)}
                       placeholder="e.g. Mon-Fri 9AM-6PM, Sat 10AM-4PM"
-                      className={`w-full p-4 text-sm font-semibold rounded-2xl outline-none border transition-all ${
+                      className={`w-full px-3 py-2.5 text-sm font-semibold rounded-xl outline-none border transition-all ${
                         'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                       }`}
                     />
@@ -479,99 +477,99 @@ export default function BrandCopilotTab({}) {
                 animate={{ opacity: 1, x: 0 }} 
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-6"
+                className="space-y-4"
               >
                 <div>
-                  <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${'text-slate-600 dark:text-slate-300'}`}>Business / Brand Description</label>
+                  <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Business / Brand Description</label>
                   <textarea 
-                    rows={3}
+                    rows={2}
                     value={formData.description} 
                     onChange={e => handleFormChange('description', e.target.value)}
                     placeholder="Describe your business model, brand values, story, and elevator pitch..."
-                    className={`w-full p-4 text-sm font-semibold rounded-2xl outline-none border resize-none transition-all ${
+                    className={`w-full px-3 py-2.5 text-sm font-semibold rounded-xl outline-none border resize-none transition-all ${
                       'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                     }`}
                   />
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${'text-slate-600 dark:text-slate-300'}`}>Key Products / Services</label>
+                    <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Key Products / Services</label>
                     <input 
                       type="text" 
                       value={formData.products} 
                       onChange={e => handleFormChange('products', e.target.value)}
                       placeholder="e.g. Espresso, Croissants, Coffee beans subscription"
-                      className={`w-full p-4 text-sm font-semibold rounded-2xl outline-none border transition-all ${
+                      className={`w-full px-3 py-2.5 text-sm font-semibold rounded-xl outline-none border transition-all ${
                         'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                       }`}
                     />
                   </div>
                   <div>
-                    <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${'text-slate-600 dark:text-slate-300'}`}>Target Audience</label>
+                    <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Target Audience</label>
                     <input 
                       type="text" 
                       value={formData.targetAudience} 
                       onChange={e => handleFormChange('targetAudience', e.target.value)}
                       placeholder="e.g. Working professionals, students, coffee enthusiasts"
-                      className={`w-full p-4 text-sm font-semibold rounded-2xl outline-none border transition-all ${
+                      className={`w-full px-3 py-2.5 text-sm font-semibold rounded-xl outline-none border transition-all ${
                         'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                       }`}
                     />
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-slate-200/10 space-y-3">
+                <div className="pt-3 border-t border-slate-200/10 space-y-2">
                   <h4 className={`text-xs font-black uppercase tracking-wider ${'text-orange-600 dark:text-[#FF6A00]'} flex items-center gap-2`}>
                     <Zap size={14} className="text-[#FF6A00]" />
                     Contact Info (AI will inject these into CTA captions)
                   </h4>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2 ${'text-slate-500 dark:text-slate-400'}`}>Phone Number</label>
+                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${'text-slate-500 dark:text-slate-400'}`}>Phone Number</label>
                       <input 
                         type="text" 
                         value={formData.contactDetails?.phone || ''} 
                         onChange={e => handleContactDetailsChange('phone', e.target.value)}
                         placeholder="e.g. +91 98765 43210"
-                        className={`w-full p-3.5 text-xs font-semibold rounded-xl outline-none border transition-all ${
+                        className={`w-full px-3 py-2 text-xs font-semibold rounded-xl outline-none border transition-all ${
                           'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
                         }`}
                       />
                     </div>
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2 ${'text-slate-500 dark:text-slate-400'}`}>Email Address</label>
+                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${'text-slate-500 dark:text-slate-400'}`}>Email Address</label>
                       <input 
                         type="email" 
                         value={formData.contactDetails?.email || ''} 
                         onChange={e => handleContactDetailsChange('email', e.target.value)}
                         placeholder="e.g. contact@business.com"
-                        className={`w-full p-3.5 text-xs font-semibold rounded-xl outline-none border transition-all ${
+                        className={`w-full px-3 py-2 text-xs font-semibold rounded-xl outline-none border transition-all ${
                           'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
                         }`}
                       />
                     </div>
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2 ${'text-slate-500 dark:text-slate-400'}`}>Website URL</label>
+                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${'text-slate-500 dark:text-slate-400'}`}>Website URL</label>
                       <input 
                         type="text" 
                         value={formData.contactDetails?.website || ''} 
                         onChange={e => handleContactDetailsChange('website', e.target.value)}
                         placeholder="e.g. https://mybusiness.com"
-                        className={`w-full p-3.5 text-xs font-semibold rounded-xl outline-none border transition-all ${
+                        className={`w-full px-3 py-2 text-xs font-semibold rounded-xl outline-none border transition-all ${
                           'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
                         }`}
                       />
                     </div>
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2 ${'text-slate-500 dark:text-slate-400'}`}>Physical Address</label>
+                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${'text-slate-500 dark:text-slate-400'}`}>Physical Address</label>
                       <input 
                         type="text" 
                         value={formData.contactDetails?.address || ''} 
                         onChange={e => handleContactDetailsChange('address', e.target.value)}
                         placeholder="e.g. 1st Floor, Tech Hub, Mumbai"
-                        className={`w-full p-3.5 text-xs font-semibold rounded-xl outline-none border transition-all ${
+                        className={`w-full px-3 py-2 text-xs font-semibold rounded-xl outline-none border transition-all ${
                           'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
                         }`}
                       />
