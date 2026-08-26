@@ -9,7 +9,7 @@ router.get('/public-settings', adminController.getPublicSettings);
 
 // All routes below here are restricted to admin
 router.use(protect);
-router.use(restrictTo('admin'));
+router.use(restrictTo('admin', 'superadmin'));
 
 router.get('/stats', adminController.getStats);
 router.get('/users', adminController.getAllUsers);
