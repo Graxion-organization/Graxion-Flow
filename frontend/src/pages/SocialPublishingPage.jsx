@@ -115,6 +115,7 @@ export default function SocialPublishingPage() {
   const { user, fetchUser } = useAuthStore();
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
   const [activeTab, setActiveTab] = useState('publish');
+  const [activeStep, setActiveStep] = useState(1);
   const [loading, setLoading] = useState(true);
   const [publishing, setPublishing] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -920,12 +921,12 @@ export default function SocialPublishingPage() {
   }
 
   return (
-    <div className="w-full h-[calc(100vh-100px)] min-h-[600px] flex flex-col max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <div className="w-full h-[calc(100vh-100px)] min-h-[600px] flex flex-col max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-2 space-y-4">
 
       {/* Horizontal Tabs & Header */}
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col">
         {/* Horizontal Scrollable Tabs */}
-        <div className={`flex gap-1.5 pb-3 border-b sticky top-0 z-10 backdrop-blur-md pt-1 -mt-1 overflow-x-auto scrollbar-thin whitespace-nowrap ${
+        <div className={`flex gap-1.5 pb-2 border-b sticky top-0 z-10 backdrop-blur-md pt-0 -mt-1 overflow-x-auto scrollbar-thin whitespace-nowrap ${
           isDark ? 'border-white/10' : 'border-slate-200'
         }`}>
           {TABS.map((tab) => {
@@ -935,13 +936,13 @@ export default function SocialPublishingPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all duration-200 ${
                   active 
-                    ? (isDark ? 'bg-[#FF6A00] text-white shadow-lg shadow-[#FF6A00]/20' : 'bg-[#FF6A00] text-white shadow-lg shadow-[#FF6A00]/20')
+                    ? (isDark ? 'bg-[#FF6A00] text-white shadow-md shadow-[#FF6A00]/20' : 'bg-[#FF6A00] text-white shadow-md shadow-[#FF6A00]/20')
                     : (isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-white/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100')
                 }`}
               >
-                <Icon size={16} />
+                <Icon size={14} />
                 {tab.label}
               </button>
             );
@@ -959,358 +960,26 @@ export default function SocialPublishingPage() {
           </div>
         )}
         {activeTab === 'publish' && (
-          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 grid grid-cols-1 xl:grid-cols-12 gap-6 items-start pb-10">
-            <div className="xl:col-span-7">
-              <section className="card">
-                <h2 className="text-lg font-semibold mb-6 text-text">Create Post</h2>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                  {POST_TYPES.map((t) => {
-                    const Icon = t.icon;
-                    const active = postType === t.id;
-                    const isFbSelected = selectedAccounts.some(a => a.platform === 'facebook');
-                    const isYoutubeSelected = selectedAccounts.some(a => a.platform === 'youtube');
-                    const isStory = t.id === 'story';
-                    const isNotReel = t.id !== 'reel';
-                    
-                    const fbDisabled = isStory && isFbSelected;
-                    const youtubeDisabled = isNotReel && isYoutubeSelected;
-                    const disabled = fbDisabled || youtubeDisabled;
-
-                    let tooltip = "";
-                    if (fbDisabled) tooltip = "Facebook Page Story is not supported by Meta API";
-                    if (youtubeDisabled) tooltip = "Not supported on YouTube (Shorts only)";
-
-                    return (
-                      <button
-                        key={t.id}
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => setPostType(t.id)}
-                        className={`h-11 rounded-xl border text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 ${
-                          active 
-                            ? 'bg-accent/10 border-accent text-accent' 
-                            : 'border-border hover:bg-surface text-text/80'
-                        } ${disabled ? 'opacity-40 cursor-not-allowed bg-surface grayscale' : ''}`}
-                        title={tooltip}
-                      >
-                        <Icon size={15} />
-                        {t.id === 'reel' && isYoutubeSelected ? 'Short' : t.label}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="space-y-5">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="label mb-0">Caption</label>
-                      <button
-                        type="button"
-                        onClick={() => setShowAICaptionWriter(v => !v)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                          showAICaptionWriter
-                            ? 'bg-violet-600 text-white'
-                            : 'bg-violet-500/10 text-violet-600 hover:bg-violet-500/20 border border-violet-500/20'
-                        }`}
-                      >
-                        <Sparkles size={13} />
-                        {showAICaptionWriter ? 'Close AI Writer' : '✨ AI Caption'}
-                      </button>
-                    </div>
-                    {showAICaptionWriter && (
-                      <div className="mb-4">
-                        <AICaptionWriter
-                          
-                          selectedPlatforms={selectedAccounts.map(a => a.platform)}
-                          onApply={(generatedCaption) => {
-                            setCaption(generatedCaption);
-                            setShowAICaptionWriter(false);
-                          }}
-                        />
-                      </div>
-                    )}
-                    <textarea
-                      value={caption}
-                      onChange={(e) => setCaption(e.target.value)}
-                      className="input h-36 resize-none"
-                      placeholder="Write your post content... or use ✨ AI Caption above"
-                    />
-                    <div className={`flex justify-end mt-1 text-xs ${caption.length > 2000 ? 'text-error' : 'text-text/50'}`}>
-                      {caption.length} chars
-                    </div>
-                  </div>
-
-                  {/* YouTube Specific Options */}
-                  {selectedAccounts.some(a => a.platform === 'youtube') && (
-                    <div className="p-4 rounded-2xl border border-red-500/20 bg-red-500/5 space-y-4">
-                      <div className="flex items-center gap-2 font-semibold text-sm text-red-500">
-                        <Youtube size={16} />
-                        <span>YouTube Shorts Settings</span>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div>
-                          <label className="label text-[11px] uppercase tracking-wider text-red-500/80">Short Title (max 100)</label>
-                          <input 
-                            type="text"
-                            value={youtubeOptions.title}
-                            onChange={(e) => setYoutubeOptions(prev => ({ ...prev, title: e.target.value }))}
-                            placeholder={caption.substring(0, 50) || "Video Title"}
-                            className="input h-11"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="label text-[11px] uppercase tracking-wider text-red-500/80">Description</label>
-                          <textarea 
-                            value={youtubeOptions.description}
-                            onChange={(e) => setYoutubeOptions(prev => ({ ...prev, description: e.target.value }))}
-                            placeholder="Detailed description for YouTube..."
-                            className="input h-20 resize-none"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="label text-[11px] uppercase tracking-wider text-red-500/80">First Comment</label>
-                          <input 
-                            type="text"
-                            value={youtubeOptions.firstComment}
-                            onChange={(e) => setYoutubeOptions(prev => ({ ...prev, firstComment: e.target.value }))}
-                            placeholder="Write a comment to be pinned or added first..."
-                            className="input h-11"
-                          />
-                          <p className="text-[10px] mt-1 italic text-red-500/60">* Comment will be added automatically after upload.</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="label mb-2">Media</label>
-                    <div className="rounded-2xl border border-border bg-surface p-4 space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        {MEDIA_INPUT_TYPES.map((item) => (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() => setMediaInputType(item.id)}
-                            className={`h-11 rounded-xl border text-sm font-medium transition-all duration-200 ${
-                              mediaInputType === item.id
-                                ? 'border-accent bg-accent/10 text-accent'
-                                : 'border-border text-text/70 hover:bg-background'
-                            }`}
-                          >
-                            {item.label}
-                          </button>
-                        ))}
-                      </div>
-
-                      {mediaInputType === 'upload' && (
-                        <label className="h-12 px-4 rounded-xl border border-dashed border-border bg-background flex items-center justify-center gap-2 text-sm font-medium cursor-pointer hover:border-accent hover:text-accent transition-all duration-200">
-                          {uploading ? <Loader2 size={18} className="animate-spin" /> : <ImageIcon size={18} />}
-                          Upload Media
-                          <input type="file" className="hidden" onChange={handleFileUpload} accept="image/*,video/*" />
-                        </label>
-                      )}
-
-                      {mediaInputType === 'link' && (
-                        <div className="relative">
-                          <LinkIcon size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text/40" />
-                          <input
-                            value={mediaUrl}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              setMediaUrl(val);
-                              setMediaType(/\.(mp4|mov|avi|wmv|webm)$/i.test(val) ? 'video' : 'image');
-                            }}
-                            className="input pl-10 h-12"
-                            placeholder="Paste media URL"
-                          />
-                        </div>
-                      )}
-
-                      {mediaInputType === 'ai' && (
-                        <div className="space-y-4">
-                          <textarea
-                            value={aiPrompt}
-                            onChange={(e) => setAiPrompt(e.target.value)}
-                            placeholder="Describe the image you want to generate..."
-                            className="input h-24 resize-none"
-                          />
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <select
-                              value={aiStyle}
-                              onChange={(e) => setAiStyle(e.target.value)}
-                              className={`h-10 rounded-xl border px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all ${
-                                'bg-white border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-slate-100'
-                              }`}
-                            >
-                              {AI_STYLE_OPTIONS.map((style) => (
-                                <option key={style} value={style}>
-                                  {style}
-                                </option>
-                              ))}
-                            </select>
-                            <select
-                              value={aiAspectRatio}
-                              onChange={(e) => setAiAspectRatio(e.target.value)}
-                              className={`h-10 rounded-xl border px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all ${
-                                'bg-white border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-slate-100'
-                              }`}
-                            >
-                              {AI_ASPECT_OPTIONS.map((ratio) => (
-                                <option key={ratio.value} value={ratio.value}>
-                                  {ratio.label}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={handleGenerateAiImage}
-                            disabled={aiGenerating}
-                            className="h-10 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white text-sm font-semibold flex items-center justify-center gap-2"
-                          >
-                            {aiGenerating ? <Loader2 size={15} className="animate-spin" /> : <ImageIcon size={15} />}
-                            {aiGenerating ? 'Generating...' : 'Generate'}
-                          </button>
-
-                          {generatedImage?.url && (
-                            <div className={`rounded-xl border p-3 transition-all ${'border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-slate-950'}`}>
-                              <img
-                                src={generatedImage.url}
-                                alt="Generated with AI"
-                                className={`w-full max-h-64 object-cover rounded-lg border ${'border-slate-200 dark:border-white/10'}`}
-                              />
-                              <div className="mt-3 grid grid-cols-2 gap-2">
-                                <button
-                                  type="button"
-                                  onClick={handleUseGeneratedImage}
-                                  className="h-9 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
-                                >
-                                  Use This Image
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={handleGenerateAiImage}
-                                  disabled={aiGenerating}
-                                  className={`h-9 rounded-lg border text-xs font-semibold transition-all ${'border-slate-300 hover:bg-slate-100 text-slate-700 bg-white dark:border-white/10 dark:hover:bg-white/5 dark:text-slate-300 dark:bg-slate-900'}`}
-                                >
-                                  Regenerate
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    {postType === 'carousel' && (
-                      <div className="mt-3 space-y-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (!mediaUrl.trim()) return;
-                            setCarouselMediaUrls((prev) => [...prev, mediaUrl.trim()]);
-                            setMediaUrl('');
-                          }}
-                          className={`h-9 px-3 rounded-lg border text-xs font-semibold transition-all ${'border-slate-300 hover:bg-slate-50 text-slate-700 bg-white dark:border-white/10 dark:hover:bg-white/5 dark:text-slate-300 dark:bg-slate-900'}`}
-                        >
-                          Add URL to Carousel
-                        </button>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                          {carouselMediaUrls.map((url, idx) => (
-                            <div key={`${url}-${idx}`} className={`relative aspect-square rounded-lg border overflow-hidden ${'border-slate-200 dark:border-white/10'}`}>
-                              {isVideoUrl(url) ? (
-                                <video src={url} className="w-full h-full object-cover" />
-                              ) : (
-                                <img src={url} className="w-full h-full object-cover" alt={`carousel-${idx + 1}`} />
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => setCarouselMediaUrls((prev) => prev.filter((_, i) => i !== idx))}
-                                className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/50 text-white text-xs"
-                              >
-                                ×
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Scheduling Section */}
-                  <div className={`pt-4 border-t ${'border-slate-100 dark:border-white/10'}`}>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <Calendar size={16} className="text-slate-400" />
-                        <span className="text-sm font-medium">Publishing Schedule</span>
-                      </div>
-                      <div className={`flex p-1 rounded-lg transition-all ${'bg-slate-100 dark:bg-slate-950'}`}>
-                        <button
-                          type="button"
-                          onClick={() => setPublishMode('instant')}
-                          className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all duration-200 ${
-                            publishMode === 'instant' 
-                              ? ('bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400 dark:shadow-sm') 
-                              : ('text-slate-500 dark:text-slate-400 dark:hover:text-white')
-                          }`}
-                        >
-                          NOW
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setPublishMode('scheduled')}
-                          className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all duration-200 ${
-                            publishMode === 'scheduled' 
-                              ? ('bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400 dark:shadow-sm') 
-                              : ('text-slate-500 dark:text-slate-400 dark:hover:text-white')
-                          }`}
-                        >
-                          SCHEDULE
-                        </button>
-                      </div>
-                    </div>
-
-                    {publishMode === 'scheduled' && (
-                      <div className="mb-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <label className={`block text-[11px] font-semibold uppercase mb-1.5 ml-1 ${'text-slate-500 dark:text-slate-400'}`}>
-                          Select Date & Time
-                        </label>
-                        <input
-                          type="datetime-local"
-                          value={scheduledAt}
-                          onChange={(e) => setScheduledAt(e.target.value)}
-                          className={`w-full h-11 px-4 rounded-xl border focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm outline-none ${
-                            'bg-slate-50 border-slate-200 text-slate-900 dark:bg-slate-950 dark:border-white/10 dark:text-slate-100'
-                          }`}
-                          min={new Date().toISOString().slice(0, 16)}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={handlePostSubmit}
-                    disabled={publishing || selectedAccountIds.length === 0 || (publishMode === 'scheduled' && !scheduledAt)}
-                    className={`w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:cursor-not-allowed text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all ${
-                      'disabled:bg-slate-200 disabled:text-slate-400 shadow-lg shadow-blue-200 dark:disabled:bg-slate-850 dark:disabled:text-slate-600'
-                    }`}
-                  >
-                    {publishing ? <Loader2 size={16} className="animate-spin" /> : publishMode === 'scheduled' ? <Calendar size={16} /> : <Send size={16} />}
-                    {publishing ? 'Processing...' : publishMode === 'scheduled' ? 'Schedule Post' : 'Publish Now'}
-                  </button>
-                </div>
-              </section>
-            </div>
-
-            <div className="xl:col-span-5 space-y-6 xl:sticky xl:top-6">
-              <section className={`rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-base font-semibold">{showSidebarPreview ? 'Preview (iPhone 15 Pro)' : 'Select Platforms'}</h3>
-                  <div className="flex items-center gap-2">
-                    {!showSidebarPreview && (
+          <div className="flex-1 min-h-0 grid grid-cols-1 xl:grid-cols-12 gap-6 items-start pb-10 h-full">
+            <div className="xl:col-span-7 h-full overflow-y-auto custom-scrollbar pr-2 space-y-4 pb-10">
+              
+              {/* STEP 1: Platforms & Format */}
+              <section className={`card p-0 overflow-hidden transition-all duration-300 ${activeStep !== 1 ? 'opacity-70 hover:opacity-100' : 'ring-2 ring-blue-500/20'}`}>
+                <button 
+                  onClick={() => setActiveStep(1)}
+                  className="w-full flex items-center justify-between p-5 text-left bg-white dark:bg-slate-900"
+                >
+                  <h3 className="font-semibold text-lg flex items-center gap-3">
+                    <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${activeStep === 1 ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'}`}>1</span>
+                    Platforms & Format
+                  </h3>
+                  <div className={`transition-transform duration-300 ${activeStep === 1 ? 'rotate-180 text-blue-500' : 'text-slate-400'}`}>▼</div>
+                </button>
+                
+                {activeStep === 1 && (
+                  <div className="p-5 pt-0 border-t border-slate-100 dark:border-white/5 animate-in slide-in-from-top-4 duration-300">
+                    <div className="mb-4 flex items-center justify-between">
+                      <label className="label mb-0">Select Platforms</label>
                       <button
                         onClick={() =>
                           setSelectedAccountIds(
@@ -1319,81 +988,449 @@ export default function SocialPublishingPage() {
                         }
                         className="text-xs font-semibold text-blue-600"
                       >
-                        {selectedAccountIds.length === connectedAccounts.length ? 'Clear' : 'Select All'}
+                        {selectedAccountIds.length === connectedAccounts.length ? 'Clear All' : 'Select All'}
                       </button>
-                    )}
-                    <button
-                      onClick={() => setShowSidebarPreview((v) => !v)}
-                      className={`h-8 px-3 rounded-lg text-xs font-semibold transition ${
-                        showSidebarPreview ? 'bg-slate-700 text-white' : 'bg-blue-600 text-white'
-                      } ${previewNudge && !showSidebarPreview ? 'ring-2 ring-blue-300 animate-pulse' : ''}`}
-                    >
-                      {showSidebarPreview ? 'Show Platforms' : 'Open Preview'}
-                    </button>
-                  </div>
-                </div>
-
-                {showSidebarPreview ? (
-                  <div>
-                    <div className="flex gap-1 mb-4">
-                      {['instagram', 'facebook'].map((p) => (
-                        <button
-                          key={p}
-                          onClick={() => setPreviewPlatform(p)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
-                            previewPlatform === p 
-                              ? 'bg-blue-600 text-white' 
-                              : ('bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10')
-                          }`}
-                        >
-                          {p}
-                        </button>
-                      ))}
                     </div>
-                    <div className="flex justify-center">{renderIphonePreview()}</div>
-                  </div>
-                ) : (
-                  <div className="space-y-2 overflow-y-auto pr-1">
-                    {/* Instagram video warning banner (removed because it is supported) */}
-                    {connectedAccounts.map((acc) => {
-                      const selected = selectedAccountIds.includes(acc.id);
-                      return (
-                        <button
-                          key={acc.id}
-                          onClick={() => {
-                            setSelectedAccountIds((prev) =>
-                              prev.includes(acc.id) ? prev.filter((id) => id !== acc.id) : [...prev, acc.id]
-                            );
-                          }}
-                          className={`w-full rounded-xl border p-3 text-left transition-all ${
-                            selected
-                              ? ('border-blue-300 bg-blue-50 dark:border-blue-500 dark:bg-blue-500/10')
-                              : ('border-slate-200 hover:bg-slate-50 bg-white dark:border-white/10 dark:hover:bg-white/5 dark:bg-slate-900/50')
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${'border-slate-300 bg-white dark:border-white/20 dark:bg-slate-950'}`}>
-                              {selected && <CheckCircle2 size={13} className="text-blue-600" />}
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                      {connectedAccounts.map((acc) => {
+                        const selected = selectedAccountIds.includes(acc.id);
+                        return (
+                          <button
+                            key={acc.id}
+                            onClick={() => setSelectedAccountIds((prev) => prev.includes(acc.id) ? prev.filter((id) => id !== acc.id) : [...prev, acc.id])}
+                            className={`w-full rounded-xl border p-3 text-left transition-all ${
+                              selected
+                                ? ('border-blue-300 bg-blue-50 dark:border-blue-500 dark:bg-blue-500/10')
+                                : ('border-slate-200 hover:bg-slate-50 bg-white dark:border-white/10 dark:hover:bg-white/5 dark:bg-slate-900/50')
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${'border-slate-300 bg-white dark:border-white/20 dark:bg-slate-950'}`}>
+                                {selected && <CheckCircle2 size={13} className="text-blue-600" />}
+                              </div>
+                              <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${'bg-slate-100 dark:bg-slate-950'}`}>
+                                {PLATFORM_ICON[acc.platform]}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className={`text-sm font-medium truncate ${'text-slate-800 dark:text-slate-200'}`}>{acc.name}</p>
+                                <p className={`text-[11px] uppercase ${'text-slate-500 dark:text-slate-400'}`}>{acc.platform}</p>
+                              </div>
                             </div>
-                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${'bg-slate-100 dark:bg-slate-950'}`}>
-                              {PLATFORM_ICON[acc.platform]}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className={`text-sm font-medium truncate ${'text-slate-800 dark:text-slate-200'}`}>{acc.name}</p>
-                              <p className={`text-[11px] uppercase ${'text-slate-500 dark:text-slate-400'}`}>{acc.platform}</p>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <label className="label mb-2">Post Format</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                      {POST_TYPES.map((t) => {
+                        const Icon = t.icon;
+                        const active = postType === t.id;
+                        const isFbSelected = selectedAccounts.some(a => a.platform === 'facebook');
+                        const isYoutubeSelected = selectedAccounts.some(a => a.platform === 'youtube');
+                        const isStory = t.id === 'story';
+                        const isNotReel = t.id !== 'reel';
+                        const fbDisabled = isStory && isFbSelected;
+                        const youtubeDisabled = isNotReel && isYoutubeSelected;
+                        const disabled = fbDisabled || youtubeDisabled;
+                        return (
+                          <button
+                            key={t.id}
+                            type="button"
+                            disabled={disabled}
+                            onClick={() => setPostType(t.id)}
+                            className={`h-11 rounded-xl border text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 ${
+                              active ? 'bg-blue-50 border-blue-500 text-blue-600 dark:bg-blue-500/10 dark:border-blue-500/50 dark:text-blue-400' : 'border-slate-200 hover:bg-slate-50 text-slate-700 dark:border-white/10 dark:hover:bg-slate-800 dark:text-slate-300'
+                            } ${disabled ? 'opacity-40 cursor-not-allowed grayscale' : ''}`}
+                          >
+                            <Icon size={15} />
+                            {t.id === 'reel' && isYoutubeSelected ? 'Short' : t.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    
+                    <button 
+                      onClick={() => setActiveStep(2)}
+                      disabled={selectedAccountIds.length === 0}
+                      className="w-full h-11 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-xl font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Continue to Content
+                    </button>
                   </div>
                 )}
               </section>
 
+              {/* STEP 2: Content & Media */}
+              <section className={`card p-0 overflow-hidden transition-all duration-300 ${activeStep !== 2 ? 'opacity-70 hover:opacity-100' : 'ring-2 ring-blue-500/20'}`}>
+                <button 
+                  onClick={() => setActiveStep(2)}
+                  className="w-full flex items-center justify-between p-5 text-left bg-white dark:bg-slate-900"
+                >
+                  <h3 className="font-semibold text-lg flex items-center gap-3">
+                    <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${activeStep === 2 ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'}`}>2</span>
+                    Content & Media
+                  </h3>
+                  <div className={`transition-transform duration-300 ${activeStep === 2 ? 'rotate-180 text-blue-500' : 'text-slate-400'}`}>▼</div>
+                </button>
+                
+                {activeStep === 2 && (
+                  <div className="p-5 pt-0 border-t border-slate-100 dark:border-white/5 animate-in slide-in-from-top-4 duration-300 space-y-6">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="label mb-0">Caption</label>
+                        <button
+                          type="button"
+                          onClick={() => setShowAICaptionWriter(v => !v)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                            showAICaptionWriter
+                              ? 'bg-violet-600 text-white'
+                              : 'bg-violet-500/10 text-violet-600 hover:bg-violet-500/20 border border-violet-500/20'
+                          }`}
+                        >
+                          <Sparkles size={13} />
+                          {showAICaptionWriter ? 'Close AI Writer' : '✨ AI Caption'}
+                        </button>
+                      </div>
+                      {showAICaptionWriter && (
+                        <div className="mb-4">
+                          <AICaptionWriter
+                            selectedPlatforms={selectedAccounts.map(a => a.platform)}
+                            onApply={(generatedCaption) => {
+                              setCaption(generatedCaption);
+                              setShowAICaptionWriter(false);
+                            }}
+                          />
+                        </div>
+                      )}
+                      <textarea
+                        value={caption}
+                        onChange={(e) => setCaption(e.target.value)}
+                        className="input h-36 resize-none"
+                        placeholder="Write your post content... or use ✨ AI Caption above"
+                      />
+                      <div className={`flex justify-end mt-1 text-xs ${caption.length > 2000 ? 'text-error' : 'text-text/50'}`}>
+                        {caption.length} chars
+                      </div>
+                    </div>
+
+                    {/* YouTube Specific Options */}
+                    {selectedAccounts.some(a => a.platform === 'youtube') && (
+                      <div className="p-4 rounded-2xl border border-red-500/20 bg-red-500/5 space-y-4">
+                        <div className="flex items-center gap-2 font-semibold text-sm text-red-500">
+                          <Youtube size={16} />
+                          <span>YouTube Shorts Settings</span>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div>
+                            <label className="label text-[11px] uppercase tracking-wider text-red-500/80">Short Title (max 100)</label>
+                            <input 
+                              type="text"
+                              value={youtubeOptions.title}
+                              onChange={(e) => setYoutubeOptions(prev => ({ ...prev, title: e.target.value }))}
+                              placeholder={caption.substring(0, 50) || "Video Title"}
+                              className="input h-11"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="label text-[11px] uppercase tracking-wider text-red-500/80">Description</label>
+                            <textarea 
+                              value={youtubeOptions.description}
+                              onChange={(e) => setYoutubeOptions(prev => ({ ...prev, description: e.target.value }))}
+                              placeholder="Detailed description for YouTube..."
+                              className="input h-20 resize-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="label text-[11px] uppercase tracking-wider text-red-500/80">First Comment</label>
+                            <input 
+                              type="text"
+                              value={youtubeOptions.firstComment}
+                              onChange={(e) => setYoutubeOptions(prev => ({ ...prev, firstComment: e.target.value }))}
+                              placeholder="Write a comment to be pinned or added first..."
+                              className="input h-11"
+                            />
+                            <p className="text-[10px] mt-1 italic text-red-500/60">* Comment will be added automatically after upload.</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="label mb-2">Media</label>
+                      <div className="rounded-2xl border border-border bg-surface p-4 space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {MEDIA_INPUT_TYPES.map((item) => (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => setMediaInputType(item.id)}
+                              className={`h-11 rounded-xl border text-sm font-medium transition-all duration-200 ${
+                                mediaInputType === item.id
+                                  ? 'border-accent bg-accent/10 text-accent'
+                                  : 'border-border text-text/70 hover:bg-background'
+                              }`}
+                            >
+                              {item.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        {mediaInputType === 'upload' && (
+                          <label className="h-12 px-4 rounded-xl border border-dashed border-border bg-background flex items-center justify-center gap-2 text-sm font-medium cursor-pointer hover:border-accent hover:text-accent transition-all duration-200">
+                            {uploading ? <Loader2 size={18} className="animate-spin" /> : <ImageIcon size={18} />}
+                            Upload Media
+                            <input type="file" className="hidden" onChange={handleFileUpload} accept="image/*,video/*" />
+                          </label>
+                        )}
+
+                        {mediaInputType === 'link' && (
+                          <div className="relative">
+                            <LinkIcon size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text/40" />
+                            <input
+                              value={mediaUrl}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setMediaUrl(val);
+                                setMediaType(/\.(mp4|mov|avi|wmv|webm)$/i.test(val) ? 'video' : 'image');
+                              }}
+                              className="input pl-10 h-12"
+                              placeholder="Paste media URL"
+                            />
+                          </div>
+                        )}
+
+                        {mediaInputType === 'ai' && (
+                          <div className="space-y-4">
+                            <textarea
+                              value={aiPrompt}
+                              onChange={(e) => setAiPrompt(e.target.value)}
+                              placeholder="Describe the image you want to generate..."
+                              className="input h-24 resize-none"
+                            />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <select
+                                value={aiStyle}
+                                onChange={(e) => setAiStyle(e.target.value)}
+                                className={`h-10 rounded-xl border px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all ${
+                                  'bg-white border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-slate-100'
+                                }`}
+                              >
+                                {AI_STYLE_OPTIONS.map((style) => (
+                                  <option key={style} value={style}>
+                                    {style}
+                                  </option>
+                                ))}
+                              </select>
+                              <select
+                                value={aiAspectRatio}
+                                onChange={(e) => setAiAspectRatio(e.target.value)}
+                                className={`h-10 rounded-xl border px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all ${
+                                  'bg-white border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-slate-100'
+                                }`}
+                              >
+                                {AI_ASPECT_OPTIONS.map((ratio) => (
+                                  <option key={ratio.value} value={ratio.value}>
+                                    {ratio.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleGenerateAiImage}
+                              disabled={aiGenerating}
+                              className="h-10 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white text-sm font-semibold flex items-center justify-center gap-2"
+                            >
+                              {aiGenerating ? <Loader2 size={15} className="animate-spin" /> : <ImageIcon size={15} />}
+                              {aiGenerating ? 'Generating...' : 'Generate'}
+                            </button>
+
+                            {generatedImage?.url && (
+                              <div className={`rounded-xl border p-3 transition-all ${'border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-slate-950'}`}>
+                                <img
+                                  src={generatedImage.url}
+                                  alt="Generated with AI"
+                                  className={`w-full max-h-64 object-cover rounded-lg border ${'border-slate-200 dark:border-white/10'}`}
+                                />
+                                <div className="mt-3 grid grid-cols-2 gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={handleUseGeneratedImage}
+                                    className="h-9 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
+                                  >
+                                    Use This Image
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={handleGenerateAiImage}
+                                    disabled={aiGenerating}
+                                    className={`h-9 rounded-lg border text-xs font-semibold transition-all ${'border-slate-300 hover:bg-slate-100 text-slate-700 bg-white dark:border-white/10 dark:hover:bg-white/5 dark:text-slate-300 dark:bg-slate-900'}`}
+                                  >
+                                    Regenerate
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {postType === 'carousel' && (
+                        <div className="mt-3 space-y-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!mediaUrl.trim()) return;
+                              setCarouselMediaUrls((prev) => [...prev, mediaUrl.trim()]);
+                              setMediaUrl('');
+                            }}
+                            className={`h-9 px-3 rounded-lg border text-xs font-semibold transition-all ${'border-slate-300 hover:bg-slate-50 text-slate-700 bg-white dark:border-white/10 dark:hover:bg-white/5 dark:text-slate-300 dark:bg-slate-900'}`}
+                          >
+                            Add URL to Carousel
+                          </button>
+                          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                            {carouselMediaUrls.map((url, idx) => (
+                              <div key={`${url}-${idx}`} className={`relative aspect-square rounded-lg border overflow-hidden ${'border-slate-200 dark:border-white/10'}`}>
+                                {isVideoUrl(url) ? (
+                                  <video src={url} className="w-full h-full object-cover" />
+                                ) : (
+                                  <img src={url} className="w-full h-full object-cover" alt={`carousel-${idx + 1}`} />
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => setCarouselMediaUrls((prev) => prev.filter((_, i) => i !== idx))}
+                                  className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/50 text-white text-xs"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <button 
+                      onClick={() => setActiveStep(3)}
+                      className="w-full h-11 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-xl font-bold flex items-center justify-center gap-2 transition-all"
+                    >
+                      Continue to Publish
+                    </button>
+                  </div>
+                )}
+              </section>
+
+              {/* STEP 3: Publish */}
+              <section className={`card p-0 overflow-hidden transition-all duration-300 ${activeStep !== 3 ? 'opacity-70 hover:opacity-100' : 'ring-2 ring-blue-500/20'}`}>
+                <button 
+                  onClick={() => setActiveStep(3)}
+                  className="w-full flex items-center justify-between p-5 text-left bg-white dark:bg-slate-900"
+                >
+                  <h3 className="font-semibold text-lg flex items-center gap-3">
+                    <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${activeStep === 3 ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'}`}>3</span>
+                    Schedule & Publish
+                  </h3>
+                  <div className={`transition-transform duration-300 ${activeStep === 3 ? 'rotate-180 text-blue-500' : 'text-slate-400'}`}>▼</div>
+                </button>
+                
+                {activeStep === 3 && (
+                  <div className="p-5 pt-0 border-t border-slate-100 dark:border-white/5 animate-in slide-in-from-top-4 duration-300 space-y-6">
+                    <div className={`pt-2 border-slate-100 dark:border-white/10`}>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Calendar size={16} className="text-slate-400" />
+                          <span className="text-sm font-medium">Publishing Schedule</span>
+                        </div>
+                        <div className={`flex p-1 rounded-lg transition-all ${'bg-slate-100 dark:bg-slate-950'}`}>
+                          <button
+                            type="button"
+                            onClick={() => setPublishMode('instant')}
+                            className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all duration-200 ${
+                              publishMode === 'instant' 
+                                ? ('bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400 dark:shadow-sm') 
+                                : ('text-slate-500 dark:text-slate-400 dark:hover:text-white')
+                            }`}
+                          >
+                            NOW
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPublishMode('scheduled')}
+                            className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all duration-200 ${
+                              publishMode === 'scheduled' 
+                                ? ('bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400 dark:shadow-sm') 
+                                : ('text-slate-500 dark:text-slate-400 dark:hover:text-white')
+                            }`}
+                          >
+                            SCHEDULE
+                          </button>
+                        </div>
+                      </div>
+
+                      {publishMode === 'scheduled' && (
+                        <div className="mb-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                          <label className={`block text-[11px] font-semibold uppercase mb-1.5 ml-1 ${'text-slate-500 dark:text-slate-400'}`}>
+                            Select Date & Time
+                          </label>
+                          <input
+                            type="datetime-local"
+                            value={scheduledAt}
+                            onChange={(e) => setScheduledAt(e.target.value)}
+                            className={`w-full h-11 px-4 rounded-xl border focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm outline-none ${
+                              'bg-slate-50 border-slate-200 text-slate-900 dark:bg-slate-950 dark:border-white/10 dark:text-slate-100'
+                            }`}
+                            min={new Date().toISOString().slice(0, 16)}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={handlePostSubmit}
+                      disabled={publishing || selectedAccountIds.length === 0 || (publishMode === 'scheduled' && !scheduledAt)}
+                      className={`w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:cursor-not-allowed text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all ${
+                        'disabled:bg-slate-200 disabled:text-slate-400 shadow-lg shadow-blue-200 dark:disabled:bg-slate-850 dark:disabled:text-slate-600'
+                      }`}
+                    >
+                      {publishing ? <Loader2 size={16} className="animate-spin" /> : publishMode === 'scheduled' ? <Calendar size={16} /> : <Send size={16} />}
+                      {publishing ? 'Processing...' : publishMode === 'scheduled' ? 'Schedule Post' : 'Publish Now'}
+                    </button>
+                  </div>
+                )}
+              </section>
+            </div>
+
+            <div className="hidden xl:block xl:col-span-5 h-[calc(100vh-200px)] sticky top-0 pb-4">
+              <section className={`card h-full flex flex-col items-center justify-center border-dashed bg-slate-50/50 dark:bg-slate-900/30 overflow-hidden relative`}>
+                <div className="absolute top-4 z-10 flex gap-2 bg-white/80 backdrop-blur-md dark:bg-slate-900/80 p-1.5 rounded-xl shadow-sm border border-slate-200 dark:border-white/10">
+                  {['instagram', 'facebook', 'youtube'].map((p) => {
+                     if (!selectedAccountIds.some(id => connectedAccounts.find(a => a.id === id)?.platform === p) && p === 'youtube') return null;
+                     return (
+                      <button
+                        key={p}
+                        onClick={() => setPreviewPlatform(p)}
+                        className={`px-3 py-1 rounded-lg text-[11px] font-bold capitalize transition-all duration-200 ${
+                          previewPlatform === p 
+                            ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' 
+                            : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/5'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    )
+                  })}
+                </div>
+                <div className="scale-[0.85] transform origin-center flex-1 w-full h-full flex items-center justify-center mt-12">
+                  {renderIphonePreview()}
+                </div>
+              </section>
             </div>
           </div>
         )}
-
         {activeTab === 'copilot' && (
           <BrandCopilotTab  />
         )}
