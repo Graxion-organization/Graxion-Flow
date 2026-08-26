@@ -920,33 +920,12 @@ export default function SocialPublishingPage() {
   }
 
   return (
-    <div className="w-full h-full min-h-[calc(100vh-100px)] max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-      {/* Connected Accounts Status Bar */}
-      {connectedAccounts.length > 0 && (
-        <div className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border overflow-x-auto scrollbar-thin ${
-          isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200'
-        }`}>
-          <span className={`text-[10px] font-bold uppercase tracking-wider flex-shrink-0 ${
-            isDark ? 'text-slate-500' : 'text-slate-400'
-          }`}>Connected</span>
-          <div className="flex items-center gap-2 flex-wrap">
-            {connectedAccounts.map((acc) => (
-              <div key={acc.id} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${
-                isDark ? 'bg-white/5 text-slate-300' : 'bg-slate-50 text-slate-700'
-              }`}>
-                {PLATFORM_ICON[acc.platform]}
-                <span className="truncate max-w-[100px]">{acc.name}</span>
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+    <div className="w-full h-[calc(100vh-100px)] min-h-[600px] flex flex-col max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
       {/* Horizontal Tabs & Header */}
       <div className="flex flex-col gap-6">
         {/* Horizontal Scrollable Tabs */}
-        <div className={`flex flex-wrap gap-1.5 pb-3 border-b sticky top-0 z-10 backdrop-blur-md pt-1 -mt-1 ${
+        <div className={`flex gap-1.5 pb-3 border-b sticky top-0 z-10 backdrop-blur-md pt-1 -mt-1 overflow-x-auto scrollbar-thin whitespace-nowrap ${
           isDark ? 'border-white/10' : 'border-slate-200'
         }`}>
           {TABS.map((tab) => {
@@ -970,17 +949,17 @@ export default function SocialPublishingPage() {
         </div>
       </div>
         {activeTab === 'calendar' && (
-          <div className="pb-16">
+          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2">
             <SocialCalendarTab />
           </div>
         )}
         {activeTab === 'today' && (
-          <div className="pb-16">
+          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2">
             <TodayAnalyticsPanel  />
           </div>
         )}
         {activeTab === 'publish' && (
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 grid grid-cols-1 xl:grid-cols-12 gap-6 items-start pb-10">
             <div className="xl:col-span-7">
               <section className="card">
                 <h2 className="text-lg font-semibold mb-6 text-text">Create Post</h2>
@@ -1420,7 +1399,7 @@ export default function SocialPublishingPage() {
         )}
 
         {activeTab === 'feed' && (
-          <div className={`rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
+          <div className={`flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5">
               <h2 className="text-lg font-semibold">Content Library</h2>
               <div className="flex flex-wrap gap-2">
@@ -1751,7 +1730,7 @@ export default function SocialPublishingPage() {
         )}
 
         {activeTab === 'accounts' && (
-          <div className={`rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
+          <div className={`flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
             <h2 className="text-lg font-semibold mb-5">Connected Accounts</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {connectedAccounts.map((acc) => (
@@ -1828,7 +1807,7 @@ export default function SocialPublishingPage() {
         )}
 
         {activeTab === 'yt_automation' && (
-          <div className={`rounded-3xl border p-12 text-center max-w-2xl mx-auto shadow-sm transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
+          <div className={`flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 rounded-3xl border p-12 text-center max-w-2xl mx-auto shadow-sm transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
             <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 ${'bg-red-50 dark:bg-red-500/10'}`}>
               <Youtube size={40} className="text-red-600" />
             </div>
@@ -1850,7 +1829,7 @@ export default function SocialPublishingPage() {
         )}
 
         {activeTab === 'profile' && (
-          <form onSubmit={handleProfileUpdate} className={`rounded-2xl border p-5 sm:p-6 max-w-3xl transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
+          <form onSubmit={handleProfileUpdate} className={`flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 rounded-2xl border p-5 sm:p-6 max-w-3xl transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
             <h2 className="text-lg font-semibold mb-5">Profile Sync</h2>
             <div className="space-y-4">
               <div>
