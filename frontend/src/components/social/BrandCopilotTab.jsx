@@ -484,7 +484,7 @@ export default function BrandCopilotTab({}) {
                 <div>
                   <label className={`block text-xs font-black uppercase tracking-widest mb-2.5 ${'text-slate-600 dark:text-slate-300'}`}>Business / Brand Description</label>
                   <textarea 
-                    rows={4}
+                    rows={3}
                     value={formData.description} 
                     onChange={e => handleFormChange('description', e.target.value)}
                     placeholder="Describe your business model, brand values, story, and elevator pitch..."
@@ -521,7 +521,7 @@ export default function BrandCopilotTab({}) {
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-slate-200/10 space-y-4">
+                <div className="pt-4 border-t border-slate-200/10 space-y-3">
                   <h4 className={`text-xs font-black uppercase tracking-wider ${'text-orange-600 dark:text-[#FF6A00]'} flex items-center gap-2`}>
                     <Zap size={14} className="text-[#FF6A00]" />
                     Contact Info (AI will inject these into CTA captions)
@@ -727,8 +727,8 @@ export default function BrandCopilotTab({}) {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10">
-            <div className="lg:col-span-2 space-y-6">
+          <div className="flex flex-col gap-6 relative z-10">
+            <div className="space-y-6">
               {/* Campaign Concept */}
               <div className={`rounded-2xl p-6 border transition-all hover:-translate-y-0.5 duration-300 ${
                 'bg-slate-50 border-slate-100 shadow-sm dark:bg-slate-950/50 dark:border-white/5'
