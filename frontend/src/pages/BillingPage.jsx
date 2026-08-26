@@ -203,7 +203,7 @@ export default function BillingPage() {
   if (loading) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-[#FF6A00] border-t-transparent rounded-full animate-spin" /></div>;
 
   return (
-    <div className="space-y-8 animate-fade-in max-w-6xl">
+    <div className="space-y-8 animate-fade-in w-full max-w-7xl mx-auto">
       <div>
         <h1 className={`text-2xl font-extrabold ${'text-slate-900 dark:text-slate-100'}`}>Billing & Plans</h1>
         <p className={`${'text-slate-500 dark:text-slate-400'} text-sm mt-1`}>
