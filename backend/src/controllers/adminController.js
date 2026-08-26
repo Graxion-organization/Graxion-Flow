@@ -523,7 +523,11 @@ exports.getSystemSettings = async (req, res, next) => {
  */
 exports.updateSystemSetting = async (req, res, next) => {
   try {
-    const { key, value } = req.body;
+    let { key, value } = req.body;
+    
+    // Explicitly parse boolean strings to booleans
+    if (value === 'true') value = true;
+    if (value === 'false') value = false;
     
     const setting = await SystemSetting.findOneAndUpdate(
       { key },
