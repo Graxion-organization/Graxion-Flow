@@ -130,8 +130,8 @@ class MarketingCopilotService {
 
       let response = await makeOpenRouterRequest(process.env.OPENROUTER_API_KEY);
       
-      if (response.status === 429 && process.env.OPENROUTER_API_KEY_2) {
-        logger.warn('[MarketingCopilot] OpenRouter 429 Rate Limit hit. Retrying with OPENROUTER_API_KEY_2...');
+      if (!response.ok && process.env.OPENROUTER_API_KEY_2) {
+        logger.warn(`[MarketingCopilot] OpenRouter failed (${response.status}). Retrying with OPENROUTER_API_KEY_2...`);
         response = await makeOpenRouterRequest(process.env.OPENROUTER_API_KEY_2);
       }
 

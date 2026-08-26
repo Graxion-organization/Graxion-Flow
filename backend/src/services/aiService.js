@@ -192,8 +192,8 @@ class AIService {
       await AIService.logApiRequest('openrouter', modelName, messages, completion, 'SUCCESS', null, startTime);
       return responseText;
     } catch (error) {
-      if (!useBackupKey && error.status === 429 && process.env.OPENROUTER_API_KEY_2) {
-        logger.warn(`[AI_SERVICE] OpenRouter 429 Rate Limit hit. Retrying with OPENROUTER_API_KEY_2...`);
+      if (!useBackupKey && process.env.OPENROUTER_API_KEY_2) {
+        logger.warn(`[AI_SERVICE] OpenRouter failed (${error.message || error.status}). Retrying with OPENROUTER_API_KEY_2...`);
         return await this.callOpenRouter(modelName, systemPrompt, effectiveContext, userMessageText, temperature, true);
       }
       await AIService.logApiRequest('openrouter', modelName, messages, null, 'FAILED', error, startTime);

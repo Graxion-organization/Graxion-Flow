@@ -48,8 +48,8 @@ const generateResponse = async (prompt, contextData) => {
       
       return openRouterResponse.data.choices[0].message.content;
     } catch (openRouterError) {
-      if (openRouterError.response?.status === 429 && process.env.OPENROUTER_API_KEY_2) {
-        logger.warn('OpenRouter 429 Rate Limit hit. Retrying with OPENROUTER_API_KEY_2...');
+      if (process.env.OPENROUTER_API_KEY_2) {
+        logger.warn(`OpenRouter failed (${openRouterError.message}). Retrying with OPENROUTER_API_KEY_2...`);
         try {
           const fallbackResponse = await axios.post(
             'https://openrouter.ai/api/v1/chat/completions',
