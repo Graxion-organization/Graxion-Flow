@@ -366,6 +366,12 @@ exports.receiveMessage = async (req, res) => {
         emitToUser(tgAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: true });
         const aiResult = await AIService.generate(agent, contextMessages.slice(0, -1), text, 'telegram');
         emitToUser(tgAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
+        
+        if (!aiResult || !aiResult.content) {
+          logger.warn(`AI returned null content for Telegram message from ${chatId}, aborting silent fail.`);
+          return;
+        }
+
         const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'telegram');
       
         // 10. Send AI reply

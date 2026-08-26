@@ -510,6 +510,12 @@ async function handleInstagramDM(event, igAccount, agent) {
       const aiResult = await AIService.generate(tempAgent, contextMessages.slice(0, -1), text, 'instagram');
       logger.info(`[RENDER_LOG] [INSTAGRAM_DM] AI generated reply: "${aiResult.content}"`);
       emitToUser(igAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
+      
+      if (!aiResult || !aiResult.content) {
+        logger.warn(`AI returned null content for Instagram DM from ${senderId}, aborting silent fail.`);
+        return;
+      }
+
       const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'instagram');
 
       let sentMsg;
@@ -848,6 +854,11 @@ async function handleInstagramComment(commentData, igAccount, agent) {
         }
 
         const aiResult = await AIService.generate(tempAgent, contextMessages, text);
+
+        if (!aiResult || !aiResult.content) {
+          logger.warn(`AI returned null content for Instagram Comment ${commentId}, aborting silent fail.`);
+          return;
+        }
 
         logger.info(`AI generated comment reply: ${aiResult.content}`);
 

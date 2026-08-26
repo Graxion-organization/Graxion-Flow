@@ -358,6 +358,11 @@ async function handleFacebookMessage(event, fbAccount, agent) {
       logger.info(`[RENDER_LOG] [FACEBOOK_DM] AI generated reply: "${aiResult.content}"`);
       emitToUser(fbAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
       
+      if (!aiResult || !aiResult.content) {
+        logger.warn(`AI returned null content for Facebook DM from ${senderId}, aborting silent fail.`);
+        return;
+      }
+
       const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'facebook');
       const sentMsg = await fbService.sendTextMessage(senderId, cleanReply || "I am currently unable to process that request.");
       logger.info(`[RENDER_LOG] [FACEBOOK_DM] Successfully sent reply to Facebook user.`);
@@ -543,6 +548,12 @@ async function handleFacebookComment(commentData, fbAccount, agent) {
         };
 
         const aiResult = await AIService.generate(tempAgent, [], text);
+
+        if (!aiResult || !aiResult.content) {
+          logger.warn(`AI returned null content for Facebook Comment ${commentId}, aborting silent fail.`);
+          return;
+        }
+
         logger.info(`AI generated FB comment reply: ${aiResult.content}`);
 
         await fbService.replyToComment(commentId, aiResult.content);

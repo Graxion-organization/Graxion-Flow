@@ -577,7 +577,7 @@ export default function ConversationsPage() {
   return (
     <div className={isFullScreen 
       ? `fixed inset-0 z-[100] p-2 sm:p-4 flex flex-col animate-fade-in ${'bg-gray-50 dark:bg-slate-950'}` 
-      : "flex-1 min-h-0 flex flex-col animate-fade-in"}>
+      : "h-[calc(100vh-115px)] min-h-[500px] flex flex-col animate-fade-in"}>
       <div className="flex-1 flex gap-4 min-h-0 h-full w-full relative">
         {/* Sidebar list */}
         <div className={`${showDetail ? 'hidden lg:flex' : 'flex'} flex-col w-full lg:w-[380px] rounded-2xl border shrink-0 min-h-0 h-full ${panelClass}`}>

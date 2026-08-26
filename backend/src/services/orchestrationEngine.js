@@ -138,17 +138,25 @@ class OrchestrationEngine {
     let finalContent = '';
     let totalTokens = 0;
     let primaryAgent = null;
+
+    // Filter out agents that returned null (due to AI generation failure)
+    const validResponses = agentResponses.filter(r => r.response && r.response.content !== null);
+
+    if (validResponses.length === 0) {
+      // All agents failed to generate a response
+      return { content: null, tokensUsed: 0, agent: agentResponses[0]?.agent };
+    }
     
-    if (agentResponses.length === 1) {
-      finalContent = agentResponses[0].response.content;
-      totalTokens = agentResponses[0].response.tokensUsed;
-      primaryAgent = agentResponses[0].agent;
+    if (validResponses.length === 1) {
+      finalContent = validResponses[0].response.content;
+      totalTokens = validResponses[0].response.tokensUsed;
+      primaryAgent = validResponses[0].agent;
     } else {
-      finalContent = await this.synthesizeResponses(userMessageText, agentResponses);
-      totalTokens = agentResponses.reduce((sum, r) => sum + r.response.tokensUsed, 0) + 150; // Add routing overhead estimate
+      finalContent = await this.synthesizeResponses(userMessageText, validResponses);
+      totalTokens = validResponses.reduce((sum, r) => sum + r.response.tokensUsed, 0) + 150; // Add routing overhead estimate
       
       // Select the agent with the highest confidence as the primary/sticky agent
-      const sorted = [...agentResponses].sort((a, b) => b.confidence - a.confidence);
+      const sorted = [...validResponses].sort((a, b) => b.confidence - a.confidence);
       primaryAgent = sorted[0].agent;
     }
 

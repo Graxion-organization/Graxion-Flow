@@ -556,6 +556,11 @@ exports.processWebhookPayload = async (payload) => {
         await waService.sendTextMessage(from, targetAgent.outOfHoursMessage);
         return;
       }
+
+      if (!aiResult || !aiResult.content) {
+        logger.warn(`AI returned null content for WhatsApp message from ${from}, aborting silent fail.`);
+        return;
+      }
  
       // 9c. Sanitize response - remove markdown symbols not supported by WhatsApp
       let cleanReply = AIService.sanitizeForWhatsApp(aiResult.content) || 'Sorry, something went wrong.';

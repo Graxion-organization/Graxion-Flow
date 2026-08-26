@@ -130,6 +130,16 @@ const sendEmail = async ({ to, subject, html }) => {
         placeholders.targetUserName = matchUser ? matchUser[1].trim() : 'User';
         const matchRole = html.match(/to\s*<strong>([^<]+)/);
         placeholders.newRole = matchRole ? matchRole[1].trim() : 'Admin';
+      } else if (subject.toLowerCase().includes('ai agent generation failed') || subject.includes('AI Agent Generation Failed')) {
+        templateKey = 'aiGenerationFailed';
+        const matchAgent = html.match(/agent <b>([^<]+)/i);
+        placeholders.agentName = matchAgent ? matchAgent[1].trim() : 'Agent';
+        const matchPlatform = html.match(/on (whatsapp|instagram|facebook|telegram)/i);
+        placeholders.platform = matchPlatform ? matchPlatform[1].trim() : 'messaging platform';
+        const matchError = html.match(/Error:<\/b>\s*([^<]+)/i);
+        placeholders.errorMsg = matchError ? matchError[1].trim() : 'Unknown Error';
+        const matchUserMsg = html.match(/Message:<\/b>\s*([^<]+)/i);
+        placeholders.userMsg = matchUserMsg ? matchUserMsg[1].trim() : 'N/A';
       }
     }
 
@@ -275,6 +285,21 @@ const emailTemplates = {
       <p>You can now log in at the admin portal using your registered email and password.</p>
       <hr style="border:0;border-top:1px solid #e4e4e7;margin:24px 0;"/>
       <p style="font-size:12px;color:#a1a1aa;text-align:center;">WhatsAgent Platform Security Team</p>
+    </div>`,
+  }),
+
+  aiGenerationFailed: (agentName, platform, errorMsg, userMsg) => ({
+    subject: '⚠️ AI Agent Generation Failed',
+    html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;border:1px solid #e4e4e7;border-radius:12px;padding:24px;color:#18181b;">
+      <h2 style="color:#ef4444;margin-top:0;">AI Generation Failed</h2>
+      <p>Your AI agent <b>${agentName}</b> encountered a critical error while trying to reply to a user on ${platform}.</p>
+      <div style="background:#f4f4f5;padding:16px;border-radius:8px;margin:20px 0;border-left:4px solid #ef4444;">
+        <p style="margin-top:0;"><b>Error:</b> ${errorMsg}</p>
+        <p style="margin-bottom:0;"><b>User Message:</b> ${userMsg}</p>
+      </div>
+      <p>The message was aborted to prevent sending an error to the user. Please check your API keys or agent configuration.</p>
+      <hr style="border:0;border-top:1px solid #e4e4e7;margin:24px 0;"/>
+      <p style="font-size:12px;color:#a1a1aa;text-align:center;">Automated System Alert</p>
     </div>`,
   }),
 };

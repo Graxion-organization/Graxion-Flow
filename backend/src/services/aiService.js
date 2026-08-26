@@ -311,8 +311,43 @@ class AIService {
       };
     } catch (error) {
       logger.error('AI generation final fallback failed:', error);
+      
+      // Save webhook and send email in background
+      (async () => {
+        try {
+          // 1. Log to WebhookLog
+          const WebhookLog = require('../models/WebhookLog');
+          await WebhookLog.create({
+            platform: platform || 'unknown',
+            eventType: 'ai_generation_failed',
+            payload: { userMessageText, error: error.message },
+            status: 'FAILED',
+            error: error.message,
+          });
+
+          // 2. Send email to agent owner
+          if (agent && agent.user) {
+            const User = require('../models/User');
+            const owner = await User.findById(agent.user);
+            if (owner && owner.email) {
+              const { sendEmail, emailTemplates } = require('./emailService');
+              const { subject, html } = emailTemplates.aiGenerationFailed(
+                agent.name || 'AI Agent',
+                platform || 'messaging',
+                error.message,
+                userMessageText
+              );
+              await sendEmail({ to: owner.email, subject, html });
+            }
+          }
+        } catch (logErr) {
+          logger.error('Failed to log WebhookLog or send error email:', logErr);
+        }
+      })();
+
+      // Return null so webhook controllers skip sending a message
       return {
-        content: `I'm experiencing some technical difficulties right now. Error: ${error.message}`,
+        content: null,
         isVoiceResponse: false,
         tokensUsed: 0,
       };
