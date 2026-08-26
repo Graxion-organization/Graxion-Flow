@@ -218,21 +218,31 @@ Return a JSON object with this exact structure:
     const userPrompt = `${genrePrompt} for ${platform}. ${tonePrompt}. Context: ${context}. Brand: ${brandName}. Audience: ${targetAudience}. Keep under ${charLimit} chars. Return JSON: {"caption":"...","hashtags":["..."],"hook":"...","callToAction":"..."}`;
 
     const model = process.env.OPENROUTER_MODEL || 'meta-llama/llama-3-8b-instruct:free';
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openrouterKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        response_format: { type: 'json_object' }
-      })
-    });
+    
+    const makeOpenRouterRequest = async (apiKey) => {
+      return await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          response_format: { type: 'json_object' }
+        })
+      });
+    };
+
+    let response = await makeOpenRouterRequest(openrouterKey);
+
+    if (response.status === 429 && process.env.OPENROUTER_API_KEY_2) {
+      logger.warn('[AICaptionService] OpenRouter 429 Rate Limit hit. Retrying with OPENROUTER_API_KEY_2...');
+      response = await makeOpenRouterRequest(process.env.OPENROUTER_API_KEY_2);
+    }
 
     if (!response.ok) {
       const errText = await response.text();

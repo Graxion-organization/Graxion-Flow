@@ -138,18 +138,27 @@ ${prompt}
     if (process.env.OPENROUTER_API_KEY) {
       try {
         logger.info("Trying OpenRouter for free image generation...");
-        // Using huggingface model on OpenRouter or standard completions for image
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "huggingface/black-forest-labs/flux-schnell", // Or another free image model on openrouter if it exists
-            messages: [{ role: "user", content: finalPrompt }],
-          })
-        });
+        
+        const makeOpenRouterRequest = async (apiKey) => {
+          return await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${apiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "huggingface/black-forest-labs/flux-schnell", 
+              messages: [{ role: "user", content: finalPrompt }],
+            })
+          });
+        };
+
+        let response = await makeOpenRouterRequest(process.env.OPENROUTER_API_KEY);
+        
+        if (response.status === 429 && process.env.OPENROUTER_API_KEY_2) {
+          logger.warn("OpenRouter 429 Rate Limit hit. Retrying with OPENROUTER_API_KEY_2...");
+          response = await makeOpenRouterRequest(process.env.OPENROUTER_API_KEY_2);
+        }
         
         // OpenRouter image generation support is experimental and varies.
         // We will catch and move to pollinations if it doesn't give a valid base64 image

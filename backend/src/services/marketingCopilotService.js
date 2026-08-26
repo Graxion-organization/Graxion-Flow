@@ -109,21 +109,31 @@ class MarketingCopilotService {
     logger.info('[MarketingCopilot] Falling back to OpenRouter LLM...');
     try {
       const model = process.env.OPENROUTER_MODEL || 'meta-llama/llama-3-8b-instruct:free';
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY || ''}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
-          ],
-          response_format: { type: 'json_object' }
-        })
-      });
+      
+      const makeOpenRouterRequest = async (apiKey) => {
+        return await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey || ''}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt }
+            ],
+            response_format: { type: 'json_object' }
+          })
+        });
+      };
+
+      let response = await makeOpenRouterRequest(process.env.OPENROUTER_API_KEY);
+      
+      if (response.status === 429 && process.env.OPENROUTER_API_KEY_2) {
+        logger.warn('[MarketingCopilot] OpenRouter 429 Rate Limit hit. Retrying with OPENROUTER_API_KEY_2...');
+        response = await makeOpenRouterRequest(process.env.OPENROUTER_API_KEY_2);
+      }
 
       const data = await response.json();
       const content = data.choices?.[0]?.message?.content;

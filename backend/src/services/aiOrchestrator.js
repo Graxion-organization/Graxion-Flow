@@ -48,6 +48,32 @@ const generateResponse = async (prompt, contextData) => {
       
       return openRouterResponse.data.choices[0].message.content;
     } catch (openRouterError) {
+      if (openRouterError.response?.status === 429 && process.env.OPENROUTER_API_KEY_2) {
+        logger.warn('OpenRouter 429 Rate Limit hit. Retrying with OPENROUTER_API_KEY_2...');
+        try {
+          const fallbackResponse = await axios.post(
+            'https://openrouter.ai/api/v1/chat/completions',
+            {
+              model: 'deepseek/deepseek-chat',
+              messages: [
+                { role: 'system', content: 'You are an AI Teacher explaining concepts in Hindi/English.' },
+                { role: 'user', content: fullPrompt }
+              ]
+            },
+            {
+              headers: {
+                'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY_2}`,
+                'HTTP-Referer': 'http://localhost:5000',
+                'X-Title': 'AI Teacher SaaS',
+              }
+            }
+          );
+          return fallbackResponse.data.choices[0].message.content;
+        } catch (fallbackError) {
+          logger.error('OpenRouter fallback with key 2 failed:', fallbackError.message);
+        }
+      }
+      
       logger.error('OpenRouter fallback failed:', openRouterError.message);
       return 'I am currently experiencing network issues. Please try again in a moment.';
     }

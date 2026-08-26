@@ -161,14 +161,16 @@ class AIService {
     }
   }
 
-  static async callOpenRouter(modelName, systemPrompt, effectiveContext, userMessageText, temperature) {
+  static async callOpenRouter(modelName, systemPrompt, effectiveContext, userMessageText, temperature, useBackupKey = false) {
     const startTime = Date.now();
     let messages = [];
     try {
       const { OpenAI } = require('openai');
+      const apiKey = useBackupKey && process.env.OPENROUTER_API_KEY_2 ? process.env.OPENROUTER_API_KEY_2 : process.env.OPENROUTER_API_KEY;
+      
       const openai = new OpenAI({
         baseURL: "https://openrouter.ai/api/v1",
-        apiKey: process.env.OPENROUTER_API_KEY,
+        apiKey: apiKey,
         defaultHeaders: {
           "HTTP-Referer": process.env.FRONTEND_URL || "http://localhost:3000",
           "X-Title": "WhatsApp SaaS",
@@ -190,6 +192,10 @@ class AIService {
       await AIService.logApiRequest('openrouter', modelName, messages, completion, 'SUCCESS', null, startTime);
       return responseText;
     } catch (error) {
+      if (!useBackupKey && error.status === 429 && process.env.OPENROUTER_API_KEY_2) {
+        logger.warn(`[AI_SERVICE] OpenRouter 429 Rate Limit hit. Retrying with OPENROUTER_API_KEY_2...`);
+        return await this.callOpenRouter(modelName, systemPrompt, effectiveContext, userMessageText, temperature, true);
+      }
       await AIService.logApiRequest('openrouter', modelName, messages, null, 'FAILED', error, startTime);
       throw error;
     }
