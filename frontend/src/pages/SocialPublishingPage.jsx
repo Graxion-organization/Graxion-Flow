@@ -1432,7 +1432,11 @@ export default function SocialPublishingPage() {
           </div>
         )}
         {activeTab === 'copilot' && (
-          <BrandCopilotTab  />
+          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 pb-4">
+            <div style={{ zoom: 0.85 }} className="w-full">
+              <BrandCopilotTab  />
+            </div>
+          </div>
         )}
 
         {activeTab === 'feed' && (

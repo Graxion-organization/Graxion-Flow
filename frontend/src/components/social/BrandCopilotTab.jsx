@@ -329,14 +329,14 @@ export default function BrandCopilotTab({}) {
   // --- Render Steps (Form) ---
   if (!campaign || !campaign.strategy?.overallHook) {
     return (
-      <div className={`max-w-4xl mx-auto rounded-3xl border p-8 md:p-12 transition-all duration-300 relative overflow-hidden backdrop-blur-md ${
+      <div className={`max-w-4xl mx-auto rounded-3xl border p-5 md:p-6 transition-all duration-300 relative overflow-hidden backdrop-blur-md ${
         'bg-white border-slate-200 shadow-xl dark:bg-slate-900/80 dark:border-white/10 dark:shadow-2xl'
       }`}>
         {/* Background glow effects */}
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#FF6A00]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 relative z-10">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-orange-500 to-[#FF6A00] flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
               <Sparkles size={28} className="animate-pulse" />
@@ -352,7 +352,7 @@ export default function BrandCopilotTab({}) {
         </div>
 
         {/* Progress Stepper */}
-        <div className="flex items-center justify-between mb-12 px-4 relative z-10">
+        <div className="flex items-center justify-between mb-6 px-4 relative z-10">
           {[1, 2, 3].map(step => (
             <React.Fragment key={step}>
               <div className="flex flex-col items-center relative">
@@ -389,7 +389,7 @@ export default function BrandCopilotTab({}) {
         </div>
 
         {/* Form Contents */}
-        <div className="space-y-6 min-h-[550px] relative z-10 pt-4">
+        <div className="space-y-4 min-h-0 relative z-10 pt-4">
           <AnimatePresence mode="wait">
             {activeStep === 1 && (
               <motion.div 
@@ -851,9 +851,9 @@ export default function BrandCopilotTab({}) {
   });
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-20">
+    <div className="space-y-6 max-w-7xl mx-auto pb-4">
       {/* Campaign Summary & Metrics Panel */}
-      <div className={`rounded-3xl p-6 md:p-8 border relative overflow-hidden backdrop-blur-md ${
+      <div className={`rounded-3xl p-4 md:p-5 border relative overflow-hidden backdrop-blur-md ${
         'bg-white border-slate-200 shadow-xl dark:bg-slate-900/90 dark:border-white/10 dark:shadow-2xl'
       }`}>
         <div className="absolute -top-32 -right-32 w-80 h-80 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
