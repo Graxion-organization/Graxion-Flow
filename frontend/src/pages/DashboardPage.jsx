@@ -235,10 +235,10 @@ export default function DashboardPage() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <text x="50%" y="50%" dy="-8" textAnchor="middle" dominantBaseline="middle" className={`text-3xl font-bold ${isDark ? 'fill-slate-100' : 'fill-slate-900'}`}>
+                  <text x="50%" y="50%" dy="-16" textAnchor="middle" dominantBaseline="middle" className={`text-3xl font-bold ${isDark ? 'fill-slate-100' : 'fill-slate-900'}`}>
                     {totalOrgs}
                   </text>
-                  <text x="50%" y="50%" dy="16" textAnchor="middle" dominantBaseline="middle" className={`text-xs ${isDark ? 'fill-slate-400' : 'fill-slate-500'}`}>
+                  <text x="50%" y="50%" dy="8" textAnchor="middle" dominantBaseline="middle" className={`text-xs ${isDark ? 'fill-slate-400' : 'fill-slate-500'}`}>
                     Organizations
                   </text>
                   <Tooltip 
