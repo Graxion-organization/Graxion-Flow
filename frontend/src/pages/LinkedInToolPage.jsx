@@ -358,7 +358,7 @@ export default function LinkedInTool() {
             ) : (
               <>
                 {/* Chat Header */}
-                <div className="p-3 border-b border-slate-200 dark:border-white/5 shrink-0 flex justify-between items-center bg-white/90 dark:bg-[#0b101e]/90 backdrop-blur-md z-10 absolute top-0 left-0 right-0">
+                <div className="p-3 border-b border-slate-200 dark:border-white/5 shrink-0 flex justify-between items-center bg-white/90 dark:bg-[#0b101e]/90 backdrop-blur-md z-10 absolute top-0 left-0 right-0 lg:hidden">
                   <div className="flex items-center gap-3">
                     <button 
                       onClick={handleCloseChat}
@@ -378,7 +378,7 @@ export default function LinkedInTool() {
 
                 {/* Progress Bar */}
                 {autoReplyProgress && (
-                  <div className="absolute top-[57px] left-0 right-0 bg-blue-600/10 border-b border-blue-600/20 p-2 z-10 backdrop-blur-md">
+                  <div className="absolute top-[57px] lg:top-0 left-0 right-0 bg-blue-600/10 border-b border-blue-600/20 p-2 z-10 backdrop-blur-md">
                     <div className="flex justify-between text-[10px] font-bold text-blue-600 mb-1 px-1">
                       <span>{autoReplyProgress.status === 'completed' ? 'Completed!' : 'AI Processing...'}</span>
                       <span>{autoReplyProgress.processed} / {autoReplyProgress.total}</span>
@@ -390,7 +390,7 @@ export default function LinkedInTool() {
                 )}
 
                 {/* Chat Messages */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-6 space-y-6 pt-20 pb-20">
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-6 space-y-6 pt-20 lg:pt-6 pb-20">
                   {loadingComments ? (
                     <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-blue-600" /></div>
                   ) : comments.length === 0 ? (

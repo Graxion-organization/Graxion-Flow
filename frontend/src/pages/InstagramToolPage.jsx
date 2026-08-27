@@ -477,7 +477,7 @@ export default function InstagramTool() {
             ) : (
               <>
                 {/* Chat Header */}
-                <div className="p-3 border-b border-slate-200 dark:border-white/5 shrink-0 flex justify-between items-center bg-white/90 dark:bg-[#0b101e]/90 backdrop-blur-md z-10 absolute top-0 left-0 right-0">
+                <div className="p-3 border-b border-slate-200 dark:border-white/5 shrink-0 flex justify-between items-center bg-white/90 dark:bg-[#0b101e]/90 backdrop-blur-md z-10 absolute top-0 left-0 right-0 lg:hidden">
                   <div className="flex items-center gap-3">
                     <button 
                       onClick={handleCloseChat}
@@ -497,7 +497,7 @@ export default function InstagramTool() {
 
                 {/* Progress Bar */}
                 {autoReplyProgress && (
-                  <div className="absolute top-[57px] left-0 right-0 bg-purple-500/10 border-b border-purple-500/20 p-2 z-10 backdrop-blur-md">
+                  <div className="absolute top-[57px] lg:top-0 left-0 right-0 bg-purple-500/10 border-b border-purple-500/20 p-2 z-10 backdrop-blur-md">
                     <div className="flex justify-between text-[10px] font-bold text-purple-500 mb-1 px-1">
                       <span>{autoReplyProgress.status === 'completed' ? 'Completed!' : 'AI Processing...'}</span>
                       <span>{autoReplyProgress.processed} / {autoReplyProgress.total}</span>
@@ -509,7 +509,7 @@ export default function InstagramTool() {
                 )}
 
                 {/* Chat Messages */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-6 space-y-6 pt-20 pb-20">
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-6 space-y-6 pt-20 lg:pt-6 pb-20">
                   {loadingComments ? (
                     <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-blue-500" /></div>
                   ) : comments.length === 0 ? (
@@ -616,23 +616,23 @@ export default function InstagramTool() {
             className="bg-slate-50 dark:bg-[#0f172a] rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl relative border border-slate-200 dark:border-slate-800"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 shrink-0 bg-white dark:bg-[#1e293b] rounded-t-2xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 border-b border-slate-200 dark:border-slate-800 shrink-0 bg-white dark:bg-[#1e293b] rounded-t-2xl gap-4">
               <div>
-                <h2 className="text-xl font-black text-slate-800 dark:text-white flex items-center gap-3">
-                  <Bot className="w-7 h-7 text-[#FF6A00]" />
+                <h2 className="text-lg sm:text-xl font-black text-slate-800 dark:text-white flex items-center gap-2 sm:gap-3">
+                  <Bot className="w-6 h-6 sm:w-7 sm:h-7 text-[#FF6A00]" />
                   Instagram Flow Builder
                 </h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                   Visually configure auto-replies and follow-up actions for your post.
                 </p>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Active</span>
+              <div className="flex items-center gap-3 self-start sm:self-auto bg-slate-50 dark:bg-[#0f172a] px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                <span className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">Active</span>
                 <button 
                   onClick={() => setAutoReplyConfig({ ...autoReplyConfig, isActive: !autoReplyConfig.isActive })}
-                  className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${autoReplyConfig.isActive ? 'bg-[#FF6A00]' : 'bg-slate-300 dark:bg-slate-700'}`}
+                  className={`relative inline-flex h-6 w-11 sm:h-7 sm:w-12 items-center rounded-full transition-colors ${autoReplyConfig.isActive ? 'bg-[#FF6A00]' : 'bg-slate-300 dark:bg-slate-700'}`}
                 >
-                  <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${autoReplyConfig.isActive ? 'translate-x-6' : 'translate-x-1'}`} />
+                  <span className={`inline-block h-4 w-4 sm:h-5 sm:w-5 transform rounded-full bg-white transition-transform ${autoReplyConfig.isActive ? 'translate-x-6' : 'translate-x-1'}`} />
                 </button>
               </div>
             </div>

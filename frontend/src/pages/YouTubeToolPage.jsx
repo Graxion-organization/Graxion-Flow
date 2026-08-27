@@ -371,7 +371,7 @@ export default function YouTubeTool() {
             ) : (
               <>
                 {/* Chat Header */}
-                <div className="p-3 border-b border-slate-200 dark:border-white/5 shrink-0 flex justify-between items-center bg-white/90 dark:bg-[#0b101e]/90 backdrop-blur-md z-10 absolute top-0 left-0 right-0">
+                <div className="p-3 border-b border-slate-200 dark:border-white/5 shrink-0 flex justify-between items-center bg-white/90 dark:bg-[#0b101e]/90 backdrop-blur-md z-10 absolute top-0 left-0 right-0 lg:hidden">
                   <div className="flex items-center gap-3">
                     <button 
                       onClick={handleCloseChat}
@@ -391,7 +391,7 @@ export default function YouTubeTool() {
 
                 {/* Progress Bar */}
                 {autoReplyProgress && (
-                  <div className="absolute top-[57px] left-0 right-0 bg-red-500/10 border-b border-red-500/20 p-2 z-10 backdrop-blur-md">
+                  <div className="absolute top-[57px] lg:top-0 left-0 right-0 bg-red-500/10 border-b border-red-500/20 p-2 z-10 backdrop-blur-md">
                     <div className="flex justify-between text-[10px] font-bold text-red-500 mb-1 px-1">
                       <span>{autoReplyProgress.status === 'completed' ? 'Completed!' : 'AI Processing...'}</span>
                       <span>{autoReplyProgress.processed} / {autoReplyProgress.total}</span>
@@ -403,7 +403,7 @@ export default function YouTubeTool() {
                 )}
 
                 {/* Chat Messages */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-6 space-y-6 pt-20 pb-20">
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-6 space-y-6 pt-20 lg:pt-6 pb-20">
                   {loadingComments ? (
                     <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-red-500" /></div>
                   ) : comments.length === 0 ? (
