@@ -127,8 +127,10 @@ exports.receiveMessage = async (req, res) => {
             await handleInstagramComment(change.value, igAccount, agent);
           } else if (change.field === 'messages' && change.value) {
             const dmEvent = normalizeInstagramChangeMessage(change.value);
-            if (dmEvent) {
+            if (dmEvent && !dmEvent.message.is_echo) {
               await handleInstagramDM(dmEvent, igAccount, agent);
+            } else if (dmEvent && dmEvent.message.is_echo) {
+              logger.info(`[INSTAGRAM_WEBHOOK] Skipping echo message from changes.messages: ${JSON.stringify(change.value)}`);
             } else {
               logger.info(`Skipping unsupported Instagram changes.messages payload: ${JSON.stringify(change.value)}`);
             }
