@@ -35,11 +35,14 @@ export default function InstagramTool() {
   const [selectedComment, setSelectedComment] = useState(null); // If null, we comment on media. If set, we reply to comment.
   const [messageText, setMessageText] = useState('');
   const [isSending, setIsSending] = useState(false);
-
-  // Stats & Progress
   const [accountStats, setAccountStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(false);
   const [autoReplyProgress, setAutoReplyProgress] = useState(null); // { status, processed, total }
+
+  const [mobileMenuMedia, setMobileMenuMedia] = useState(null);
+  const longPressTimer = useRef(null);
+
+  const socketRef = useRef(null);
   
   // Post Automation Modal State
   const [showAutoReplyModal, setShowAutoReplyModal] = useState(false);
@@ -352,6 +355,24 @@ export default function InstagramTool() {
         
         {selectedAccount && (
           <div className="flex items-center gap-1.5 lg:gap-2">
+            {/* DESKTOP PER-POST ACTIONS */}
+            {selectedMedia && (
+              <div className="hidden lg:flex items-center gap-2 mr-1 lg:mr-2 border-r border-slate-200 dark:border-white/10 pr-2 lg:pr-3">
+                 <button onClick={fetchPostAutomation} disabled={loadingAutoReply} className="p-1.5 lg:px-3 lg:py-1.5 bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+                   {loadingAutoReply ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bot className="w-4 h-4" />}
+                   <span>Auto-DM</span>
+                 </button>
+                 <button onClick={async () => {
+                     try {
+                       await api.post(`/instagram/manual/auto-reply-post`, { accountId: selectedAccount._id, mediaId: selectedMedia.id });
+                       toast.success('AI is replying in background!');
+                     } catch(e) { toast.error('Failed to start AI'); }
+                   }} className="p-1.5 lg:px-3 lg:py-1.5 bg-purple-500/10 text-purple-500 hover:bg-purple-500/20 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+                   <Cpu className="w-4 h-4" /> <span>AI Reply All</span>
+                 </button>
+              </div>
+            )}
+
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-black/20 rounded-xl border border-slate-200 dark:border-white/5">
               <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Bot</span>
               <button 
@@ -410,6 +431,13 @@ export default function InstagramTool() {
                   <button
                     key={media.id}
                     onClick={() => fetchComments(media)}
+                    onTouchStart={() => {
+                      longPressTimer.current = setTimeout(() => {
+                        setMobileMenuMedia(media);
+                      }, 500);
+                    }}
+                    onTouchEnd={() => clearTimeout(longPressTimer.current)}
+                    onTouchMove={() => clearTimeout(longPressTimer.current)}
                     className={`w-full text-left p-3 border-b transition-all flex gap-3 ${
                       selectedMedia?.id === media.id 
                         ? 'bg-blue-50 dark:bg-white/10 border-blue-100 dark:border-transparent relative' 
@@ -440,7 +468,7 @@ export default function InstagramTool() {
           </div>
 
           {/* RIGHT PANE: CHAT VIEW */}
-          <div className={`flex-1 flex-col bg-white dark:bg-[#0b101e] h-full ${!selectedMedia ? 'hidden lg:flex' : 'flex fixed inset-0 z-[100] lg:static lg:bg-transparent lg:z-auto'}`}>
+          <div className={`flex-1 flex-col bg-white dark:bg-[#0b101e] h-full ${!selectedMedia ? 'hidden lg:flex' : 'flex fixed inset-0 z-[100] lg:relative lg:inset-auto lg:bg-transparent lg:z-auto'}`}>
             {!selectedMedia ? (
               <div className="text-center text-slate-400 dark:text-gray-500 text-sm py-8 h-full flex flex-col items-center justify-center">
                 <MessageCircle className="w-12 h-12 mb-4 opacity-20" />
@@ -464,20 +492,7 @@ export default function InstagramTool() {
                         <span className="text-[10px] text-slate-500 truncate max-w-[150px] sm:max-w-[200px]">{selectedMedia.caption}</span>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={fetchPostAutomation} disabled={loadingAutoReply} className="p-1.5 lg:px-3 lg:py-1.5 bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
-                      {loadingAutoReply ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bot className="w-4 h-4" />}
-                      <span className="hidden lg:inline">Auto-DM</span>
-                    </button>
-                    <button onClick={async () => {
-                        try {
-                          await api.post(`/instagram/manual/auto-reply-post`, { accountId: selectedAccount._id, mediaId: selectedMedia.id });
-                          toast.success('AI is replying in background!');
-                        } catch(e) { toast.error('Failed to start AI'); }
-                      }} className="p-1.5 lg:px-3 lg:py-1.5 bg-purple-500/10 text-purple-500 hover:bg-purple-500/20 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
-                      <Cpu className="w-4 h-4" /> <span className="hidden lg:inline">AI Reply All</span>
-                    </button>
+                    </div>
                   </div>
                 </div>
 
@@ -816,6 +831,65 @@ export default function InstagramTool() {
           </motion.div>
         </div>
       )}
+
+      {/* MOBILE LONG PRESS MENU */}
+      {mobileMenuMedia && (
+        <div className="fixed inset-0 z-[200] lg:hidden flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setMobileMenuMedia(null)}>
+          <div className="bg-white dark:bg-[#0f172a] w-full rounded-t-3xl p-5 flex flex-col gap-3 shadow-2xl translate-y-0 animate-slide-up" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-2"></div>
+            <h3 className="text-sm font-bold text-slate-800 dark:text-gray-200 mb-2 px-1">Post Options</h3>
+            
+            <button 
+              onClick={() => {
+                setSelectedMedia(mobileMenuMedia);
+                fetchPostAutomation();
+                setMobileMenuMedia(null);
+              }}
+              className="flex items-center gap-3 w-full p-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-white/5 font-bold text-slate-700 dark:text-gray-300 transition-colors"
+            >
+              <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
+                <Bot className="w-5 h-5 text-indigo-500" />
+              </div>
+              Auto-DM Setup
+            </button>
+
+            <button 
+              onClick={() => {
+                api.post(`/instagram/manual/auto-reply-post`, { accountId: selectedAccount._id, mediaId: mobileMenuMedia.id })
+                  .then(() => toast.success('AI is replying in background!'))
+                  .catch(() => toast.error('Failed to start AI'));
+                setMobileMenuMedia(null);
+              }}
+              className="flex items-center gap-3 w-full p-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-white/5 font-bold text-slate-700 dark:text-gray-300 transition-colors"
+            >
+              <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
+                <Cpu className="w-5 h-5 text-purple-600" />
+              </div>
+              AI Reply All
+            </button>
+            
+            <button 
+              onClick={() => {
+                handleToggleBot();
+                setMobileMenuMedia(null);
+              }}
+              className="flex items-center justify-between w-full p-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-white/5 font-bold text-slate-700 dark:text-gray-300 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center shrink-0">
+                  <Bot className="w-5 h-5 text-slate-500" />
+                </div>
+                Bot Auto-Reply
+              </div>
+              <div className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${selectedAccount.commentBotEnabled ? 'bg-pink-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${selectedAccount.commentBotEnabled ? 'translate-x-4' : 'translate-x-1'}`} />
+              </div>
+            </button>
+            <div className="h-4"></div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
