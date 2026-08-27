@@ -409,7 +409,11 @@ export default function ConversationsPage() {
   const handleToggleStatus = async (id, newStatus) => {
     try {
       const res = await conversationAPI.toggleStatus(id, newStatus);
-      setSelected(res.data.data.conversation);
+      const conversationData = res.data.data.conversation;
+      setSelected((prev) => ({
+        ...conversationData,
+        messages: prev ? prev.messages : []
+      }));
       setConversations((prev) => prev.map((c) => c._id === id ? { ...c, status: newStatus } : c));
       toast.success(newStatus === 'active' ? 'AI Agent activated' : 'Human mode activated');
     } catch { toast.error('Failed to update status'); }
@@ -828,12 +832,14 @@ export default function ConversationsPage() {
                       transition={{ duration: 0.15 }}
                       className="lg:hidden absolute top-[76px] left-4 right-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/10 rounded-2xl shadow-2xl z-50 p-2 space-y-0.5"
                     >
-                      <button onClick={() => { handleToggleStatus(selected._id, 'active'); setShowMobileMenu(false); }} className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${selected.status === 'active' ? 'bg-[#FF6A00]/10 text-[#FF6A00]' : 'hover:bg-slate-50 text-slate-700 dark:text-slate-200 dark:hover:bg-white/5'}`}>
-                        <Zap size={18} className={selected.status === 'active' ? 'fill-[#FF6A00]' : ''} /> AI Mode
-                      </button>
-                      <button onClick={() => { handleToggleStatus(selected._id, 'human_handoff'); setShowMobileMenu(false); }} className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${selected.status === 'human_handoff' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'hover:bg-slate-50 text-slate-700 dark:text-slate-200 dark:hover:bg-white/5'}`}>
-                        <User size={18} className={selected.status === 'human_handoff' ? 'fill-blue-600 dark:fill-blue-400' : ''} /> Human Mode
-                      </button>
+                      <div className="flex items-center gap-2 mb-1.5 px-1 pt-1">
+                        <button onClick={() => { handleToggleStatus(selected._id, 'active'); setShowMobileMenu(false); }} className={`flex-1 flex justify-center items-center gap-2 p-3 rounded-xl text-sm font-bold transition-colors ${selected.status === 'active' ? 'bg-[#FF6A00]/10 text-[#FF6A00]' : 'bg-slate-50 text-slate-700 dark:bg-white/5 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10'}`}>
+                          <Zap size={16} className={selected.status === 'active' ? 'fill-[#FF6A00]' : ''} /> AI Mode
+                        </button>
+                        <button onClick={() => { handleToggleStatus(selected._id, 'human_handoff'); setShowMobileMenu(false); }} className={`flex-1 flex justify-center items-center gap-2 p-3 rounded-xl text-sm font-bold transition-colors ${selected.status === 'human_handoff' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'bg-slate-50 text-slate-700 dark:bg-white/5 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10'}`}>
+                          <User size={16} className={selected.status === 'human_handoff' ? 'fill-blue-600 dark:fill-blue-400' : ''} /> Human
+                        </button>
+                      </div>
                       <div className="h-px bg-slate-100 dark:bg-white/5 my-1.5 mx-2" />
                       <button onClick={() => { setShowContactModal(true); setShowMobileMenu(false); }} className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-colors hover:bg-slate-50 text-slate-700 dark:text-slate-200 dark:hover:bg-white/5`}>
                         <Info size={18} /> Contact Info
