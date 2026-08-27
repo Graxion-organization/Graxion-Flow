@@ -121,6 +121,25 @@ export default function InstagramTool() {
     return () => clearInterval(interval);
   }, [selectedMedia, selectedAccount]);
 
+  // Handle mobile hardware back button
+  useEffect(() => {
+    const handlePopState = (e) => {
+      if (selectedMedia) {
+        setSelectedMedia(null);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [selectedMedia]);
+
+  const handleCloseChat = () => {
+    if (window.history.state?.chatOpen) {
+      window.history.back();
+    } else {
+      setSelectedMedia(null);
+    }
+  };
+
   // Fetch Accounts on mount
   useEffect(() => {
     fetchAccounts();
@@ -173,6 +192,9 @@ export default function InstagramTool() {
     const accountToUse = accountOverride || selectedAccount;
     
     if (!isSilent) {
+      if (!selectedMedia) {
+        window.history.pushState({ chatOpen: true }, '');
+      }
       setSelectedMedia(media);
       setSelectedComment(null);
       setAutoReplyProgress(null);
@@ -430,7 +452,7 @@ export default function InstagramTool() {
                 <div className="p-3 border-b border-slate-200 dark:border-white/5 shrink-0 flex justify-between items-center bg-white/90 dark:bg-[#0b101e]/90 backdrop-blur-md z-10 absolute top-0 left-0 right-0">
                   <div className="flex items-center gap-3">
                     <button 
-                      onClick={() => setSelectedMedia(null)}
+                      onClick={handleCloseChat}
                       className="lg:hidden p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors text-slate-500"
                     >
                       <ChevronRight className="w-5 h-5 rotate-180" />
