@@ -385,7 +385,7 @@ export default function BrandCopilotTab({ }) {
         </div>
 
         {/* Form Contents */}
-        <div className="space-y-4 min-h-0 relative z-10 pt-4">
+        <div className="flex-1 flex flex-col justify-center relative z-10 py-6">
           <AnimatePresence mode="wait">
             {activeStep === 1 && (
               <motion.div
@@ -394,23 +394,23 @@ export default function BrandCopilotTab({ }) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-3"
+                className="space-y-6 md:space-y-8"
               >
                 <div>
-                  <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Business Name</label>
+                  <label className={`block text-xs font-black uppercase tracking-widest mb-3 ${'text-slate-600 dark:text-slate-300'}`}>Business Name</label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={e => handleFormChange('name', e.target.value)}
                     placeholder="e.g. Mocha Magic Cafe"
-                    className={`w-full px-3 py-2.5 text-sm font-semibold rounded-xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
+                    className={`w-full px-4 py-3.5 text-[15px] font-semibold rounded-2xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                       }`}
                   />
                 </div>
 
-                <div className="space-y-3">
-                  <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Business Model</label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-4">
+                  <label className={`block text-xs font-black uppercase tracking-widest mb-3 ${'text-slate-600 dark:text-slate-300'}`}>Business Model</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                     {MODEL_OPTIONS.map(opt => {
                       const Icon = opt.icon;
                       const isSelected = formData.businessModel === opt.value;
@@ -419,17 +419,17 @@ export default function BrandCopilotTab({ }) {
                           key={opt.value}
                           type="button"
                           onClick={() => handleFormChange('businessModel', opt.value)}
-                          className={`p-3.5 rounded-xl border text-left flex items-start gap-3 transition-all duration-300 ${isSelected
+                          className={`p-4 md:p-5 rounded-2xl border text-left flex items-start gap-4 transition-all duration-300 ${isSelected
                             ? 'border-[#FF6A00] bg-[#FF6A00]/5 ring-2 ring-[#FF6A00]/20 shadow-md'
                             : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/50 hover:border-slate-300 dark:bg-slate-950 dark:border-white/5 dark:text-slate-300 dark:hover:bg-slate-800/50 dark:hover:border-white/15'
                             }`}
                         >
-                          <div className={`p-3 rounded-xl ${isSelected ? 'bg-[#FF6A00] text-white' : 'bg-slate-200 text-slate-600 dark:bg-white/5 dark:text-slate-400'}`}>
-                            <Icon size={20} />
+                          <div className={`p-3.5 rounded-xl ${isSelected ? 'bg-[#FF6A00] text-white' : 'bg-slate-200 text-slate-600 dark:bg-white/5 dark:text-slate-400'}`}>
+                            <Icon size={22} />
                           </div>
                           <div>
-                            <h4 className="font-bold text-sm">{opt.label}</h4>
-                            <p className={`text-xs mt-1 leading-relaxed ${'text-slate-500 dark:text-slate-400'}`}>{opt.desc}</p>
+                            <h4 className="font-bold text-[15px]">{opt.label}</h4>
+                            <p className={`text-xs mt-1.5 leading-relaxed ${'text-slate-500 dark:text-slate-400'}`}>{opt.desc}</p>
                           </div>
                         </button>
                       );
@@ -437,26 +437,26 @@ export default function BrandCopilotTab({ }) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 pt-2">
                   <div>
-                    <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Business Category</label>
+                    <label className={`block text-xs font-black uppercase tracking-widest mb-3 ${'text-slate-600 dark:text-slate-300'}`}>Business Category</label>
                     <input
                       type="text"
                       value={formData.category}
                       onChange={e => handleFormChange('category', e.target.value)}
                       placeholder="e.g. Coffee shop, SaaS Software, Yoga Studio"
-                      className={`w-full px-3 py-2.5 text-sm font-semibold rounded-xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
+                      className={`w-full px-4 py-3.5 text-[15px] font-semibold rounded-2xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                         }`}
                     />
                   </div>
                   <div>
-                    <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Hours & Timings</label>
+                    <label className={`block text-xs font-black uppercase tracking-widest mb-3 ${'text-slate-600 dark:text-slate-300'}`}>Hours & Timings</label>
                     <input
                       type="text"
                       value={formData.timings}
                       onChange={e => handleFormChange('timings', e.target.value)}
                       placeholder="e.g. Mon-Fri 9AM-6PM, Sat 10AM-4PM"
-                      className={`w-full px-3 py-2.5 text-sm font-semibold rounded-xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
+                      className={`w-full px-4 py-3.5 text-[15px] font-semibold rounded-2xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                         }`}
                     />
                   </div>
@@ -471,40 +471,40 @@ export default function BrandCopilotTab({ }) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-4"
+                className="space-y-6 md:space-y-8"
               >
                 <div>
-                  <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Business / Brand Description</label>
+                  <label className={`block text-xs font-black uppercase tracking-widest mb-3 ${'text-slate-600 dark:text-slate-300'}`}>Business / Brand Description</label>
                   <textarea
-                    rows={2}
+                    rows={4}
                     value={formData.description}
                     onChange={e => handleFormChange('description', e.target.value)}
                     placeholder="Describe your business model, brand values, story, and elevator pitch..."
-                    className={`w-full px-3 py-2.5 text-sm font-semibold rounded-xl outline-none border resize-none transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
+                    className={`w-full px-4 py-3.5 text-[15px] font-semibold rounded-2xl outline-none border resize-none transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                       }`}
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                   <div>
-                    <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Key Products / Services</label>
+                    <label className={`block text-xs font-black uppercase tracking-widest mb-3 ${'text-slate-600 dark:text-slate-300'}`}>Key Products / Services</label>
                     <input
                       type="text"
                       value={formData.products}
                       onChange={e => handleFormChange('products', e.target.value)}
                       placeholder="e.g. Espresso, Croissants, Coffee beans subscription"
-                      className={`w-full px-3 py-2.5 text-sm font-semibold rounded-xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
+                      className={`w-full px-4 py-3.5 text-[15px] font-semibold rounded-2xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                         }`}
                     />
                   </div>
                   <div>
-                    <label className={`block text-xs font-black uppercase tracking-widest mb-2 ${'text-slate-600 dark:text-slate-300'}`}>Target Audience</label>
+                    <label className={`block text-xs font-black uppercase tracking-widest mb-3 ${'text-slate-600 dark:text-slate-300'}`}>Target Audience</label>
                     <input
                       type="text"
                       value={formData.targetAudience}
                       onChange={e => handleFormChange('targetAudience', e.target.value)}
                       placeholder="e.g. Working professionals, students, coffee enthusiasts"
-                      className={`w-full px-3 py-2.5 text-sm font-semibold rounded-xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
+                      className={`w-full px-4 py-3.5 text-[15px] font-semibold rounded-2xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-[#FF6A00] focus:ring-2 focus:ring-[#FF6A00]/20 dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00] dark:focus:ring-2 dark:focus:ring-[#FF6A00]/20'
                         }`}
                     />
                   </div>
@@ -516,48 +516,48 @@ export default function BrandCopilotTab({ }) {
                     Contact Info (AI will inject these into CTA captions)
                   </h4>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${'text-slate-500 dark:text-slate-400'}`}>Phone Number</label>
+                      <label className={`block text-[11px] font-bold uppercase tracking-wider mb-2 ${'text-slate-500 dark:text-slate-400'}`}>Phone Number</label>
                       <input
                         type="text"
                         value={formData.contactDetails?.phone || ''}
                         onChange={e => handleContactDetailsChange('phone', e.target.value)}
                         placeholder="e.g. +91 98765 43210"
-                        className={`w-full px-3 py-2 text-xs font-semibold rounded-xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
+                        className={`w-full px-4 py-3 text-[13px] font-semibold rounded-xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
                           }`}
                       />
                     </div>
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${'text-slate-500 dark:text-slate-400'}`}>Email Address</label>
+                      <label className={`block text-[11px] font-bold uppercase tracking-wider mb-2 ${'text-slate-500 dark:text-slate-400'}`}>Email Address</label>
                       <input
                         type="email"
                         value={formData.contactDetails?.email || ''}
                         onChange={e => handleContactDetailsChange('email', e.target.value)}
                         placeholder="e.g. contact@business.com"
-                        className={`w-full px-3 py-2 text-xs font-semibold rounded-xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
+                        className={`w-full px-4 py-3 text-[13px] font-semibold rounded-xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
                           }`}
                       />
                     </div>
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${'text-slate-500 dark:text-slate-400'}`}>Website URL</label>
+                      <label className={`block text-[11px] font-bold uppercase tracking-wider mb-2 ${'text-slate-500 dark:text-slate-400'}`}>Website URL</label>
                       <input
                         type="text"
                         value={formData.contactDetails?.website || ''}
                         onChange={e => handleContactDetailsChange('website', e.target.value)}
                         placeholder="e.g. https://mybusiness.com"
-                        className={`w-full px-3 py-2 text-xs font-semibold rounded-xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
+                        className={`w-full px-4 py-3 text-[13px] font-semibold rounded-xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
                           }`}
                       />
                     </div>
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${'text-slate-500 dark:text-slate-400'}`}>Physical Address</label>
+                      <label className={`block text-[11px] font-bold uppercase tracking-wider mb-2 ${'text-slate-500 dark:text-slate-400'}`}>Physical Address</label>
                       <input
                         type="text"
                         value={formData.contactDetails?.address || ''}
                         onChange={e => handleContactDetailsChange('address', e.target.value)}
                         placeholder="e.g. 1st Floor, Tech Hub, Mumbai"
-                        className={`w-full px-3 py-2 text-xs font-semibold rounded-xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
+                        className={`w-full px-4 py-3 text-[13px] font-semibold rounded-xl outline-none border transition-all ${'bg-slate-50 border-slate-200 text-slate-800 focus:border-[#FF6A00] dark:bg-slate-950 dark:border-white/5 dark:text-white dark:focus:border-[#FF6A00]'
                           }`}
                       />
                     </div>
@@ -573,11 +573,11 @@ export default function BrandCopilotTab({ }) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-6"
+                className="space-y-8"
               >
                 <div>
-                  <label className={`block text-xs font-black uppercase tracking-widest mb-3.5 ${'text-slate-600 dark:text-slate-300'}`}>Brand Tone & Voice</label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <label className={`block text-xs font-black uppercase tracking-widest mb-4 ${'text-slate-600 dark:text-slate-300'}`}>Brand Tone & Voice</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {TONE_OPTIONS.map(opt => {
                       const Icon = opt.icon;
                       const isSelected = formData.tone === opt.value;
@@ -586,17 +586,17 @@ export default function BrandCopilotTab({ }) {
                           key={opt.value}
                           type="button"
                           onClick={() => handleFormChange('tone', opt.value)}
-                          className={`p-4 rounded-2xl border text-left flex items-start gap-3 transition-all duration-300 ${isSelected
+                          className={`p-5 rounded-2xl border text-left flex items-start gap-4 transition-all duration-300 ${isSelected
                             ? 'border-[#FF6A00] bg-[#FF6A00]/5 ring-2 ring-[#FF6A00]/20 shadow-md'
                             : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300 dark:bg-slate-950 dark:border-white/5 dark:text-slate-300 dark:hover:bg-slate-800/50 dark:hover:border-white/15'
                             }`}
                         >
-                          <div className={`p-2 rounded-lg shrink-0 ${isSelected ? 'bg-[#FF6A00] text-white' : 'bg-slate-200 text-slate-500 dark:bg-white/5 dark:text-slate-400'}`}>
-                            <Icon size={16} />
+                          <div className={`p-2.5 rounded-lg shrink-0 ${isSelected ? 'bg-[#FF6A00] text-white' : 'bg-slate-200 text-slate-500 dark:bg-white/5 dark:text-slate-400'}`}>
+                            <Icon size={18} />
                           </div>
                           <div>
-                            <h5 className="font-bold text-xs">{opt.label}</h5>
-                            <p className="text-[10px] text-slate-500 mt-1 leading-normal">{opt.desc}</p>
+                            <h5 className="font-bold text-sm">{opt.label}</h5>
+                            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">{opt.desc}</p>
                           </div>
                         </button>
                       );
@@ -605,8 +605,8 @@ export default function BrandCopilotTab({ }) {
                 </div>
 
                 <div>
-                  <label className={`block text-xs font-black uppercase tracking-widest mb-3.5 ${'text-slate-600 dark:text-slate-300'}`}>Focus Social Channels</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <label className={`block text-xs font-black uppercase tracking-widest mb-4 ${'text-slate-600 dark:text-slate-300'}`}>Focus Social Channels</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
                     {PLATFORMS_LIST.map(p => {
                       const isSelected = formData.platforms.includes(p.id);
                       return (
@@ -614,18 +614,18 @@ export default function BrandCopilotTab({ }) {
                           key={p.id}
                           type="button"
                           onClick={() => handlePlatformToggle(p.id)}
-                          className={`p-5 rounded-2xl border flex flex-col items-center justify-between text-center gap-3 transition-all duration-300 ${isSelected
+                          className={`p-6 rounded-2xl border flex flex-col items-center justify-between text-center gap-4 transition-all duration-300 ${isSelected
                             ? `border-[#FF6A00] bg-[#FF6A00]/5 shadow-lg`
                             : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 dark:border-white/5 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-800/50'
                             }`}
                         >
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm text-white bg-gradient-to-tr ${p.color} shadow-md`}>
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-lg text-white bg-gradient-to-tr ${p.color} shadow-md`}>
                             {p.icon}
                           </div>
-                          <span className="text-xs font-extrabold">{p.label}</span>
-                          <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${isSelected ? 'bg-[#FF6A00] border-[#FF6A00] text-white' : 'border-slate-300 dark:border-slate-800'
+                          <span className="text-[13px] font-extrabold">{p.label}</span>
+                          <div className={`w-6 h-6 rounded-full border flex items-center justify-center transition-all ${isSelected ? 'bg-[#FF6A00] border-[#FF6A00] text-white' : 'border-slate-300 dark:border-slate-800'
                             }`}>
-                            {isSelected && <Check size={12} strokeWidth={3} />}
+                            {isSelected && <Check size={14} strokeWidth={3} />}
                           </div>
                         </button>
                       );
