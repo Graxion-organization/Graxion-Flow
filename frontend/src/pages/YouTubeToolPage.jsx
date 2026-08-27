@@ -308,7 +308,7 @@ export default function YouTubeTool() {
           </div>
 
           {/* RIGHT PANE: CHAT VIEW */}
-          <div className={`flex-1 flex-col relative bg-white dark:bg-transparent h-full ${!selectedMedia ? 'hidden lg:flex' : 'flex'}`}>
+          <div className={`flex-1 flex-col bg-white dark:bg-[#0b101e] h-full ${!selectedMedia ? 'hidden lg:flex' : 'flex fixed inset-0 z-[100] lg:static lg:bg-transparent lg:z-auto'}`}>
             {!selectedMedia ? (
               <div className="text-center text-slate-400 dark:text-gray-500 text-sm py-8 h-full flex flex-col items-center justify-center">
                 <MessageCircle className="w-12 h-12 mb-4 opacity-20" />
