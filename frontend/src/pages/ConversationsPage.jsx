@@ -232,6 +232,7 @@ export default function ConversationsPage() {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [typingConversations, setTypingConversations] = useState({});
 
   // Template States
@@ -721,22 +722,33 @@ export default function ConversationsPage() {
                 <button onClick={() => setShowDetail(false)} className={`lg:hidden flex items-center justify-center p-1.5 -ml-1.5 rounded-xl transition-all ${'hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400'}`}>
                   <ChevronLeft size={24} />
                 </button>
-                <div className={`w-10 h-10 lg:w-11 lg:h-11 rounded-full ${theme.btnPrimary} flex items-center justify-center font-bold text-lg shrink-0 shadow-sm ring-2 lg:ring-4 ring-slate-50 dark:ring-slate-800/50`}>
-                  {(selected.customerName || selected.customerPhone || selected.customerIgId || selected.customerTelegramId || 'U')[0]?.toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0 flex flex-col justify-center">
-                  <p className={`font-bold text-[15px] truncate ${titleClass}`}>{selected.customerName || selected.customerPhone || selected.customerIgId || selected.customerTelegramId || 'Unknown'}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className={`text-[11px] font-semibold flex items-center gap-1 ${theme.iconColor}`}>
-                      {selected.platform === 'whatsapp' ? <Smartphone size={10} /> : <Bot size={10} />}
-                      <span className="capitalize">{selected.platform || 'whatsapp'}</span>
-                    </span>
-                    <span className={`text-[10px] ${subtleClass}`}>•</span>
-                    <span className={`text-[11px] font-medium ${subtleClass}`}>{selected.agent?.name}</span>
+                <button 
+                  onClick={() => {
+                    if (window.innerWidth < 1024) {
+                      setShowMobileMenu(!showMobileMenu);
+                    } else {
+                      setShowContactModal(true);
+                    }
+                  }}
+                  className="flex flex-1 min-w-0 items-center gap-3 lg:gap-4 text-left focus:outline-none"
+                >
+                  <div className={`w-10 h-10 lg:w-11 lg:h-11 rounded-full ${theme.btnPrimary} flex items-center justify-center font-bold text-lg shrink-0 shadow-sm ring-2 lg:ring-4 ring-slate-50 dark:ring-slate-800/50`}>
+                    {(selected.customerName || selected.customerPhone || selected.customerIgId || selected.customerTelegramId || 'U')[0]?.toUpperCase()}
                   </div>
-                </div>
+                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                    <p className={`font-bold text-[15px] truncate ${titleClass}`}>{selected.customerName || selected.customerPhone || selected.customerIgId || selected.customerTelegramId || 'Unknown'}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className={`text-[11px] font-semibold flex items-center gap-1 ${theme.iconColor}`}>
+                        {selected.platform === 'whatsapp' ? <Smartphone size={10} /> : <Bot size={10} />}
+                        <span className="capitalize">{selected.platform || 'whatsapp'}</span>
+                      </span>
+                      <span className={`text-[10px] ${subtleClass}`}>•</span>
+                      <span className={`text-[11px] font-medium ${subtleClass}`}>{selected.agent?.name}</span>
+                    </div>
+                  </div>
+                </button>
                 
-                <div className="flex items-center gap-1.5 lg:gap-2.5">
+                <div className="hidden lg:flex items-center gap-2.5">
                   {/* Status Toggle (AI / Human) */}
                   {selected.status !== 'closed' && (
                     <div className="flex p-1 rounded-xl bg-slate-100 dark:bg-black/20 border border-slate-200/50 dark:border-white/5">
@@ -802,8 +814,39 @@ export default function ConversationsPage() {
                     </button>
                   </div>
                 </div>
-
               </motion.div>
+
+              {/* Mobile Menu Dropdown */}
+              <AnimatePresence>
+                {showMobileMenu && (
+                  <>
+                    <div className="lg:hidden absolute inset-0 z-40 bg-transparent" onClick={() => setShowMobileMenu(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="lg:hidden absolute top-[76px] left-4 right-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/10 rounded-2xl shadow-2xl z-50 p-2 space-y-0.5"
+                    >
+                      <button onClick={() => { handleToggleStatus(selected._id, 'active'); setShowMobileMenu(false); }} className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${selected.status === 'active' ? 'bg-[#FF6A00]/10 text-[#FF6A00]' : 'hover:bg-slate-50 text-slate-700 dark:text-slate-200 dark:hover:bg-white/5'}`}>
+                        <Zap size={18} className={selected.status === 'active' ? 'fill-[#FF6A00]' : ''} /> AI Mode
+                      </button>
+                      <button onClick={() => { handleToggleStatus(selected._id, 'human_handoff'); setShowMobileMenu(false); }} className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${selected.status === 'human_handoff' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'hover:bg-slate-50 text-slate-700 dark:text-slate-200 dark:hover:bg-white/5'}`}>
+                        <User size={18} className={selected.status === 'human_handoff' ? 'fill-blue-600 dark:fill-blue-400' : ''} /> Human Mode
+                      </button>
+                      <div className="h-px bg-slate-100 dark:bg-white/5 my-1.5 mx-2" />
+                      <button onClick={() => { setShowContactModal(true); setShowMobileMenu(false); }} className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-colors hover:bg-slate-50 text-slate-700 dark:text-slate-200 dark:hover:bg-white/5`}>
+                        <Info size={18} /> Contact Info
+                      </button>
+                      {selected.status !== 'closed' && (
+                        <button onClick={() => { handleClose(selected._id); setShowMobileMenu(false); }} className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-colors text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10`}>
+                          <CheckCircle2 size={18} /> Close Chat
+                        </button>
+                      )}
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
 
               {/* Messages */}
               <div className="relative flex-1 min-h-0">
