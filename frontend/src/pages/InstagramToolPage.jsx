@@ -300,7 +300,7 @@ export default function InstagramTool() {
   };
 
   return (
-    <div className="flex flex-col gap-6 pb-6 h-auto lg:h-[calc(100vh-120px)] min-h-screen lg:min-h-0">
+    <div className="flex flex-col gap-4 lg:gap-6 h-full min-h-0">
       
       {/* HEADER: Active Account Info */}
       {selectedAccount && (

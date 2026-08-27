@@ -24,8 +24,8 @@ export default function AutomationHubPage() {
   }, []);
 
   return (
-    <div className="flex flex-col h-full h-auto lg:h-[calc(100vh-100px)] animate-fade-in pb-16 lg:pb-10">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 lg:mb-6 shrink-0">
+    <div className="absolute inset-0 flex flex-col bg-slate-50 dark:bg-[#0b101e] animate-fade-in z-10">
+      <div className="px-4 lg:px-6 pt-4 lg:pt-6 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 lg:mb-6 shrink-0">
         <div>
           <h1 className="text-2xl font-extrabold flex items-center gap-2 text-slate-800 dark:text-slate-100">
             <Sparkles className="text-[#FF6A00]" />
@@ -53,7 +53,7 @@ export default function AutomationHubPage() {
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 flex flex-col">
+      <div className="flex-1 min-h-0 flex flex-col px-4 lg:px-6 pb-4 lg:pb-6">
         <Outlet />
       </div>
     </div>
