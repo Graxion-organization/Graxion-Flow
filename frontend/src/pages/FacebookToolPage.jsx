@@ -258,11 +258,11 @@ export default function FacebookTool() {
       ) : !selectedAccount ? (
         <div className="flex-1 flex justify-center items-center text-slate-400 dark:text-gray-500">No connected pages found. Connect a page first.</div>
       ) : (
-        <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0">
+        <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0 relative">
           
           {/* COLUMN 1: Media Posts & Stats */}
-          <div className="w-full lg:w-1/3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-3xl flex flex-col overflow-hidden shrink-0 h-[400px] lg:h-auto">
-        <div className="p-4 border-b border-slate-200 dark:border-white/10">
+          <div className={`w-full lg:w-1/3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-3xl flex-col overflow-hidden shrink-0 h-full lg:h-auto ${selectedMedia ? 'hidden lg:flex' : 'flex'}`}>
+        <div className="p-4 border-b border-slate-200 dark:border-white/10 shrink-0">
           <h2 className="font-bold flex items-center gap-2">
             <ImageIcon className="w-5 h-5 text-purple-500" />
             Recent Posts
@@ -347,12 +347,21 @@ export default function FacebookTool() {
       </div>
 
       {/* COLUMN 3: Comments & Composer */}
-      <div className="flex-1 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-3xl flex flex-col overflow-hidden relative min-h-[500px] lg:min-h-0">
-        <div className="p-4 border-b border-slate-200 dark:border-white/10 shrink-0 flex justify-between items-center">
-          <h2 className="font-bold flex items-center gap-2">
-            <MessageCircle className="w-5 h-5 text-blue-500" />
-            Comments & Replies
-          </h2>
+      <div className={`flex-1 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-3xl flex-col overflow-hidden relative h-full lg:h-auto ${!selectedMedia ? 'hidden lg:flex' : 'flex'}`}>
+        <div className="p-4 border-b border-slate-200 dark:border-white/10 shrink-0 flex justify-between items-center bg-white/50 dark:bg-black/20 backdrop-blur-md z-10">
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setSelectedMedia(null)}
+              className="lg:hidden p-1.5 -ml-2 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 transition-colors text-slate-500 dark:text-gray-400"
+            >
+              <ChevronRight className="w-5 h-5 rotate-180" />
+            </button>
+            <h2 className="font-bold flex items-center gap-2">
+              <MessageCircle className="w-5 h-5 text-blue-500" />
+              <span className="hidden sm:inline">Comments & Replies</span>
+              <span className="sm:hidden">Comments</span>
+            </h2>
+          </div>
           {selectedMedia && (
             <button
               onClick={async () => {
@@ -389,7 +398,7 @@ export default function FacebookTool() {
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 pb-40">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 pb-32">
           {!selectedMedia ? (
             <div className="text-center text-slate-400 dark:text-gray-500 text-sm py-8 h-full flex flex-col items-center justify-center">
               <MessageCircle className="w-12 h-12 mb-4 opacity-20" />
