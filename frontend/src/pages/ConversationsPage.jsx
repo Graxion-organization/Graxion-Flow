@@ -736,7 +736,7 @@ export default function ConversationsPage() {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-1.5 lg:gap-2.5">
                   {/* Status Toggle (AI / Human) */}
                   {selected.status !== 'closed' && (
                     <div className="flex p-1 rounded-xl bg-slate-100 dark:bg-black/20 border border-slate-200/50 dark:border-white/5">
@@ -768,7 +768,7 @@ export default function ConversationsPage() {
                   )}
 
                   {/* Status Pill */}
-                  <span className={`flex items-center gap-1.5 text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full font-black ${
+                  <span className={`hidden md:flex items-center gap-1.5 text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full font-black ${
                     selected.status === 'active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' :
                     selected.status === 'closed' ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400' :
                     'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'}`}>
@@ -778,7 +778,7 @@ export default function ConversationsPage() {
                     {selected.status.replace('_', ' ')}
                   </span>
 
-                  <div className="w-px h-6 bg-slate-200 dark:bg-white/10 mx-1"></div>
+                  <div className="hidden md:block w-px h-6 bg-slate-200 dark:bg-white/10 mx-1"></div>
 
                   <div className="flex items-center gap-1.5">
                     {selected.status !== 'closed' && (
