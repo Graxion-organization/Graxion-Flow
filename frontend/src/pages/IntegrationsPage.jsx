@@ -675,7 +675,7 @@ export default function IntegrationsPage() {
       </div>
 
       {/* Integrations Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredIntegrations.map((int) => {
           let isConnected = false;
           let connectedLabel = '';
@@ -755,54 +755,54 @@ export default function IntegrationsPage() {
           return (
             <div 
               key={int.id}
-              className={`group flex flex-col justify-between rounded-3xl bg-white/70 dark:bg-white/[0.02] backdrop-blur-xl border border-slate-200/60 dark:border-white/5 p-6 sm:p-8 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:bg-white dark:hover:bg-white/[0.04] ${
+              className={`group flex flex-col justify-between rounded-3xl bg-white/70 dark:bg-white/[0.02] backdrop-blur-xl border border-slate-200/60 dark:border-white/5 p-5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:bg-white dark:hover:bg-white/[0.04] ${
                 isConnected ? 'shadow-[0_0_30px_rgba(34,197,94,0.05)] border-emerald-500/20 dark:border-emerald-500/10' : 'shadow-sm dark:hover:border-white/10'
               }`}
             >
               <div>
                 {/* Header info */}
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
-                  <div className="flex items-center gap-4">
-                    <div className={`relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${int.color} border ${int.borderColor} shadow-inner shrink-0 group-hover:scale-105 transition-transform duration-500 overflow-hidden`}>
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className={`relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${int.color} border ${int.borderColor} shadow-inner shrink-0 group-hover:scale-105 transition-transform duration-500 overflow-hidden`}>
                       <div className={`absolute inset-0 bg-gradient-to-tr ${int.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
-                      <Icon className={`relative z-10 h-7 w-7 ${int.textColor}`} strokeWidth={1.5} />
+                      <Icon className={`relative z-10 h-6 w-6 ${int.textColor}`} strokeWidth={1.5} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-slate-800 dark:text-white tracking-tight leading-tight">{int.name}</h3>
-                      <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{int.category}</span>
+                      <h3 className="text-base font-black text-slate-800 dark:text-white tracking-tight leading-tight">{int.name}</h3>
+                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{int.category}</span>
                     </div>
                   </div>
 
                   {isConnected ? (
-                    <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3.5 py-1.5 text-[11px] font-black tracking-wide text-emerald-500 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-[10px] font-black tracking-wide text-emerald-500 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                      <span className="h-1 w-1 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
                       {connectedLabel}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-white/5 px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 shrink-0">
+                    <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-white/5 px-3 py-1 text-[10px] font-bold tracking-wide text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 shrink-0">
                       Not Connected
                     </span>
                   )}
                 </div>
 
                 {/* Description */}
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
+                <p className="text-[13px] font-medium text-slate-600 dark:text-slate-400 leading-relaxed mb-5 line-clamp-2">
                   {int.description}
                 </p>
 
                 {/* Features Checklist */}
-                <div className="space-y-2 mb-6">
+                <div className="space-y-1.5 mb-5">
                   {int.features.map((feat, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-slate-500 shrink-0" />
-                      <span>{feat}</span>
+                      <CheckCircle2 className="h-3 w-3 text-slate-400 shrink-0" />
+                      <span className="truncate">{feat}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* Required Permissions */}
                 {int.permissions && (
-                  <div className="mb-6 p-3 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5">
+                  <div className="mb-5 p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5">
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block mb-2">Required Permissions</span>
                     <div className="flex flex-wrap gap-1.5">
                       {int.permissions.map((perm, idx) => (
@@ -827,7 +827,7 @@ export default function IntegrationsPage() {
               </div>
 
               {/* Actions Footer */}
-              <div className="pt-5 border-t border-slate-200/60 dark:border-white/5 mt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="pt-4 border-t border-slate-200/60 dark:border-white/5 mt-5 flex flex-col sm:flex-row items-center justify-between gap-2.5">
                 {int.type === 'channel' ? (
                   <>
                     {isConnected ? (
