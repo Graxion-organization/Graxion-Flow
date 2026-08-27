@@ -204,7 +204,7 @@ class AIService {
   // WA-011: Redis Caching & WA-009: Memory Summarization
   static async generate(agent, contextMessages, userMessageText, platform, wantsVoice = false, ragContext = '', memoryContext = '') {
     try {
-      const cacheKey = `ai_cache:${agent._id}:${Buffer.from(userMessageText.toLowerCase().trim()).toString('base64')}`;
+      const cacheKey = `ai_cache_v2:${agent._id}:${Buffer.from(userMessageText.toLowerCase().trim()).toString('base64')}`;
       const cached = await redis.get(cacheKey);
  
       if (cached) {
@@ -297,12 +297,18 @@ class AIService {
       }
 
       // Estimate tokens (roughly 4 chars per token)
+      // Check for canned API error responses
+      if (responseText.includes("experiencing some technical difficulties") || responseText.includes("currently unable to process")) {
+        throw new Error("AI provider returned a canned error response.");
+      }
+
       const inputTokens = (systemPrompt.length + JSON.stringify(effectiveContext).length + userMessageText.length) / 4;
       const outputTokens = responseText.length / 4;
       const tokensUsed = Math.ceil(inputTokens + outputTokens);
 
       // Cache the exact match answer for 24 hours
-      await redis.setex(cacheKey, 86400, responseText);
+      const cacheKeyV2 = `ai_cache_v2:${agent._id}:${Buffer.from(userMessageText.toLowerCase().trim()).toString('base64')}`;
+      await redis.setex(cacheKeyV2, 86400, responseText);
 
       return {
         content: responseText,
