@@ -656,7 +656,7 @@ export default function BrandCopilotTab({}) {
         </div>
 
         {/* Stepper Actions */}
-        <div className="flex justify-between items-center mt-12 pt-6 border-t border-slate-200/10 relative z-10">
+        <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-200/10 relative z-10">
           <button
             onClick={prevStep}
             disabled={activeStep === 1 || strategyGenerating}
