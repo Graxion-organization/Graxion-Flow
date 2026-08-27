@@ -582,54 +582,56 @@ export default function ConversationsPage() {
         {/* Sidebar list */}
         <div className={`${showDetail ? 'hidden lg:flex' : 'flex'} flex-col w-full lg:w-[380px] rounded-2xl border shrink-0 min-h-0 h-full ${panelClass}`}>
           {/* Header & Search */}
-          <div className={`p-4 border-b space-y-3 shrink-0 ${sectionBorder}`}>
+          <div className={`p-4 border-b space-y-4 shrink-0 ${sectionBorder}`}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <h1 className={`font-bold text-lg tracking-tight ${titleClass}`}>Chats</h1>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${'bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-slate-200'}`}>{total}</span>
+              <div className="flex items-center gap-2.5">
+                <h1 className={`font-black text-xl tracking-tight ${titleClass}`}>Chats</h1>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg ${'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-200'}`}>{total}</span>
               </div>
-              <button onClick={() => setIsFullScreen(!isFullScreen)} className={`p-1.5 rounded-lg transition-colors ${'text-gray-500 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-white/10'}`} title="Toggle Full Screen">
+              <button onClick={() => setIsFullScreen(!isFullScreen)} className={`p-1.5 rounded-lg transition-colors ${'text-gray-400 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-white/10'}`} title="Toggle Full Screen">
                 {isFullScreen ? <Minimize size={16} /> : <Maximize size={16} />}
               </button>
             </div>
             
-            <div className="relative">
-              <Search size={15} className={`absolute left-3 top-3 ${searchTheme.iconColor}`} />
+            <div className="relative group">
+              <Search size={16} className={`absolute left-3.5 top-3 transition-colors ${searchTheme.iconColor}`} />
               <input
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                 placeholder="Search by name or phone..."
-                className={`w-full pl-9 pr-4 py-2.5 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all ${'bg-gray-50 text-gray-900 dark:bg-white/10 dark:text-slate-100 dark:placeholder:text-slate-400'} ${searchTheme.ringPrimary}`}
+                className={`w-full pl-10 pr-4 py-2.5 border border-transparent rounded-xl text-[13px] font-medium focus:outline-none transition-all ${'bg-slate-100 text-slate-900 focus:bg-white focus:border-slate-300 focus:shadow-sm dark:bg-black/20 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:bg-slate-900 dark:focus:border-white/10'}`}
               />
             </div>
 
-            {/* Platform Tabs */}
-            <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
-              {PLATFORM_TABS.map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => { setActivePlatform(tab.key); setPage(1); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap
-                    ${activePlatform === tab.key ? tab.activeClass : tab.colorClass}`}
-                >
-                  {tab.icon}
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+            <div className="space-y-2">
+              {/* Platform Tabs */}
+              <div className={`flex gap-1 p-1 rounded-xl overflow-x-auto scrollbar-hide ${'bg-slate-100/80 dark:bg-black/20'}`}>
+                {PLATFORM_TABS.map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => { setActivePlatform(tab.key); setPage(1); }}
+                    className={`flex-1 min-w-fit flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap
+                      ${activePlatform === tab.key ? tab.activeClass : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/60 dark:hover:bg-white/5'}`}
+                  >
+                    {tab.icon}
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
 
-            {/* Status Tabs */}
-            <div className="flex gap-1">
-              {STATUS_TABS.map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => { setActiveTab(tab.key); setPage(1); }}
-                  className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors
-                    ${activeTab === tab.key ? 'bg-[#FF6A00] text-white' : ('bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-white/15')}`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              {/* Status Tabs */}
+              <div className={`flex gap-1 p-1 rounded-xl ${'bg-slate-100/80 dark:bg-black/20'}`}>
+                {STATUS_TABS.map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => { setActiveTab(tab.key); setPage(1); }}
+                    className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all
+                      ${activeTab === tab.key ? 'bg-white text-slate-800 shadow-sm dark:bg-slate-700 dark:text-white' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/60 dark:hover:bg-white/5'}`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -714,76 +716,91 @@ export default function ConversationsPage() {
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
-                className={`px-5 py-4 backdrop-blur-md border-b flex items-center gap-3 shrink-0 z-10 ${'bg-white/90 border-gray-100 dark:bg-slate-900/70 dark:border-white/10'}`}
+                className={`px-5 py-3.5 backdrop-blur-md border-b flex items-center gap-4 shrink-0 z-10 ${'bg-white/95 border-slate-100 dark:bg-slate-900/90 dark:border-white/5'}`}
               >
-                <button onClick={() => setShowDetail(false)} className={`lg:hidden p-1.5 rounded-lg ${'hover:bg-gray-100 dark:hover:bg-white/10'} ${theme.iconColor}`}>
+                <button onClick={() => setShowDetail(false)} className={`lg:hidden p-2 rounded-xl ${'bg-slate-100 text-slate-600 dark:bg-white/5 dark:text-slate-300'}`}>
                   <ChevronLeft size={18} />
                 </button>
-                <div className={`w-10 h-10 rounded-full ${theme.btnPrimary} flex items-center justify-center font-bold shrink-0 shadow-sm`}>
+                <div className={`w-11 h-11 rounded-full ${theme.btnPrimary} flex items-center justify-center font-bold text-lg shrink-0 shadow-sm ring-4 ring-slate-50 dark:ring-slate-800/50`}>
                   {(selected.customerName || selected.customerPhone || selected.customerIgId || selected.customerTelegramId || 'U')[0]?.toUpperCase()}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className={`font-semibold truncate ${titleClass}`}>{selected.customerName || selected.customerPhone || selected.customerIgId || selected.customerTelegramId || 'Unknown'}</p>
-                  <p className={`text-xs ${theme.iconColor}`}>
-                    {selected.platform || 'whatsapp'} 
-                    <span className={`ml-1.5 ${subtleClass}`}>- {selected.agent?.name}</span>
-                  </p>
+                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                  <p className={`font-bold text-[15px] truncate ${titleClass}`}>{selected.customerName || selected.customerPhone || selected.customerIgId || selected.customerTelegramId || 'Unknown'}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className={`text-[11px] font-semibold flex items-center gap-1 ${theme.iconColor}`}>
+                      {selected.platform === 'whatsapp' ? <Smartphone size={10} /> : <Bot size={10} />}
+                      <span className="capitalize">{selected.platform || 'whatsapp'}</span>
+                    </span>
+                    <span className={`text-[10px] ${subtleClass}`}>•</span>
+                    <span className={`text-[11px] font-medium ${subtleClass}`}>{selected.agent?.name}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {/* Status Toggle */}
+                
+                <div className="flex items-center gap-2.5">
+                  {/* Status Toggle (AI / Human) */}
                   {selected.status !== 'closed' && (
-                    <div className="flex p-0.5 rounded-xl bg-gray-200/50 dark:bg-black/20 border border-gray-200/50 dark:border-white/5">
+                    <div className="flex p-1 rounded-xl bg-slate-100 dark:bg-black/20 border border-slate-200/50 dark:border-white/5">
                       <button
                         onClick={() => handleToggleStatus(selected._id, 'active')}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                           selected.status === 'active' 
-                            ? 'bg-white shadow-sm text-[#FF6A00] dark:bg-slate-700 dark:text-[#FF6A00]' 
-                            : 'text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200'
+                            ? 'bg-white shadow-sm text-[#FF6A00] dark:bg-slate-800 dark:text-[#FF6A00]' 
+                            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-black/5 dark:hover:bg-white/5'
                         }`}
                         title="AI Agent Mode"
                       >
-                        <Zap size={13} fill={selected.status === 'active' ? 'currentColor' : 'none'} />
+                        <Zap size={14} className={selected.status === 'active' ? 'fill-[#FF6A00]/20' : ''} />
                         <span className="hidden sm:inline">AI Mode</span>
                       </button>
                       <button
                         onClick={() => handleToggleStatus(selected._id, 'human_handoff')}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                           selected.status === 'human_handoff' 
-                            ? 'bg-white shadow-sm text-blue-600 dark:bg-slate-700 dark:text-blue-400' 
-                            : 'text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200'
+                            ? 'bg-white shadow-sm text-blue-600 dark:bg-slate-800 dark:text-blue-400' 
+                            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-black/5 dark:hover:bg-white/5'
                         }`}
                         title="Human Mode"
                       >
-                        <User size={13} fill={selected.status === 'human_handoff' ? 'currentColor' : 'none'} />
+                        <User size={14} className={selected.status === 'human_handoff' ? 'fill-blue-600/20 dark:fill-blue-400/20' : ''} />
                         <span className="hidden sm:inline">Human</span>
                       </button>
                     </div>
                   )}
 
-                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                    selected.status === 'active' ? 'bg-green-100 text-green-700' :
-                    selected.status === 'closed' ? 'bg-gray-100 text-gray-600' :
-                    'bg-amber-100 text-amber-700'}`}>
+                  {/* Status Pill */}
+                  <span className={`flex items-center gap-1.5 text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full font-black ${
+                    selected.status === 'active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' :
+                    selected.status === 'closed' ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400' :
+                    'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'}`}>
+                    {selected.status !== 'closed' && (
+                       <span className={`w-1.5 h-1.5 rounded-full ${selected.status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500 animate-pulse'}`} />
+                    )}
                     {selected.status.replace('_', ' ')}
                   </span>
-                  {selected.status !== 'closed' && (
-                    <button
-                      onClick={() => handleClose(selected._id)}
-                      className={`flex items-center gap-1.5 text-xs px-3 py-1.5 border rounded-xl transition-colors ${'border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/10'}`}
+
+                  <div className="w-px h-6 bg-slate-200 dark:bg-white/10 mx-1"></div>
+
+                  <div className="flex items-center gap-1.5">
+                    {selected.status !== 'closed' && (
+                      <button
+                        onClick={() => handleClose(selected._id)}
+                        className={`flex items-center justify-center w-8 h-8 rounded-xl transition-all ${'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900 dark:bg-slate-800 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white'}`}
+                        title="Close Chat"
+                      >
+                        <CheckCircle2 size={15} />
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => setShowContactModal(true)} 
+                      className={`flex items-center justify-center w-8 h-8 rounded-xl transition-all ${'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900 dark:bg-slate-800 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white'}`}
+                      title="Contact Information"
                     >
-                      <CheckCircle2 size={13} /> Close
+                      <Info size={15} />
                     </button>
-                  )}
-                  <button onClick={() => setIsFullScreen(!isFullScreen)} className={`p-1.5 rounded-lg transition-colors hidden sm:block ${'text-gray-500 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-white/10'}`} title="Toggle Full Screen">
-                    {isFullScreen ? <Minimize size={16} /> : <Maximize size={16} />}
-                  </button>
-                  <button 
-                    onClick={() => setShowContactModal(true)} 
-                    className={`p-1.5 rounded-lg transition-colors ${'hover:bg-gray-100 text-gray-500 dark:hover:bg-white/10 dark:text-slate-300'}`} 
-                    title="Contact Information"
-                  >
-                    <Info size={18} />
-                  </button>
+                    <button onClick={() => setIsFullScreen(!isFullScreen)} className={`hidden sm:flex items-center justify-center w-8 h-8 rounded-xl transition-all ${'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900 dark:bg-slate-800 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white'}`} title="Toggle Full Screen">
+                      {isFullScreen ? <Minimize size={14} /> : <Maximize size={14} />}
+                    </button>
+                  </div>
                 </div>
 
               </motion.div>
