@@ -60,7 +60,6 @@ export default function InstagramTool() {
   const [loadingAutoReply, setLoadingAutoReply] = useState(false);
   const [savingAutoReply, setSavingAutoReply] = useState(false);
 
-  const socketRef = useRef(null);
 
   const selectedMediaRef = useRef(null);
   useEffect(() => {
@@ -491,7 +490,6 @@ export default function InstagramTool() {
                         <span className="font-bold text-sm text-slate-800 dark:text-gray-100 leading-tight">Post Comments</span>
                         <span className="text-[10px] text-slate-500 truncate max-w-[150px] sm:max-w-[200px]">{selectedMedia.caption}</span>
                       </div>
-                    </div>
                     </div>
                   </div>
                 </div>

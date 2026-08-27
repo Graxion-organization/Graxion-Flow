@@ -373,7 +373,6 @@ export default function LinkedInTool() {
                         <span className="text-[10px] text-slate-500 truncate max-w-[150px] sm:max-w-[200px]">{selectedMedia.commentary || selectedMedia.specificContent?.["com.linkedin.ugc.ShareContent"]?.shareCommentary?.text || 'No caption'}</span>
                       </div>
                     </div>
-                    </div>
                   </div>
                 </div>
 
