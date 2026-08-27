@@ -576,11 +576,11 @@ export default function ConversationsPage() {
 
   return (
     <div className={isFullScreen 
-      ? `fixed inset-0 z-[100] p-2 sm:p-4 flex flex-col animate-fade-in ${'bg-gray-50 dark:bg-slate-950'}` 
-      : "h-[calc(100vh-115px)] min-h-[500px] flex flex-col animate-fade-in"}>
-      <div className="flex-1 flex gap-4 min-h-0 h-full w-full relative">
+      ? `fixed inset-0 z-[100] p-0 lg:p-4 flex flex-col animate-fade-in ${'bg-white dark:bg-slate-950'}` 
+      : "-mx-4 -my-6 lg:mx-0 lg:my-0 h-[calc(100dvh-64px)] lg:h-[calc(100vh-115px)] lg:min-h-[500px] flex flex-col animate-fade-in"}>
+      <div className="flex-1 flex gap-0 lg:gap-4 min-h-0 h-full w-full relative">
         {/* Sidebar list */}
-        <div className={`${showDetail ? 'hidden lg:flex' : 'flex'} flex-col w-full lg:w-[380px] rounded-2xl border shrink-0 min-h-0 h-full ${panelClass}`}>
+        <div className={`${showDetail ? 'hidden lg:flex' : 'flex'} flex-col w-full lg:w-[380px] rounded-none lg:rounded-2xl border-0 lg:border-r lg:border shrink-0 min-h-0 h-full ${panelClass}`}>
           {/* Header & Search */}
           <div className={`p-4 border-b space-y-4 shrink-0 ${sectionBorder}`}>
             <div className="flex items-center justify-between">
@@ -702,7 +702,7 @@ export default function ConversationsPage() {
         </div>
 
         {/* Chat detail */}
-        <div className={`${!showDetail ? 'hidden lg:flex' : 'flex'} flex-col flex-1 rounded-2xl border min-h-0 min-w-0 xl:min-w-[500px] relative overflow-hidden ${panelClass}`}>
+        <div className={`${!showDetail ? 'hidden lg:flex' : 'flex'} flex-col flex-1 rounded-none lg:rounded-2xl border-0 lg:border min-h-0 min-w-0 xl:min-w-[500px] relative overflow-hidden ${panelClass}`}>
           {!selected ? (
             <div className={`flex-1 flex flex-col items-center justify-center ${searchTheme.bgChat} ${subtleClass} transition-colors duration-500`}>
               <MessageSquare size={48} className={`mb-3 opacity-20 ${searchTheme.iconColor}`} />
@@ -716,12 +716,12 @@ export default function ConversationsPage() {
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
-                className={`px-5 py-3.5 backdrop-blur-md border-b flex items-center gap-4 shrink-0 z-10 ${'bg-white/95 border-slate-100 dark:bg-slate-900/90 dark:border-white/5'}`}
+                className={`px-4 lg:px-5 py-3.5 backdrop-blur-md border-b flex items-center gap-3 lg:gap-4 shrink-0 z-10 ${'bg-white/95 border-slate-100 dark:bg-slate-900/90 dark:border-white/5'}`}
               >
-                <button onClick={() => setShowDetail(false)} className={`lg:hidden p-2 rounded-xl ${'bg-slate-100 text-slate-600 dark:bg-white/5 dark:text-slate-300'}`}>
-                  <ChevronLeft size={18} />
+                <button onClick={() => setShowDetail(false)} className={`lg:hidden flex items-center justify-center p-1.5 -ml-1.5 rounded-xl transition-all ${'hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400'}`}>
+                  <ChevronLeft size={24} />
                 </button>
-                <div className={`w-11 h-11 rounded-full ${theme.btnPrimary} flex items-center justify-center font-bold text-lg shrink-0 shadow-sm ring-4 ring-slate-50 dark:ring-slate-800/50`}>
+                <div className={`w-10 h-10 lg:w-11 lg:h-11 rounded-full ${theme.btnPrimary} flex items-center justify-center font-bold text-lg shrink-0 shadow-sm ring-2 lg:ring-4 ring-slate-50 dark:ring-slate-800/50`}>
                   {(selected.customerName || selected.customerPhone || selected.customerIgId || selected.customerTelegramId || 'U')[0]?.toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col justify-center">
