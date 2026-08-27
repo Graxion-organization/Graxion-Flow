@@ -305,7 +305,7 @@ export default function AnalyticsPage() {
         <ChartCard title="Agent Performance" icon={Bot} isDark={isDark} className="lg:col-span-2">
           <div className="min-h-[240px] max-h-[260px] overflow-y-auto pr-1 custom-scrollbar">
             {agentPerformance.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 pb-2">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-4 pt-1 pb-2">
                 {agentPerformance.map((agent, index) => {
                   const total = (agent.resolved || 0) + (agent.escalated || 0);
                   const safeTotal = total === 0 ? 1 : total;
@@ -313,7 +313,7 @@ export default function AnalyticsPage() {
                   const escPct = ((agent.escalated || 0) / safeTotal) * 100;
 
                   return (
-                    <div key={index} className={`p-4 rounded-2xl border transition-all ${isDark ? 'border-white/10 bg-slate-800/40 hover:bg-slate-800/70' : 'border-slate-200 bg-white hover:shadow-md'}`}>
+                    <div key={index} className={`flex-1 min-w-[240px] p-4 rounded-2xl border transition-all ${isDark ? 'border-white/10 bg-slate-800/40 hover:bg-slate-800/70' : 'border-slate-200 bg-white hover:shadow-md'}`}>
                       <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-3">
                           <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDark ? 'bg-[#FF6A00]/20 text-[#FF6A00]' : 'bg-[#FF6A00]/10 text-[#FF6A00]'}`}>
