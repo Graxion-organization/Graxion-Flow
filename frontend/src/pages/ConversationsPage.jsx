@@ -323,6 +323,9 @@ export default function ConversationsPage() {
           .then((res) => {
             setSelected(res.data.data.conversation);
             setShowDetail(true);
+            if (window.innerWidth < 1024) {
+              window.history.pushState({ chatDetailOpen: true }, '');
+            }
             setVisibleMessagesCount(12);
           })
           .catch(() => toast.error('Could not open conversation'));
@@ -387,11 +390,24 @@ export default function ConversationsPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const handlePopState = (e) => {
+      if (showDetail && window.innerWidth < 1024) {
+        setShowDetail(false);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [showDetail]);
+
   const selectConversation = async (conv) => {
     try {
       const res = await conversationAPI.getOne(conv._id);
       setSelected(res.data.data.conversation);
       setShowDetail(true);
+      if (window.innerWidth < 1024) {
+        window.history.pushState({ chatDetailOpen: true }, '');
+      }
       setVisibleMessagesCount(12);
       setConversations((prev) => prev.map((c) => c._id === conv._id ? { ...c, isRead: true } : c));
     } catch { toast.error('Failed to load conversation'); }
@@ -723,7 +739,12 @@ export default function ConversationsPage() {
                 transition={{ duration: 0.2 }}
                 className={`px-4 lg:px-5 py-3.5 backdrop-blur-md border-b flex items-center gap-3 lg:gap-4 shrink-0 z-10 ${'bg-white/95 border-slate-100 dark:bg-slate-900/90 dark:border-white/5'}`}
               >
-                <button onClick={() => setShowDetail(false)} className={`lg:hidden flex items-center justify-center p-1.5 -ml-1.5 rounded-xl transition-all ${'hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400'}`}>
+                <button onClick={() => {
+                  setShowDetail(false);
+                  if (window.history.state && window.history.state.chatDetailOpen) {
+                    window.history.back();
+                  }
+                }} className={`lg:hidden flex items-center justify-center p-1.5 -ml-1.5 rounded-xl transition-all ${'hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400'}`}>
                   <ChevronLeft size={24} />
                 </button>
                 <button 
