@@ -9,7 +9,11 @@ const postAutomationSchema = new mongoose.Schema({
   keywords: { type: [String], default: [] },
   dmMessage: { type: String, required: true },
   commentReply: { type: String, required: true },
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+  hasButton: { type: Boolean, default: false },
+  buttonText: { type: String },
+  buttonNextMessage: { type: String },
+  buttonNextLink: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('PostAutomation', postAutomationSchema);

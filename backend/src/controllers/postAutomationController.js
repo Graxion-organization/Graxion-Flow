@@ -4,7 +4,7 @@ const logger = require('../utils/logger');
 
 exports.saveAutomation = async (req, res, next) => {
   try {
-    const { platform, accountId, mediaId, triggerType, keywords, dmMessage, commentReply, isActive } = req.body;
+    const { platform, accountId, mediaId, triggerType, keywords, dmMessage, commentReply, isActive, hasButton, buttonText, buttonNextMessage, buttonNextLink } = req.body;
 
     if (!platform || !accountId || !mediaId || !triggerType || !dmMessage || !commentReply) {
       return next(new AppError('Missing required fields', 400));
@@ -23,6 +23,10 @@ exports.saveAutomation = async (req, res, next) => {
       automation.dmMessage = dmMessage;
       automation.commentReply = commentReply;
       automation.isActive = isActive !== undefined ? isActive : automation.isActive;
+      automation.hasButton = hasButton || false;
+      automation.buttonText = buttonText;
+      automation.buttonNextMessage = buttonNextMessage;
+      automation.buttonNextLink = buttonNextLink;
       await automation.save();
     } else {
       automation = await PostAutomation.create({
@@ -34,7 +38,11 @@ exports.saveAutomation = async (req, res, next) => {
         keywords: keywords || [],
         dmMessage,
         commentReply,
-        isActive: isActive !== undefined ? isActive : true
+        isActive: isActive !== undefined ? isActive : true,
+        hasButton: hasButton || false,
+        buttonText,
+        buttonNextMessage,
+        buttonNextLink
       });
     }
 

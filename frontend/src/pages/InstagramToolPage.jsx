@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Instagram, 
   Search, 
@@ -47,7 +48,11 @@ export default function InstagramTool() {
     keywords: '',
     dmMessage: '',
     commentReply: '',
-    isActive: true
+    isActive: true,
+    hasButton: false,
+    buttonText: '',
+    buttonNextMessage: '',
+    buttonNextLink: ''
   });
   const [loadingAutoReply, setLoadingAutoReply] = useState(false);
   const [savingAutoReply, setSavingAutoReply] = useState(false);
@@ -250,7 +255,11 @@ export default function InstagramTool() {
           keywords: '',
           dmMessage: '',
           commentReply: '',
-          isActive: true
+          isActive: true,
+          hasButton: false,
+          buttonText: '',
+          buttonNextMessage: '',
+          buttonNextLink: ''
         });
       }
       setShowAutoReplyModal(true);
@@ -275,7 +284,11 @@ export default function InstagramTool() {
         keywords: autoReplyConfig.keywords.split(',').map(k => k.trim()).filter(k => k),
         dmMessage: autoReplyConfig.dmMessage,
         commentReply: autoReplyConfig.commentReply,
-        isActive: autoReplyConfig.isActive
+        isActive: autoReplyConfig.isActive,
+        hasButton: autoReplyConfig.hasButton,
+        buttonText: autoReplyConfig.buttonText,
+        buttonNextMessage: autoReplyConfig.buttonNextMessage,
+        buttonNextLink: autoReplyConfig.buttonNextLink
       });
       toast.success('Post automation saved successfully');
       setShowAutoReplyModal(false);
@@ -554,94 +567,227 @@ export default function InstagramTool() {
       </div>
       )}
 
-      {/* AUTO-REPLY MODAL */}
+      {/* AUTO-REPLY MODAL (Visual Flow Builder) */}
       {showAutoReplyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-[#1e293b] rounded-2xl w-full max-w-lg p-6 shadow-2xl relative border border-slate-200 dark:border-white/10 m-4">
-            <h2 className="text-xl font-bold mb-4 text-slate-800 dark:text-gray-100 flex items-center gap-2">
-              <Bot className="w-6 h-6 text-indigo-500" />
-              Post Auto-Responder
-            </h2>
-            <p className="text-sm text-slate-500 dark:text-gray-400 mb-6">
-              Configure an automatic DM and comment reply for users who comment on this specific post.
-            </p>
-            
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10">
-                <span className="text-sm font-bold text-slate-700 dark:text-gray-300">Enable Automation</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-slate-50 dark:bg-[#0f172a] rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl relative border border-slate-200 dark:border-slate-800"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 shrink-0 bg-white dark:bg-[#1e293b] rounded-t-2xl">
+              <div>
+                <h2 className="text-xl font-black text-slate-800 dark:text-white flex items-center gap-3">
+                  <Bot className="w-7 h-7 text-[#FF6A00]" />
+                  Instagram Flow Builder
+                </h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  Visually configure auto-replies and follow-up actions for your post.
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Active</span>
                 <button 
                   onClick={() => setAutoReplyConfig({ ...autoReplyConfig, isActive: !autoReplyConfig.isActive })}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${autoReplyConfig.isActive ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-600'}`}
+                  className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${autoReplyConfig.isActive ? 'bg-[#FF6A00]' : 'bg-slate-300 dark:bg-slate-700'}`}
                 >
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${autoReplyConfig.isActive ? 'translate-x-6' : 'translate-x-1'}`} />
+                  <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${autoReplyConfig.isActive ? 'translate-x-6' : 'translate-x-1'}`} />
                 </button>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-1">Trigger Condition</label>
-                <select 
-                  value={autoReplyConfig.triggerType}
-                  onChange={(e) => setAutoReplyConfig({ ...autoReplyConfig, triggerType: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 transition-colors dark:text-white"
-                >
-                  <option value="ALL_COMMENTS">Reply to ALL comments</option>
-                  <option value="KEYWORD">Reply ONLY to specific keywords</option>
-                </select>
-              </div>
-
-              {autoReplyConfig.triggerType === 'KEYWORD' && (
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-1">Keywords (Comma separated)</label>
-                  <input 
-                    type="text"
-                    value={autoReplyConfig.keywords}
-                    onChange={(e) => setAutoReplyConfig({ ...autoReplyConfig, keywords: e.target.value })}
-                    placeholder="e.g. LINK, SEND, BUY"
-                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 transition-colors dark:text-white"
-                  />
-                  <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">If empty, won't trigger.</p>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-1">Direct Message (DM) to Send</label>
-                <textarea 
-                  value={autoReplyConfig.dmMessage}
-                  onChange={(e) => setAutoReplyConfig({ ...autoReplyConfig, dmMessage: e.target.value })}
-                  placeholder="Hey! Here is the link you requested: https://example.com"
-                  rows={3}
-                  className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 transition-colors custom-scrollbar dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-1">Public Comment Reply</label>
-                <textarea 
-                  value={autoReplyConfig.commentReply}
-                  onChange={(e) => setAutoReplyConfig({ ...autoReplyConfig, commentReply: e.target.value })}
-                  placeholder="Sent you a DM with the link! 🚀"
-                  rows={2}
-                  className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 transition-colors custom-scrollbar dark:text-white"
-                />
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end gap-3">
+            {/* Flow Builder Content */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
+              
+              {/* STEP 1 */}
+              <div className="relative pl-8">
+                <div className="absolute left-0 top-0 bottom-0 w-px bg-slate-300 dark:bg-slate-700 translate-x-[11px] translate-y-8"></div>
+                <div className="absolute left-0 top-4 w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 border-4 border-slate-50 dark:border-[#0f172a] flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-slate-500 dark:bg-slate-400"></div>
+                </div>
+                
+                <div className="bg-white dark:bg-[#1e293b] p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 uppercase tracking-wider flex items-center gap-2">
+                    <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-xs">Step 1</span> 
+                    The Trigger
+                  </h3>
+                  
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">Condition</label>
+                        <select 
+                          value={autoReplyConfig.triggerType}
+                          onChange={(e) => setAutoReplyConfig({ ...autoReplyConfig, triggerType: e.target.value })}
+                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#FF6A00] transition-colors dark:text-white"
+                        >
+                          <option value="ALL_COMMENTS">Reply to ALL comments</option>
+                          <option value="KEYWORD">Reply ONLY to specific keywords</option>
+                        </select>
+                      </div>
+                      
+                      {autoReplyConfig.triggerType === 'KEYWORD' && (
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">Keywords (Comma separated)</label>
+                          <input 
+                            type="text"
+                            value={autoReplyConfig.keywords}
+                            onChange={(e) => setAutoReplyConfig({ ...autoReplyConfig, keywords: e.target.value })}
+                            placeholder="e.g. LINK, PRICE, BUY"
+                            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#FF6A00] transition-colors dark:text-white"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">Public Comment Reply</label>
+                      <input 
+                        type="text"
+                        value={autoReplyConfig.commentReply}
+                        onChange={(e) => setAutoReplyConfig({ ...autoReplyConfig, commentReply: e.target.value })}
+                        placeholder="Sent you a DM! 🚀"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#FF6A00] transition-colors dark:text-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* STEP 2 */}
+              <div className="relative pl-8">
+                <div className={`absolute left-0 top-0 bottom-0 w-px ${autoReplyConfig.hasButton ? 'bg-slate-300 dark:bg-slate-700' : 'bg-transparent'} translate-x-[11px] translate-y-8 transition-colors duration-500`}></div>
+                <div className="absolute left-0 top-4 w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 border-4 border-slate-50 dark:border-[#0f172a] flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                </div>
+
+                <div className="bg-white dark:bg-[#1e293b] p-5 rounded-2xl border border-blue-200 dark:border-blue-900/50 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+                  
+                  <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 uppercase tracking-wider flex items-center gap-2 relative z-10">
+                    <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded text-xs">Step 2</span> 
+                    The Auto DM (Action)
+                  </h3>
+
+                  <div className="space-y-4 relative z-10">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">Direct Message Content</label>
+                      <textarea 
+                        value={autoReplyConfig.dmMessage}
+                        onChange={(e) => setAutoReplyConfig({ ...autoReplyConfig, dmMessage: e.target.value })}
+                        placeholder="Hey! Thanks for commenting. Here is your info..."
+                        rows={3}
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-500 transition-colors custom-scrollbar dark:text-white"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800">
+                      <button 
+                        onClick={() => setAutoReplyConfig({ ...autoReplyConfig, hasButton: !autoReplyConfig.hasButton })}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 ${autoReplyConfig.hasButton ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-700'}`}
+                      >
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${autoReplyConfig.hasButton ? 'translate-x-6' : 'translate-x-1'}`} />
+                      </button>
+                      <div>
+                        <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Add a Button to this DM</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400">Allows users to tap for the next action.</p>
+                      </div>
+                    </div>
+
+                    <AnimatePresence>
+                      {autoReplyConfig.hasButton && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="pt-2">
+                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">Button Label</label>
+                            <input 
+                              type="text"
+                              value={autoReplyConfig.buttonText}
+                              onChange={(e) => setAutoReplyConfig({ ...autoReplyConfig, buttonText: e.target.value })}
+                              placeholder="e.g. Yes, Send Link!"
+                              maxLength={20}
+                              className="w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-xl px-4 py-2.5 text-sm font-bold text-blue-700 dark:text-blue-300 focus:outline-none focus:border-blue-500 transition-colors"
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </div>
+
+              {/* STEP 3 */}
+              <AnimatePresence>
+                {autoReplyConfig.hasButton && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="relative pl-8"
+                  >
+                    <div className="absolute left-0 top-4 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 border-4 border-slate-50 dark:border-[#0f172a] flex items-center justify-center z-10">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    </div>
+
+                    <div className="bg-white dark:bg-[#1e293b] p-5 rounded-2xl border border-green-200 dark:border-green-900/50 shadow-sm relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 dark:bg-green-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+                      
+                      <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 uppercase tracking-wider flex items-center gap-2 relative z-10">
+                        <span className="bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 px-2 py-0.5 rounded text-xs">Step 3</span> 
+                        Button Click Action
+                      </h3>
+
+                      <div className="space-y-4 relative z-10">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">Next Message (Sent immediately after click)</label>
+                          <textarea 
+                            value={autoReplyConfig.buttonNextMessage}
+                            onChange={(e) => setAutoReplyConfig({ ...autoReplyConfig, buttonNextMessage: e.target.value })}
+                            placeholder="Awesome! Here is your link..."
+                            rows={3}
+                            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-green-500 transition-colors custom-scrollbar dark:text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">Attach a Link (Optional)</label>
+                          <input 
+                            type="url"
+                            value={autoReplyConfig.buttonNextLink}
+                            onChange={(e) => setAutoReplyConfig({ ...autoReplyConfig, buttonNextLink: e.target.value })}
+                            placeholder="https://yoursite.com/offer"
+                            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-green-500 transition-colors dark:text-white"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+            </div>
+
+            {/* Footer */}
+            <div className="p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1e293b] rounded-b-2xl flex justify-end gap-3 shrink-0">
               <button 
                 onClick={() => setShowAutoReplyModal(false)}
-                className="px-4 py-2 text-slate-600 dark:text-gray-400 font-bold hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors text-sm"
+                className="px-6 py-2.5 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl transition-colors text-sm"
               >
                 Cancel
               </button>
               <button 
                 onClick={savePostAutomation}
                 disabled={savingAutoReply}
-                className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 transition-colors text-sm"
+                className="bg-[#FF6A00] hover:bg-[#FF6A00]/90 text-white px-8 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-[#FF6A00]/20 text-sm"
               >
-                {savingAutoReply ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Automation'}
+                {savingAutoReply ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Flow'}
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
     </div>
