@@ -244,10 +244,10 @@ export default function AnalyticsPage() {
                       <Cell key={i} fill={PLATFORM_COLORS[entry.name] || PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <text x="50%" y="45%" textAnchor="middle" dominantBaseline="middle" className={`text-3xl font-bold ${isDark ? 'fill-slate-100' : 'fill-slate-900'}`}>
+                  <text x="50%" y="45%" dy="-8" textAnchor="middle" dominantBaseline="middle" className={`text-3xl font-bold ${isDark ? 'fill-slate-100' : 'fill-slate-900'}`}>
                     {platformData.length}
                   </text>
-                  <text x="50%" y="55%" textAnchor="middle" dominantBaseline="middle" className={`text-xs ${isDark ? 'fill-slate-400' : 'fill-slate-500'}`}>
+                  <text x="50%" y="45%" dy="16" textAnchor="middle" dominantBaseline="middle" className={`text-xs ${isDark ? 'fill-slate-400' : 'fill-slate-500'}`}>
                     Channels
                   </text>
                   <Tooltip contentStyle={{ borderRadius: '12px', border: isDark ? '1px solid rgba(255,255,255,0.1)' : 'none', background: isDark ? '#1e293b' : '#fff', color: isDark ? '#f8fafc' : '#0f172a' }} />
@@ -275,10 +275,10 @@ export default function AnalyticsPage() {
                     <Pie data={statusData} cx="50%" cy="50%" innerRadius={55} outerRadius={80} paddingAngle={4} dataKey="value" stroke="none">
                       {statusData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
                     </Pie>
-                    <text x="50%" y="45%" textAnchor="middle" dominantBaseline="middle" className={`text-2xl font-bold ${isDark ? 'fill-slate-100' : 'fill-slate-900'}`}>
+                    <text x="50%" y="50%" dy="-8" textAnchor="middle" dominantBaseline="middle" className={`text-2xl font-bold ${isDark ? 'fill-slate-100' : 'fill-slate-900'}`}>
                       {aiMetrics?.totalConversations || 0}
                     </text>
-                    <text x="50%" y="55%" textAnchor="middle" dominantBaseline="middle" className={`text-[10px] ${isDark ? 'fill-slate-400' : 'fill-slate-500'}`}>
+                    <text x="50%" y="50%" dy="14" textAnchor="middle" dominantBaseline="middle" className={`text-[10px] ${isDark ? 'fill-slate-400' : 'fill-slate-500'}`}>
                       Total
                     </text>
                     <Tooltip contentStyle={{ borderRadius: '12px', background: isDark ? '#1e293b' : '#fff', border: isDark ? '1px solid rgba(255,255,255,0.1)' : 'none', color: isDark ? '#f8fafc' : '#0f172a' }} />
@@ -369,10 +369,10 @@ export default function AnalyticsPage() {
                       <Cell key={i} fill={entry.color || PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <text x="50%" y="45%" textAnchor="middle" dominantBaseline="middle" className={`text-2xl font-bold ${isDark ? 'fill-slate-100' : 'fill-slate-900'}`}>
+                  <text x="50%" y="50%" dy="-8" textAnchor="middle" dominantBaseline="middle" className={`text-2xl font-bold ${isDark ? 'fill-slate-100' : 'fill-slate-900'}`}>
                     {((creditData?.totalCredits || 0) - (creditData?.creditsRemaining || 0)).toLocaleString()}
                   </text>
-                  <text x="50%" y="55%" textAnchor="middle" dominantBaseline="middle" className={`text-[10px] ${isDark ? 'fill-slate-400' : 'fill-slate-500'}`}>
+                  <text x="50%" y="50%" dy="14" textAnchor="middle" dominantBaseline="middle" className={`text-[10px] ${isDark ? 'fill-slate-400' : 'fill-slate-500'}`}>
                     Used
                   </text>
                   <Tooltip contentStyle={{ borderRadius: '12px', background: isDark ? '#1e293b' : '#fff', border: isDark ? '1px solid rgba(255,255,255,0.1)' : 'none', color: isDark ? '#f8fafc' : '#0f172a' }} />
