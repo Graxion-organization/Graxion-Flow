@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
   CheckCircle2, 
@@ -605,44 +606,54 @@ export default function IntegrationsPage() {
   return (
     <div className="space-y-8 max-w-6xl mx-auto pb-16">
       
-      {/* Header section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-white/5 pb-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-white flex items-center gap-2.5">
-            <Workflow className="h-6 w-6 text-[#FF6A00]" />
-            App Store & Integrations
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-            Connect external apps and messaging channels to automate workflows and unify customer data.
-          </p>
+      {/* Premium Hero Section */}
+      <div className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-8 sm:p-12 mb-8">
+        {/* Animated Background Mesh */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[150%] bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-[100px] rounded-full mix-blend-screen animate-pulse duration-10000" />
+          <div className="absolute -bottom-[20%] -right-[10%] w-[60%] h-[120%] bg-gradient-to-l from-[#FF6A00]/20 to-pink-500/20 blur-[120px] rounded-full mix-blend-screen animate-pulse duration-7000" />
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
         </div>
         
-        <div className="flex items-center gap-3">
-          <div className="px-3.5 py-1.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            API Status: Operational
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-xs font-medium text-slate-300 mb-6">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              API Systems Operational
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white mb-4">
+              Connect Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6A00] to-pink-500">Ecosystem</span>
+            </h1>
+            <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-xl">
+              Seamlessly integrate external apps and messaging channels to automate your workflows, unify customer data, and build powerful AI-driven experiences.
+            </p>
           </div>
+          
           {totalActive > 0 && (
-            <div className="px-3.5 py-1.5 rounded-xl bg-[#FF6A00]/10 border border-[#FF6A00]/20 text-xs font-bold text-[#FF6A00]">
-              {totalActive} Active Connections
+            <div className="shrink-0">
+              <div className="flex flex-col items-center justify-center p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-xl text-center">
+                <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-emerald-600 mb-1">
+                  {totalActive}
+                </span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Links</span>
+              </div>
             </div>
           )}
         </div>
       </div>
 
       {/* Filter Row */}
-      <div className="flex flex-col sm:flex-row items-center gap-4 justify-between bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-2xl p-4">
-        
+      <div className="sticky top-0 z-40 flex flex-col sm:flex-row items-center gap-4 justify-between bg-slate-50/80 dark:bg-[#0b101e]/80 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-2xl p-3 shadow-sm mb-6">
         {/* Category Tabs */}
-        <div className="flex items-center gap-1.5 w-full sm:w-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto custom-scrollbar pb-1 sm:pb-0">
           {CATEGORIES.map(category => (
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all ${
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all shrink-0 ${
                 selectedCategory === category
-                  ? 'bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-white shadow-sm'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-200 hover:bg-slate-50 dark:bg-white/5'
+                  ? 'bg-slate-800 dark:bg-white text-white dark:text-slate-900 shadow-md transform scale-[1.02]'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-white/5'
               }`}
             >
               {category}
@@ -651,14 +662,14 @@ export default function IntegrationsPage() {
         </div>
 
         {/* Search */}
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
+        <div className="relative w-full sm:w-72 shrink-0 group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[#FF6A00] transition-colors" />
           <input
             type="text"
             placeholder="Search integrations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-xs text-slate-800 dark:text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#FF6A00]/50 focus:border-[#FF6A00] transition-all"
+            className="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-medium text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF6A00]/20 focus:border-[#FF6A00] transition-all shadow-sm"
           />
         </div>
       </div>
@@ -676,26 +687,30 @@ export default function IntegrationsPage() {
             if (isConnected) {
               connectedLabel = `${connectedAccounts.length} Connected`;
               connectedDetails = (
-                <div className="mt-4 p-3 rounded-xl bg-white/[0.02] border border-slate-200 dark:border-white/5 space-y-2">
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block">Linked Accounts</span>
-                  <div className="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar">
+                <div className="mt-5 p-4 rounded-2xl bg-white/50 dark:bg-black/20 border border-slate-200/60 dark:border-white/5 space-y-3 relative overflow-hidden group-hover:border-slate-300 dark:group-hover:border-white/10 transition-colors">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider block">Linked Accounts</span>
+                  <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1">
                     {connectedAccounts.map((acc) => (
-                      <div key={acc.id} className="flex justify-between items-center bg-white dark:bg-white/[0.01] hover:bg-slate-50 dark:hover:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-lg p-2 text-xs">
-                        <div className="flex items-center gap-2 min-w-0">
-                          {acc.avatar && (
-                            <img src={acc.avatar} alt={acc.name} className="h-7 w-7 rounded-full object-cover shrink-0 border border-slate-200 dark:border-white/10" referrerPolicy="no-referrer" />
+                      <div key={acc.id} className="flex justify-between items-center bg-white dark:bg-white/[0.02] hover:bg-slate-50 dark:hover:bg-white/[0.05] border border-slate-100 dark:border-white/5 rounded-xl p-2 text-xs transition-colors group/acc">
+                        <div className="flex items-center gap-3 min-w-0">
+                          {acc.avatar ? (
+                            <img src={acc.avatar} alt={acc.name} className="h-9 w-9 rounded-full object-cover shrink-0 border border-slate-200 dark:border-white/10 shadow-sm" referrerPolicy="no-referrer" />
+                          ) : (
+                            <div className="h-9 w-9 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center shrink-0">
+                              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">{acc.name.charAt(0)}</span>
+                            </div>
                           )}
                           <div className="flex flex-col min-w-0">
-                            <span className="text-slate-800 dark:text-slate-200 font-bold truncate max-w-[140px]">{acc.name}</span>
-                            <span className="text-[9px] text-slate-500 dark:text-slate-400 truncate">{acc.username ? `@${acc.username}` : acc.type}</span>
+                            <span className="text-slate-800 dark:text-slate-200 font-bold truncate max-w-[150px]">{acc.name}</span>
+                            <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 truncate">{acc.username ? `@${acc.username}` : acc.type}</span>
                           </div>
                         </div>
                         <button
                           onClick={() => handleDisconnectChannel(acc)}
-                          className="p-1 rounded bg-red-500/10 hover:bg-red-500 hover:text-white dark:hover:text-white text-red-500 dark:text-red-400 transition-all border border-red-500/20 hover:border-transparent"
+                          className="p-1.5 rounded-lg opacity-0 group-hover/acc:opacity-100 bg-red-500/10 hover:bg-red-500 hover:text-white dark:hover:text-white text-red-500 dark:text-red-400 transition-all border border-red-500/20 hover:border-transparent mr-1"
                           title="Disconnect Account"
                         >
-                          <Trash2 size={12} />
+                          <Trash2 size={13} />
                         </button>
                       </div>
                     ))}
@@ -709,13 +724,13 @@ export default function IntegrationsPage() {
             if (isConnected) {
               connectedLabel = 'Active';
               connectedDetails = (
-                <div className="mt-4 p-3 rounded-xl bg-white/[0.02] border border-slate-200 dark:border-white/5 space-y-1.5 text-[10px]">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-500 dark:text-slate-400 font-medium">Sync Status</span>
-                    <span className="text-emerald-400 font-bold">Synced</span>
+                <div className="mt-5 p-4 rounded-2xl bg-white/50 dark:bg-black/20 border border-slate-200/60 dark:border-white/5 space-y-2 text-[11px] relative overflow-hidden group-hover:border-slate-300 dark:group-hover:border-white/10 transition-colors">
+                  <div className="flex justify-between items-center pb-2 border-b border-slate-200/50 dark:border-white/5">
+                    <span className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px]">Sync Status</span>
+                    <span className="text-emerald-500 dark:text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-md flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>Synced</span>
                   </div>
                   {dbInt.shopUrl && (
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center pt-1">
                       <span className="text-slate-500 dark:text-slate-400 font-medium">Store URL</span>
                       <span className="text-[#FF6A00] font-bold truncate max-w-[150px]" title={dbInt.shopUrl}>
                         {dbInt.shopUrl}
@@ -723,7 +738,7 @@ export default function IntegrationsPage() {
                     </div>
                   )}
                   {dbInt.spreadsheetId && (
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center pt-1">
                       <span className="text-slate-500 dark:text-slate-400 font-medium">Spreadsheet ID</span>
                       <span className="text-slate-700 dark:text-slate-300 font-bold truncate max-w-[150px]" title={dbInt.spreadsheetId}>
                         {dbInt.spreadsheetId}
@@ -740,37 +755,38 @@ export default function IntegrationsPage() {
           return (
             <div 
               key={int.id}
-              className={`group flex flex-col justify-between rounded-2xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 p-6 transition-all duration-300 hover:border-slate-300 dark:hover:border-white/10 ${
-                isConnected ? 'shadow-[0_0_20px_rgba(34,197,94,0.03)]' : 'shadow-sm'
+              className={`group flex flex-col justify-between rounded-3xl bg-white/70 dark:bg-white/[0.02] backdrop-blur-xl border border-slate-200/60 dark:border-white/5 p-6 sm:p-8 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:bg-white dark:hover:bg-white/[0.04] ${
+                isConnected ? 'shadow-[0_0_30px_rgba(34,197,94,0.05)] border-emerald-500/20 dark:border-emerald-500/10' : 'shadow-sm dark:hover:border-white/10'
               }`}
             >
               <div>
                 {/* Header info */}
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="flex items-center gap-3.5">
-                    <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${int.color} border ${int.borderColor} shadow-inner`}>
-                      <Icon className={`h-6 w-6 ${int.textColor}`} strokeWidth={1.5} />
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className={`relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${int.color} border ${int.borderColor} shadow-inner shrink-0 group-hover:scale-105 transition-transform duration-500 overflow-hidden`}>
+                      <div className={`absolute inset-0 bg-gradient-to-tr ${int.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+                      <Icon className={`relative z-10 h-7 w-7 ${int.textColor}`} strokeWidth={1.5} />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-slate-800 dark:text-white tracking-tight">{int.name}</h3>
-                      <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{int.category}</span>
+                      <h3 className="text-lg font-black text-slate-800 dark:text-white tracking-tight leading-tight">{int.name}</h3>
+                      <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{int.category}</span>
                     </div>
                   </div>
 
                   {isConnected ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-[10px] font-bold text-emerald-400 border border-emerald-500/20">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3.5 py-1.5 text-[11px] font-black tracking-wide text-emerald-500 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
                       {connectedLabel}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center rounded-full bg-slate-50 dark:bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10">
-                      Ready
+                    <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-white/5 px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 shrink-0">
+                      Not Connected
                     </span>
                   )}
                 </div>
 
                 {/* Description */}
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-5">
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
                   {int.description}
                 </p>
 
@@ -811,52 +827,42 @@ export default function IntegrationsPage() {
               </div>
 
               {/* Actions Footer */}
-              <div className="pt-4 border-t border-slate-200 dark:border-white/5 mt-6 flex items-center justify-between gap-3">
+              <div className="pt-5 border-t border-slate-200/60 dark:border-white/5 mt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
                 {int.type === 'channel' ? (
                   <>
                     {isConnected ? (
                       <>
                         <button
                           onClick={() => openModal(int)}
-                          className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-all hover:bg-slate-100 dark:bg-white/10 hover:text-slate-800 dark:text-white"
+                          className="w-full flex items-center justify-center gap-2 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 px-4 py-3 text-xs font-black text-slate-700 dark:text-slate-300 transition-all hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
                         >
-                          <Plus size={13} /> Connect Additional
+                          <Plus size={14} strokeWidth={3} /> Connect Additional
                         </button>
                       </>
                     ) : (
                       <button
                         onClick={() => openModal(int)}
-                        className="w-full flex items-center justify-between rounded-xl bg-[#FF6A00]/15 border border-[#FF6A00]/30 px-4 py-2.5 text-xs font-semibold text-[#FF6A00] transition-all hover:bg-[#FF6A00] hover:text-slate-800 dark:text-white hover:border-transparent group/btn"
+                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#FF6A00] px-4 py-3 text-xs font-black text-white shadow-lg shadow-[#FF6A00]/25 transition-all hover:bg-[#ff7b1a] hover:scale-[1.02]"
                       >
-                        <span>Configure Integration</span>
-                        <ArrowRight className="h-4 w-4 text-slate-500 dark:text-slate-400 transition-transform group-hover/btn:translate-x-1" />
+                        <ArrowRight size={14} strokeWidth={3} /> Connect {int.name.split(' ')[0]}
                       </button>
                     )}
                   </>
                 ) : (
                   <>
                     {isConnected ? (
-                      <>
-                        <button
-                          onClick={() => openModal(int)}
-                          className="flex-1 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-all hover:bg-slate-100 dark:bg-white/10 hover:text-slate-800 dark:text-white"
-                        >
-                          Modify Setup
-                        </button>
-                        <button
-                          onClick={() => handleDisconnectTool(int.id, int.name)}
-                          className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 transition-all hover:bg-red-500 hover:text-slate-800 dark:text-white hover:border-transparent"
-                          title="Disconnect Integration"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </>
+                      <button
+                        onClick={() => handleDisconnectTool(int.id, int.name)}
+                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-xs font-black text-red-500 dark:text-red-400 transition-all hover:bg-red-500 hover:text-white"
+                      >
+                        <Trash2 size={14} strokeWidth={3} /> Disconnect {int.name}
+                      </button>
                     ) : (
                       <button
                         onClick={() => openModal(int)}
-                        className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#FF6A00]/15 border border-[#FF6A00]/30 px-4 py-2.5 text-xs font-semibold text-[#FF6A00] transition-all hover:bg-[#FF6A00] hover:text-slate-800 dark:text-white hover:border-transparent"
+                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#FF6A00] px-4 py-3 text-xs font-black text-white shadow-lg shadow-[#FF6A00]/25 transition-all hover:bg-[#ff7b1a] hover:scale-[1.02]"
                       >
-                        Connect Workspace
+                        <ArrowRight size={14} strokeWidth={3} /> Setup Integration
                       </button>
                     )}
                   </>
@@ -877,36 +883,42 @@ export default function IntegrationsPage() {
         </div>
       )}
 
-      {/* Setup Modal */}
-      {activeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
-            onClick={closeModal}
-          ></div>
-          
-          <div className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 shadow-2xl animate-in zoom-in-95 duration-200">
-            {/* Top colored border */}
-            <div className="h-1" style={{ backgroundColor: activeModal.accentColor }}></div>
+      {/* SETUP MODAL */}
+      <AnimatePresence>
+        {activeModal && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-0">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" 
+              onClick={closeModal} 
+            />
             
-            {/* Modal Header */}
-            <div className="px-6 py-5 border-b border-slate-200 dark:border-white/5 flex justify-between items-center bg-white dark:bg-white/[0.01]">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg bg-gradient-to-br ${activeModal.color}`}>
-                  <activeModal.icon className={`h-5 w-5 ${activeModal.textColor}`} />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md bg-white dark:bg-[#0f172a] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02]">
+                <div className="flex items-center gap-4">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${activeModal.color} border ${activeModal.borderColor} shadow-inner shrink-0`}>
+                    <activeModal.icon className={`h-6 w-6 ${activeModal.textColor}`} strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-slate-800 dark:text-white leading-tight tracking-tight">Setup {activeModal.name}</h3>
+                    <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">{activeModal.category}</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-sm font-bold text-slate-800 dark:text-white">Setup {activeModal.name}</h2>
-                  <span className="text-[9px] uppercase tracking-wider text-slate-500 dark:text-slate-400">Connection Window</span>
-                </div>
+                <button 
+                  onClick={closeModal}
+                  className="rounded-xl p-2.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-white/10 dark:hover:text-slate-200 transition-colors"
+                >
+                  <X size={18} strokeWidth={2.5} />
+                </button>
               </div>
-              <button 
-                onClick={closeModal} 
-                className="rounded-lg p-1.5 text-slate-500 dark:text-slate-400 transition hover:bg-slate-50 dark:bg-white/5 hover:text-slate-800 dark:text-white"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
 
             {/* Platform Setup Conditionals */}
 
@@ -1402,9 +1414,10 @@ export default function IntegrationsPage() {
                 </div>
               </form>
             )}
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }
