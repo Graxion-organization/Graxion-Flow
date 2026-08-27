@@ -604,38 +604,38 @@ export default function IntegrationsPage() {
   const totalActive = activeSocialCount + activeToolCount;
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto pb-16">
+    <div className="space-y-6 max-w-6xl mx-auto pb-16 px-4 sm:px-6">
       
       {/* Premium Hero Section */}
-      <div className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-8 sm:p-12 mb-8">
+      <div className="relative overflow-hidden rounded-[2rem] bg-slate-900 border border-slate-800 shadow-2xl p-6 sm:p-8 mb-4">
         {/* Animated Background Mesh */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[150%] bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-[100px] rounded-full mix-blend-screen animate-pulse duration-10000" />
-          <div className="absolute -bottom-[20%] -right-[10%] w-[60%] h-[120%] bg-gradient-to-l from-[#FF6A00]/20 to-pink-500/20 blur-[120px] rounded-full mix-blend-screen animate-pulse duration-7000" />
+          <div className="absolute -top-[20%] -left-[10%] w-[80%] sm:w-[50%] h-[150%] bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-[80px] rounded-full mix-blend-screen animate-pulse duration-10000" />
+          <div className="absolute -bottom-[20%] -right-[10%] w-[80%] sm:w-[60%] h-[120%] bg-gradient-to-l from-[#FF6A00]/20 to-pink-500/20 blur-[100px] rounded-full mix-blend-screen animate-pulse duration-7000" />
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
         </div>
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-xs font-medium text-slate-300 mb-6">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="max-w-xl text-center md:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-[10px] sm:text-xs font-medium text-slate-300 mb-4 sm:mb-6">
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400 animate-pulse" />
               API Systems Operational
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white mb-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white mb-3">
               Connect Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6A00] to-pink-500">Ecosystem</span>
             </h1>
-            <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-xl">
-              Seamlessly integrate external apps and messaging channels to automate your workflows, unify customer data, and build powerful AI-driven experiences.
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-lg mx-auto md:mx-0">
+              Seamlessly integrate external apps and messaging channels to automate your workflows and unify customer data.
             </p>
           </div>
           
           {totalActive > 0 && (
-            <div className="shrink-0">
-              <div className="flex flex-col items-center justify-center p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-xl text-center">
-                <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-emerald-600 mb-1">
+            <div className="shrink-0 flex justify-center md:justify-end">
+              <div className="flex flex-col items-center justify-center py-4 px-6 sm:p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-xl text-center min-w-[120px]">
+                <span className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-emerald-600 mb-0.5">
                   {totalActive}
                 </span>
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Links</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Links</span>
               </div>
             </div>
           )}
@@ -643,7 +643,7 @@ export default function IntegrationsPage() {
       </div>
 
       {/* Filter Row */}
-      <div className="sticky top-0 z-40 flex flex-col sm:flex-row items-center gap-4 justify-between bg-slate-50/80 dark:bg-[#0b101e]/80 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-2xl p-3 shadow-sm mb-6">
+      <div className="sticky top-0 z-40 flex flex-col sm:flex-row items-center gap-3 justify-between bg-slate-50/90 dark:bg-[#0b101e]/90 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-[1.5rem] p-2.5 shadow-sm mb-4">
         {/* Category Tabs */}
         <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto custom-scrollbar pb-1 sm:pb-0">
           {CATEGORIES.map(category => (
@@ -755,43 +755,43 @@ export default function IntegrationsPage() {
           return (
             <div 
               key={int.id}
-              className={`group flex flex-col justify-between rounded-3xl bg-white/70 dark:bg-white/[0.02] backdrop-blur-xl border border-slate-200/60 dark:border-white/5 p-5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:bg-white dark:hover:bg-white/[0.04] ${
+              className={`group flex flex-col justify-between rounded-[1.5rem] bg-white/70 dark:bg-white/[0.02] backdrop-blur-xl border border-slate-200/60 dark:border-white/5 p-4 sm:p-5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:bg-white dark:hover:bg-white/[0.04] ${
                 isConnected ? 'shadow-[0_0_30px_rgba(34,197,94,0.05)] border-emerald-500/20 dark:border-emerald-500/10' : 'shadow-sm dark:hover:border-white/10'
               }`}
             >
               <div>
                 {/* Header info */}
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-5">
+                <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-3">
-                    <div className={`relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${int.color} border ${int.borderColor} shadow-inner shrink-0 group-hover:scale-105 transition-transform duration-500 overflow-hidden`}>
+                    <div className={`relative flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br ${int.color} border ${int.borderColor} shadow-inner shrink-0 group-hover:scale-105 transition-transform duration-500 overflow-hidden`}>
                       <div className={`absolute inset-0 bg-gradient-to-tr ${int.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
-                      <Icon className={`relative z-10 h-6 w-6 ${int.textColor}`} strokeWidth={1.5} />
+                      <Icon className={`relative z-10 h-5 w-5 sm:h-6 sm:w-6 ${int.textColor}`} strokeWidth={1.5} />
                     </div>
-                    <div>
-                      <h3 className="text-base font-black text-slate-800 dark:text-white tracking-tight leading-tight">{int.name}</h3>
-                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{int.category}</span>
+                    <div className="flex flex-col justify-center">
+                      <h3 className="text-sm sm:text-base font-black text-slate-800 dark:text-white tracking-tight leading-none mb-1">{int.name}</h3>
+                      <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">{int.category}</span>
                     </div>
                   </div>
 
                   {isConnected ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-[10px] font-black tracking-wide text-emerald-500 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[9px] font-black tracking-wide text-emerald-500 dark:text-emerald-400 border border-emerald-500/20 shrink-0 mt-0.5">
                       <span className="h-1 w-1 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
                       {connectedLabel}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-white/5 px-3 py-1 text-[10px] font-bold tracking-wide text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 shrink-0">
+                    <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-white/5 px-2.5 py-1 text-[9px] font-bold tracking-wide text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 shrink-0 mt-0.5">
                       Not Connected
                     </span>
                   )}
                 </div>
 
                 {/* Description */}
-                <p className="text-[13px] font-medium text-slate-600 dark:text-slate-400 leading-relaxed mb-5 line-clamp-2">
+                <p className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed mb-3 line-clamp-2">
                   {int.description}
                 </p>
 
-                {/* Features Checklist */}
-                <div className="space-y-1.5 mb-5">
+                {/* Features Checklist (Hidden on extra small mobile, visible above sm) */}
+                <div className="hidden sm:block space-y-1 mb-4">
                   {int.features.map((feat, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                       <CheckCircle2 className="h-3 w-3 text-slate-400 shrink-0" />
@@ -802,7 +802,7 @@ export default function IntegrationsPage() {
 
                 {/* Required Permissions */}
                 {int.permissions && (
-                  <div className="mb-5 p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5">
+                  <div className="mb-3 sm:mb-4 p-2 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5">
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block mb-2">Required Permissions</span>
                     <div className="flex flex-wrap gap-1.5">
                       {int.permissions.map((perm, idx) => (
@@ -827,7 +827,7 @@ export default function IntegrationsPage() {
               </div>
 
               {/* Actions Footer */}
-              <div className="pt-4 border-t border-slate-200/60 dark:border-white/5 mt-5 flex flex-col sm:flex-row items-center justify-between gap-2.5">
+              <div className="pt-3 border-t border-slate-200/60 dark:border-white/5 mt-auto flex flex-col sm:flex-row items-center justify-between gap-2">
                 {int.type === 'channel' ? (
                   <>
                     {isConnected ? (
