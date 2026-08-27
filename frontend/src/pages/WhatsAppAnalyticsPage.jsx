@@ -102,10 +102,10 @@ export default function WhatsAppAnalyticsPage() {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <text x="50%" y="40%" textAnchor="middle" dominantBaseline="middle" className={`text-3xl font-bold ${isDark ? 'fill-slate-100' : 'fill-slate-900'}`}>
+                <text x="50%" y="45%" textAnchor="middle" dominantBaseline="middle" className={`text-3xl font-bold ${isDark ? 'fill-slate-100' : 'fill-slate-900'}`}>
                   {templatePerfData.reduce((a, b) => a + b.value, 0)}%
                 </text>
-                <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className={`text-xs ${isDark ? 'fill-slate-400' : 'fill-slate-500'}`}>
+                <text x="50%" y="55%" textAnchor="middle" dominantBaseline="middle" className={`text-xs ${isDark ? 'fill-slate-400' : 'fill-slate-500'}`}>
                   Total Volume
                 </text>
                 <Tooltip contentStyle={{ borderRadius: '12px', border: isDark ? '1px solid rgba(255,255,255,0.1)' : 'none', background: isDark ? '#1e293b' : '#fff', color: isDark ? '#f8fafc' : '#0f172a' }} />
