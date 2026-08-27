@@ -303,20 +303,62 @@ export default function AnalyticsPage() {
 
         {/* Agent Performance Bar Chart */}
         <ChartCard title="Agent Performance" icon={Bot} isDark={isDark} className="lg:col-span-2">
-          <div className="min-h-[240px]">
+          <div className="min-h-[240px] max-h-[260px] overflow-y-auto pr-1 custom-scrollbar">
             {agentPerformance.length > 0 ? (
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={agentPerformance} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#ffffff10' : '#e2e8f0'} />
-                  <XAxis dataKey="agent" tick={{ fontSize: 11, fill: isDark ? '#94a3b8' : '#64748b' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: isDark ? '#94a3b8' : '#64748b' }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ borderRadius: '12px', border: isDark ? '1px solid rgba(255,255,255,0.1)' : 'none', background: isDark ? '#1e293b' : '#fff', color: isDark ? '#f8fafc' : '#0f172a' }} />
-                  <Bar dataKey="resolved" name="Resolved" fill="#10B981" radius={[6, 6, 0, 0]} barSize={20} />
-                  <Bar dataKey="escalated" name="Escalated" fill="#F43F5E" radius={[6, 6, 0, 0]} barSize={20} />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 pb-2">
+                {agentPerformance.map((agent, index) => {
+                  const total = (agent.resolved || 0) + (agent.escalated || 0);
+                  const safeTotal = total === 0 ? 1 : total;
+                  const resPct = ((agent.resolved || 0) / safeTotal) * 100;
+                  const escPct = ((agent.escalated || 0) / safeTotal) * 100;
+
+                  return (
+                    <div key={index} className={`p-4 rounded-2xl border transition-all ${isDark ? 'border-white/10 bg-slate-800/40 hover:bg-slate-800/70' : 'border-slate-200 bg-white hover:shadow-md'}`}>
+                      <div className="flex justify-between items-center mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDark ? 'bg-[#FF6A00]/20 text-[#FF6A00]' : 'bg-[#FF6A00]/10 text-[#FF6A00]'}`}>
+                            <Bot size={18} />
+                          </div>
+                          <div>
+                            <span className={`block font-bold text-[13px] leading-tight ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>{agent.agent}</span>
+                            <span className={`text-[10px] font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{total} Total Cases</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3.5">
+                        {/* Resolved */}
+                        <div>
+                          <div className="flex justify-between text-xs mb-1.5">
+                            <span className="text-emerald-500 font-bold flex items-center gap-1.5">
+                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Resolved ({agent.resolved || 0})
+                            </span>
+                            <span className={`font-semibold text-[11px] ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{resPct.toFixed(0)}%</span>
+                          </div>
+                          <div className={`h-2 rounded-full w-full overflow-hidden ${isDark ? 'bg-emerald-500/10' : 'bg-emerald-100'}`}>
+                            <div className="h-full bg-emerald-500 rounded-full transition-all duration-1000" style={{ width: `${resPct}%` }} />
+                          </div>
+                        </div>
+                        {/* Escalated */}
+                        <div>
+                          <div className="flex justify-between text-xs mb-1.5">
+                            <span className="text-rose-500 font-bold flex items-center gap-1.5">
+                              <div className="w-1.5 h-1.5 rounded-full bg-rose-500" /> Escalated ({agent.escalated || 0})
+                            </span>
+                            <span className={`font-semibold text-[11px] ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{escPct.toFixed(0)}%</span>
+                          </div>
+                          <div className={`h-2 rounded-full w-full overflow-hidden ${isDark ? 'bg-rose-500/10' : 'bg-rose-100'}`}>
+                            <div className="h-full bg-rose-500 rounded-full transition-all duration-1000" style={{ width: `${escPct}%` }} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
-              <div className={`h-[240px] flex items-center justify-center ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+              <div className={`h-[240px] flex flex-col items-center justify-center ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                <Bot size={36} className="mb-3 opacity-20" />
                 <p className="text-sm">No agent data available.</p>
               </div>
             )}
