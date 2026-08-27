@@ -313,7 +313,7 @@ export default function AnalyticsPage() {
                   const escPct = ((agent.escalated || 0) / safeTotal) * 100;
 
                   return (
-                    <div key={index} className={`flex-1 min-w-[240px] p-4 rounded-2xl border transition-all ${isDark ? 'border-white/10 bg-slate-800/40 hover:bg-slate-800/70' : 'border-slate-200 bg-white hover:shadow-md'}`}>
+                    <div key={index} className={`flex-1 min-w-[240px] sm:min-w-[45%] p-4 rounded-2xl border transition-all ${isDark ? 'border-white/10 bg-slate-800/40 hover:bg-slate-800/70' : 'border-slate-200 bg-white hover:shadow-md'}`}>
                       <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-3">
                           <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDark ? 'bg-[#FF6A00]/20 text-[#FF6A00]' : 'bg-[#FF6A00]/10 text-[#FF6A00]'}`}>
