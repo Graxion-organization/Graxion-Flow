@@ -498,6 +498,7 @@ async function handleInstagramDM(event, igAccount, agent) {
       emitToUser(igAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: true });
       
       const tempAgent = agent || {
+          _id: `ig_dm_${igAccount._id}`,
           systemPrompt: igAccount.messengerBotPrompt || "You are a helpful assistant. Reply to this Instagram message in a friendly way. Keep it short.",
           temperature: 0.7,
           contextWindow: 10,
@@ -517,6 +518,12 @@ async function handleInstagramDM(event, igAccount, agent) {
       }
 
       const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'instagram');
+
+      // Safety net: Never send canned error messages to real users
+      if (cleanReply.includes('experiencing some technical difficulties') || cleanReply.includes('currently unable to process')) {
+        logger.warn(`[INSTAGRAM_DM] Blocked canned error message from being sent to ${senderId}. Aborting.`);
+        return;
+      }
 
       let sentMsg;
       let audioSent = false;
@@ -844,6 +851,7 @@ async function handleInstagramComment(commentData, igAccount, agent) {
 
         // We can use a minimal mock agent object for AIService.generate
         const tempAgent = { 
+          _id: `ig_comment_${igAccount._id}`,
           systemPrompt: fullPrompt,
           temperature: 0.7,
           contextWindow: 1
@@ -867,6 +875,12 @@ async function handleInstagramComment(commentData, igAccount, agent) {
         }
 
         logger.info(`AI generated comment reply: ${aiResult.content}`);
+
+        // Safety net: Never send canned error messages as comment replies
+        if (aiResult.content.includes('experiencing some technical difficulties') || aiResult.content.includes('currently unable to process')) {
+          logger.warn(`[COMMENT BOT] Blocked canned error message from being sent as comment reply for ${commentId}. Aborting.`);
+          return;
+        }
 
         await igService.replyToComment(igAccount.igAccountId, commentId, aiResult.content);
 
