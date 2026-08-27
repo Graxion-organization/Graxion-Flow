@@ -781,8 +781,14 @@ async function handleInstagramComment(commentData, igAccount, agent) {
                 metadata: { commentId, platform: 'instagram' },
               });
               
-              return; // Stop processing, we handled the comment via Post Automation
+              
+              // We handled the comment via Post Automation
             }
+            
+            // If a PostAutomation rule exists for this reel, we ALWAYS stop here.
+            // This prevents the AI Comment Bot from interfering with the reel's comments.
+            logger.info(`[POST AUTOMATION] Automation exists for media ${mediaId}. Halting AI bot for this reel.`);
+            return;
           }
         } else {
           logger.warn(`[POST AUTOMATION SKIP] Could not determine mediaId for comment ${commentId}`);
