@@ -263,11 +263,12 @@ export default function InstagramTool() {
     }
   };
 
-  const fetchPostAutomation = async () => {
-    if (!selectedMedia || !selectedAccount) return;
+  const fetchPostAutomation = async (mediaOverride = null) => {
+    const mediaToUse = mediaOverride || selectedMedia;
+    if (!mediaToUse || !selectedAccount) return;
     setLoadingAutoReply(true);
     try {
-      const res = await api.get(`/post-automations/instagram/${selectedAccount._id}/${selectedMedia.id}`);
+      const res = await api.get(`/post-automations/instagram/${selectedAccount._id}/${mediaToUse.id}`);
       if (res.data.data) {
         setAutoReplyConfig({
           ...res.data.data,
@@ -835,12 +836,22 @@ export default function InstagramTool() {
         <div className="fixed inset-0 z-[200] lg:hidden flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setMobileMenuMedia(null)}>
           <div className="bg-white dark:bg-[#0f172a] w-full rounded-t-3xl p-5 flex flex-col gap-3 shadow-2xl translate-y-0 animate-slide-up" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-2"></div>
-            <h3 className="text-sm font-bold text-slate-800 dark:text-gray-200 mb-2 px-1">Post Options</h3>
+            
+            <div className="flex items-center gap-3 mb-2 px-1">
+              <img 
+                src={mobileMenuMedia.thumbnail_url || mobileMenuMedia.media_url || 'https://via.placeholder.com/150'} 
+                className="w-10 h-10 object-cover rounded-xl shrink-0 bg-slate-100 dark:bg-black/40"
+              />
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-gray-200 truncate">{mobileMenuMedia.caption || 'No caption'}</h3>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Post Options</span>
+              </div>
+            </div>
             
             <button 
               onClick={() => {
                 setSelectedMedia(mobileMenuMedia);
-                fetchPostAutomation();
+                fetchPostAutomation(mobileMenuMedia);
                 setMobileMenuMedia(null);
               }}
               className="flex items-center gap-3 w-full p-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-white/5 font-bold text-slate-700 dark:text-gray-300 transition-colors"

@@ -501,7 +501,17 @@ export default function LinkedInTool() {
         <div className="fixed inset-0 z-[200] lg:hidden flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setMobileMenuMedia(null)}>
           <div className="bg-white dark:bg-[#0f172a] w-full rounded-t-3xl p-5 flex flex-col gap-3 shadow-2xl translate-y-0 animate-slide-up" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-2"></div>
-            <h3 className="text-sm font-bold text-slate-800 dark:text-gray-200 mb-2 px-1">Post Options</h3>
+            
+            <div className="flex items-center gap-3 mb-2 px-1">
+              <img 
+                src={mobileMenuMedia.thumbnail_url || mobileMenuMedia.media_url || 'https://via.placeholder.com/150'} 
+                className="w-10 h-10 object-cover rounded-xl shrink-0 bg-slate-100 dark:bg-black/40"
+              />
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-gray-200 truncate">{mobileMenuMedia.commentary || mobileMenuMedia.specificContent?.["com.linkedin.ugc.ShareContent"]?.shareCommentary?.text || 'No caption'}</h3>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Post Options</span>
+              </div>
+            </div>
             
             <button 
               onClick={() => {
