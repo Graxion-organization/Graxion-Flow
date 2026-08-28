@@ -1175,10 +1175,10 @@ export default function IntegrationsPage() {
                     activeManageModal.connectedAccounts.map((acc, i) => (
                       <div key={acc._id || i} className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#0b0c10]">
                         <div className="flex items-center gap-3">
-                          <img src={acc.profilePictureUrl || acc.fbPagePictureUrl || acc.profileImageUrl || activeManageModal.logo} className="w-8 h-8 rounded-full object-cover bg-white shrink-0" onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }} />
+                          <img src={acc.avatar || activeManageModal.logo} className="w-8 h-8 rounded-full object-cover bg-white shrink-0" onError={(e) => { e.target.src = activeManageModal.logo || 'https://via.placeholder.com/150'; }} />
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">{acc.pageName || acc.igUsername || acc.name || acc.displayPhoneNumber || 'Account'}</p>
-                            <p className="text-[10px] text-slate-500 truncate">{acc.igAccountId || acc.pageId || acc.phoneNumberId || acc.youtubeChannelId || 'Connected'}</p>
+                            <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">{acc.name || 'Account'}</p>
+                            <p className="text-[10px] text-slate-500 truncate">{acc.username || acc.platform || 'Connected'}</p>
                           </div>
                         </div>
                         <button 
