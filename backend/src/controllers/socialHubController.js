@@ -46,7 +46,7 @@ exports.getConnectedAccounts = async (req, res, next) => {
         platform: 'instagram',
         name: acc.igName || acc.igUsername || acc.pageName || 'Instagram Account',
         username: acc.igUsername,
-        avatar: acc.profilePictureUrl || null,
+        avatar: acc.profilePictureUrl || acc.fbPagePictureUrl || null,
         type: 'Business Account',
         status: acc.status,
         modelId: acc._id,
