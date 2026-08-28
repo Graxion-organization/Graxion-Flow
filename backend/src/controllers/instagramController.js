@@ -232,10 +232,15 @@ exports.disconnectAccount = async (req, res, next) => {
 
 exports.updateBotSettings = async (req, res, next) => {
   try {
-    const { commentBotEnabled, commentBotPrompt } = req.body;
+    const { commentBotEnabled, commentBotPrompt, messengerBotEnabled, messengerBotPrompt } = req.body;
     const account = await InstagramAccount.findOneAndUpdate(
       { _id: req.params.id, organization: req.organization._id },
-      { commentBotEnabled, commentBotPrompt },
+      { 
+        ...(commentBotEnabled !== undefined && { commentBotEnabled }),
+        ...(commentBotPrompt !== undefined && { commentBotPrompt }),
+        ...(messengerBotEnabled !== undefined && { messengerBotEnabled }),
+        ...(messengerBotPrompt !== undefined && { messengerBotPrompt })
+      },
       { new: true, runValidators: true }
     );
 

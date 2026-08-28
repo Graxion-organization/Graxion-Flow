@@ -300,7 +300,7 @@ async function handleFacebookMessage(event, fbAccount, agent) {
         .map((m) => ({ role: m.role, content: m.content }));
 
       // Check if bot is actually enabled
-      let enabled = fbAccount.messengerBotEnabled || !!agent;
+      let enabled = fbAccount.messengerBotEnabled;
       if (!enabled) {
         logger.info(`[RENDER_LOG] [FACEBOOK_DM] Bot is disabled in settings for page: ${fbAccount.pageName}. Skipping AI.`);
         logger.info(`[FB DM SKIP]: Messenger bot is disabled for page: ${fbAccount.pageName}`);
@@ -485,7 +485,7 @@ async function handleFacebookComment(commentData, fbAccount, agent) {
         }
 
         // Check if comment bot is enabled
-        let enabled = fbAccount.commentBotEnabled || !!agent;
+        let enabled = fbAccount.commentBotEnabled;
         let systemPrompt = fbAccount.commentBotPrompt || agent?.systemPrompt;
 
         if (!enabled) {

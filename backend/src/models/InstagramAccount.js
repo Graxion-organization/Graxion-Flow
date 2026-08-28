@@ -53,6 +53,11 @@ const instagramAccountSchema = new mongoose.Schema({
     type: String, 
     default: "You are a helpful assistant. Reply to this Instagram comment in a friendly way. Keep it short." 
   },
+  messengerBotEnabled: { type: Boolean, default: false },
+  messengerBotPrompt: { 
+    type: String, 
+    default: "You are a helpful assistant. Reply to this Instagram message in a friendly way. Keep it short." 
+  },
 }, { timestamps: true });
 
 instagramAccountSchema.index({ user: 1 });

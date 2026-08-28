@@ -431,7 +431,7 @@ async function handleInstagramDM(event, igAccount, agent) {
           const text = contextMessages.length > 0 ? contextMessages[contextMessages.length - 1].content : '';
 
       // Check if bot is actually enabled
-      let enabled = igAccount.messengerBotEnabled || !!agent;
+      let enabled = igAccount.messengerBotEnabled;
       if (!enabled) {
         logger.info(`[RENDER_LOG] [INSTAGRAM_DM] Bot is disabled in settings for account: ${igAccount.igUsername}. Skipping AI.`);
         logger.info(`[IG DM SKIP]: Messenger bot is disabled for account: ${igAccount.igUsername}`);
@@ -823,7 +823,7 @@ async function handleInstagramComment(commentData, igAccount, agent) {
         });
 
         // 1. Check if bot is enabled for this account specifically OR via Agent
-        let enabled = igAccount.commentBotEnabled || !!agent;
+        let enabled = igAccount.commentBotEnabled;
         let systemPrompt = igAccount.commentBotPrompt || agent?.systemPrompt;
 
         if (!enabled) {

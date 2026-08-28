@@ -261,9 +261,12 @@ export default function InstagramTool() {
     if (!selectedAccount) return;
     const newState = !selectedAccount.commentBotEnabled;
     try {
-      // JWT via cookies
-      await api.patch(`/instagram/${selectedAccount._id}/bot`, { commentBotEnabled: newState });
-      setSelectedAccount({ ...selectedAccount, commentBotEnabled: newState });
+      // Toggle both comment bot and messenger bot
+      await api.patch(`/instagram/${selectedAccount._id}/bot`, { 
+        commentBotEnabled: newState,
+        messengerBotEnabled: newState
+      });
+      setSelectedAccount({ ...selectedAccount, commentBotEnabled: newState, messengerBotEnabled: newState });
       setAccounts(accounts.map(acc => acc._id === selectedAccount._id ? { ...acc, commentBotEnabled: newState } : acc));
       toast.success(newState ? 'Comment Bot Enabled!' : 'Comment Bot Disabled!');
     } catch (err) {
