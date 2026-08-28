@@ -164,6 +164,7 @@ export default function SocialPublishingPage() {
   const [viewingInsights, setViewingInsights] = useState(null);
   const [insightsData, setInsightsData] = useState({});
   const [loadingInsights, setLoadingInsights] = useState(false);
+  const [postAIToggles, setPostAIToggles] = useState({});
 
   const selectedAccounts = useMemo(
     () => connectedAccounts.filter((acc) => selectedAccountIds.includes(acc.id)),
@@ -401,8 +402,15 @@ export default function SocialPublishingPage() {
   const fetchFeed = async () => {
     setLoadingFeed(true);
     try {
-      const res = await socialHubAPI.getFeed();
-      setFeed(res.data.data || []);
+      const [feedRes, togglesRes] = await Promise.all([
+        socialHubAPI.getFeed(),
+        socialHubAPI.getPostAIToggles().catch(() => ({ data: { data: [] } }))
+      ]);
+      setFeed(feedRes.data.data || []);
+      
+      const map = {};
+      (togglesRes.data.data || []).forEach(t => { map[t.mediaId] = t.isAiEnabled; });
+      setPostAIToggles(map);
     } catch {
       toast.error('Failed to load feed');
     } finally {
