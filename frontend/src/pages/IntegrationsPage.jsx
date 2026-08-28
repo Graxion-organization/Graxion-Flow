@@ -208,6 +208,7 @@ export default function IntegrationsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Integrations');
   const [activeModal, setActiveModal] = useState(null);
+  const [activeManageModal, setActiveManageModal] = useState(null);
   const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
@@ -275,6 +276,7 @@ export default function IntegrationsPage() {
   }, []);
 
   const openModal = (config) => {
+    setActiveManageModal(null);
     setActiveModal(config);
     setFormData({});
     setWhatsappSetupStep('picker');
@@ -285,6 +287,7 @@ export default function IntegrationsPage() {
 
   const closeModal = () => {
     setActiveModal(null);
+    setActiveManageModal(null);
     setFormData({});
   };
 
@@ -649,7 +652,7 @@ export default function IntegrationsPage() {
                       </div>
                       
                       <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-white/5">
-                        <button onClick={() => openModal(int)} className="flex-1 py-2 rounded-lg bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/5 text-xs font-medium text-slate-700 dark:text-white transition-colors">
+                        <button onClick={() => setActiveManageModal(int)} className="flex-1 py-2 rounded-lg bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/5 text-xs font-medium text-slate-700 dark:text-white transition-colors">
                           Manage
                         </button>
                         <div className="relative group/menu">
@@ -1124,6 +1127,112 @@ export default function IntegrationsPage() {
                 </div>
               </form>
             )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MANAGE INTEGRATION MODAL */}
+      <AnimatePresence>
+        {activeManageModal && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-0">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm" 
+              onClick={() => setActiveManageModal(null)} 
+            />
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md bg-white dark:bg-[#12141c] rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#161923]">
+                <div className="flex items-center gap-4">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/5 shrink-0 shadow-sm`}>
+                    <img src={activeManageModal.logo} alt={activeManageModal.name} className="h-6 w-6 object-contain" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white leading-tight">Manage {activeManageModal.name}</h3>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">{activeManageModal.connectedAccounts?.length || 0} Connected</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setActiveManageModal(null)}
+                  className="rounded-lg p-2 text-slate-500 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-white transition-colors"
+                >
+                  <X size={18} strokeWidth={2} />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div className="space-y-3 max-h-72 overflow-y-auto custom-scrollbar pr-2">
+                  {activeManageModal.connectedAccounts && activeManageModal.connectedAccounts.length > 0 ? (
+                    activeManageModal.connectedAccounts.map((acc, i) => (
+                      <div key={acc._id || i} className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#0b0c10]">
+                        <div className="flex items-center gap-3">
+                          <img src={acc.profilePictureUrl || acc.fbPagePictureUrl || acc.profileImageUrl || activeManageModal.logo} className="w-8 h-8 rounded-full object-cover bg-white shrink-0" onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }} />
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">{acc.pageName || acc.igUsername || acc.name || acc.displayPhoneNumber || 'Account'}</p>
+                            <p className="text-[10px] text-slate-500 truncate">{acc.igAccountId || acc.pageId || acc.phoneNumberId || acc.youtubeChannelId || 'Connected'}</p>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            setActiveManageModal(null);
+                            activeManageModal.type === 'channel' ? handleDisconnectChannel(acc) : handleDisconnectTool(activeManageModal.id, activeManageModal.name);
+                          }}
+                          className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors shrink-0"
+                          title="Disconnect"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-6 text-sm text-slate-500">
+                      {activeManageModal.type === 'tool' && activeManageModal.dbInt ? (
+                        <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#0b0c10]">
+                          <div className="flex items-center gap-3">
+                             <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                               <CheckCircle2 size={16} />
+                             </div>
+                             <div>
+                               <p className="text-sm font-semibold text-slate-800 dark:text-white">Active Connection</p>
+                               <p className="text-[10px] text-slate-500">Connected</p>
+                             </div>
+                          </div>
+                          <button 
+                            onClick={() => {
+                              setActiveManageModal(null);
+                              handleDisconnectTool(activeManageModal.id, activeManageModal.name);
+                            }}
+                            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors shrink-0"
+                            title="Disconnect"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ) : (
+                        "No accounts connected."
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="pt-4 border-t border-slate-100 dark:border-white/5">
+                  <button 
+                    onClick={() => openModal(activeManageModal)}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-medium text-sm transition-all shadow-md"
+                  >
+                    <Plus size={16} /> {activeManageModal.type === 'tool' ? 'Reconfigure Settings' : 'Connect Another Account'}
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
