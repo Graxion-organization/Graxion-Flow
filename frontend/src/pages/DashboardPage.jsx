@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Building2, MessageSquare, Zap, Activity, AlertCircle, PieChart as PieChartIcon
+  Building2, MessageSquare, Zap, Activity, AlertCircle, PieChart as PieChartIcon,
+  Smartphone, Bot
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend
@@ -71,10 +72,10 @@ export default function DashboardPage() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className={`text-2xl font-extrabold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-            Agency Command Center
+            Welcome back{user?.name ? `, ${user.name.split(' ')[0]}` : ''}
           </h1>
           <p className={`${isDark ? 'text-slate-400' : 'text-slate-500'} text-sm mt-1`}>
-            Overview of all client organizations and global consumption.
+            Here's an overview of your workspace activity and consumption.
           </p>
         </div>
         
@@ -104,6 +105,27 @@ export default function DashboardPage() {
               Your agency has used {displayPercent}% of its global message quota. Consider upgrading your plan to avoid service interruption for your clients.
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Quick Actions — for users with little data */}
+      {totalOrgs <= 1 && messagesUsed === 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <button onClick={() => navigate('/app/integrations')} className={`p-5 rounded-2xl border text-left transition-all group ${isDark ? 'bg-white/5 border-white/10 hover:border-[#FF6A00]/30 hover:bg-white/10' : 'bg-white border-slate-200 hover:border-[#FF6A00]/30 hover:shadow-md'}`}>
+            <div className="w-10 h-10 rounded-xl bg-[#FF6A00]/10 text-[#FF6A00] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform"><Smartphone size={20} /></div>
+            <h3 className={`text-sm font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>Connect a Channel</h3>
+            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Link WhatsApp, Instagram, or Telegram to start receiving messages.</p>
+          </button>
+          <button onClick={() => navigate('/app/agents')} className={`p-5 rounded-2xl border text-left transition-all group ${isDark ? 'bg-white/5 border-white/10 hover:border-violet-500/30 hover:bg-white/10' : 'bg-white border-slate-200 hover:border-violet-300 hover:shadow-md'}`}>
+            <div className="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform"><Bot size={20} /></div>
+            <h3 className={`text-sm font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>Create AI Agent</h3>
+            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Build an AI assistant to handle conversations automatically.</p>
+          </button>
+          <button onClick={() => navigate('/app/conversations')} className={`p-5 rounded-2xl border text-left transition-all group ${isDark ? 'bg-white/5 border-white/10 hover:border-emerald-500/30 hover:bg-white/10' : 'bg-white border-slate-200 hover:border-emerald-300 hover:shadow-md'}`}>
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform"><MessageSquare size={20} /></div>
+            <h3 className={`text-sm font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>View Inbox</h3>
+            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Check your live conversations across all connected channels.</p>
+          </button>
         </div>
       )}
 

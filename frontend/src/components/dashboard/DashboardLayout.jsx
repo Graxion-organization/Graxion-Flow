@@ -99,7 +99,7 @@ const SIDEBAR_GROUPS = [
   {
     title: "Connections",
     items: [
-      { to: "/app/integrations", icon: Smartphone, label: "App Store", minRole: "admin" },
+      { to: "/app/integrations", icon: Smartphone, label: "Integrations", minRole: "admin" },
       { to: "/app/quality", icon: ShieldCheck, label: "Meta Quality", minRole: "admin" },
     ]
   },
@@ -443,7 +443,7 @@ export default function DashboardLayout() {
           "Chat Flows": "Chat Flows",
           "Social Hub": "Social Hub",
           "Auto Comments": "Auto Comments",
-          "App Store": "App Store",
+          "Integrations": "Integrations",
           "Meta Quality": "Meta Quality",
           "Sales Partner": "Sales Partner",
           "Settings": "Settings",
@@ -501,7 +501,7 @@ export default function DashboardLayout() {
               "Chat Flows": "Chat Flows",
               "Social Hub": "Social Hub",
               "Auto Comments": "Auto Comments",
-              "App Store": "App Store",
+              "Integrations": "Integrations",
               "Meta Quality": "Meta Quality",
               "Sales Partner": "Sales Partner",
               "Settings": "Settings",

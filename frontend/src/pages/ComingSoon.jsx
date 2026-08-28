@@ -5,81 +5,20 @@ export default function ComingSoon() {
   const navigate = useNavigate();
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#060a0f",
-        color: "#e8f5ee",
-        fontFamily: "'DM Sans', sans-serif",
-        textAlign: "center",
-        padding: "0 5vw",
-      }}
-    >
-      <div
-        style={{
-          width: 80,
-          height: 80,
-          borderRadius: 20,
-          background: "rgba(37,211,102,0.1)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 40,
-          marginBottom: 30,
-          border: "2px solid rgba(37,211,102,0.3)",
-        }}
-      >
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-[#060a0f] text-slate-900 dark:text-white text-center px-6">
+      <div className="w-20 h-20 rounded-2xl bg-[#FF6A00]/10 border-2 border-[#FF6A00]/20 flex items-center justify-center text-4xl mb-8">
         🚧
       </div>
-      <h1
-        style={{
-          fontFamily: "'Syne', sans-serif",
-          fontSize: "clamp(2rem, 5vw, 3.5rem)",
-          fontWeight: 800,
-          margin: "0 0 16px",
-        }}
-      >
-        Coming <span style={{ color: "#25D366" }}>Soon</span>
+      <h1 className="text-4xl sm:text-5xl font-extrabold mb-4">
+        Coming <span className="text-[#FF6A00]">Soon</span>
       </h1>
-      <p
-        style={{
-          color: "#7a9b8a",
-          fontSize: "clamp(1rem, 2vw, 1.2rem)",
-          maxWidth: 500,
-          margin: "0 0 40px",
-          lineHeight: 1.6,
-        }}
-      >
+      <p className="text-slate-500 dark:text-slate-400 text-lg max-w-md mb-10 leading-relaxed">
         We're working hard to bring you this page. Please check back later or
         explore other features of Graxion!
       </p>
       <button
         onClick={() => navigate("/")}
-        style={{
-          background: "linear-gradient(135deg, #25D366, #1aab52)",
-          color: "#060a0f",
-          fontFamily: "'Syne', sans-serif",
-          fontWeight: 700,
-          padding: "14px 32px",
-          borderRadius: 12,
-          border: "none",
-          cursor: "pointer",
-          fontSize: 16,
-          transition: "transform 0.2s, box-shadow 0.2s",
-          boxShadow: "0 0 20px rgba(37,211,102,0.4)",
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.transform = "translateY(-2px)";
-          e.target.style.boxShadow = "0 0 30px rgba(37,211,102,0.6)";
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.transform = "none";
-          e.target.style.boxShadow = "0 0 20px rgba(37,211,102,0.4)";
-        }}
+        className="px-8 py-3.5 bg-gradient-to-r from-[#FF6A00] to-[#e05d00] text-white font-bold rounded-xl shadow-[0_0_20px_rgba(255,106,0,0.3)] hover:scale-105 hover:shadow-[0_0_30px_rgba(255,106,0,0.5)] transition-all duration-300 text-base"
       >
         ← Back to Home
       </button>
