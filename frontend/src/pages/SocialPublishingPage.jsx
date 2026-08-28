@@ -498,6 +498,22 @@ export default function SocialPublishingPage() {
     }
   };
 
+  const handleToggleAI = async (e, platform, accountId, mediaId, currentToggleState) => {
+    e.stopPropagation();
+    if (!mediaId) {
+      toast.error('Cannot toggle AI for an unsynced post.');
+      return;
+    }
+    try {
+      const newState = !currentToggleState;
+      await socialHubAPI.togglePostAI({ platform, accountId, mediaId, isAiEnabled: newState });
+      setPostAIToggles(prev => ({ ...prev, [mediaId]: newState }));
+      toast.success(`AI Agent ${newState ? 'enabled' : 'disabled'} for this ${platform} post`);
+    } catch (err) {
+      toast.error('Failed to toggle AI state');
+    }
+  };
+
   const handlePostSubmit = async (e) => {
     e.preventDefault();
     if (selectedAccountIds.length === 0) return toast.error('Please select at least one platform');
@@ -1651,12 +1667,44 @@ export default function SocialPublishingPage() {
                                         );
                                       }) : null}
                                       {isSuccess && (
-                                        <div className="flex items-center gap-2 pt-1 mt-1 border-t border-slate-700">
-                                          <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                                            <CheckCircle2 size={10} />
+                                        <>
+                                          <div className="flex items-center gap-2 pt-1 mt-1 border-t border-slate-700">
+                                            <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                                              <CheckCircle2 size={10} />
+                                            </div>
+                                            <span className="text-[10px] text-emerald-400 font-bold">Completed</span>
                                           </div>
-                                          <span className="text-[10px] text-emerald-400 font-bold">Completed</span>
-                                        </div>
+                                          {['instagram', 'facebook', 'youtube', 'linkedin'].includes(p) && (
+                                            <div className="mt-2 pt-2 border-t border-slate-700 flex items-center justify-between">
+                                              <span className="text-[10px] font-medium text-slate-300">AI Agent Auto-Reply</span>
+                                              <button
+                                                onClick={(e) => {
+                                                  const origPost = post.originalPosts?.find(op => op.platform === p);
+                                                  if (origPost && origPost.id) {
+                                                    const mediaId = origPost.id;
+                                                    const isEnabled = postAIToggles[mediaId] !== false;
+                                                    handleToggleAI(e, p, origPost.accountId, mediaId, isEnabled);
+                                                  }
+                                                }}
+                                                className={`w-7 h-4 rounded-full relative transition-colors shadow-inner ${
+                                                  (() => {
+                                                    const origPost = post.originalPosts?.find(op => op.platform === p);
+                                                    const isEnabled = origPost?.id ? (postAIToggles[origPost.id] !== false) : true;
+                                                    return isEnabled ? 'bg-blue-500' : 'bg-slate-600';
+                                                  })()
+                                                }`}
+                                              >
+                                                <div className={`w-3 h-3 bg-white rounded-full absolute top-0.5 shadow-sm transition-transform ${
+                                                  (() => {
+                                                    const origPost = post.originalPosts?.find(op => op.platform === p);
+                                                    const isEnabled = origPost?.id ? (postAIToggles[origPost.id] !== false) : true;
+                                                    return isEnabled ? 'translate-x-3.5' : 'translate-x-0.5';
+                                                  })()
+                                                }`} />
+                                              </button>
+                                            </div>
+                                          )}
+                                        </>
                                       )}
                                     </div>
                                     {execution?.attempts > 1 && (

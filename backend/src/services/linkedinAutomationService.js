@@ -86,6 +86,19 @@ class LinkedinAutomationService {
     for (const post of posts) {
       const postUrn = post.id;
       
+      // Check Post AI Toggle
+      const PostAIToggle = require('../models/PostAIToggle');
+      const aiToggle = await PostAIToggle.findOne({
+        platform: 'linkedin',
+        accountId: liAccount._id,
+        mediaId: postUrn
+      });
+      
+      if (aiToggle && aiToggle.isAiEnabled === false) {
+        logger.info(`[POST AI TOGGLE] AI automation is manually disabled for LinkedIn post ${postUrn}. Skipping comments.`);
+        continue;
+      }
+      
       // Fetch comments for this post
       let comments = [];
       try {

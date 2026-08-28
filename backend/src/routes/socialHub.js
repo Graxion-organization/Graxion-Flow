@@ -41,4 +41,8 @@ router.post('/ai/caption', socialHubController.generateAICaption);
 router.get('/ai/today-analytics', socialHubController.getTodayAnalytics);
 router.get('/ai/best-time', socialHubController.getBestTimeToPost);
 
+// Per-post AI toggles
+router.get('/posts/ai-toggles', socialHubController.getPostAIToggles);
+router.post('/posts/ai-toggle', socialHubController.togglePostAI);
+
 module.exports = router;

@@ -106,6 +106,19 @@ class YoutubeAutomationService {
       // Skip if author is the channel itself
       if (topComment.snippet.authorChannelId?.value === youtubeAccount.channelId) continue;
 
+      // Check Post AI Toggle
+      const PostAIToggle = require('../models/PostAIToggle');
+      const aiToggle = await PostAIToggle.findOne({
+        platform: 'youtube',
+        accountId: youtubeAccount._id,
+        mediaId: videoId
+      });
+      
+      if (aiToggle && aiToggle.isAiEnabled === false) {
+        logger.info(`[POST AI TOGGLE] AI automation is manually disabled for YouTube video ${videoId}. Skipping comment.`);
+        continue;
+      }
+
       logger.info(`[YouTube Automation] New comment from ${authorName}: ${commentText.substring(0, 30)}...`);
 
       // Generate AI Reply

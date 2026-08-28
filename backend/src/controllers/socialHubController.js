@@ -8,6 +8,7 @@ const LinkedInService = require('../services/linkedinService');
 const SocialMediaHubService = require('../services/socialMediaHubService');
 const SocialPostOrchestratorService = require('../services/socialPostOrchestratorService');
 const SocialPostJob = require('../models/SocialPostJob');
+const PostAIToggle = require('../models/PostAIToggle');
 const CloudinaryService = require('../services/cloudinaryService');
 const GeminiImageService = require('../services/geminiImageService');
 const AICaptionService = require('../services/aiCaptionService');
@@ -1042,6 +1043,41 @@ exports.autoReplyLinkedInPost = async (req, res, next) => {
     processAutoReply().catch(err => logger.error('LinkedIn AutoReply Error: ' + err.message));
 
     res.status(200).json({ status: 'success', message: 'Auto reply process started' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getPostAIToggles = async (req, res, next) => {
+  try {
+    const toggles = await PostAIToggle.find({ organization: req.organization._id });
+    res.status(200).json({
+      status: 'success',
+      data: toggles
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.togglePostAI = async (req, res, next) => {
+  try {
+    const { platform, accountId, mediaId, isAiEnabled } = req.body;
+    
+    if (!platform || !accountId || !mediaId) {
+      return next(new AppError('Missing required fields', 400));
+    }
+
+    const toggle = await PostAIToggle.findOneAndUpdate(
+      { organization: req.organization._id, mediaId },
+      { platform, accountId, isAiEnabled },
+      { new: true, upsert: true }
+    );
+
+    res.status(200).json({
+      status: 'success',
+      data: toggle
+    });
   } catch (err) {
     next(err);
   }

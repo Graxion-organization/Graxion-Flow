@@ -726,6 +726,19 @@ async function handleInstagramComment(commentData, igAccount, agent) {
         }
 
         if (mediaId) {
+          // Check Post AI Toggle
+          const PostAIToggle = require('../models/PostAIToggle');
+          const aiToggle = await PostAIToggle.findOne({
+            platform: 'instagram',
+            accountId: igAccount._id,
+            mediaId: mediaId
+          });
+          
+          if (aiToggle && aiToggle.isAiEnabled === false) {
+            logger.info(`[POST AI TOGGLE] AI automation is manually disabled for media ${mediaId}. Skipping comment.`);
+            return;
+          }
+
           const postAutomation = await PostAutomation.findOne({
             platform: 'instagram',
             accountId: igAccount._id,

@@ -469,6 +469,21 @@ async function handleFacebookComment(commentData, fbAccount, agent) {
 
     webhookQueue.enqueue(`facebook_comment_${commenterId}`, async () => {
       try {
+        // Check Post AI Toggle
+        if (postId) {
+          const PostAIToggle = require('../models/PostAIToggle');
+          const aiToggle = await PostAIToggle.findOne({
+            platform: 'facebook',
+            accountId: fbAccount._id,
+            mediaId: postId
+          });
+          
+          if (aiToggle && aiToggle.isAiEnabled === false) {
+            logger.info(`[POST AI TOGGLE] AI automation is manually disabled for FB post ${postId}. Skipping comment.`);
+            return;
+          }
+        }
+
         // Check if comment bot is enabled
         let enabled = fbAccount.commentBotEnabled || !!agent;
         let systemPrompt = fbAccount.commentBotPrompt || agent?.systemPrompt;

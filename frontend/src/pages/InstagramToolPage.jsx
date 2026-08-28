@@ -38,6 +38,7 @@ export default function InstagramTool() {
   const [accountStats, setAccountStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(false);
   const [autoReplyProgress, setAutoReplyProgress] = useState(null); // { status, processed, total }
+  const [postAIToggles, setPostAIToggles] = useState({});
 
   const [mobileMenuMedia, setMobileMenuMedia] = useState(null);
   const longPressTimer = useRef(null);
@@ -181,8 +182,15 @@ export default function InstagramTool() {
       }).catch(err => console.error("Failed stats:", err))
       .finally(() => setLoadingStats(false));
 
-      const res = await api.get(`/instagram/manual/${account._id}/media`);
+      const [res, togglesRes] = await Promise.all([
+        api.get(`/instagram/manual/${account._id}/media`),
+        api.get(`/social-hub/posts/ai-toggles`).catch(() => ({ data: { data: [] } }))
+      ]);
       setMediaItems(res.data.data.media || []);
+      
+      const map = {};
+      (togglesRes.data.data || []).forEach(t => { map[t.mediaId] = t.isAiEnabled; });
+      setPostAIToggles(map);
     } catch (err) {
       toast.error('Failed to fetch media for this account');
     } finally {
@@ -324,6 +332,22 @@ export default function InstagramTool() {
     }
   };
 
+  const handleToggleAI = async (e, platform, accountId, mediaId, currentToggleState) => {
+    e.stopPropagation();
+    if (!mediaId) {
+      toast.error('Cannot toggle AI for an unknown post.');
+      return;
+    }
+    try {
+      const newState = !currentToggleState;
+      await api.post('/social-hub/posts/ai-toggle', { platform, accountId, mediaId, isAiEnabled: newState });
+      setPostAIToggles(prev => ({ ...prev, [mediaId]: newState }));
+      toast.success(`AI Agent ${newState ? 'enabled' : 'disabled'} for this post`);
+    } catch (err) {
+      toast.error('Failed to toggle AI state');
+    }
+  };
+
   return (
     <div className="flex flex-col h-full min-h-0 bg-white dark:bg-[#0b101e] rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden shadow-sm">
       
@@ -374,7 +398,7 @@ export default function InstagramTool() {
             )}
 
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-black/20 rounded-xl border border-slate-200 dark:border-white/5">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Bot</span>
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Account AI</span>
               <button 
                 onClick={handleToggleBot}
                 className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${selectedAccount.commentBotEnabled ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'}`}
@@ -382,6 +406,21 @@ export default function InstagramTool() {
                 <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${selectedAccount.commentBotEnabled ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
               </button>
             </div>
+            
+            {selectedMedia && (
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-black/20 rounded-xl border border-slate-200 dark:border-white/5">
+                <span className="text-[11px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-wider">Post AI</span>
+                <button 
+                  onClick={(e) => {
+                    const isEnabled = postAIToggles[selectedMedia.id] !== false;
+                    handleToggleAI(e, 'instagram', selectedAccount._id, selectedMedia.id, isEnabled);
+                  }}
+                  className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors shadow-inner ${postAIToggles[selectedMedia?.id] !== false ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}`}
+                >
+                  <span className={`inline-block h-3 w-3 transform rounded-full bg-white shadow-sm transition-transform ${postAIToggles[selectedMedia?.id] !== false ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                </button>
+              </div>
+            )}
             
             <button onClick={async () => {
                 try {
