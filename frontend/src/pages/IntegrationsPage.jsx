@@ -548,22 +548,6 @@ export default function IntegrationsPage() {
 
   return (
     <div className="min-h-screen text-slate-800 dark:text-slate-200">
-      {/* Search Header for Mobile/Global Context */}
-      <div className="hidden lg:flex items-center justify-between mb-8 px-4 sm:px-6 lg:px-8 mt-2">
-        <div className="relative w-full max-w-md group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500 group-focus-within:text-violet-500 dark:group-focus-within:text-violet-400 transition-colors" />
-          <input
-            type="text"
-            placeholder="Search anything..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/5 rounded-xl text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-violet-500 transition-all shadow-sm"
-          />
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center bg-slate-100 dark:bg-white/5 rounded px-1.5 py-0.5 border border-slate-200 dark:border-white/10">
-             <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">⌘K</span>
-          </div>
-        </div>
-      </div>
 
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         
