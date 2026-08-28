@@ -107,6 +107,7 @@ const SIDEBAR_GROUPS = [
     title: "Administration",
     items: [
       { to: "/app/partner-dashboard", icon: DollarSign, label: "Sales Partner", minRole: "sales_partner" },
+      { to: "/app/team", icon: Users, label: "Team Management", minRole: "admin" },
       { to: "/app/settings", icon: Settings, label: "Settings", minRole: "viewer" },
       { to: "/app/billing", icon: CreditCard, label: "Billing", minRole: "viewer" },
     ]
@@ -446,6 +447,7 @@ export default function DashboardLayout() {
           "Integrations": "Integrations",
           "Meta Quality": "Meta Quality",
           "Sales Partner": "Sales Partner",
+          "Team Management": "Team Management",
           "Settings": "Settings",
           "Billing": "Billing"
         };
@@ -504,6 +506,7 @@ export default function DashboardLayout() {
               "Integrations": "Integrations",
               "Meta Quality": "Meta Quality",
               "Sales Partner": "Sales Partner",
+              "Team Management": "Team Management",
               "Settings": "Settings",
               "Billing": "Billing"
             };

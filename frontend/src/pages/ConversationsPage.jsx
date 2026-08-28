@@ -663,9 +663,22 @@ export default function ConversationsPage() {
                 <div className="w-6 h-6 border-4 border-whatsapp border-t-transparent rounded-full animate-spin" />
               </div>
             ) : conversations.length === 0 ? (
-              <div className={`flex flex-col items-center justify-center h-48 ${subtleClass}`}>
-                <MessageSquare size={36} className="mb-2 opacity-30" />
-                <p className="text-sm">No conversations found</p>
+              <div className={`flex-1 flex flex-col items-center justify-center p-8 text-center h-full ${'bg-white/50 dark:bg-white/[0.02]'}`}>
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 ${isDark ? 'bg-white/5' : 'bg-slate-50'}`}>
+                  <MessageSquare className={`w-8 h-8 ${isDark ? 'text-slate-600' : 'text-slate-400'}`} />
+                </div>
+                <p className={`text-lg font-bold mb-2 ${titleClass}`}>No conversations yet</p>
+                <p className={`text-sm mb-6 max-w-[250px] ${subtleClass}`}>
+                  {search ? 'Try adjusting your search or filters' : 'Connect a channel to start receiving messages in your unified inbox.'}
+                </p>
+                {!search && (
+                  <button
+                    onClick={() => navigate('/app/integrations')}
+                    className="bg-[#FF6A00] hover:bg-[#e05d00] text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#FF6A00]/20"
+                  >
+                    Connect Channel
+                  </button>
+                )}
               </div>
             ) : (
               conversations.map((conv, index) => {
