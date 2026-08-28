@@ -920,6 +920,24 @@ export default function InstagramTool() {
             </button>
             
             <button 
+              onClick={(e) => {
+                const isEnabled = postAIToggles[mobileMenuMedia.id] !== false;
+                handleToggleAI(e, 'instagram', selectedAccount._id, mobileMenuMedia.id, isEnabled);
+              }}
+              className="flex items-center justify-between w-full p-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-white/5 font-bold text-slate-700 dark:text-gray-300 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+                  <Bot className="w-5 h-5 text-blue-500" />
+                </div>
+                Post AI
+              </div>
+              <div className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors shadow-inner ${postAIToggles[mobileMenuMedia?.id] !== false ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${postAIToggles[mobileMenuMedia?.id] !== false ? 'translate-x-4' : 'translate-x-1'}`} />
+              </div>
+            </button>
+
+            <button 
               onClick={() => {
                 handleToggleBot();
                 setMobileMenuMedia(null);
@@ -930,7 +948,7 @@ export default function InstagramTool() {
                 <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center shrink-0">
                   <Bot className="w-5 h-5 text-slate-500" />
                 </div>
-                Bot Auto-Reply
+                Account AI
               </div>
               <div className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${selectedAccount.commentBotEnabled ? 'bg-pink-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${selectedAccount.commentBotEnabled ? 'translate-x-4' : 'translate-x-1'}`} />
