@@ -89,6 +89,22 @@ class AIService {
         parts: [{ text: msg.content }],
       }));
 
+      // Gemini strictly requires the first message in history to be from 'user'
+      while (history.length > 0 && history[0].role === 'model') {
+        history.shift();
+      }
+
+      // Gemini strictly requires alternating roles (user, model, user, model)
+      const validHistory = [];
+      let expectedRole = 'user';
+      for (const msg of history) {
+        if (msg.role === expectedRole) {
+          validHistory.push(msg);
+          expectedRole = expectedRole === 'user' ? 'model' : 'user';
+        }
+      }
+      history = validHistory;
+
       const chat = model.startChat({
         history,
         generationConfig: {

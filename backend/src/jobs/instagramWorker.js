@@ -59,9 +59,9 @@ async function processUnansweredDMs() {
             // "from.id" will be the igAccountId if the page sent it. If it's a customer, it will be the customer's ID.
             if (latestMessage.from && latestMessage.from.id !== account.igAccountId) {
               
-              // Check if the message is too old (e.g. older than 3 days). Don't reply to ancient missed messages.
-              const messageAgeDays = (Date.now() - new Date(latestMessage.created_time)) / (1000 * 60 * 60 * 24);
-              if (messageAgeDays > 3) {
+              // Check if the message is too old (e.g. older than 23 hours). Meta strictly blocks standard replies after 24h.
+              const messageAgeHours = (Date.now() - new Date(latestMessage.created_time)) / (1000 * 60 * 60);
+              if (messageAgeHours > 23) {
                 continue;
               }
 
