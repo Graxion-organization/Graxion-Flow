@@ -101,7 +101,7 @@ const INTEGRATIONS_CONFIG = [
     type: 'channel',
     category: 'Social Media',
     description: 'Profile automation, connections, and messaging.',
-    logo: 'https://cdn.simpleicons.org/linkedin/0A66C2',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png',
     features: ['Auto Connection Invites', 'AI Warm Outreach Messages', 'Post Engagement Tracking'],
     permissions: [
       { name: 'r_liteprofile', purpose: 'Reads basic profile information for setup.' },

@@ -105,6 +105,30 @@ class TelegramService {
     }
   }
 
+  async getUserProfilePhotos(userId) {
+    try {
+      const response = await axios.get(`${this.apiUrl}/getUserProfilePhotos`, {
+        params: { user_id: userId, limit: 1 }
+      });
+      return response.data;
+    } catch (error) {
+      logger.error('Error getting Telegram bot profile photos:', error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  async getFile(fileId) {
+    try {
+      const response = await axios.get(`${this.apiUrl}/getFile`, {
+        params: { file_id: fileId }
+      });
+      return response.data;
+    } catch (error) {
+      logger.error('Error getting Telegram file:', error.response?.data || error.message);
+      throw error;
+    }
+  }
+
   static parseWebhookMessage(body) {
     if (body.message) {
       return {

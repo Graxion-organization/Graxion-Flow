@@ -15,7 +15,21 @@ exports.connectAccount = async (req, res, next) => {
       return next(new AppError('Invalid Bot Token', 400));
     }
 
-    const { username, first_name } = botInfo.result;
+    const { username, first_name, id } = botInfo.result;
+
+    let botPhotoUrl = '';
+    try {
+      const photos = await tgService.getUserProfilePhotos(id);
+      if (photos.ok && photos.result.total_count > 0) {
+        const fileId = photos.result.photos[0][0].file_id;
+        const fileRes = await tgService.getFile(fileId);
+        if (fileRes.ok) {
+          botPhotoUrl = `https://api.telegram.org/file/bot${botToken}/${fileRes.result.file_path}`;
+        }
+      }
+    } catch (err) {
+      logger.error('Could not fetch bot photo', err.message);
+    }
 
     // Set Webhook
     // Note: Use an environment variable for the base URL in production
@@ -31,6 +45,7 @@ exports.connectAccount = async (req, res, next) => {
       }
       account.botToken = botToken;
       account.botName = first_name;
+      if (botPhotoUrl) account.botPhotoUrl = botPhotoUrl;
       account.defaultChatId = defaultChatId || account.defaultChatId || '';
       account.status = 'connected';
       await account.save();
@@ -41,6 +56,7 @@ exports.connectAccount = async (req, res, next) => {
         botToken,
         botUsername: username,
         botName: first_name,
+        botPhotoUrl,
         defaultChatId: defaultChatId || '',
         status: 'connected',
       });

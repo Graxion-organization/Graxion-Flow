@@ -33,6 +33,7 @@ exports.callback = async (req, res, next) => {
         organization: req.organization._id,
         channelId: youtubeData.channelId,
         channelName: youtubeData.channelName,
+        channelThumbnail: youtubeData.thumbnails?.default?.url || youtubeData.thumbnails?.high?.url || '',
         accessToken: youtubeData.accessToken,
         refreshToken: youtubeData.refreshToken,
         tokenExpiry: youtubeData.tokenExpiry,

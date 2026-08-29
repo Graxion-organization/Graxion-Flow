@@ -24,6 +24,9 @@ const telegramAccountSchema = new mongoose.Schema({
   botName: {
     type: String,
   },
+  botPhotoUrl: {
+    type: String,
+  },
   defaultChatId: {
     type: String,
     default: '',

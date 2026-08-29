@@ -428,6 +428,7 @@ class YoutubeProvider {
         tokenExpiry: expiry,
         channelId: channel.channelId,
         channelName: channel.channelName,
+        thumbnails: channel.thumbnails,
       };
     } catch (error) {
       const errorData = error.response?.data || error.message;

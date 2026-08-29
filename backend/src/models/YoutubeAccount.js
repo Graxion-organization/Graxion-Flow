@@ -18,6 +18,9 @@ const youtubeAccountSchema = new mongoose.Schema({
   channelName: {
     type: String,
   },
+  channelThumbnail: {
+    type: String,
+  },
   accessToken: {
     type: String,
     required: true,

@@ -30,6 +30,7 @@ const whatsappAccountSchema = new mongoose.Schema({
     required: true,
   },
   verifiedName: String,
+  profilePictureUrl: String,
 
   // Connection status
   status: {
