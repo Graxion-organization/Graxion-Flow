@@ -22,7 +22,10 @@ import {
   Mail,
   MapPin,
   Instagram,
-  Youtube
+  Youtube,
+  Facebook,
+  Linkedin,
+  MessageCircle
 } from 'lucide-react';
 import { useAuthStore, useBrandingStore } from '../store';
 
@@ -85,6 +88,33 @@ const WorkflowStep = ({ number, title, description, delay }) => (
   </motion.div>
 );
 
+const PlatformCard = ({ icon: Icon, name, accent, description, capabilities, delay }) => (
+  <motion.article
+    initial={{ opacity: 0, y: 24 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, amount: 0.2 }}
+    transition={{ duration: 0.45, delay }}
+    className="group relative overflow-hidden rounded-3xl border border-white/[0.07] bg-[#0b1020] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/[0.15]"
+  >
+    <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${accent} to-transparent opacity-80`} />
+    <div className="flex items-center gap-3 mb-5">
+      <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${accent} to-transparent flex items-center justify-center ring-1 ring-white/10`}>
+        <Icon className="w-5 h-5 text-white" />
+      </div>
+      <h3 className="text-lg font-bold text-white">{name}</h3>
+    </div>
+    <p className="min-h-[48px] text-sm leading-relaxed text-gray-400 mb-5">{description}</p>
+    <ul className="space-y-3">
+      {capabilities.map(capability => (
+        <li key={capability} className="flex items-start gap-2.5 text-sm text-gray-300">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
+          <span>{capability}</span>
+        </li>
+      ))}
+    </ul>
+  </motion.article>
+);
+
 export default function Home() {
   const navigate = useNavigate();
   const { branding, fetchBranding } = useBrandingStore();
@@ -142,6 +172,7 @@ export default function Home() {
 
   const navLinks = [
     { label: 'Features', href: '#features' },
+    { label: 'Platforms', href: '#platforms' },
     { label: 'How it Works', href: '#workflow' },
     { label: 'Contact', href: '/contact' },
   ];
@@ -407,6 +438,49 @@ export default function Home() {
                 />
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── PLATFORM AUTOMATIONS ─── */}
+      <section id="platforms" className="relative py-24 overflow-hidden border-y border-white/[0.05] bg-white/[0.015]">
+        <div className="absolute top-1/2 left-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-500/[0.035] blur-[140px] pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-5 lg:px-8 relative z-10">
+          <div className="max-w-3xl mx-auto text-center mb-14">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-brand-400 text-sm font-semibold uppercase tracking-wider mb-4"
+            >
+              One platform, every conversation
+            </motion.p>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-3xl md:text-5xl font-bold mb-5"
+            >
+              What you can automate on <span className="text-gradient">each channel</span>
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-gray-400 text-lg leading-relaxed"
+            >
+              Connect the accounts you already use and let Graxion Flow handle publishing, engagement, and follow-ups from one place.
+            </motion.p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <PlatformCard icon={Youtube} name="YouTube" accent="from-red-500/80" delay={0} description="Keep your Shorts and community engagement moving without manually watching every comment." capabilities={['Publish and schedule YouTube Shorts', 'View video comments in one workspace', 'Use AI-assisted replies or respond manually']} />
+            <PlatformCard icon={Facebook} name="Facebook" accent="from-blue-500/80" delay={0.08} description="Turn Page posts, comments, and Messenger conversations into a more responsive customer experience." capabilities={['Publish and schedule Page content', 'Manage comments and AI-assisted replies', 'Automate Messenger and comment responses']} />
+            <PlatformCard icon={Instagram} name="Instagram" accent="from-pink-500/80" delay={0.16} description="Create faster engagement around your Instagram content while giving interested people a direct path to your inbox." capabilities={['Publish and schedule posts, Reels, and Stories', 'Reply to comments with AI assistance', 'Send automated DMs from comment triggers']} />
+            <PlatformCard icon={Linkedin} name="LinkedIn" accent="from-sky-500/80" delay={0.24} description="Stay active on professional conversations and keep your LinkedIn content workflow organised." capabilities={['Publish and schedule LinkedIn content', 'Monitor post comments in one view', 'Reply manually or with AI assistance']} />
+            <PlatformCard icon={MessageCircle} name="WhatsApp" accent="from-emerald-500/80" delay={0.32} description="Build a faster, more consistent way to communicate with customers over WhatsApp." capabilities={['Manage customer conversations centrally', 'Create automated conversation flows', 'Send campaigns and follow-up broadcasts']} />
           </div>
         </div>
       </section>
