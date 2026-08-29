@@ -137,9 +137,7 @@ export default function Home() {
       navigate('/app/dashboard');
       return;
     }
-    const ssoCallbackUrl = encodeURIComponent(`${window.location.origin}/sso-callback`);
-    const authAction = path.includes('register') ? 'register' : 'login';
-    window.location.href = `https://accounts.graxion.in/${authAction}?redirect_to=${ssoCallbackUrl}&product=flow`;
+    navigate(path);
   };
 
   const navLinks = [
