@@ -58,15 +58,15 @@ const FeatureCard = ({ icon: Icon, title, description, gradient, delay, span = '
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5, delay }}
-    className={`group relative overflow-hidden rounded-3xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm p-8 hover:border-white/[0.12] transition-all duration-500 hover:-translate-y-1 ${span}`}
+    className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_12px_35px_rgba(15,23,42,0.06)] hover:border-brand-300 hover:shadow-[0_20px_45px_rgba(16,185,129,0.14)] transition-all duration-500 hover:-translate-y-1 ${span}`}
   >
-    <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${gradient}`} />
+    <div className={`absolute inset-0 opacity-60 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${gradient}`} />
     <div className="relative z-10">
-      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient.replace('/5', '/20')} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-        <Icon className="w-7 h-7 text-white" />
+      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient.replace('/5', '/20')} border border-white/80 shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+        <Icon className="w-7 h-7 text-slate-800" />
       </div>
-      <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
-      <p className="text-gray-400 leading-relaxed text-[15px]">{description}</p>
+      <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
+      <p className="text-slate-600 leading-relaxed text-[15px]">{description}</p>
     </div>
   </motion.div>
 );
@@ -391,15 +391,17 @@ export default function Home() {
       </section>
 
       {/* ─── FEATURES BENTO GRID ─── */}
-      <section id="features" className="py-24 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-500/[0.02] to-transparent pointer-events-none" />
+      <section id="features" className="py-24 relative overflow-hidden bg-[#f7faf8] text-slate-900">
+        <div className="absolute -top-32 -left-28 h-80 w-80 rounded-full bg-emerald-200/50 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-40 -right-24 h-96 w-96 rounded-full bg-cyan-100/70 blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.035)_1px,transparent_1px)] bg-[size:36px_36px] [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)] pointer-events-none" />
         <div className="max-w-7xl mx-auto px-5 lg:px-8 relative z-10">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 max-w-3xl mx-auto">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-brand-400 text-sm font-semibold uppercase tracking-wider mb-4"
+              className="inline-flex rounded-full bg-brand-100 px-4 py-2 text-brand-700 text-sm font-bold uppercase tracking-wider mb-5"
             >
               Powerful Features
             </motion.p>
@@ -408,16 +410,16 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-3xl md:text-5xl font-bold mb-5"
+              className="text-3xl md:text-5xl font-extrabold tracking-tight mb-5 text-slate-900"
             >
-              Everything You Need to <span className="text-gradient">Scale</span>
+              Everything You Need to <span className="text-brand-600">Scale</span>
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-gray-400 max-w-2xl mx-auto text-lg"
+              className="text-slate-600 max-w-2xl mx-auto text-lg leading-relaxed"
             >
               A complete toolkit to automate, engage, and grow your business across every channel.
             </motion.p>
