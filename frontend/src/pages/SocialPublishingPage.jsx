@@ -171,6 +171,11 @@ export default function SocialPublishingPage() {
     [connectedAccounts, selectedAccountIds]
   );
 
+  const isOnlyYoutube = useMemo(
+    () => selectedAccounts.length > 0 && selectedAccounts.every(a => a.platform === 'youtube'),
+    [selectedAccounts]
+  );
+
   useEffect(() => {
     if (viewingInsights) {
       setLoadingInsights(true);
@@ -244,12 +249,11 @@ export default function SocialPublishingPage() {
     }
     
     // YouTube specific: if only YouTube selected and postType is not Reel, switch to Reel
-    const isOnlyYoutube = selectedAccounts.length > 0 && selectedAccounts.every(a => a.platform === 'youtube');
     if (isOnlyYoutube && postType !== 'reel') {
       setPostType('reel');
       toast.error('YouTube only supports Shorts (Reels). Switched to Reel.');
     }
-  }, [selectedAccountIds, postType, selectedAccounts]);
+  }, [selectedAccountIds, postType, selectedAccounts, isOnlyYoutube]);
 
   useEffect(() => {
     if (!mediaUrl && carouselMediaUrls.length === 0) return;
@@ -525,7 +529,7 @@ export default function SocialPublishingPage() {
   const handlePostSubmit = async (e) => {
     e.preventDefault();
     if (selectedAccountIds.length === 0) return toast.error('Please select at least one platform');
-    if (!caption.trim() && postType !== 'story') return toast.error('Caption is required');
+    if (!isOnlyYoutube && !caption.trim() && postType !== 'story') return toast.error('Caption is required');
     const finalMediaUrls = postType === 'carousel' ? carouselMediaUrls : mediaUrl ? [mediaUrl] : [];
     if (finalMediaUrls.length === 0) return toast.error('Please add media (upload, link, or AI generated image)');
     if (postType === 'carousel' && finalMediaUrls.length < 2) return toast.error('Carousel needs at least 2 media items');
@@ -1101,43 +1105,45 @@ export default function SocialPublishingPage() {
                 
                 {activeStep === 2 && (
                   <div className="p-5 pt-0 border-t border-slate-100 dark:border-white/5 animate-in slide-in-from-top-4 duration-300 space-y-6">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="label mb-0">Caption</label>
-                        <button
-                          type="button"
-                          onClick={() => setShowAICaptionWriter(v => !v)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                            showAICaptionWriter
-                              ? 'bg-violet-600 text-white'
-                              : 'bg-violet-500/10 text-violet-600 hover:bg-violet-500/20 border border-violet-500/20'
-                          }`}
-                        >
-                          <Sparkles size={13} />
-                          {showAICaptionWriter ? 'Close AI Writer' : '✨ AI Caption'}
-                        </button>
-                      </div>
-                      {showAICaptionWriter && (
-                        <div className="mb-4">
-                          <AICaptionWriter
-                            selectedPlatforms={selectedAccounts.map(a => a.platform)}
-                            onApply={(generatedCaption) => {
-                              setCaption(generatedCaption);
-                              setShowAICaptionWriter(false);
-                            }}
-                          />
+                    {!isOnlyYoutube && (
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="label mb-0">Caption</label>
+                          <button
+                            type="button"
+                            onClick={() => setShowAICaptionWriter(v => !v)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                              showAICaptionWriter
+                                ? 'bg-violet-600 text-white'
+                                : 'bg-violet-500/10 text-violet-600 hover:bg-violet-500/20 border border-violet-500/20'
+                            }`}
+                          >
+                            <Sparkles size={13} />
+                            {showAICaptionWriter ? 'Close AI Writer' : '✨ AI Caption'}
+                          </button>
                         </div>
-                      )}
-                      <textarea
-                        value={caption}
-                        onChange={(e) => setCaption(e.target.value)}
-                        className="input h-36 resize-none"
-                        placeholder="Write your post content... or use ✨ AI Caption above"
-                      />
-                      <div className={`flex justify-end mt-1 text-xs ${caption.length > 2000 ? 'text-error' : 'text-text/50'}`}>
-                        {caption.length} chars
+                        {showAICaptionWriter && (
+                          <div className="mb-4">
+                            <AICaptionWriter
+                              selectedPlatforms={selectedAccounts.map(a => a.platform)}
+                              onApply={(generatedCaption) => {
+                                setCaption(generatedCaption);
+                                setShowAICaptionWriter(false);
+                              }}
+                            />
+                          </div>
+                        )}
+                        <textarea
+                          value={caption}
+                          onChange={(e) => setCaption(e.target.value)}
+                          className="input h-36 resize-none"
+                          placeholder="Write your post content... or use ✨ AI Caption above"
+                        />
+                        <div className={`flex justify-end mt-1 text-xs ${caption.length > 2000 ? 'text-error' : 'text-text/50'}`}>
+                          {caption.length} chars
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* YouTube Specific Options */}
                     {selectedAccounts.some(a => a.platform === 'youtube') && (

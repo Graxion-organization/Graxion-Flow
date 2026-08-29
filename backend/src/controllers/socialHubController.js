@@ -21,6 +21,9 @@ const normalizePostType = (type = 'post') => {
   return 'post';
 };
 
+const requiresCaption = (platforms = []) =>
+  platforms.some((platform) => (typeof platform === 'string' ? platform : platform?.platform) !== 'youtube');
+
 // ─── Get Connected Accounts ────────────────────────────────────────────────
 exports.getConnectedAccounts = async (req, res, next) => {
   try {
@@ -189,6 +192,13 @@ exports.publishContent = async (req, res, next) => {
     const unresolved = [...requestedPlatformRefs].filter((ref) => !resolvedPlatformRefs.has(ref));
     if (unresolved.length) {
       return next(new AppError(`Some selected accounts are no longer available: ${unresolved.join(', ')}`, 400));
+    }
+
+    // A Short can use its YouTube-specific title and description without a
+    // shared caption. Any cross-post that includes another platform still
+    // needs the shared caption those platforms publish.
+    if (requiresCaption(platformConfigs) && !String(caption || '').trim()) {
+      return next(new AppError('Caption is required when posting to platforms other than YouTube.', 400));
     }
 
     // Ensure all mediaUrls are public HTTP urls
@@ -691,7 +701,14 @@ exports.updateScheduledJob = async (req, res, next) => {
       return next(new AppError('Only queued posts can be edited', 400));
     }
 
-    if (caption) job.masterContent.text = caption;
+    const targetPlatforms = platforms || job.selectedPlatforms || [];
+    const hasCaptionUpdate = Object.prototype.hasOwnProperty.call(req.body, 'caption');
+    const nextCaption = hasCaptionUpdate ? String(caption || '') : job.masterContent.text;
+    if (requiresCaption(targetPlatforms) && !nextCaption.trim()) {
+      return next(new AppError('Caption is required when posting to platforms other than YouTube.', 400));
+    }
+
+    if (hasCaptionUpdate) job.masterContent.text = nextCaption;
     if (mediaUrls) job.masterContent.mediaUrls = mediaUrls;
     if (mode) job.mode = mode;
     if (scheduledAt) job.scheduledAt = scheduledAt;
@@ -704,7 +721,7 @@ exports.updateScheduledJob = async (req, res, next) => {
         status: 'pending',
         formattedContent: SocialPostOrchestratorService.formatForPlatform({
           platform: p.platform,
-          text: caption || job.masterContent.text,
+          text: nextCaption,
           mediaUrls: mediaUrls || job.masterContent.mediaUrls
         })
       }));
