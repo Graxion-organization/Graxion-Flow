@@ -413,6 +413,11 @@ export default function YouTubeTool() {
                       const username = comment.snippet?.topLevelComment?.snippet?.authorDisplayName || comment.authorDisplayName || "Unknown";
                       const text = comment.snippet?.topLevelComment?.snippet?.textDisplay || comment.text || "";
                       const ts = comment.snippet?.topLevelComment?.snippet?.publishedAt || comment.publishedAt || comment.createdAt || comment.timestamp || new Date().toISOString();
+                      // YouTube returns nested replies as `replies.comments`. The
+                      // `replies.data` fallback keeps the view compatible with the
+                      // normalized shapes returned by other social providers.
+                      const replies = comment.replies?.comments || comment.replies?.data || [];
+                      const parentCommentId = comment.snippet?.topLevelComment?.id || comment.id;
 
                       return (
                         <div key={comment.id} className="flex flex-col gap-2">
@@ -427,9 +432,9 @@ export default function YouTubeTool() {
                                 <span className="text-[9px] text-slate-400">{new Date(ts).toLocaleTimeString()}</span>
                               </div>
                               <div 
-                                onClick={() => setSelectedComment({id: comment.id, username: username})}
+                                onClick={() => setSelectedComment({id: parentCommentId, username: username})}
                                 className={`px-4 py-2.5 rounded-2xl rounded-tl-sm text-sm cursor-pointer transition-colors shadow-sm ${
-                                  selectedComment?.id === comment.id 
+                                  selectedComment?.id === parentCommentId
                                     ? 'bg-blue-100 text-blue-900 border border-blue-200 dark:bg-blue-900/40 dark:text-blue-100 dark:border-blue-800' 
                                     : 'bg-slate-100 text-slate-800 dark:bg-white/5 dark:text-gray-200'
                                 }`}
@@ -439,7 +444,7 @@ export default function YouTubeTool() {
                           </div>
 
                           {/* Replies */}
-                          {(comment.replies)?.data?.map(reply => {
+                          {replies.map(reply => {
                             const rUser = reply.snippet?.authorDisplayName || reply.authorDisplayName || "Unknown";
                             const rText = reply.snippet?.textDisplay || reply.text || "";
                             const rTs = reply.snippet?.publishedAt || reply.publishedAt || reply.createdAt || reply.timestamp || new Date().toISOString();
