@@ -62,15 +62,16 @@ const FeatureCard = ({ icon: Icon, title, description, gradient, delay, span = '
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5, delay }}
-    className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_12px_35px_rgba(15,23,42,0.06)] hover:border-brand-300 hover:shadow-[0_20px_45px_rgba(16,185,129,0.14)] transition-all duration-500 hover:-translate-y-1 ${span}`}
+    className={`group relative overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.035] p-8 shadow-[0_14px_40px_rgba(0,0,0,0.16)] hover:border-brand-400/50 hover:bg-white/[0.055] hover:shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition-all duration-500 hover:-translate-y-1 ${span}`}
   >
     <div className={`absolute inset-0 opacity-60 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${gradient}`} />
+    <div className={`absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent ${gradient.replace('to-transparent', 'to-transparent')} opacity-70`} />
     <div className="relative z-10">
-      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient.replace('/5', '/20')} border border-white/80 shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-        <Icon className="w-7 h-7 text-slate-800" />
+      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient.replace('/5', '/20')} border border-white/10 shadow-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+        <Icon className="w-7 h-7 text-white" />
       </div>
-      <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
-      <p className="text-slate-600 leading-relaxed text-[15px]">{description}</p>
+      <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
+      <p className="text-gray-400 leading-relaxed text-[15px]">{description}</p>
     </div>
   </motion.div>
 );
@@ -87,8 +88,8 @@ const WorkflowStep = ({ number, title, description, delay }) => (
     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 flex items-center justify-center mb-6">
       <span className="text-2xl font-bold text-brand-400">{number}</span>
     </div>
-    <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
-    <p className="text-slate-600 text-sm max-w-xs">{description}</p>
+    <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
+    <p className="text-gray-400 text-sm max-w-xs">{description}</p>
   </motion.div>
 );
 
@@ -124,13 +125,13 @@ const DashboardPreview = () => (
   </motion.div>
 );
 
-const PlatformCard = ({ icon: Icon, name, accent, description, capabilities, delay }) => (
+const PlatformCard = ({ icon: Icon, name, accent, description, capabilities, delay, className = '' }) => (
   <motion.article
     initial={{ opacity: 0, y: 24 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, amount: 0.2 }}
     transition={{ duration: 0.45, delay }}
-    className="group relative overflow-hidden rounded-3xl border border-white/[0.07] bg-[#0b1020] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/[0.15]"
+    className={`group relative overflow-hidden rounded-3xl border border-white/[0.07] bg-[#0b1020] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/[0.15] ${className}`}
   >
     <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${accent} to-transparent opacity-80`} />
     <div className="flex items-center gap-3 mb-5">
@@ -440,17 +441,17 @@ export default function Home() {
       </section>
 
       {/* ─── FEATURES BENTO GRID ─── */}
-      <section id="features" className="py-24 relative overflow-hidden bg-[#f7faf8] text-slate-900">
-        <div className="absolute -top-32 -left-28 h-80 w-80 rounded-full bg-emerald-200/50 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-40 -right-24 h-96 w-96 rounded-full bg-cyan-100/70 blur-3xl pointer-events-none" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.035)_1px,transparent_1px)] bg-[size:36px_36px] [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)] pointer-events-none" />
+      <section id="features" className="py-24 relative overflow-hidden bg-[#080d19]">
+        <div className="absolute -top-32 -left-28 h-80 w-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-40 -right-24 h-96 w-96 rounded-full bg-cyan-500/[0.07] blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 bg-grid-white bg-grid opacity-20 pointer-events-none" />
         <div className="max-w-7xl mx-auto px-5 lg:px-8 relative z-10">
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="inline-flex rounded-full bg-brand-100 px-4 py-2 text-brand-700 text-sm font-bold uppercase tracking-wider mb-5"
+              className="inline-flex rounded-full border border-brand-400/20 bg-brand-500/10 px-4 py-2 text-brand-300 text-sm font-bold uppercase tracking-wider mb-5"
             >
               Powerful Features
             </motion.p>
@@ -459,16 +460,16 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-3xl md:text-5xl font-extrabold tracking-tight mb-5 text-slate-900"
+              className="text-3xl md:text-5xl font-extrabold tracking-tight mb-5 text-white"
             >
-              Everything You Need to <span className="text-brand-600">Scale</span>
+              Everything You Need to <span className="text-brand-400">Scale</span>
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-slate-600 max-w-2xl mx-auto text-lg leading-relaxed"
+              className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed"
             >
               A complete toolkit to automate, engage, and grow your business across every channel.
             </motion.p>
@@ -526,26 +527,26 @@ export default function Home() {
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            <PlatformCard icon={Youtube} name="YouTube" accent="from-red-500/80" delay={0} description="Keep your Shorts and community engagement moving without manually watching every comment." capabilities={['Publish and schedule YouTube Shorts', 'View video comments in one workspace', 'Use AI-assisted replies or respond manually']} />
-            <PlatformCard icon={Facebook} name="Facebook" accent="from-blue-500/80" delay={0.08} description="Turn Page posts, comments, and Messenger conversations into a more responsive customer experience." capabilities={['Publish and schedule Page content', 'Manage comments and AI-assisted replies', 'Automate Messenger and comment responses']} />
-            <PlatformCard icon={Instagram} name="Instagram" accent="from-pink-500/80" delay={0.16} description="Create faster engagement around your Instagram content while giving interested people a direct path to your inbox." capabilities={['Publish and schedule posts, Reels, and Stories', 'Reply to comments with AI assistance', 'Send automated DMs from comment triggers']} />
-            <PlatformCard icon={Linkedin} name="LinkedIn" accent="from-sky-500/80" delay={0.24} description="Stay active on professional conversations and keep your LinkedIn content workflow organised." capabilities={['Publish and schedule LinkedIn content', 'Monitor post comments in one view', 'Reply manually or with AI assistance']} />
-            <PlatformCard icon={MessageCircle} name="WhatsApp" accent="from-emerald-500/80" delay={0.32} description="Build a faster, more consistent way to communicate with customers over WhatsApp." capabilities={['Manage customer conversations centrally', 'Create automated conversation flows', 'Send campaigns and follow-up broadcasts']} />
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-5">
+            <PlatformCard icon={Youtube} name="YouTube" accent="from-red-500/80" delay={0} className="xl:col-span-2" description="Keep your Shorts and community engagement moving without manually watching every comment." capabilities={['Publish and schedule YouTube Shorts', 'View video comments in one workspace', 'Use AI-assisted replies or respond manually']} />
+            <PlatformCard icon={Facebook} name="Facebook" accent="from-blue-500/80" delay={0.08} className="xl:col-span-2" description="Turn Page posts, comments, and Messenger conversations into a more responsive customer experience." capabilities={['Publish and schedule Page content', 'Manage comments and AI-assisted replies', 'Automate Messenger and comment responses']} />
+            <PlatformCard icon={Instagram} name="Instagram" accent="from-pink-500/80" delay={0.16} className="xl:col-span-2" description="Create faster engagement around your Instagram content while giving interested people a direct path to your inbox." capabilities={['Publish and schedule posts, Reels, and Stories', 'Reply to comments with AI assistance', 'Send automated DMs from comment triggers']} />
+            <PlatformCard icon={Linkedin} name="LinkedIn" accent="from-sky-500/80" delay={0.24} className="xl:col-span-2 xl:col-start-2" description="Stay active on professional conversations and keep your LinkedIn content workflow organised." capabilities={['Publish and schedule LinkedIn content', 'Monitor post comments in one view', 'Reply manually or with AI assistance']} />
+            <PlatformCard icon={MessageCircle} name="WhatsApp" accent="from-emerald-500/80" delay={0.32} className="xl:col-span-2" description="Build a faster, more consistent way to communicate with customers over WhatsApp." capabilities={['Manage customer conversations centrally', 'Create automated conversation flows', 'Send campaigns and follow-up broadcasts']} />
           </div>
         </div>
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section id="workflow" className="py-24 relative bg-white text-slate-900 overflow-hidden">
-        <div className="absolute left-1/2 top-0 h-64 w-[600px] -translate-x-1/2 rounded-full bg-brand-100/70 blur-3xl pointer-events-none" />
+      <section id="workflow" className="py-24 relative bg-[#060912] overflow-hidden">
+        <div className="absolute left-1/2 top-0 h-64 w-[600px] -translate-x-1/2 rounded-full bg-brand-500/[0.09] blur-3xl pointer-events-none" />
         <div className="max-w-5xl mx-auto px-5 lg:px-8 relative z-10">
           <div className="text-center mb-16">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-brand-600 text-sm font-semibold uppercase tracking-wider mb-4"
+              className="text-brand-400 text-sm font-semibold uppercase tracking-wider mb-4"
             >
               Simple Setup
             </motion.p>
@@ -554,9 +555,9 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-3xl md:text-5xl font-bold text-slate-900"
+              className="text-3xl md:text-5xl font-bold text-white"
             >
-              Up and Running in <span className="text-brand-600">Minutes</span>
+              Up and Running in <span className="text-brand-400">Minutes</span>
             </motion.h2>
           </div>
 
