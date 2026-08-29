@@ -8,6 +8,7 @@ import {
   Loader2,
   RefreshCw,
   ChevronRight,
+  CornerDownRight,
   User as UserIcon,
   CheckCircle2,
   AlertCircle,
@@ -449,7 +450,11 @@ export default function YouTubeTool() {
                             const rText = reply.snippet?.textDisplay || reply.text || "";
                             const rTs = reply.snippet?.publishedAt || reply.publishedAt || reply.createdAt || reply.timestamp || new Date().toISOString();
                             return (
-                              <div key={reply.id || reply.etag} className="flex gap-3 justify-end pl-12">
+                              <div key={reply.id || reply.etag} className="flex gap-2 justify-end pl-12">
+                                <CornerDownRight
+                                  className="mt-6 h-4 w-4 shrink-0 text-red-400 dark:text-red-300"
+                                  aria-label="Reply to comment"
+                                />
                                 <div className="flex flex-col items-end max-w-[85%]">
                                   <div className="flex items-baseline gap-2 mb-1">
                                     <span className="text-[9px] text-slate-400">{new Date(rTs).toLocaleTimeString()}</span>
