@@ -1697,3 +1697,25 @@ exports.deleteErrorLog = async (req, res, next) => {
     next(err);
   }
 };
+
+/**
+ * Clear Redis AI Cache
+ */
+exports.clearAICache = async (req, res, next) => {
+  try {
+    const { redis } = require('../config/redis');
+    const keys = await redis.keys('ai_cache*');
+    
+    if (keys.length > 0) {
+      await redis.del(...keys);
+    }
+    
+    res.status(200).json({
+      status: 'success',
+      message: `Cleared ${keys.length} cached AI responses.`
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+

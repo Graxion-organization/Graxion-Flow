@@ -30,6 +30,9 @@ router.get('/error-logs', adminController.getErrorLogs);
 router.patch('/error-logs/:id/resolve', adminController.resolveErrorLog);
 router.delete('/error-logs/:id', adminController.deleteErrorLog);
 
+// AI Cache
+router.delete('/ai-cache', adminController.clearAICache);
+
 router.get('/orphan-media', adminController.getOrphanMedia);
 router.delete('/orphan-media', adminController.deleteMedia);
 
