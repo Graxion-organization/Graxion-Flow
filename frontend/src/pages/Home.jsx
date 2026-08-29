@@ -25,7 +25,11 @@ import {
   Youtube,
   Facebook,
   Linkedin,
-  MessageCircle
+  MessageCircle,
+  CalendarDays,
+  Clock3,
+  LayoutDashboard,
+  Activity
 } from 'lucide-react';
 import { useAuthStore, useBrandingStore } from '../store';
 
@@ -83,8 +87,40 @@ const WorkflowStep = ({ number, title, description, delay }) => (
     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 flex items-center justify-center mb-6">
       <span className="text-2xl font-bold text-brand-400">{number}</span>
     </div>
-    <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
-    <p className="text-gray-400 text-sm max-w-xs">{description}</p>
+    <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
+    <p className="text-slate-600 text-sm max-w-xs">{description}</p>
+  </motion.div>
+);
+
+const DashboardPreview = () => (
+  <motion.div
+    initial={{ opacity: 0, y: 30, scale: 0.97 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    transition={{ duration: 0.75, delay: 0.55 }}
+    className="relative mt-16 mx-auto max-w-5xl text-left"
+  >
+    <div className="absolute -inset-6 rounded-[2.5rem] bg-brand-500/15 blur-3xl" />
+    <div className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0b1120]/95 shadow-2xl shadow-black/40 backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-white/[0.07] px-4 py-3 sm:px-6">
+        <div className="flex gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-red-400/80" /><span className="h-2.5 w-2.5 rounded-full bg-amber-300/80" /><span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" /></div>
+        <div className="text-xs font-medium text-gray-500">Graxion Flow workspace</div>
+        <div className="h-5 w-12 rounded-full bg-white/[0.05]" />
+      </div>
+      <div className="grid grid-cols-[auto_1fr] min-h-[250px] sm:min-h-[320px]">
+        <aside className="hidden sm:flex w-48 flex-col gap-2 border-r border-white/[0.07] p-4 text-xs text-gray-500">
+          <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-white"><LayoutDashboard className="h-4 w-4 text-brand-400" /> Overview</div>
+          <div className="rounded-lg bg-brand-500/15 px-3 py-2 text-brand-300">Publishing</div>
+          <div className="px-3 py-2">Conversations</div><div className="px-3 py-2">Automations</div><div className="px-3 py-2">Analytics</div>
+        </aside>
+        <div className="p-4 sm:p-6">
+          <div className="mb-5 flex items-center justify-between"><div><p className="text-xs text-gray-500">Good morning</p><h3 className="text-base font-bold text-white sm:text-xl">Your content is in flow</h3></div><button className="rounded-lg bg-brand-500 px-3 py-2 text-xs font-semibold text-white">Create post</button></div>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            {[['12', 'Scheduled'], ['48', 'New replies'], ['92%', 'On track']].map(([value, label], index) => <div key={label} className="rounded-xl border border-white/[0.07] bg-white/[0.035] p-3 sm:p-4"><div className="mb-2 flex justify-between"><span className="text-xs text-gray-500">{label}</span>{index === 1 ? <MessageSquare className="h-3.5 w-3.5 text-brand-400" /> : <Activity className="h-3.5 w-3.5 text-brand-400" />}</div><p className="text-lg font-bold text-white sm:text-2xl">{value}</p></div>)}
+          </div>
+          <div className="mt-3 rounded-xl border border-white/[0.07] bg-white/[0.035] p-3 sm:p-4"><div className="mb-3 flex items-center justify-between"><span className="text-sm font-semibold text-white">Today’s publishing queue</span><CalendarDays className="h-4 w-4 text-brand-400" /></div><div className="flex items-center gap-3"><div className="flex -space-x-1.5"><span className="grid h-7 w-7 place-items-center rounded-full border-2 border-[#0b1120] bg-red-500 text-[9px] font-bold">▶</span><span className="grid h-7 w-7 place-items-center rounded-full border-2 border-[#0b1120] bg-pink-500 text-[9px] font-bold">◎</span><span className="grid h-7 w-7 place-items-center rounded-full border-2 border-[#0b1120] bg-blue-500 text-[9px] font-bold">in</span></div><div className="h-2 flex-1 overflow-hidden rounded-full bg-white/[0.08]"><div className="h-full w-2/3 rounded-full bg-brand-500" /></div><Clock3 className="h-4 w-4 text-gray-500" /></div></div>
+        </div>
+      </div>
+    </div>
   </motion.div>
 );
 
@@ -354,13 +390,17 @@ export default function Home() {
               </div>
             ))}
           </motion.div>
+
+          <DashboardPreview />
         </div>
       </section>
 
 
       {/* ─── APP PURPOSE SECTION ─── */}
-      <section className="py-24 relative bg-white/[0.02] border-y border-white/[0.05]">
-        <div className="max-w-4xl mx-auto px-5 lg:px-8 text-center">
+      <section className="py-24 relative bg-[#0a1020] overflow-hidden">
+        <div className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-brand-500/[0.08] to-transparent pointer-events-none" />
+        <div className="max-w-6xl mx-auto px-5 lg:px-8 relative z-10 grid lg:grid-cols-[1.05fr_0.95fr] gap-12 lg:gap-20 items-center">
+          <div>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -374,7 +414,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-3xl md:text-5xl font-bold mb-8"
+            className="text-3xl md:text-5xl font-bold mb-6 leading-tight"
           >
             Purpose of <span className="text-gradient">Graxion Flow</span>
           </motion.h2>
@@ -383,10 +423,19 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-gray-300 text-lg md:text-xl leading-relaxed"
+            className="text-gray-300 text-lg leading-relaxed"
           >
             Graxion Flow is a social media management and automation platform that helps businesses create, schedule, and publish content across supported social media platforms from one centralized dashboard.
           </motion.p>
+          </div>
+          <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="grid grid-cols-2 gap-3">
+            {[['Create', 'Plan content with AI'], ['Publish', 'Schedule across channels'], ['Engage', 'Reply without the chaos'], ['Measure', 'Track what performs']].map(([title, text], index) => (
+              <div key={title} className={`rounded-2xl border border-white/[0.08] bg-white/[0.035] p-5 ${index === 0 || index === 3 ? 'translate-y-4' : ''}`}>
+                <span className="mb-5 grid h-8 w-8 place-items-center rounded-lg bg-brand-500/15 text-xs font-bold text-brand-300">0{index + 1}</span>
+                <h3 className="font-bold text-white mb-1">{title}</h3><p className="text-sm leading-relaxed text-gray-500">{text}</p>
+              </div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
@@ -488,14 +537,15 @@ export default function Home() {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section id="workflow" className="py-24 relative">
-        <div className="max-w-5xl mx-auto px-5 lg:px-8">
+      <section id="workflow" className="py-24 relative bg-white text-slate-900 overflow-hidden">
+        <div className="absolute left-1/2 top-0 h-64 w-[600px] -translate-x-1/2 rounded-full bg-brand-100/70 blur-3xl pointer-events-none" />
+        <div className="max-w-5xl mx-auto px-5 lg:px-8 relative z-10">
           <div className="text-center mb-16">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-brand-400 text-sm font-semibold uppercase tracking-wider mb-4"
+              className="text-brand-600 text-sm font-semibold uppercase tracking-wider mb-4"
             >
               Simple Setup
             </motion.p>
@@ -504,9 +554,9 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-3xl md:text-5xl font-bold"
+              className="text-3xl md:text-5xl font-bold text-slate-900"
             >
-              Up and Running in <span className="text-gradient">Minutes</span>
+              Up and Running in <span className="text-brand-600">Minutes</span>
             </motion.h2>
           </div>
 
@@ -522,7 +572,7 @@ export default function Home() {
       </section>
 
       {/* ─── CTA SECTION ─── */}
-      <section className="py-24 relative">
+      <section className="py-24 relative overflow-hidden">
         <div className="max-w-5xl mx-auto px-5 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -531,27 +581,27 @@ export default function Home() {
             className="relative rounded-[2rem] overflow-hidden"
           >
             {/* Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-brand-500/10 via-brand-500/5 to-transparent" />
-            <div className="absolute inset-0 bg-grid-white bg-grid opacity-20" />
-            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-brand-500/10 blur-[100px] rounded-full" />
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-600 via-brand-500 to-emerald-400" />
+            <div className="absolute inset-0 bg-grid-white bg-grid opacity-25" />
+            <div className="absolute -bottom-32 -left-24 w-[400px] h-[400px] bg-cyan-300/30 blur-[100px] rounded-full" />
 
-            <div className="relative z-10 p-10 md:p-16 text-center border border-white/[0.06] rounded-[2rem]">
+            <div className="relative z-10 p-10 md:p-16 text-center border border-white/20 rounded-[2rem]">
               <h2 className="text-3xl md:text-5xl font-bold mb-5">
-                Ready to <span className="text-gradient">Transform</span> Your Business?
+                Ready to transform your business?
               </h2>
-              <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-10">
+              <p className="text-white/80 text-lg max-w-2xl mx-auto mb-10">
                 Join hundreds of businesses already automating their customer communication with {brandName}.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <button
                   onClick={() => goAuth('/register')}
-                  className="w-full sm:w-auto px-10 py-4 rounded-full bg-brand-500 hover:bg-brand-400 text-white font-semibold flex items-center justify-center gap-2 transition-all shadow-[0_0_30px_rgba(34,197,94,0.25)] hover:shadow-[0_0_50px_rgba(34,197,94,0.4)] transform hover:-translate-y-0.5"
+                  className="w-full sm:w-auto px-10 py-4 rounded-full bg-white hover:bg-emerald-50 text-brand-700 font-semibold flex items-center justify-center gap-2 transition-all shadow-xl transform hover:-translate-y-0.5"
                 >
                   Start Free <ArrowRight className="h-5 w-5" />
                 </button>
                 <Link
                   to="/contact"
-                  className="w-full sm:w-auto px-10 py-4 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-white font-semibold transition-all text-center"
+                  className="w-full sm:w-auto px-10 py-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold transition-all text-center"
                 >
                   Talk to Sales
                 </Link>
