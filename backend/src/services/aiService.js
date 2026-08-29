@@ -298,7 +298,7 @@ class AIService {
 
       // Estimate tokens (roughly 4 chars per token)
       // Check for canned API error responses
-      if (responseText.includes("experiencing some technical difficulties") || responseText.includes("currently unable to process")) {
+      if (responseText.toLowerCase().includes("experiencing some technical difficulties") || responseText.toLowerCase().includes("currently unable to process")) {
         throw new Error("AI provider returned a canned error response.");
       }
 

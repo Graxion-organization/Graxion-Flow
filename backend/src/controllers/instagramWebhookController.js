@@ -522,7 +522,7 @@ async function handleInstagramDM(event, igAccount, agent) {
       const cleanReply = AIService.sanitizeForPlatform(aiResult.content, 'instagram');
 
       // Safety net: Never send canned error messages to real users
-      if (cleanReply.includes('experiencing some technical difficulties') || cleanReply.includes('currently unable to process')) {
+      if (cleanReply.toLowerCase().includes('experiencing some technical difficulties') || cleanReply.toLowerCase().includes('currently unable to process')) {
         logger.warn(`[INSTAGRAM_DM] Blocked canned error message from being sent to ${senderId}. Aborting.`);
         return;
       }
@@ -892,7 +892,7 @@ async function handleInstagramComment(commentData, igAccount, agent) {
         logger.info(`AI generated comment reply: ${aiResult.content}`);
 
         // Safety net: Never send canned error messages as comment replies
-        if (aiResult.content.includes('experiencing some technical difficulties') || aiResult.content.includes('currently unable to process')) {
+        if (aiResult.content.toLowerCase().includes('experiencing some technical difficulties') || aiResult.content.toLowerCase().includes('currently unable to process')) {
           logger.warn(`[COMMENT BOT] Blocked canned error message from being sent as comment reply for ${commentId}. Aborting.`);
           return;
         }

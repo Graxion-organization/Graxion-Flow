@@ -1039,7 +1039,7 @@ exports.autoReplyLinkedInPost = async (req, res, next) => {
            
            const replyText = aiResponse.content;
            
-           if (replyText && !replyText.includes('experiencing some technical difficulties')) {
+           if (replyText && !replyText.toLowerCase().includes('experiencing some technical difficulties')) {
              await liService.replyToComment(commentId, replyText);
              agent.repliedLinkedinComments.push(commentId);
              count++;

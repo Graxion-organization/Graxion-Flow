@@ -256,7 +256,7 @@ exports.autoReplyPost = async (req, res, next) => {
            
            const replyText = aiResponse.content;
            
-           if (replyText && !replyText.includes("experiencing some technical difficulties")) {
+           if (replyText && !replyText.toLowerCase().includes("experiencing some technical difficulties")) {
              const success = await ytProvider.replyToCommentThread(commentId, replyText);
              if (success) {
                automation.repliedCommentIds.push(commentId);

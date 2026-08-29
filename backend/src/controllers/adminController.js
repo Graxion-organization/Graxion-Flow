@@ -16,6 +16,7 @@ const crypto = require('crypto');
 const creditHelper = require('../utils/creditHelper');
 const AdminSignupRequest = require('../models/AdminSignupRequest');
 const AdminActivity = require('../models/AdminActivity');
+const SystemErrorLog = require('../models/SystemErrorLog');
 const fraudDetectionService = require('../services/fraudDetectionService');
 const { logAdminActivity } = require('../utils/adminLogger');
 
@@ -1614,4 +1615,85 @@ exports.markContactMessageRead = async (req, res, next) => {
   }
 };
 
+/**
+ * Get system error logs from DB
+ */
+exports.getErrorLogs = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const skip = (page - 1) * limit;
 
+    const query = {};
+    if (req.query.resolved !== undefined) {
+      query.resolved = req.query.resolved === 'true';
+    }
+    
+    if (req.query.search) {
+      query.message = { $regex: req.query.search, $options: 'i' };
+    }
+
+    const logs = await SystemErrorLog.find(query)
+      .sort('-createdAt')
+      .skip(skip)
+      .limit(limit);
+
+    const total = await SystemErrorLog.countDocuments(query);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        logs,
+        total,
+        page,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Resolve an error log
+ */
+exports.resolveErrorLog = async (req, res, next) => {
+  try {
+    const log = await SystemErrorLog.findByIdAndUpdate(
+      req.params.id,
+      { resolved: true },
+      { new: true }
+    );
+
+    if (!log) {
+      return res.status(404).json({ status: 'fail', message: 'Error log not found' });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: { log }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Delete an error log
+ */
+exports.deleteErrorLog = async (req, res, next) => {
+  try {
+    const log = await SystemErrorLog.findByIdAndDelete(req.params.id);
+
+    if (!log) {
+      return res.status(404).json({ status: 'fail', message: 'Error log not found' });
+    }
+
+    res.status(204).json({
+      status: 'success',
+      data: null
+    });
+  } catch (err) {
+    next(err);
+  }
+};

@@ -130,7 +130,7 @@ class YoutubeAutomationService {
       );
       const replyText = aiResponse.content;
 
-      if (!replyText || replyText.includes("experiencing some technical difficulties")) {
+      if (!replyText || replyText.toLowerCase().includes("experiencing some technical difficulties")) {
          logger.warn(`[YouTube Automation] AI failed to generate reply for comment: ${commentId}`);
          continue;
       }

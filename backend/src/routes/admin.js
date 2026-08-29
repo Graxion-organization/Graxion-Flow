@@ -24,6 +24,12 @@ router.patch('/settings', adminController.updateSystemSetting);
 router.get('/system-routes', adminController.getSystemRoutes);
 
 router.get('/logs', adminController.getSystemLogs);
+
+// System Error Logs
+router.get('/error-logs', adminController.getErrorLogs);
+router.patch('/error-logs/:id/resolve', adminController.resolveErrorLog);
+router.delete('/error-logs/:id', adminController.deleteErrorLog);
+
 router.get('/orphan-media', adminController.getOrphanMedia);
 router.delete('/orphan-media', adminController.deleteMedia);
 

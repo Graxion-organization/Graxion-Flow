@@ -29,7 +29,8 @@ import {
   CalendarDays,
   Clock3,
   LayoutDashboard,
-  Activity
+  Activity,
+  BadgeCheck
 } from 'lucide-react';
 import { useAuthStore, useBrandingStore } from '../store';
 
@@ -62,16 +63,16 @@ const FeatureCard = ({ icon: Icon, title, description, gradient, delay, span = '
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5, delay }}
-    className={`group relative overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.035] p-8 shadow-[0_14px_40px_rgba(0,0,0,0.16)] hover:border-brand-400/50 hover:bg-white/[0.055] hover:shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition-all duration-500 hover:-translate-y-1 ${span}`}
+    className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_14px_40px_rgba(15,23,42,0.07)] hover:border-brand-300 hover:shadow-[0_20px_50px_rgba(16,185,129,0.13)] transition-all duration-500 hover:-translate-y-1 ${span}`}
   >
     <div className={`absolute inset-0 opacity-60 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${gradient}`} />
     <div className={`absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent ${gradient.replace('to-transparent', 'to-transparent')} opacity-70`} />
     <div className="relative z-10">
-      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient.replace('/5', '/20')} border border-white/10 shadow-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-        <Icon className="w-7 h-7 text-white" />
+      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient.replace('/5', '/20')} border border-white shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+        <Icon className="w-7 h-7 text-slate-800" />
       </div>
-      <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
-      <p className="text-gray-400 leading-relaxed text-[15px]">{description}</p>
+      <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
+      <p className="text-slate-600 leading-relaxed text-[15px]">{description}</p>
     </div>
   </motion.div>
 );
@@ -88,8 +89,8 @@ const WorkflowStep = ({ number, title, description, delay }) => (
     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 flex items-center justify-center mb-6">
       <span className="text-2xl font-bold text-brand-400">{number}</span>
     </div>
-    <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
-    <p className="text-gray-400 text-sm max-w-xs">{description}</p>
+    <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
+    <p className="text-slate-600 text-sm max-w-xs">{description}</p>
   </motion.div>
 );
 
@@ -125,25 +126,25 @@ const DashboardPreview = () => (
   </motion.div>
 );
 
-const PlatformCard = ({ icon: Icon, name, accent, description, capabilities, delay, className = '' }) => (
+const PlatformCard = ({ icon: Icon, name, accent, description, capabilities, delay, className = '', metaVerified = false }) => (
   <motion.article
     initial={{ opacity: 0, y: 24 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, amount: 0.2 }}
     transition={{ duration: 0.45, delay }}
-    className={`group relative overflow-hidden rounded-3xl border border-white/[0.07] bg-[#0b1020] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/[0.15] ${className}`}
+    className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_12px_35px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-[0_20px_45px_rgba(16,185,129,0.12)] ${className}`}
   >
     <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${accent} to-transparent opacity-80`} />
     <div className="flex items-center gap-3 mb-5">
-      <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${accent} to-transparent flex items-center justify-center ring-1 ring-white/10`}>
+      <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${accent} to-transparent flex items-center justify-center ring-1 ring-white/70`}>
         <Icon className="w-5 h-5 text-white" />
       </div>
-      <h3 className="text-lg font-bold text-white">{name}</h3>
+      <div><h3 className="text-lg font-bold text-slate-900">{name}</h3>{metaVerified && <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-[#1877f2]"><BadgeCheck className="h-3.5 w-3.5 fill-[#1877f2] text-white" /> Meta verified</span>}</div>
     </div>
-    <p className="min-h-[48px] text-sm leading-relaxed text-gray-400 mb-5">{description}</p>
+    <p className="min-h-[48px] text-sm leading-relaxed text-slate-600 mb-5">{description}</p>
     <ul className="space-y-3">
       {capabilities.map(capability => (
-        <li key={capability} className="flex items-start gap-2.5 text-sm text-gray-300">
+        <li key={capability} className="flex items-start gap-2.5 text-sm text-slate-700">
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
           <span>{capability}</span>
         </li>
@@ -215,13 +216,13 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#060912] text-white font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans overflow-x-hidden">
       
       {/* ─── NAVBAR ─── */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled
-            ? 'bg-[#060912]/80 backdrop-blur-xl border-b border-white/[0.06] py-3'
+            ? 'bg-white/85 backdrop-blur-xl border-b border-slate-200/80 py-3 shadow-sm'
             : 'bg-transparent py-5'
         }`}
       >
@@ -234,23 +235,23 @@ export default function Home() {
                 <MessageSquare className="text-white h-5 w-5" />
               </div>
             )}
-            <span className="text-xl font-bold tracking-tight text-white">
+            <span className="text-xl font-bold tracking-tight text-slate-900">
               {brandName}
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
             {navLinks.map(link => (
               link.href.startsWith('#') ? (
-                <a key={link.label} href={link.href} className="hover:text-white transition-colors duration-200">{link.label}</a>
+                <a key={link.label} href={link.href} className="hover:text-brand-600 transition-colors duration-200">{link.label}</a>
               ) : (
-                <Link key={link.label} to={link.href} className="hover:text-white transition-colors duration-200">{link.label}</Link>
+                <Link key={link.label} to={link.href} className="hover:text-brand-600 transition-colors duration-200">{link.label}</Link>
               )
             ))}
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
-            <button onClick={() => goAuth('/login')} className="px-5 py-2.5 text-sm font-medium text-gray-300 hover:text-white transition-colors">
+            <button onClick={() => goAuth('/login')} className="px-5 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-950 transition-colors">
               Sign In
             </button>
             <button
@@ -261,7 +262,7 @@ export default function Home() {
             </button>
           </div>
 
-          <button className="md:hidden text-gray-300 hover:text-white p-2" onClick={() => setMobileMenuOpen(true)}>
+          <button className="md:hidden text-slate-700 hover:text-slate-950 p-2" onClick={() => setMobileMenuOpen(true)}>
             <Menu className="h-6 w-6" />
           </button>
         </div>
@@ -311,20 +312,20 @@ export default function Home() {
       )}
 
       {/* ─── HERO SECTION ─── */}
-      <section className="relative pt-36 pb-16 lg:pt-48 lg:pb-24 overflow-hidden">
+      <section className="relative pt-36 pb-16 lg:pt-48 lg:pb-24 overflow-hidden bg-gradient-to-b from-white via-[#f7fbf8] to-[#eef8f1]">
         {/* Background effects */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-brand-500/[0.07] blur-[150px] rounded-full pointer-events-none" />
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-cyan-500/[0.04] blur-[120px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-500/[0.03] blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-brand-500/[0.12] blur-[150px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-cyan-500/[0.10] blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-400/[0.08] blur-[120px] rounded-full pointer-events-none" />
         {/* Grid pattern */}
-        <div className="absolute inset-0 bg-grid-white bg-grid opacity-30 pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.04)_1px,transparent_1px)] bg-[size:52px_52px] pointer-events-none" />
 
         <div className="max-w-5xl mx-auto px-5 lg:px-8 relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08] text-sm text-gray-300 mb-8 backdrop-blur-sm"
+            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/80 border border-brand-200 text-sm text-slate-600 mb-8 shadow-sm backdrop-blur-sm"
           >
             <span className="flex h-2 w-2 rounded-full bg-brand-500 animate-pulse" />
             <span>{tagline}</span>
@@ -334,7 +335,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 text-white leading-[1.08]"
+            className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 text-slate-950 leading-[1.08]"
           >
             Graxion Flow
           </motion.h1>
@@ -343,7 +344,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gradient mb-6"
+            className="text-xl sm:text-2xl lg:text-3xl font-semibold text-brand-600 mb-6"
           >
             AI-Powered Social Media Automation
           </motion.h2>
@@ -352,7 +353,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-base sm:text-lg lg:text-xl text-gray-400 max-w-3xl mx-auto mb-10 leading-relaxed"
+            className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-3xl mx-auto mb-10 leading-relaxed"
           >
             {heroSubtitle}
           </motion.p>
@@ -371,7 +372,7 @@ export default function Home() {
             </button>
             <Link
               to="/contact"
-              className="w-full sm:w-auto px-8 py-4 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-white font-semibold transition-all backdrop-blur-sm text-center"
+              className="w-full sm:w-auto px-8 py-4 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-semibold transition-all shadow-sm text-center"
             >
               Contact Sales
             </Link>
@@ -382,7 +383,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="mt-14 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-gray-500"
+            className="mt-14 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-slate-600"
           >
             {['No credit card required', 'Free tier available', 'Setup in 5 minutes'].map(item => (
               <div key={item} className="flex items-center gap-2">
@@ -398,15 +399,15 @@ export default function Home() {
 
 
       {/* ─── APP PURPOSE SECTION ─── */}
-      <section className="py-24 relative bg-[#0a1020] overflow-hidden">
-        <div className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-brand-500/[0.08] to-transparent pointer-events-none" />
+      <section className="py-24 relative bg-white overflow-hidden border-y border-slate-100">
+        <div className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-brand-50 to-transparent pointer-events-none" />
         <div className="max-w-6xl mx-auto px-5 lg:px-8 relative z-10 grid lg:grid-cols-[1.05fr_0.95fr] gap-12 lg:gap-20 items-center">
           <div>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-brand-400 text-sm font-semibold uppercase tracking-wider mb-4"
+            className="text-brand-600 text-sm font-semibold uppercase tracking-wider mb-4"
           >
             Application Purpose
           </motion.p>
@@ -415,7 +416,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-3xl md:text-5xl font-bold mb-6 leading-tight"
+            className="text-3xl md:text-5xl font-bold mb-6 leading-tight text-slate-900"
           >
             Purpose of <span className="text-gradient">Graxion Flow</span>
           </motion.h2>
@@ -424,16 +425,16 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-gray-300 text-lg leading-relaxed"
+            className="text-slate-600 text-lg leading-relaxed"
           >
             Graxion Flow is a social media management and automation platform that helps businesses create, schedule, and publish content across supported social media platforms from one centralized dashboard.
           </motion.p>
           </div>
           <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="grid grid-cols-2 gap-3">
             {[['Create', 'Plan content with AI'], ['Publish', 'Schedule across channels'], ['Engage', 'Reply without the chaos'], ['Measure', 'Track what performs']].map(([title, text], index) => (
-              <div key={title} className={`rounded-2xl border border-white/[0.08] bg-white/[0.035] p-5 ${index === 0 || index === 3 ? 'translate-y-4' : ''}`}>
-                <span className="mb-5 grid h-8 w-8 place-items-center rounded-lg bg-brand-500/15 text-xs font-bold text-brand-300">0{index + 1}</span>
-                <h3 className="font-bold text-white mb-1">{title}</h3><p className="text-sm leading-relaxed text-gray-500">{text}</p>
+              <div key={title} className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)] ${index === 0 || index === 3 ? 'translate-y-4' : ''}`}>
+                <span className="mb-5 grid h-8 w-8 place-items-center rounded-lg bg-brand-100 text-xs font-bold text-brand-700">0{index + 1}</span>
+                <h3 className="font-bold text-slate-900 mb-1">{title}</h3><p className="text-sm leading-relaxed text-slate-500">{text}</p>
               </div>
             ))}
           </motion.div>
@@ -441,17 +442,17 @@ export default function Home() {
       </section>
 
       {/* ─── FEATURES BENTO GRID ─── */}
-      <section id="features" className="py-24 relative overflow-hidden bg-[#080d19]">
-        <div className="absolute -top-32 -left-28 h-80 w-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-40 -right-24 h-96 w-96 rounded-full bg-cyan-500/[0.07] blur-3xl pointer-events-none" />
-        <div className="absolute inset-0 bg-grid-white bg-grid opacity-20 pointer-events-none" />
+      <section id="features" className="py-24 relative overflow-hidden bg-[#f6f8f7]">
+        <div className="absolute -top-32 -left-28 h-80 w-80 rounded-full bg-emerald-200/60 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-40 -right-24 h-96 w-96 rounded-full bg-cyan-100/70 blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.035)_1px,transparent_1px)] bg-[size:52px_52px] pointer-events-none" />
         <div className="max-w-7xl mx-auto px-5 lg:px-8 relative z-10">
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="inline-flex rounded-full border border-brand-400/20 bg-brand-500/10 px-4 py-2 text-brand-300 text-sm font-bold uppercase tracking-wider mb-5"
+              className="inline-flex rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-brand-700 text-sm font-bold uppercase tracking-wider mb-5"
             >
               Powerful Features
             </motion.p>
@@ -460,16 +461,16 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-3xl md:text-5xl font-extrabold tracking-tight mb-5 text-white"
+              className="text-3xl md:text-5xl font-extrabold tracking-tight mb-5 text-slate-900"
             >
-              Everything You Need to <span className="text-brand-400">Scale</span>
+              Everything You Need to <span className="text-brand-600">Scale</span>
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed"
+              className="text-slate-600 max-w-2xl mx-auto text-lg leading-relaxed"
             >
               A complete toolkit to automate, engage, and grow your business across every channel.
             </motion.p>

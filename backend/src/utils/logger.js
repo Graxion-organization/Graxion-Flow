@@ -1,5 +1,6 @@
 const winston = require('winston');
 const path = require('path');
+const mongoose = require('mongoose');
 
 const levels = { error: 0, warn: 1, info: 2, http: 3, debug: 4 };
 const colors = { error: 'red', warn: 'yellow', info: 'green', http: 'magenta', debug: 'white' };
@@ -119,5 +120,46 @@ const logger = winston.createLogger({
   levels,
   transports,
 });
+
+// Intercept logger.error to save to DB asynchronously
+const originalError = logger.error;
+logger.error = function(message, metadata = {}) {
+  originalError.call(logger, message, metadata);
+
+  // Safely write to database without blocking or crashing the application
+  if (mongoose.connection && mongoose.connection.readyState === 1) {
+    try {
+      const SystemErrorLog = require('../models/SystemErrorLog');
+      
+      let parsedMessage = message;
+      let stack = null;
+
+      if (message instanceof Error) {
+        parsedMessage = message.message;
+        stack = message.stack;
+      } else if (typeof message === 'object') {
+        parsedMessage = JSON.stringify(message);
+      }
+
+      if (metadata && metadata instanceof Error) {
+         stack = metadata.stack;
+      } else if (metadata && metadata.stack) {
+         stack = metadata.stack;
+      }
+
+      SystemErrorLog.create({
+        message: parsedMessage,
+        stack: stack,
+        context: metadata,
+        level: 'error'
+      }).catch(err => {
+        // Silently fail to avoid infinite error loops
+        console.error('[DB Logger] Failed to write error log to DB', err);
+      });
+    } catch (err) {
+      console.error('[DB Logger] Exception during error DB write', err);
+    }
+  }
+};
 
 module.exports = logger;
