@@ -103,6 +103,13 @@ class AIService {
           expectedRole = expectedRole === 'user' ? 'model' : 'user';
         }
       }
+
+      // To use chat.sendMessage(), the history MUST end with a 'model' message, or be empty.
+      // Because sendMessage() adds a 'user' message to the end of the history.
+      if (validHistory.length > 0 && validHistory[validHistory.length - 1].role === 'user') {
+        validHistory.pop(); // Remove the trailing user message so history ends with 'model'
+      }
+
       history = validHistory;
 
       const chat = model.startChat({
