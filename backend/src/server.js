@@ -189,7 +189,7 @@ app.use((req, res, next) => {
     
     logger.info(`${req.method} ${req.originalUrl} ${res.statusCode}`, {
       ip,
-      userId: req.user ? req.user._id : 'unauthenticated',
+      userId: req.user ? req.user._id.toString() : 'unauthenticated',
       userAgent: req.get('user-agent')
     });
   });
