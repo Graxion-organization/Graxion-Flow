@@ -305,7 +305,7 @@ const { initSocket } = require('./utils/socket');
 const { startSocialPostScheduler } = require('./services/socialPostScheduler');
 const { startDeletionScheduler } = require('./services/dataDeletionService');
 const { startInstagramWorker } = require('./jobs/instagramWorker');
-
+require('./workers/instagramWebhookWorker');
 // ─── Start Server ─────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {

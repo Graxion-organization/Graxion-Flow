@@ -227,7 +227,9 @@ class AIService {
   // WA-011: Redis Caching & WA-009: Memory Summarization
   static async generate(agent, contextMessages, userMessageText, platform, wantsVoice = false, ragContext = '', memoryContext = '') {
     try {
-      const cacheKey = `ai_cache_v2:${agent._id}:${Buffer.from(userMessageText.toLowerCase().trim()).toString('base64')}`;
+      const contextString = JSON.stringify(contextMessages.slice(-4)); // Use last 4 messages for context hash
+      const cacheHash = Buffer.from((userMessageText + contextString).toLowerCase().trim()).toString('base64').substring(0, 64);
+      const cacheKey = `ai_cache_v2:${agent._id}:${cacheHash}`;
       const cached = await redis.get(cacheKey);
  
       if (cached) {
@@ -330,8 +332,7 @@ class AIService {
       const tokensUsed = Math.ceil(inputTokens + outputTokens);
 
       // Cache the exact match answer for 24 hours
-      const cacheKeyV2 = `ai_cache_v2:${agent._id}:${Buffer.from(userMessageText.toLowerCase().trim()).toString('base64')}`;
-      await redis.setex(cacheKeyV2, 86400, responseText);
+      await redis.setex(cacheKey, 86400, responseText);
 
       return {
         content: responseText,
