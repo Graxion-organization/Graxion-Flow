@@ -20,6 +20,14 @@ const systemErrorLogSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  count: {
+    type: Number,
+    default: 1,
+  },
+  lastOccurredAt: {
+    type: Date,
+    default: Date.now,
+  },
 }, {
   timestamps: true,
 });

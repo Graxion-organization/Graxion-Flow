@@ -147,12 +147,19 @@ logger.error = function(message, metadata = {}) {
          stack = metadata.stack;
       }
 
-      SystemErrorLog.create({
-        message: parsedMessage,
-        stack: stack,
-        context: metadata,
-        level: 'error'
-      }).catch(err => {
+      SystemErrorLog.findOneAndUpdate(
+        { message: parsedMessage, resolved: false },
+        {
+          $inc: { count: 1 },
+          $set: {
+            stack: stack,
+            context: metadata,
+            level: 'error',
+            lastOccurredAt: new Date()
+          }
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      ).catch(err => {
         // Silently fail to avoid infinite error loops
         console.error('[DB Logger] Failed to write error log to DB', err);
       });

@@ -1634,7 +1634,7 @@ exports.getErrorLogs = async (req, res, next) => {
     }
 
     const logs = await SystemErrorLog.find(query)
-      .sort('-createdAt')
+      .sort('-count -lastOccurredAt')
       .skip(skip)
       .limit(limit);
 
