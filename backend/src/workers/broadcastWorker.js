@@ -1,5 +1,5 @@
 const { Queue, Worker } = require('bullmq');
-const { redisConfig } = require('../config/redis');
+const { redis } = require('../config/redis');
 const logger = require('../utils/logger');
 const Broadcast = require('../models/Broadcast');
 const Contact = require('../models/Contact');
@@ -8,7 +8,7 @@ const WhatsAppService = require('../services/whatsappService');
 const BROADCAST_QUEUE_NAME = 'broadcast-jobs';
 
 const broadcastQueue = new Queue(BROADCAST_QUEUE_NAME, {
-  connection: redisConfig,
+  connection: redis,
 });
 
 const enqueueBroadcast = async (broadcastId, templateId, contactGroupId, whatsappAccountId, delayMs = 0) => {
@@ -86,7 +86,7 @@ const broadcastWorker = new Worker(BROADCAST_QUEUE_NAME, async (job) => {
     await Broadcast.findByIdAndUpdate(broadcastId, { status: 'FAILED' });
   }
 }, {
-  connection: redisConfig,
+  connection: redis,
   concurrency: 2, // Max 2 concurrent broadcasts
   stalledInterval: 300000, // Reduced for Upstash limits
   metrics: { maxDataPoints: 0 }

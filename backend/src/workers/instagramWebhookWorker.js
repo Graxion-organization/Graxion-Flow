@@ -616,7 +616,7 @@ const instagramWebhookWorker = new Worker(IG_WEBHOOK_QUEUE_NAME, async (job) => 
     throw err;
   }
 }, {
-  connection: redisConfig,
+  connection: redis,
   concurrency: 10,
 });
 

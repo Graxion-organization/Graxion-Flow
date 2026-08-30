@@ -1,12 +1,12 @@
 const { Queue } = require('bullmq');
-const { redisConfig } = require('../config/redis');
+const { redis } = require('../config/redis');
 const logger = require('../utils/logger');
 const InstagramWebhookEvent = require('../models/InstagramWebhookEvent');
 
 const IG_WEBHOOK_QUEUE_NAME = 'instagram-webhooks';
 
 const instagramWebhookQueue = new Queue(IG_WEBHOOK_QUEUE_NAME, {
-  connection: redisConfig,
+  connection: redis,
   defaultJobOptions: {
     attempts: 5,
     backoff: {

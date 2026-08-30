@@ -6,7 +6,7 @@ const WebhookLog = require('../models/WebhookLog');
 const WEBHOOK_QUEUE_NAME = 'webhook-events';
 
 const webhookQueue = new Queue(WEBHOOK_QUEUE_NAME, {
-  connection: redisConfig,
+  connection: redis,
   defaultJobOptions: {
     attempts: 3,
     backoff: {
@@ -84,7 +84,7 @@ const webhookWorker = new Worker(WEBHOOK_QUEUE_NAME, async (job) => {
     throw err; // Trigger BullMQ retry
   }
 }, { 
-  connection: redisConfig,
+  connection: redis,
   concurrency: 5, // Process 5 webhooks concurrently
   stalledInterval: 300000, // Reduced for Upstash limits
   metrics: { maxDataPoints: 0 }
