@@ -6,6 +6,13 @@ import { fetchCsrfToken } from "./services/api";
 import { HelmetProvider } from "react-helmet-async";
 import CookieConsentModal from "./components/ui/CookieConsentModal";
 import SEO from "./components/seo/SEO";
+import useCentralTracker from "./hooks/useCentralTracker";
+
+// Traffic Tracker Component
+const TrafficTracker = () => {
+  useCentralTracker('flow');
+  return null;
+};
 
 // Static layouts and wrappers (Kept static to ensure structural stability and avoid layout flashes)
 import DashboardLayout from "./components/dashboard/DashboardLayout";
@@ -159,6 +166,7 @@ export default function App() {
         }}
       />
       <CookieConsentModal />
+      <TrafficTracker />
 
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
