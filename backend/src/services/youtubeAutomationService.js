@@ -19,13 +19,19 @@ class YoutubeAutomationService {
         try {
           await this.processUserAutomation(automation);
         } catch (err) {
-          logger.error(`[YouTube Automation] Error processing user ${automation.user?.email}:`, err.message);
+          const userEmail = automation.user?.email || 'Unknown User';
+          logger.error(`[YouTube Automation] Error processing user ${userEmail}:`, err.message);
           
           // Handle specific OAuth errors by disconnecting if necessary
-          if (err.response?.data?.error === 'invalid_grant' || err.message === 'TOKEN_EXPIRED') {
-             logger.warn(`[YouTube Automation] Critical OAuth error for ${automation.user?.email}. Disconnecting YouTube.`);
-             const userId = automation.user?._id || automation.user;
-             await User.findByIdAndUpdate(userId, { 'youtube.connected': false });
+          const oauthError = err.response?.data?.error;
+          if (oauthError === 'invalid_grant' || oauthError === 'unauthorized_client' || err.message === 'TOKEN_EXPIRED') {
+             logger.warn(`[YouTube Automation] Critical OAuth error for organization ${automation.organization}. Disconnecting YouTube.`);
+             await YoutubeAccount.findOneAndUpdate(
+               { organization: automation.organization, isActive: true },
+               { isActive: false }
+             );
+             automation.enabled = false;
+             await automation.save();
           }
         }
       }
