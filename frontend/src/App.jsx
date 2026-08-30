@@ -6,6 +6,13 @@ import { fetchCsrfToken } from "./services/api";
 import { HelmetProvider } from "react-helmet-async";
 import CookieConsentModal from "./components/ui/CookieConsentModal";
 import SEO from "./components/seo/SEO";
+import useTrafficTracker from "./hooks/useTrafficTracker";
+
+// Traffic Tracker Component
+const TrafficTracker = () => {
+  useTrafficTracker();
+  return null;
+};
 
 // Static layouts and wrappers (Kept static to ensure structural stability and avoid layout flashes)
 import DashboardLayout from "./components/dashboard/DashboardLayout";
@@ -84,6 +91,9 @@ const YouTubeAnalyticsPage = lazy(() => import("./pages/YouTubeAnalyticsPage"));
 const FacebookAnalyticsPage = lazy(() => import("./pages/FacebookAnalyticsPage"));
 const WhatsAppAnalyticsPage = lazy(() => import("./pages/WhatsAppAnalyticsPage"));
 
+// Admin Analytics
+const AdminTrafficAnalytics = lazy(() => import("./pages/AdminTrafficAnalytics"));
+
 // Centered loading fallback design
 const LoadingFallback = () => (
   <div className="h-screen w-full bg-[#030712] flex items-center justify-center">
@@ -160,9 +170,11 @@ export default function App() {
       />
       <CookieConsentModal />
 
-      <Suspense fallback={<LoadingFallback />}>
-        <Routes>
-          {/* 🌍 HOME (Landing Page) */}
+
+        <TrafficTracker />
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            {/* 🌍 HOME (Landing Page) */}
           <Route path="/" element={<ErrorBoundary><Home /></ErrorBoundary>} />
 
 
@@ -235,6 +247,210 @@ export default function App() {
           <Route path="/ai-policy" element={<AIPolicy />} />
           <Route path="/acceptable-use" element={<AcceptableUse />} />
 
+          {/* 👑 Admin Routes */}
+          <Route
+            path="/admin/traffic"
+            element={
+              <ProtectedRoute requiredPermission="admin">
+                <AdminTrafficAnalytics />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 🔐 Protected Routes (SHIFTED TO /app) */}
+          <Route
+            path="/app"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="agents" element={<AgentsPage />} />
+            <Route path="conversations" element={<ConversationsPage />} />
+            <Route path="contacts" element={<ContactsPage />} />
+            <Route path="templates" element={<TemplatesPage />} />
+            <Route path="broadcast" element={<BroadcastPage />} />
+            <Route path="campaigns" element={<CampaignsPage />} />
+            <Route path="flow-builder" element={<FlowBuilderPage />} />
+            <Route path="keyword-triggers" element={<KeywordTriggersPage />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="integrations" element={<IntegrationsPage />} />
+            <Route path="automation" element={<AutomationHubPage />}>
+              <Route index element={<Navigate to="instagram" replace />} />
+              <Route path="instagram" element={<InstagramToolPage />} />
+              <Route path="youtube" element={<YouTubeToolPage />} />
+              <Route path="facebook" element={<FacebookToolPage />} />
+              <Route path="linkedin" element={<LinkedInToolPage />} />
+            </Route>
+            {/* <Route path="ai-presenter" element={<AIPresenterPage />} /> */}
+            <Route path="leads" element={<LeadsDashboardPage />} />
+            <Route path="deals" element={<DealsPipeline />} />
+            <Route path="quality" element={<QualityRatingPage />} />
+            <Route path="social-hub" element={<SocialPublishingPage />} />
+
+            {/* Platform Analytics Deep-Dives */}
+            <Route path="instagram" element={<InstagramAnalyticsPage />} />
+            <Route path="youtube" element={<YouTubeAnalyticsPage />} />
+            <Route path="facebook" element={<FacebookAnalyticsPage />} />
+            <Route path="whatsapp" element={<WhatsAppAnalyticsPage />} />
+            
+            <Route path="billing" element={<BillingPage />} />
+            <Route path="partner-dashboard" element={<SalesPartnerDashboard />} />
+            <Route path="team" element={<TeamManagementPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+
+            {/* 🔥 Nested 404 */}
+            <Route path="*" element={<Navigate to="/not-found" replace />} />
+          </Route>
+
+          <Route path="/portal" element={<CustomerPortal />} />
+
+
+// 🌐 Public Route
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated } = useAuthStore();
+  return !isAuthenticated ? children : <Navigate to="/app/dashboard" replace />;
+};
+
+export default function App() {
+  const { isAuthenticated, fetchUser } = useAuthStore();
+  const { fetchBranding } = useBrandingStore();
+  const { evaluateFlags } = useFeatureFlagStore();
+
+  useEffect(() => {
+    fetchCsrfToken();
+    fetchBranding();
+
+    if (!sessionStorage.getItem('render_sleep_notice_shown')) {
+      toast("Notice for Reviewers: The first request may take 1 to 1.5 minutes to load as our backend wakes up from sleep.", {
+        icon: '⏳',
+        duration: 15000,
+        style: {
+          background: '#374151',
+          color: '#fff',
+          maxWidth: '500px'
+        }
+      });
+      sessionStorage.setItem('render_sleep_notice_shown', 'true');
+    }
+  }, [fetchBranding]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUser();
+      evaluateFlags();
+    }
+  }, [isAuthenticated, fetchUser, evaluateFlags]);
+
+
+  return (
+    <HelmetProvider>
+      <SEO /> {/* Default Site-wide SEO */}
+      <BrowserRouter>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: "#1f2937",
+            color: "#f9fafb",
+            borderRadius: "10px",
+          },
+          success: { iconTheme: { primary: "#25D366", secondary: "#fff" } },
+        }}
+      />
+      <CookieConsentModal />
+
+
+        <TrafficTracker />
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            {/* 🌍 HOME (Landing Page) */}
+          <Route path="/" element={<ErrorBoundary><Home /></ErrorBoundary>} />
+
+
+
+          {/* 🔓 Public Routes */}
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <RegisterPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <PublicRoute>
+                <ForgotPasswordPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              <PublicRoute>
+                <ResetPasswordPage />
+              </PublicRoute>
+            }
+          />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+
+          {/* 🚀 Auth Callbacks */}
+          <Route path="/sso-callback" element={<SsoCallbackPage />} />
+          <Route path="/callback" element={<CallbackPage />} />
+          <Route path="/youtube-callback" element={<YoutubeCallbackPage />} />
+          <Route path="/linkedin-callback" element={<LinkedinCallbackPage />} />
+          <Route path="/onboarding" element={
+            <ProtectedRoute>
+              <OnboardingPage />
+            </ProtectedRoute>
+          } />
+
+          {/* ❌ 404 */}
+          <Route path="/not-found" element={<NotFound />} />
+          
+          {/* 🚧 Coming Soon */}
+          <Route path="/coming-soon" element={<ComingSoon />} />
+
+          {/* 📄 Static Pages */}
+          <Route path="/privacy-policy" element={<Privacy />} />
+          <Route path="/terms-of-service" element={<Terms />} />
+          <Route path="/security" element={<Security />} />
+          <Route path="/about-us" element={<About />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/integrations" element={<Integrations />} />
+          <Route path="/changelog" element={<Changelog />} />
+          <Route path="/roadmap" element={<Roadmap />} />
+          <Route path="/data-deletion-policy" element={<DataDeletion />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/ai-policy" element={<AIPolicy />} />
+          <Route path="/acceptable-use" element={<AcceptableUse />} />
+
+          {/* 👑 Admin Routes */}
+          <Route
+            path="/admin/traffic"
+            element={
+              <ProtectedRoute requiredPermission="admin">
+                <AdminTrafficAnalytics />
+              </ProtectedRoute>
+            }
+          />
+
           {/* 🔐 Protected Routes (SHIFTED TO /app) */}
           <Route
             path="/app"
@@ -292,7 +508,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/not-found" replace />} />
         </Routes>
       </Suspense>
-    </BrowserRouter>
+      </BrowserRouter>
     </HelmetProvider>
   );
 }
