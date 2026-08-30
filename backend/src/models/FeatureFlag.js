@@ -56,6 +56,5 @@ const featureFlagSchema = new mongoose.Schema({
 });
 
 // Indexes for fast lookups
-featureFlagSchema.index({ key: 1 });
 
 module.exports = mongoose.model('FeatureFlag', featureFlagSchema);

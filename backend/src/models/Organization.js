@@ -79,6 +79,5 @@ organizationSchema.pre('save', async function(next) {
 });
 
 organizationSchema.index({ owner: 1 });
-organizationSchema.index({ slug: 1 });
 
 module.exports = mongoose.model('Organization', organizationSchema);

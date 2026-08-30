@@ -20,18 +20,7 @@ const initSocket = (server) => {
 
   // Setup Redis Adapter for PM2 Cluster Support
   try {
-    const redisHost = process.env.REDIS_HOST || '127.0.0.1';
-    const redisPort = process.env.REDIS_PORT || 6379;
-    const redisPassword = process.env.REDIS_PASSWORD;
-    const redisTls = process.env.REDIS_TLS === 'true' ? {} : undefined;
-    
-    // Fallback to REDIS_URL if available
-    let redisConfig = process.env.REDIS_URL || {
-      host: redisHost,
-      port: redisPort,
-      password: redisPassword,
-      tls: redisTls
-    };
+    const { redisConfig } = require('../config/redis');
 
     const pubClient = new Redis(redisConfig);
     const subClient = pubClient.duplicate();
