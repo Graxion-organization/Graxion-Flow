@@ -108,7 +108,7 @@ export function AdminAuthPage() {
                   {...register('email')}
                   type="email"
                   className={inputClass}
-                  placeholder="admin@graxion.com"
+                  placeholder="admin@graxion.in"
                 />
               </div>
               {errors.email && <p className="text-red-400 text-xs mt-1.5">{errors.email.message}</p>}

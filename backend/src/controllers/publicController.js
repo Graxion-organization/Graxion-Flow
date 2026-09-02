@@ -18,10 +18,10 @@ exports.submitContactForm = async (req, res, next) => {
     // Notify admin
     try {
       const adminEmailSetting = await SystemSetting.findOne({ key: 'branding_contact_email' });
-      const adminEmail = adminEmailSetting ? adminEmailSetting.value : process.env.ADMIN_EMAIL || 'support@graxion.com';
+      const adminEmail = adminEmailSetting ? adminEmailSetting.value : process.env.ADMIN_EMAIL || 'support@graxion.in';
       
       const siteNameSetting = await SystemSetting.findOne({ key: 'branding_site_name' });
-      const siteName = siteNameSetting ? siteNameSetting.value : 'WhatsAgent';
+      const siteName = siteNameSetting ? siteNameSetting.value : 'Graxion Flow';
 
       // Use the existing email service if possible, or just a simple html payload
       const htmlBody = `

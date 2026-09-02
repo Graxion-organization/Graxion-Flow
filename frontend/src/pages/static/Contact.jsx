@@ -37,7 +37,7 @@ export default function Contact() {
   const contactInfo = [
     {
       title: "Email Us",
-      value: branding?.branding_contact_email || "sales@graxion.com",
+      value: branding?.branding_contact_email || "support@graxion.in",
       desc: "Our sales team responds within 24 hours.",
       icon: Mail,
       color: "text-brand-500",

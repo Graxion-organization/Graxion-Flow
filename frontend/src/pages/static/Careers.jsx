@@ -150,16 +150,19 @@ export default function Careers() {
         <p style={{ color: "#7a9b8a", fontSize: "17px", marginBottom: "30px", maxWidth: "600px", margin: "0 auto 30px" }}>
           We're always looking for great people. Send us your resume and tell us how you can help Graxion Flow grow.
         </p>
-        <a href="mailto:careers@graxion.com" style={{ 
-          color: "#25D366", 
+        <a href="mailto:careers@graxion.in" style={{ 
+          display: "inline-flex", 
+          alignItems: "center", 
+          gap: "8px", 
+          background: "linear-gradient(135deg, #10B981, #059669)", 
+          color: "#fff", 
+          padding: "16px 32px", 
+          borderRadius: "12px", 
           fontWeight: 700, 
-          fontSize: "18px", 
           textDecoration: "none",
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "10px"
+          boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.4)"
         }}>
-          careers@graxion.com <ArrowRight size={20} />
+          careers@graxion.in <ArrowRight size={20} />
         </a>
       </div>
     </StaticPageLayout>

@@ -83,7 +83,7 @@ export const Careers = () => <GenericStaticPage title="Careers" content={<p>We a
 export const Press = () => <GenericStaticPage title="Press" content={<p>For press inquiries, media kits, and company announcements, please contact our PR team. Information will be updated here shortly.</p>} />;
 export const Contact = () => {
   const { branding } = useBrandingStore();
-  return <GenericStaticPage title="Contact Us" content={<p>Need help or have questions? Reach out to our support team at {branding?.branding_contact_email || 'support@graxion.com'}. We typically respond within 24 hours.</p>} />;
+  return <GenericStaticPage title="Contact Us" content={<p>Need help or have questions? Reach out to our support team at {branding?.branding_contact_email || 'support@graxion.in'}. We typically respond within 24 hours.</p>} />;
 };
 export const Integrations = () => <GenericStaticPage title="Integrations" content={<p>Connect Graxion with your favorite tools. We currently support WhatsApp, Instagram, Facebook, and Telegram. More CRM and support tool integrations are on the roadmap.</p>} />;
 export const Changelog = () => <GenericStaticPage title="Changelog" content={<p>Keep track of all the new features, improvements, and bug fixes we push to Graxion.</p>} />;

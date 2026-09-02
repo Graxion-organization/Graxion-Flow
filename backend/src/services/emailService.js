@@ -10,16 +10,16 @@ const compileDynamicTemplate = async (templateKey, placeholders, fallbackSubject
   try {
     // 1. Fetch site name dynamically for branding
     const siteNameSetting = await SystemSetting.findOne({ key: 'branding_site_name' });
-    const siteName = siteNameSetting ? siteNameSetting.value : 'WhatsAgent';
+    const siteName = siteNameSetting ? siteNameSetting.value : 'Graxion Flow';
     
     const contactEmailSetting = await SystemSetting.findOne({ key: 'branding_contact_email' });
-    const contactEmail = contactEmailSetting ? contactEmailSetting.value : 'support@whatsappsaas.com';
+    const contactEmail = contactEmailSetting ? contactEmailSetting.value : 'support@graxion.in';
 
     const contactPhoneSetting = await SystemSetting.findOne({ key: 'branding_contact_phone' });
     const contactPhone = contactPhoneSetting ? contactPhoneSetting.value : '+1234567890';
 
     const footerTextSetting = await SystemSetting.findOne({ key: 'branding_footer_text' });
-    const footerText = footerTextSetting ? footerTextSetting.value : '© 2026 WhatsAgent. All rights reserved.';
+    const footerText = footerTextSetting ? footerTextSetting.value : `© ${new Date().getFullYear()} Graxion Flow. All rights reserved.`;
 
     const logoSetting = await SystemSetting.findOne({ key: 'branding_logo_url' });
     const logoUrl = logoSetting ? logoSetting.value : '';
@@ -156,7 +156,7 @@ const sendEmail = async ({ to, subject, html }) => {
     }
 
     const { data, error } = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+      from: process.env.EMAIL_FROM || 'Graxion Flow <support@graxion.in>',
       to: [to],
       subject: finalSubject,
       html: finalHtml,
@@ -176,7 +176,7 @@ const sendEmail = async ({ to, subject, html }) => {
 
 const emailTemplates = {
   welcome: (name) => ({
-    subject: 'Welcome to WhatsAgent!',
+    subject: 'Welcome to Graxion Flow!',
     html: `<div style="font-family:sans-serif;max-width:600px;margin:auto">
       <h2>Welcome, ${name}!</h2>
       <p>Your account has been created. Start by connecting your WhatsApp number.</p>

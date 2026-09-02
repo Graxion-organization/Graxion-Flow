@@ -428,10 +428,10 @@ exports.getPublicSettings = async (req, res, next) => {
     });
     
     // Provide safe defaults
-    if (!config.branding_site_name) config.branding_site_name = 'WhatsAgent';
-    if (!config.branding_contact_email) config.branding_contact_email = 'support@whatsappsaas.com';
+    if (!config.branding_site_name) config.branding_site_name = 'Graxion Flow';
+    if (!config.branding_contact_email) config.branding_contact_email = 'support@graxion.in';
     if (!config.branding_contact_phone) config.branding_contact_phone = '+1234567890';
-    if (!config.branding_footer_text) config.branding_footer_text = '© 2026 WhatsAgent. All rights reserved.';
+    if (!config.branding_footer_text) config.branding_footer_text = `© ${new Date().getFullYear()} Graxion Flow. All rights reserved.`;
     if (!config.branding_hero_title) config.branding_hero_title = 'Automate Your Business Communication';
     if (!config.branding_hero_subtitle) config.branding_hero_subtitle = 'Deploy AI-powered agents across WhatsApp, Instagram, and Telegram. Automate customer support, close deals, and scale your operations effortlessly.';
     if (!config.branding_tagline) config.branding_tagline = 'The Next-Gen Automation Platform';
@@ -470,12 +470,12 @@ exports.getSystemSettings = async (req, res, next) => {
       { key: 'openai_api_key', value: '', description: 'System-wide OpenAI API Key' },
       { key: 'anthropic_api_key', value: '', description: 'System-wide Anthropic API Key' },
       { key: 'default_ai_model', value: 'gpt-3.5-turbo', description: 'Fallback model for agents' },
-      { key: 'branding_site_name', value: 'WhatsAgent', description: 'Dynamic website/SaaS name' },
-      { key: 'branding_contact_email', value: 'support@whatsappsaas.com', description: 'Support email address' },
+      { key: 'branding_site_name', value: 'Graxion Flow', description: 'Dynamic website/SaaS name' },
+      { key: 'branding_contact_email', value: 'support@graxion.in', description: 'Support email address' },
       { key: 'branding_contact_phone', value: '+1234567890', description: 'Support phone number' },
       { key: 'branding_logo_url', value: '', description: 'Custom logo image URL' },
       { key: 'branding_favicon_url', value: '', description: 'Custom favicon image URL' },
-      { key: 'branding_footer_text', value: ' 2026 WhatsAgent. All rights reserved.', description: 'Footer copyright label' },
+      { key: 'branding_footer_text', value: '© 2026 Graxion Flow. All rights reserved.', description: 'Footer copyright label' },
       { key: 'email_template_welcome_subject', value: 'Welcome to {{siteName}}, {{name}}!', description: 'Welcome email subject' },
       { key: 'email_template_welcome_body', value: 'Hi {{name}},\n\nWelcome to {{siteName}}! We are thrilled to help you automate your client messaging and scaling your operations.\n\nBest regards,\nThe {{siteName}} Team', description: 'Welcome email text body' },
       { key: 'email_template_forgot_password_subject', value: 'Reset your {{siteName}} Password', description: 'Forgot password email subject' },

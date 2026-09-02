@@ -81,7 +81,7 @@ export default function Privacy() {
 
         <div style={{ marginTop: "60px", textAlign: "center" }}>
           <p style={{ color: "#7a9b8a" }}>
-            If you have any questions about this Privacy Policy, please contact us at <a href="mailto:privacy@graxion.com" style={{ color: "#25D366", textDecoration: "none", fontWeight: 600 }}>privacy@graxion.com</a>.
+            If you have any questions about this Privacy Policy, please contact us at <a href="mailto:privacy@graxion.in" style={{ color: "#25D366", textDecoration: "none", fontWeight: 600 }}>privacy@graxion.in</a>.
           </p>
         </div>
       </div>

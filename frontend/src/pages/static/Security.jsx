@@ -30,7 +30,7 @@ export default function Security() {
         <p style={{ color: "#7a9b8a", fontSize: "17px", marginBottom: "30px", maxWidth: "600px", margin: "0 auto 30px" }}>
           We welcome reports from security researchers. If you've found a vulnerability, please let us know.
         </p>
-        <a href="mailto:security@graxion.com" style={{ color: "#25D366", fontWeight: 700, fontSize: "18px", textDecoration: "none" }}>security@graxion.com</a>
+        <a href="mailto:security@graxion.in" style={{ color: "#25D366", fontWeight: 700, fontSize: "18px", textDecoration: "none" }}>security@graxion.in</a>
       </div>
     </StaticPageLayout>
   );
