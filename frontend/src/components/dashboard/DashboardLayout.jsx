@@ -839,18 +839,18 @@ export default function DashboardLayout() {
         </main>
 
         {/* ─── FLOATING DYNAMIC ISLAND PILL (MOBILE & TABLET) ─── */}
-        <div className="lg:hidden fixed bottom-5 inset-x-0 z-40 flex justify-center px-4 pointer-events-none">
+        <div className="lg:hidden fixed bottom-4 sm:bottom-7 inset-x-0 z-40 flex justify-center px-3 sm:px-6 pointer-events-none">
           <nav
-            className={`pointer-events-auto flex items-center justify-between gap-1 sm:gap-1.5 p-1.5 rounded-full backdrop-blur-2xl transition-all duration-300 ${
+            className={`pointer-events-auto flex items-center justify-between gap-1 sm:gap-2 p-1.5 sm:p-2.5 rounded-full backdrop-blur-2xl transition-all duration-300 max-w-sm sm:max-w-xl md:max-w-2xl w-full sm:w-auto ${
               isDark
-                ? "bg-[#0f172a]/90 border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.6),0_0_25px_rgba(255,106,0,0.15)] ring-1 ring-white/5"
-                : "bg-white/90 border border-slate-200/90 shadow-[0_20px_50px_rgba(15,23,42,0.12),0_0_25px_rgba(255,106,0,0.1)] ring-1 ring-black/5"
+                ? "bg-[#0f172a]/95 border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.6),0_0_25px_rgba(255,106,0,0.15)] ring-1 ring-white/5"
+                : "bg-white/95 border border-slate-200/90 shadow-[0_20px_50px_rgba(15,23,42,0.12),0_0_25px_rgba(255,106,0,0.1)] ring-1 ring-black/5"
             }`}
           >
             <NavLink
               to="/app/dashboard"
               className={({ isActive }) =>
-                `flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-200 ${
+                `flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full transition-all duration-200 ${
                   isActive
                     ? "bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white shadow-md shadow-[#FF6A00]/30 font-semibold"
                     : (isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100")
@@ -860,8 +860,10 @@ export default function DashboardLayout() {
             >
               {({ isActive }) => (
                 <>
-                  <LayoutDashboard size={18} strokeWidth={isActive ? 2.5 : 1.8} />
-                  {isActive && <span className="text-xs font-semibold tracking-tight">Home</span>}
+                  <LayoutDashboard size={19} className="sm:w-5 sm:h-5" strokeWidth={isActive ? 2.5 : 1.8} />
+                  <span className={`text-xs sm:text-sm font-semibold tracking-tight ${isActive ? "inline" : "hidden sm:inline"}`}>
+                    Home
+                  </span>
                 </>
               )}
             </NavLink>
@@ -869,7 +871,7 @@ export default function DashboardLayout() {
             <NavLink
               to="/app/conversations"
               className={({ isActive }) =>
-                `flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-200 relative ${
+                `flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full transition-all duration-200 relative ${
                   isActive
                     ? "bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white shadow-md shadow-[#FF6A00]/30 font-semibold"
                     : (isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100")
@@ -880,14 +882,16 @@ export default function DashboardLayout() {
               {({ isActive }) => (
                 <>
                   <div className="relative">
-                    <MessageSquare size={18} strokeWidth={isActive ? 2.5 : 1.8} />
+                    <MessageSquare size={19} className="sm:w-5 sm:h-5" strokeWidth={isActive ? 2.5 : 1.8} />
                     {unreadCount > 0 && !isActive && (
                       <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#FF6A00] ring-2 ring-[#0b101e]" />
                     )}
                   </div>
-                  {isActive && <span className="text-xs font-semibold tracking-tight">Inbox</span>}
-                  {unreadCount > 0 && isActive && (
-                    <span className="ml-1 text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full font-bold leading-none">
+                  <span className={`text-xs sm:text-sm font-semibold tracking-tight ${isActive ? "inline" : "hidden sm:inline"}`}>
+                    Inbox
+                  </span>
+                  {unreadCount > 0 && (
+                    <span className="text-[10px] sm:text-xs bg-white/25 px-1.5 py-0.5 rounded-full font-bold leading-none">
                       {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                   )}
@@ -896,46 +900,50 @@ export default function DashboardLayout() {
             </NavLink>
 
             <NavLink
-              to="/app/broadcast"
+              to="/app/social-hub"
               className={({ isActive }) =>
-                `flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-200 ${
+                `flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full transition-all duration-200 ${
                   isActive
                     ? "bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white shadow-md shadow-[#FF6A00]/30 font-semibold"
                     : (isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100")
                 }`
               }
-              title="Broadcast"
+              title="Social Hub"
             >
               {({ isActive }) => (
                 <>
-                  <PlayCircle size={18} strokeWidth={isActive ? 2.5 : 1.8} />
-                  {isActive && <span className="text-xs font-semibold tracking-tight">Broadcast</span>}
+                  <Share2 size={19} className="sm:w-5 sm:h-5" strokeWidth={isActive ? 2.5 : 1.8} />
+                  <span className={`text-xs sm:text-sm font-semibold tracking-tight ${isActive ? "inline" : "hidden sm:inline"}`}>
+                    Social Hub
+                  </span>
                 </>
               )}
             </NavLink>
 
             <NavLink
-              to="/app/contacts"
+              to="/app/integrations"
               className={({ isActive }) =>
-                `flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-200 ${
+                `flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full transition-all duration-200 ${
                   isActive
                     ? "bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white shadow-md shadow-[#FF6A00]/30 font-semibold"
                     : (isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100")
                 }`
               }
-              title="Customers"
+              title="Integrations"
             >
               {({ isActive }) => (
                 <>
-                  <Users size={18} strokeWidth={isActive ? 2.5 : 1.8} />
-                  {isActive && <span className="text-xs font-semibold tracking-tight">Customers</span>}
+                  <Smartphone size={19} className="sm:w-5 sm:h-5" strokeWidth={isActive ? 2.5 : 1.8} />
+                  <span className={`text-xs sm:text-sm font-semibold tracking-tight ${isActive ? "inline" : "hidden sm:inline"}`}>
+                    Integrations
+                  </span>
                 </>
               )}
             </NavLink>
 
             <button
               onClick={() => setSidebarOpen(true)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-200 ${
+              className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full transition-all duration-200 ${
                 sidebarOpen
                   ? "bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white shadow-md shadow-[#FF6A00]/30 font-semibold"
                   : (isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100")
@@ -943,9 +951,11 @@ export default function DashboardLayout() {
               title="Menu"
             >
               <div className="relative">
-                <Menu size={18} strokeWidth={sidebarOpen ? 2.5 : 1.8} />
+                <Menu size={19} className="sm:w-5 sm:h-5" strokeWidth={sidebarOpen ? 2.5 : 1.8} />
               </div>
-              {sidebarOpen && <span className="text-xs font-semibold tracking-tight">Menu</span>}
+              <span className={`text-xs sm:text-sm font-semibold tracking-tight ${sidebarOpen ? "inline" : "hidden sm:inline"}`}>
+                Menu
+              </span>
             </button>
           </nav>
         </div>

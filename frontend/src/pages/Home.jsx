@@ -794,50 +794,50 @@ export default function Home() {
       </footer>
 
       {/* ─── FLOATING DYNAMIC ISLAND PILL (MOBILE & TABLET) ─── */}
-      <div className="md:hidden fixed bottom-5 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
-        <nav className="pointer-events-auto flex items-center justify-between gap-1 p-1.5 rounded-full bg-slate-950/85 backdrop-blur-2xl border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.45),0_0_20px_rgba(34,197,94,0.15)] ring-1 ring-black/5">
+      <div className="md:hidden fixed bottom-4 sm:bottom-7 inset-x-0 z-50 flex justify-center px-3 sm:px-6 pointer-events-none">
+        <nav className="pointer-events-auto flex items-center justify-between gap-1 sm:gap-2 p-1.5 sm:p-2 rounded-full bg-slate-950/85 backdrop-blur-2xl border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.45),0_0_20px_rgba(34,197,94,0.15)] ring-1 ring-black/5 max-w-sm sm:max-w-md w-full sm:w-auto">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold text-white hover:bg-white/10 active:scale-95 transition-all"
+            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-white hover:bg-white/10 active:scale-95 transition-all"
             title="Home"
           >
-            <HomeIcon className="w-4 h-4 text-brand-400" />
-            <span className="text-[11px]">Home</span>
+            <HomeIcon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-400" />
+            <span className="text-[11px] sm:text-xs">Home</span>
           </button>
 
           <a
             href="#features"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
+            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
             title="Features"
           >
-            <Zap className="w-4 h-4 text-emerald-400" />
-            <span className="text-[11px]">Features</span>
+            <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
+            <span className="text-[11px] sm:text-xs">Features</span>
           </a>
 
           <a
             href="#platforms"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
+            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
             title="Channels"
           >
-            <Globe className="w-4 h-4 text-cyan-400" />
-            <span className="text-[11px]">Channels</span>
+            <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+            <span className="text-[11px] sm:text-xs">Channels</span>
           </a>
 
           <button
             onClick={() => goAuth('/login')}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
+            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
             title="Sign In"
           >
-            <Users className="w-4 h-4 text-slate-300" />
-            <span className="text-[11px]">Sign In</span>
+            <Users className="w-4 h-4 sm:w-5 sm:h-5 text-slate-300" />
+            <span className="text-[11px] sm:text-xs">Sign In</span>
           </button>
 
           <button
             onClick={() => goAuth('/register')}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-brand-500 to-emerald-500 hover:from-brand-400 hover:to-emerald-400 shadow-md shadow-brand-500/30 active:scale-95 transition-all"
+            className="flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4.5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-brand-500 to-emerald-500 hover:from-brand-400 hover:to-emerald-400 shadow-md shadow-brand-500/30 active:scale-95 transition-all"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span className="text-[11px]">Start</span>
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="text-[11px] sm:text-xs">Start</span>
           </button>
         </nav>
       </div>
