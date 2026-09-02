@@ -682,7 +682,7 @@ export default function DashboardLayout() {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className={`hidden lg:block relative z-30 px-4 lg:px-6 py-3 border-b backdrop-blur-2xl transition-colors ${isDark ? "bg-[#0b101e]/80 border-white/5" : "bg-white/80 border-slate-200/80"}`}>
+        <header className={`hidden sm:block relative z-30 px-4 lg:px-6 py-3 border-b backdrop-blur-2xl transition-colors ${isDark ? "bg-[#0b101e]/80 border-white/5" : "bg-white/80 border-slate-200/80"}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button onClick={() => setSidebarOpen(true)} className={`lg:hidden p-2 rounded-xl transition-colors ${isDark ? "hover:bg-white/10" : "hover:bg-slate-100"}`}>
@@ -838,34 +838,30 @@ export default function DashboardLayout() {
           </div>
         </main>
 
-        {/* ─── MOBILE BOTTOM NAVIGATION BAR ─── */}
-        <nav
-          className={`lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t backdrop-blur-xl transition-all duration-300 pb-[env(safe-area-inset-bottom,0px)] ${
-            isDark
-              ? "bg-[#0b101e]/95 border-white/10 shadow-[0_-10px_30px_rgba(0,0,0,0.6)]"
-              : "bg-white/95 border-slate-200/80 shadow-[0_-10px_30px_rgba(15,23,42,0.06)]"
-          }`}
-        >
-          <div className="grid grid-cols-5 h-16 items-center px-2 max-w-md mx-auto">
+        {/* ─── FLOATING DYNAMIC ISLAND PILL (MOBILE & TABLET) ─── */}
+        <div className="lg:hidden fixed bottom-5 inset-x-0 z-40 flex justify-center px-4 pointer-events-none">
+          <nav
+            className={`pointer-events-auto flex items-center justify-between gap-1 sm:gap-1.5 p-1.5 rounded-full backdrop-blur-2xl transition-all duration-300 ${
+              isDark
+                ? "bg-[#0f172a]/90 border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.6),0_0_25px_rgba(255,106,0,0.15)] ring-1 ring-white/5"
+                : "bg-white/90 border border-slate-200/90 shadow-[0_20px_50px_rgba(15,23,42,0.12),0_0_25px_rgba(255,106,0,0.1)] ring-1 ring-black/5"
+            }`}
+          >
             <NavLink
               to="/app/dashboard"
               className={({ isActive }) =>
-                `flex flex-col items-center justify-center py-1 rounded-2xl transition-all relative ${
+                `flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-200 ${
                   isActive
-                    ? "text-[#FF6A00] font-semibold"
-                    : (isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-900")
+                    ? "bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white shadow-md shadow-[#FF6A00]/30 font-semibold"
+                    : (isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100")
                 }`
               }
+              title="Home"
             >
               {({ isActive }) => (
                 <>
-                  <div className={`p-1 transition-transform ${isActive ? "scale-110" : ""}`}>
-                    <LayoutDashboard size={20} strokeWidth={isActive ? 2.5 : 1.8} />
-                  </div>
-                  <span className="text-[10px] tracking-tight font-medium mt-0.5">Home</span>
-                  {isActive && (
-                    <span className="w-1 h-1 rounded-full bg-[#FF6A00] mt-0.5" />
-                  )}
+                  <LayoutDashboard size={18} strokeWidth={isActive ? 2.5 : 1.8} />
+                  {isActive && <span className="text-xs font-semibold tracking-tight">Home</span>}
                 </>
               )}
             </NavLink>
@@ -873,26 +869,27 @@ export default function DashboardLayout() {
             <NavLink
               to="/app/conversations"
               className={({ isActive }) =>
-                `flex flex-col items-center justify-center py-1 rounded-2xl transition-all relative ${
+                `flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-200 relative ${
                   isActive
-                    ? "text-[#FF6A00] font-semibold"
-                    : (isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-900")
+                    ? "bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white shadow-md shadow-[#FF6A00]/30 font-semibold"
+                    : (isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100")
                 }`
               }
+              title="Inbox"
             >
               {({ isActive }) => (
                 <>
-                  <div className={`p-1 transition-transform relative ${isActive ? "scale-110" : ""}`}>
-                    <MessageSquare size={20} strokeWidth={isActive ? 2.5 : 1.8} />
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-0.5 -right-1 min-w-[14px] h-[14px] px-1 bg-[#FF6A00] text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-[#0b101e]">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                      </span>
+                  <div className="relative">
+                    <MessageSquare size={18} strokeWidth={isActive ? 2.5 : 1.8} />
+                    {unreadCount > 0 && !isActive && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#FF6A00] ring-2 ring-[#0b101e]" />
                     )}
                   </div>
-                  <span className="text-[10px] tracking-tight font-medium mt-0.5">Inbox</span>
-                  {isActive && (
-                    <span className="w-1 h-1 rounded-full bg-[#FF6A00] mt-0.5" />
+                  {isActive && <span className="text-xs font-semibold tracking-tight">Inbox</span>}
+                  {unreadCount > 0 && isActive && (
+                    <span className="ml-1 text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full font-bold leading-none">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
                   )}
                 </>
               )}
@@ -901,22 +898,18 @@ export default function DashboardLayout() {
             <NavLink
               to="/app/broadcast"
               className={({ isActive }) =>
-                `flex flex-col items-center justify-center py-1 rounded-2xl transition-all relative ${
+                `flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-200 ${
                   isActive
-                    ? "text-[#FF6A00] font-semibold"
-                    : (isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-900")
+                    ? "bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white shadow-md shadow-[#FF6A00]/30 font-semibold"
+                    : (isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100")
                 }`
               }
+              title="Broadcast"
             >
               {({ isActive }) => (
                 <>
-                  <div className={`p-1 transition-transform ${isActive ? "scale-110" : ""}`}>
-                    <PlayCircle size={20} strokeWidth={isActive ? 2.5 : 1.8} />
-                  </div>
-                  <span className="text-[10px] tracking-tight font-medium mt-0.5">Broadcast</span>
-                  {isActive && (
-                    <span className="w-1 h-1 rounded-full bg-[#FF6A00] mt-0.5" />
-                  )}
+                  <PlayCircle size={18} strokeWidth={isActive ? 2.5 : 1.8} />
+                  {isActive && <span className="text-xs font-semibold tracking-tight">Broadcast</span>}
                 </>
               )}
             </NavLink>
@@ -924,41 +917,38 @@ export default function DashboardLayout() {
             <NavLink
               to="/app/contacts"
               className={({ isActive }) =>
-                `flex flex-col items-center justify-center py-1 rounded-2xl transition-all relative ${
+                `flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-200 ${
                   isActive
-                    ? "text-[#FF6A00] font-semibold"
-                    : (isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-900")
+                    ? "bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white shadow-md shadow-[#FF6A00]/30 font-semibold"
+                    : (isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100")
                 }`
               }
+              title="Customers"
             >
               {({ isActive }) => (
                 <>
-                  <div className={`p-1 transition-transform ${isActive ? "scale-110" : ""}`}>
-                    <Users size={20} strokeWidth={isActive ? 2.5 : 1.8} />
-                  </div>
-                  <span className="text-[10px] tracking-tight font-medium mt-0.5">Customers</span>
-                  {isActive && (
-                    <span className="w-1 h-1 rounded-full bg-[#FF6A00] mt-0.5" />
-                  )}
+                  <Users size={18} strokeWidth={isActive ? 2.5 : 1.8} />
+                  {isActive && <span className="text-xs font-semibold tracking-tight">Customers</span>}
                 </>
               )}
             </NavLink>
 
             <button
               onClick={() => setSidebarOpen(true)}
-              className={`flex flex-col items-center justify-center py-1 rounded-2xl transition-all relative ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-200 ${
                 sidebarOpen
-                  ? "text-[#FF6A00] font-semibold"
-                  : (isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-900")
+                  ? "bg-gradient-to-r from-[#FF6A00] to-[#FF4500] text-white shadow-md shadow-[#FF6A00]/30 font-semibold"
+                  : (isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100")
               }`}
+              title="Menu"
             >
-              <div className="p-1 relative">
-                <Menu size={20} strokeWidth={sidebarOpen ? 2.5 : 1.8} />
+              <div className="relative">
+                <Menu size={18} strokeWidth={sidebarOpen ? 2.5 : 1.8} />
               </div>
-              <span className="text-[10px] tracking-tight font-medium mt-0.5">Menu</span>
+              {sidebarOpen && <span className="text-xs font-semibold tracking-tight">Menu</span>}
             </button>
-          </div>
-        </nav>
+          </nav>
+        </div>
       </div>
     </div>
   );

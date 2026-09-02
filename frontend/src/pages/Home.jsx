@@ -190,10 +190,10 @@ export default function Home() {
       
       {/* ─── NAVBAR ─── */}
       <header
-        className={`hidden md:block fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
           isScrolled
             ? 'bg-white/85 backdrop-blur-xl border-b border-slate-200/80 py-3 shadow-sm'
-            : 'bg-transparent py-5'
+            : 'bg-transparent py-4 sm:py-5'
         }`}
       >
         <div className="max-w-7xl mx-auto px-5 lg:px-8 flex items-center justify-between">
@@ -793,52 +793,54 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* ─── MOBILE BOTTOM BAR & TABS ─── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-slate-200/80 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] pb-[env(safe-area-inset-bottom,0px)]">
-        <div className="grid grid-cols-5 h-16 items-center px-1 max-w-md mx-auto">
+      {/* ─── FLOATING DYNAMIC ISLAND PILL (MOBILE & TABLET) ─── */}
+      <div className="md:hidden fixed bottom-5 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
+        <nav className="pointer-events-auto flex items-center justify-between gap-1 p-1.5 rounded-full bg-slate-950/85 backdrop-blur-2xl border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.45),0_0_20px_rgba(34,197,94,0.15)] ring-1 ring-black/5">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="flex flex-col items-center justify-center py-1 text-slate-600 hover:text-brand-600 active:scale-95 transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold text-white hover:bg-white/10 active:scale-95 transition-all"
+            title="Home"
           >
-            <HomeIcon className="w-5 h-5" />
-            <span className="text-[10px] font-medium tracking-tight mt-0.5">Home</span>
+            <HomeIcon className="w-4 h-4 text-brand-400" />
+            <span className="text-[11px]">Home</span>
           </button>
 
           <a
             href="#features"
-            className="flex flex-col items-center justify-center py-1 text-slate-600 hover:text-brand-600 active:scale-95 transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
+            title="Features"
           >
-            <Zap className="w-5 h-5" />
-            <span className="text-[10px] font-medium tracking-tight mt-0.5">Features</span>
+            <Zap className="w-4 h-4 text-emerald-400" />
+            <span className="text-[11px]">Features</span>
           </a>
 
           <a
             href="#platforms"
-            className="flex flex-col items-center justify-center py-1 text-slate-600 hover:text-brand-600 active:scale-95 transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
+            title="Channels"
           >
-            <Globe className="w-5 h-5" />
-            <span className="text-[10px] font-medium tracking-tight mt-0.5">Channels</span>
+            <Globe className="w-4 h-4 text-cyan-400" />
+            <span className="text-[11px]">Channels</span>
           </a>
 
           <button
             onClick={() => goAuth('/login')}
-            className="flex flex-col items-center justify-center py-1 text-slate-600 hover:text-brand-600 active:scale-95 transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
+            title="Sign In"
           >
-            <Users className="w-5 h-5" />
-            <span className="text-[10px] font-medium tracking-tight mt-0.5">Sign In</span>
+            <Users className="w-4 h-4 text-slate-300" />
+            <span className="text-[11px]">Sign In</span>
           </button>
 
           <button
             onClick={() => goAuth('/register')}
-            className="flex flex-col items-center justify-center py-1 text-brand-600 active:scale-95 transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-brand-500 to-emerald-500 hover:from-brand-400 hover:to-emerald-400 shadow-md shadow-brand-500/30 active:scale-95 transition-all"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-brand-500 to-emerald-500 text-white flex items-center justify-center shadow-md shadow-brand-500/25">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <span className="text-[10px] font-bold text-brand-600 tracking-tight mt-0.5">Join Free</span>
+            <Sparkles className="w-3.5 h-3.5" />
+            <span className="text-[11px]">Start</span>
           </button>
-        </div>
-      </nav>
+        </nav>
+      </div>
     </div>
   );
 }
