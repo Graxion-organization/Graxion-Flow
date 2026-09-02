@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 // Central Graxion Analytics API
-const CENTRAL_API_URL = 'https://graxion.in/api/analytics/track';
+const CENTRAL_API_URL = 'https://api.graxion.in/api/analytics/track';
 
 export const useCentralTracker = (appName = 'flow') => {
   const location = useLocation();

@@ -94,37 +94,6 @@ const WorkflowStep = ({ number, title, description, delay }) => (
   </motion.div>
 );
 
-const DashboardPreview = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 30, scale: 0.97 }}
-    animate={{ opacity: 1, y: 0, scale: 1 }}
-    transition={{ duration: 0.75, delay: 0.55 }}
-    className="relative mt-16 mx-auto max-w-5xl text-left"
-  >
-    <div className="absolute -inset-6 rounded-[2.5rem] bg-brand-500/15 blur-3xl" />
-    <div className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0b1120]/95 shadow-2xl shadow-black/40 backdrop-blur-xl">
-      <div className="flex items-center justify-between border-b border-white/[0.07] px-4 py-3 sm:px-6">
-        <div className="flex gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-red-400/80" /><span className="h-2.5 w-2.5 rounded-full bg-amber-300/80" /><span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" /></div>
-        <div className="text-xs font-medium text-gray-500">Graxion Flow workspace</div>
-        <div className="h-5 w-12 rounded-full bg-white/[0.05]" />
-      </div>
-      <div className="grid grid-cols-[auto_1fr] min-h-[250px] sm:min-h-[320px]">
-        <aside className="hidden sm:flex w-48 flex-col gap-2 border-r border-white/[0.07] p-4 text-xs text-gray-500">
-          <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-white"><LayoutDashboard className="h-4 w-4 text-brand-400" /> Overview</div>
-          <div className="rounded-lg bg-brand-500/15 px-3 py-2 text-brand-300">Publishing</div>
-          <div className="px-3 py-2">Conversations</div><div className="px-3 py-2">Automations</div><div className="px-3 py-2">Analytics</div>
-        </aside>
-        <div className="p-4 sm:p-6">
-          <div className="mb-5 flex items-center justify-between"><div><p className="text-xs text-gray-500">Good morning</p><h3 className="text-base font-bold text-white sm:text-xl">Your content is in flow</h3></div><button className="rounded-lg bg-brand-500 px-3 py-2 text-xs font-semibold text-white">Create post</button></div>
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            {[['12', 'Scheduled'], ['48', 'New replies'], ['92%', 'On track']].map(([value, label], index) => <div key={label} className="rounded-xl border border-white/[0.07] bg-white/[0.035] p-3 sm:p-4"><div className="mb-2 flex justify-between"><span className="text-xs text-gray-500">{label}</span>{index === 1 ? <MessageSquare className="h-3.5 w-3.5 text-brand-400" /> : <Activity className="h-3.5 w-3.5 text-brand-400" />}</div><p className="text-lg font-bold text-white sm:text-2xl">{value}</p></div>)}
-          </div>
-          <div className="mt-3 rounded-xl border border-white/[0.07] bg-white/[0.035] p-3 sm:p-4"><div className="mb-3 flex items-center justify-between"><span className="text-sm font-semibold text-white">Today’s publishing queue</span><CalendarDays className="h-4 w-4 text-brand-400" /></div><div className="flex items-center gap-3"><div className="flex -space-x-1.5"><span className="grid h-7 w-7 place-items-center rounded-full border-2 border-[#0b1120] bg-red-500 text-[9px] font-bold">▶</span><span className="grid h-7 w-7 place-items-center rounded-full border-2 border-[#0b1120] bg-pink-500 text-[9px] font-bold">◎</span><span className="grid h-7 w-7 place-items-center rounded-full border-2 border-[#0b1120] bg-blue-500 text-[9px] font-bold">in</span></div><div className="h-2 flex-1 overflow-hidden rounded-full bg-white/[0.08]"><div className="h-full w-2/3 rounded-full bg-brand-500" /></div><Clock3 className="h-4 w-4 text-gray-500" /></div></div>
-        </div>
-      </div>
-    </div>
-  </motion.div>
-);
 
 const PlatformCard = ({ icon: Icon, name, accent, description, capabilities, delay, className = '', metaVerified = false }) => (
   <motion.article
@@ -378,22 +347,47 @@ export default function Home() {
             </Link>
           </motion.div>
 
-          {/* Trust indicators */}
+          {/* Social Proof & Trust indicators */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="mt-14 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-slate-600"
+            className="mt-12 flex flex-col items-center gap-6"
           >
-            {['No credit card required', 'Free tier available', 'Setup in 5 minutes'].map(item => (
-              <div key={item} className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-brand-500/70" />
-                <span>{item}</span>
+            {/* Human Faces / Avatars */}
+            <div className="flex items-center gap-4">
+              <div className="flex -space-x-3">
+                {[
+                  "https://i.pravatar.cc/100?img=33",
+                  "https://i.pravatar.cc/100?img=47",
+                  "https://i.pravatar.cc/100?img=12",
+                  "https://i.pravatar.cc/100?img=32",
+                  "https://i.pravatar.cc/100?img=68"
+                ].map((src, i) => (
+                  <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-slate-100 shadow-sm relative z-0 hover:z-10 transition-transform hover:scale-110">
+                    <img src={src} alt="User Avatar" className="w-full h-full object-cover" />
+                  </div>
+                ))}
               </div>
-            ))}
+              <div className="flex flex-col text-left">
+                <div className="flex items-center gap-1">
+                  {[1,2,3,4,5].map(s => <Star key={s} className="w-4 h-4 fill-amber-400 text-amber-400" />)}
+                </div>
+                <p className="text-sm text-slate-600 font-medium mt-0.5">Loved by <span className="text-slate-900 font-bold">1,000+</span> creators</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-slate-500 font-medium">
+              {['No credit card required', 'Free tier available', 'Setup in 5 minutes'].map(item => (
+                <div key={item} className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-brand-500/80" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
           </motion.div>
 
-          <DashboardPreview />
+
         </div>
       </section>
 
@@ -442,10 +436,9 @@ export default function Home() {
       </section>
 
       {/* ─── FEATURES BENTO GRID ─── */}
-      <section id="features" className="py-24 relative overflow-hidden bg-[#f6f8f7]">
-        <div className="absolute -top-32 -left-28 h-80 w-80 rounded-full bg-emerald-200/60 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-40 -right-24 h-96 w-96 rounded-full bg-cyan-100/70 blur-3xl pointer-events-none" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.035)_1px,transparent_1px)] bg-[size:52px_52px] pointer-events-none" />
+      <section id="features" className="py-24 relative overflow-hidden bg-white border-t border-slate-100">
+        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-brand-50 rounded-full blur-[100px] pointer-events-none opacity-60" />
+        <div className="absolute -bottom-40 -right-24 h-96 w-96 rounded-full bg-emerald-50 blur-[100px] pointer-events-none opacity-60" />
         <div className="max-w-7xl mx-auto px-5 lg:px-8 relative z-10">
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <motion.p
@@ -496,15 +489,15 @@ export default function Home() {
       </section>
 
       {/* ─── PLATFORM AUTOMATIONS ─── */}
-      <section id="platforms" className="relative py-24 overflow-hidden border-y border-white/[0.05] bg-white/[0.015]">
-        <div className="absolute top-1/2 left-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-500/[0.035] blur-[140px] pointer-events-none" />
+      <section id="platforms" className="relative py-24 overflow-hidden bg-white border-t border-slate-100">
+        <div className="absolute top-1/2 left-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-50 blur-[120px] pointer-events-none opacity-60" />
         <div className="max-w-7xl mx-auto px-5 lg:px-8 relative z-10">
           <div className="max-w-3xl mx-auto text-center mb-14">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-brand-400 text-sm font-semibold uppercase tracking-wider mb-4"
+              className="text-brand-600 text-sm font-semibold uppercase tracking-wider mb-4"
             >
               One platform, every conversation
             </motion.p>
@@ -513,16 +506,16 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-3xl md:text-5xl font-bold mb-5"
+              className="text-3xl md:text-5xl font-bold mb-5 text-slate-900"
             >
-              What you can automate on <span className="text-gradient">each channel</span>
+              What you can automate on <span className="text-brand-600">each channel</span>
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-gray-400 text-lg leading-relaxed"
+              className="text-slate-600 text-lg leading-relaxed"
             >
               Connect the accounts you already use and let Graxion Flow handle publishing, engagement, and follow-ups from one place.
             </motion.p>
@@ -539,15 +532,15 @@ export default function Home() {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section id="workflow" className="py-24 relative bg-[#060912] overflow-hidden">
-        <div className="absolute left-1/2 top-0 h-64 w-[600px] -translate-x-1/2 rounded-full bg-brand-500/[0.09] blur-3xl pointer-events-none" />
+      <section id="workflow" className="py-24 relative bg-white overflow-hidden border-t border-slate-100">
+        <div className="absolute left-1/2 top-0 h-64 w-[600px] -translate-x-1/2 rounded-full bg-brand-50 blur-[100px] pointer-events-none opacity-60" />
         <div className="max-w-5xl mx-auto px-5 lg:px-8 relative z-10">
           <div className="text-center mb-16">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-brand-400 text-sm font-semibold uppercase tracking-wider mb-4"
+              className="text-brand-600 text-sm font-semibold uppercase tracking-wider mb-4"
             >
               Simple Setup
             </motion.p>
@@ -556,9 +549,9 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-3xl md:text-5xl font-bold text-white"
+              className="text-3xl md:text-5xl font-bold text-slate-900"
             >
-              Up and Running in <span className="text-brand-400">Minutes</span>
+              Up and Running in <span className="text-brand-600">Minutes</span>
             </motion.h2>
           </div>
 
@@ -569,6 +562,84 @@ export default function Home() {
             <WorkflowStep number="01" title="Connect Your Accounts" description="Link your supported social media profiles like YouTube or LinkedIn securely." delay={0} />
             <WorkflowStep number="02" title="Create & Schedule" description="Upload your content and schedule posts for optimal times." delay={0.15} />
             <WorkflowStep number="03" title="Automated Publishing" description="Let Graxion Flow automatically publish your content across channels." delay={0.3} />
+          </div>
+        </div>
+      </section>
+
+      {/* ─── TESTIMONIALS SECTION (HUMAN TOUCH) ─── */}
+      <section className="py-24 relative bg-white overflow-hidden border-t border-slate-100">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-50 rounded-full blur-[100px] pointer-events-none opacity-60" />
+        <div className="max-w-7xl mx-auto px-5 lg:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-brand-600 text-sm font-semibold uppercase tracking-wider mb-4"
+            >
+              Don't just take our word for it
+            </motion.p>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-3xl md:text-5xl font-bold text-slate-900"
+            >
+              Real people, <span className="text-brand-600">real results</span>
+            </motion.h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                quote: "Graxion Flow basically gave me my weekends back. The AI automation is like having a full-time social media manager who never sleeps. Absolutely a game-changer for our agency.",
+                name: "Sarah Jenkins",
+                role: "Marketing Director",
+                img: "https://i.pravatar.cc/150?img=47"
+              },
+              {
+                quote: "I was skeptical about automated replies feeling 'robotic', but the AI assistance here feels incredibly natural. Our customer engagement has gone up by 300% since we started.",
+                name: "Michael Chen",
+                role: "E-commerce Founder",
+                img: "https://i.pravatar.cc/150?img=11"
+              },
+              {
+                quote: "The unified dashboard is a lifesaver. No more jumping between 5 different tabs just to reply to comments. It's clean, intuitive, and just works beautifully.",
+                name: "Elena Rodriguez",
+                role: "Content Creator",
+                img: "https://i.pravatar.cc/150?img=32"
+              }
+            ].map((testimonial, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15 }}
+                className="bg-white p-8 rounded-3xl border border-slate-200 shadow-[0_10px_40px_rgba(15,23,42,0.04)] relative group hover:border-brand-300 transition-colors"
+              >
+                {/* Quote Icon */}
+                <div className="absolute top-8 right-8 text-brand-100 opacity-50 group-hover:opacity-100 group-hover:text-brand-200 transition-all">
+                   <svg width="45" height="36" viewBox="0 0 45 36" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 0C6.04416 0 0 6.04416 0 13.5V36H18V13.5H9C9 8.52943 13.0294 4.5 18 4.5V0H13.5ZM40.5 0C33.0442 0 27 6.04416 27 13.5V36H45V13.5H36C36 8.52943 40.0294 4.5 45 4.5V0H40.5Z"/></svg>
+                </div>
+                
+                <div className="flex items-center gap-1 mb-6">
+                  {[1, 2, 3, 4, 5].map(star => <Star key={star} className="w-4 h-4 fill-brand-400 text-brand-400" />)}
+                </div>
+                <p className="text-slate-700 text-lg leading-relaxed mb-8 relative z-10">"{testimonial.quote}"</p>
+                
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100">
+                    <img src={testimonial.img} alt={testimonial.name} className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900">{testimonial.name}</h4>
+                    <p className="text-sm text-slate-500">{testimonial.role}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
