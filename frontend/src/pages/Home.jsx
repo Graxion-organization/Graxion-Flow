@@ -794,8 +794,8 @@ export default function Home() {
       </footer>
 
       {/* ─── FLOATING DYNAMIC ISLAND PILL (MOBILE & TABLET) ─── */}
-      <div className="md:hidden fixed bottom-4 sm:bottom-7 inset-x-0 z-50 flex justify-center px-3 sm:px-6 pointer-events-none">
-        <nav className="pointer-events-auto flex items-center justify-between gap-1 sm:gap-2 p-1.5 sm:p-2 rounded-full bg-slate-950/85 backdrop-blur-2xl border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.45),0_0_20px_rgba(34,197,94,0.15)] ring-1 ring-black/5 max-w-sm sm:max-w-md w-full sm:w-auto">
+      <div className="md:hidden fixed bottom-5 sm:bottom-7 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
+        <nav className="pointer-events-auto flex items-center justify-between gap-1 sm:gap-2 p-1.5 sm:p-2.5 rounded-full bg-slate-950/85 backdrop-blur-2xl border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.45),0_0_20px_rgba(34,197,94,0.15)] ring-1 ring-black/5">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-white hover:bg-white/10 active:scale-95 transition-all"

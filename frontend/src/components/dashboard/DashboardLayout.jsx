@@ -839,9 +839,9 @@ export default function DashboardLayout() {
         </main>
 
         {/* ─── FLOATING DYNAMIC ISLAND PILL (MOBILE & TABLET) ─── */}
-        <div className="lg:hidden fixed bottom-4 sm:bottom-7 inset-x-0 z-40 flex justify-center px-3 sm:px-6 pointer-events-none">
+        <div className="lg:hidden fixed bottom-5 sm:bottom-7 inset-x-0 z-40 flex justify-center px-4 pointer-events-none">
           <nav
-            className={`pointer-events-auto flex items-center justify-between gap-1 sm:gap-2 p-1.5 sm:p-2.5 rounded-full backdrop-blur-2xl transition-all duration-300 max-w-sm sm:max-w-xl md:max-w-2xl w-full sm:w-auto ${
+            className={`pointer-events-auto flex items-center justify-between gap-1 sm:gap-2 p-1.5 sm:p-2.5 rounded-full backdrop-blur-2xl transition-all duration-300 sm:max-w-xl md:max-w-2xl ${
               isDark
                 ? "bg-[#0f172a]/95 border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.6),0_0_25px_rgba(255,106,0,0.15)] ring-1 ring-white/5"
                 : "bg-white/95 border border-slate-200/90 shadow-[0_20px_50px_rgba(15,23,42,0.12),0_0_25px_rgba(255,106,0,0.1)] ring-1 ring-black/5"
