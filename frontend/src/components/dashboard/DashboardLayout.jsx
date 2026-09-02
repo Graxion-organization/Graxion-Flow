@@ -609,9 +609,18 @@ export default function DashboardLayout() {
                 )}
               </div>
               {!isSidebarCollapsed && (
-                <button onClick={() => setSidebarOpen(false)} className={`lg:hidden p-2 rounded-lg ${isDark ? "hover:bg-white/10" : "hover:bg-slate-100"}`}>
-                  <X size={18} />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+                    className={`lg:hidden p-2 rounded-lg transition-all ${isDark ? "hover:bg-white/10 text-slate-300" : "hover:bg-slate-100 text-slate-600"}`}
+                    title="Toggle Theme"
+                  >
+                    {isDark ? <SunMedium size={18} /> : <Moon size={18} />}
+                  </button>
+                  <button onClick={() => setSidebarOpen(false)} className={`lg:hidden p-2 rounded-lg ${isDark ? "hover:bg-white/10 text-slate-300" : "hover:bg-slate-100 text-slate-600"}`}>
+                    <X size={18} />
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -673,7 +682,7 @@ export default function DashboardLayout() {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className={`relative z-30 px-4 lg:px-6 py-3 border-b backdrop-blur-2xl transition-colors ${isDark ? "bg-[#0b101e]/80 border-white/5" : "bg-white/80 border-slate-200/80"}`}>
+        <header className={`hidden lg:block relative z-30 px-4 lg:px-6 py-3 border-b backdrop-blur-2xl transition-colors ${isDark ? "bg-[#0b101e]/80 border-white/5" : "bg-white/80 border-slate-200/80"}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button onClick={() => setSidebarOpen(true)} className={`lg:hidden p-2 rounded-xl transition-colors ${isDark ? "hover:bg-white/10" : "hover:bg-slate-100"}`}>
@@ -802,7 +811,7 @@ export default function DashboardLayout() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto px-4 lg:px-6 py-6 custom-scrollbar relative">
+        <main className="flex-1 overflow-y-auto px-4 lg:px-6 py-6 pb-24 lg:pb-6 custom-scrollbar relative">
           <div className="h-full animate-in fade-in duration-500 max-w-[1600px] mx-auto w-full">
             {!currentOrganization ? (
               <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -828,6 +837,128 @@ export default function DashboardLayout() {
             )}
           </div>
         </main>
+
+        {/* ─── MOBILE BOTTOM NAVIGATION BAR ─── */}
+        <nav
+          className={`lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t backdrop-blur-xl transition-all duration-300 pb-[env(safe-area-inset-bottom,0px)] ${
+            isDark
+              ? "bg-[#0b101e]/95 border-white/10 shadow-[0_-10px_30px_rgba(0,0,0,0.6)]"
+              : "bg-white/95 border-slate-200/80 shadow-[0_-10px_30px_rgba(15,23,42,0.06)]"
+          }`}
+        >
+          <div className="grid grid-cols-5 h-16 items-center px-2 max-w-md mx-auto">
+            <NavLink
+              to="/app/dashboard"
+              className={({ isActive }) =>
+                `flex flex-col items-center justify-center py-1 rounded-2xl transition-all relative ${
+                  isActive
+                    ? "text-[#FF6A00] font-semibold"
+                    : (isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-900")
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <div className={`p-1 transition-transform ${isActive ? "scale-110" : ""}`}>
+                    <LayoutDashboard size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                  </div>
+                  <span className="text-[10px] tracking-tight font-medium mt-0.5">Home</span>
+                  {isActive && (
+                    <span className="w-1 h-1 rounded-full bg-[#FF6A00] mt-0.5" />
+                  )}
+                </>
+              )}
+            </NavLink>
+
+            <NavLink
+              to="/app/conversations"
+              className={({ isActive }) =>
+                `flex flex-col items-center justify-center py-1 rounded-2xl transition-all relative ${
+                  isActive
+                    ? "text-[#FF6A00] font-semibold"
+                    : (isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-900")
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <div className={`p-1 transition-transform relative ${isActive ? "scale-110" : ""}`}>
+                    <MessageSquare size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-0.5 -right-1 min-w-[14px] h-[14px] px-1 bg-[#FF6A00] text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-[#0b101e]">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[10px] tracking-tight font-medium mt-0.5">Inbox</span>
+                  {isActive && (
+                    <span className="w-1 h-1 rounded-full bg-[#FF6A00] mt-0.5" />
+                  )}
+                </>
+              )}
+            </NavLink>
+
+            <NavLink
+              to="/app/broadcast"
+              className={({ isActive }) =>
+                `flex flex-col items-center justify-center py-1 rounded-2xl transition-all relative ${
+                  isActive
+                    ? "text-[#FF6A00] font-semibold"
+                    : (isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-900")
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <div className={`p-1 transition-transform ${isActive ? "scale-110" : ""}`}>
+                    <PlayCircle size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                  </div>
+                  <span className="text-[10px] tracking-tight font-medium mt-0.5">Broadcast</span>
+                  {isActive && (
+                    <span className="w-1 h-1 rounded-full bg-[#FF6A00] mt-0.5" />
+                  )}
+                </>
+              )}
+            </NavLink>
+
+            <NavLink
+              to="/app/contacts"
+              className={({ isActive }) =>
+                `flex flex-col items-center justify-center py-1 rounded-2xl transition-all relative ${
+                  isActive
+                    ? "text-[#FF6A00] font-semibold"
+                    : (isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-900")
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <div className={`p-1 transition-transform ${isActive ? "scale-110" : ""}`}>
+                    <Users size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                  </div>
+                  <span className="text-[10px] tracking-tight font-medium mt-0.5">Customers</span>
+                  {isActive && (
+                    <span className="w-1 h-1 rounded-full bg-[#FF6A00] mt-0.5" />
+                  )}
+                </>
+              )}
+            </NavLink>
+
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className={`flex flex-col items-center justify-center py-1 rounded-2xl transition-all relative ${
+                sidebarOpen
+                  ? "text-[#FF6A00] font-semibold"
+                  : (isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-900")
+              }`}
+            >
+              <div className="p-1 relative">
+                <Menu size={20} strokeWidth={sidebarOpen ? 2.5 : 1.8} />
+              </div>
+              <span className="text-[10px] tracking-tight font-medium mt-0.5">Menu</span>
+            </button>
+          </div>
+        </nav>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   MessageSquare,
+  Home as HomeIcon,
   Bot,
   Zap,
   BarChart3,
@@ -189,7 +190,7 @@ export default function Home() {
       
       {/* ─── NAVBAR ─── */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`hidden md:block fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled
             ? 'bg-white/85 backdrop-blur-xl border-b border-slate-200/80 py-3 shadow-sm'
             : 'bg-transparent py-5'
@@ -281,7 +282,7 @@ export default function Home() {
       )}
 
       {/* ─── HERO SECTION ─── */}
-      <section className="relative pt-36 pb-16 lg:pt-48 lg:pb-24 overflow-hidden bg-gradient-to-b from-white via-[#f7fbf8] to-[#eef8f1]">
+      <section id="hero" className="relative pt-20 sm:pt-36 pb-16 lg:pt-48 lg:pb-24 overflow-hidden bg-gradient-to-b from-white via-[#f7fbf8] to-[#eef8f1]">
         {/* Background effects */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-brand-500/[0.12] blur-[150px] rounded-full pointer-events-none" />
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-cyan-500/[0.10] blur-[120px] rounded-full pointer-events-none" />
@@ -791,6 +792,53 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* ─── MOBILE BOTTOM BAR & TABS ─── */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-slate-200/80 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] pb-[env(safe-area-inset-bottom,0px)]">
+        <div className="grid grid-cols-5 h-16 items-center px-1 max-w-md mx-auto">
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="flex flex-col items-center justify-center py-1 text-slate-600 hover:text-brand-600 active:scale-95 transition-all"
+          >
+            <HomeIcon className="w-5 h-5" />
+            <span className="text-[10px] font-medium tracking-tight mt-0.5">Home</span>
+          </button>
+
+          <a
+            href="#features"
+            className="flex flex-col items-center justify-center py-1 text-slate-600 hover:text-brand-600 active:scale-95 transition-all"
+          >
+            <Zap className="w-5 h-5" />
+            <span className="text-[10px] font-medium tracking-tight mt-0.5">Features</span>
+          </a>
+
+          <a
+            href="#platforms"
+            className="flex flex-col items-center justify-center py-1 text-slate-600 hover:text-brand-600 active:scale-95 transition-all"
+          >
+            <Globe className="w-5 h-5" />
+            <span className="text-[10px] font-medium tracking-tight mt-0.5">Channels</span>
+          </a>
+
+          <button
+            onClick={() => goAuth('/login')}
+            className="flex flex-col items-center justify-center py-1 text-slate-600 hover:text-brand-600 active:scale-95 transition-all"
+          >
+            <Users className="w-5 h-5" />
+            <span className="text-[10px] font-medium tracking-tight mt-0.5">Sign In</span>
+          </button>
+
+          <button
+            onClick={() => goAuth('/register')}
+            className="flex flex-col items-center justify-center py-1 text-brand-600 active:scale-95 transition-all"
+          >
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-brand-500 to-emerald-500 text-white flex items-center justify-center shadow-md shadow-brand-500/25">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <span className="text-[10px] font-bold text-brand-600 tracking-tight mt-0.5">Join Free</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }
