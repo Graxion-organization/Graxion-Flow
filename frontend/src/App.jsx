@@ -51,6 +51,7 @@ const ContactsPage = lazy(() => import("./pages/ContactsPage"));
 const TemplatesPage = lazy(() => import("./pages/TemplatesPage"));
 const BroadcastPage = lazy(() => import("./pages/BroadcastPage"));
 const CampaignsPage = lazy(() => import("./pages/CampaignsPage"));
+const WhatsAppMarketingSetup = lazy(() => import("./pages/WhatsAppMarketingSetup"));
 const FlowBuilderPage = lazy(() => import("./pages/FlowBuilderPage"));
 const KeywordTriggersPage = lazy(() => import("./pages/KeywordTriggersPage"));
 const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage"));
@@ -282,6 +283,7 @@ export default function App() {
             <Route path="youtube" element={<YouTubeAnalyticsPage />} />
             <Route path="facebook" element={<FacebookAnalyticsPage />} />
             <Route path="whatsapp" element={<WhatsAppAnalyticsPage />} />
+            <Route path="whatsapp-marketing" element={<WhatsAppMarketingSetup />} />
             
             <Route path="billing" element={<BillingPage />} />
             <Route path="partner-dashboard" element={<SalesPartnerDashboard />} />

@@ -76,6 +76,7 @@ const SIDEBAR_GROUPS = [
   {
     title: "Bulk Messaging",
     items: [
+      { to: "/app/whatsapp-marketing", icon: Smartphone, label: "WhatsApp Setup", minRole: "admin" },
       { to: "/app/broadcast", icon: PlayCircle, label: "Broadcasts", minRole: "editor" },
       { to: "/app/campaigns", icon: Megaphone, label: "Campaigns", minRole: "editor" },
       { to: "/app/templates", icon: FileText, label: "Templates", minRole: "admin" },
@@ -444,6 +445,7 @@ export default function DashboardLayout() {
           "Chat Flows": "Chat Flows",
           "Social Hub": "Social Hub",
           "Auto Comments": "Auto Comments",
+          "WhatsApp Setup": "WhatsApp Setup",
           "Integrations": "Integrations",
           "Meta Quality": "Meta Quality",
           "Sales Partner": "Sales Partner",
@@ -503,6 +505,7 @@ export default function DashboardLayout() {
               "Chat Flows": "Chat Flows",
               "Social Hub": "Social Hub",
               "Auto Comments": "Auto Comments",
+              "WhatsApp Setup": "WhatsApp Setup",
               "Integrations": "Integrations",
               "Meta Quality": "Meta Quality",
               "Sales Partner": "Sales Partner",
