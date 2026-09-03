@@ -202,9 +202,10 @@ class WhatsAppService {
     }
   }
 
-  async sendTemplateMessage(to, templateName, languageCode = 'en_US', components = []) {
+  async sendTemplateMessage(to, templateName, languageCode = 'en_US', components = [], category = 'UTILITY') {
     try {
-      const response = await this.client.post(`/${this.phoneNumberId}/messages`, {
+      const endpoint = category === 'MARKETING' ? `/${this.phoneNumberId}/marketing_messages` : `/${this.phoneNumberId}/messages`;
+      const response = await this.client.post(endpoint, {
         messaging_product: 'whatsapp',
         to,
         type: 'template',

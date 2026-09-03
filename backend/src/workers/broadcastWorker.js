@@ -63,7 +63,7 @@ const broadcastWorker = new Worker(BROADCAST_QUEUE_NAME, async (job) => {
 
     for (const contact of contacts) {
       try {
-        await waService.sendTemplateMessage(contact.phone, template.name, template.language);
+        await waService.sendTemplateMessage(contact.phone, template.name, template.language, [], template.category);
         sent++;
       } catch (err) {
         logger.error(`Broadcast failed for ${contact.phone}: ${err.message}`);

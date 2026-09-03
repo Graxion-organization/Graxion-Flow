@@ -519,11 +519,16 @@ exports.sendTemplateReply = async (req, res, next) => {
     const lang = languageCode || 'en_US';
     const comp = components || [];
 
+    const Template = require('../models/Template');
+    const templateDoc = await Template.findOne({ name: templateName, organization: conversation.organization });
+    const category = templateDoc ? templateDoc.category : 'UTILITY';
+
     const sentMsg = await waService.sendTemplateMessage(
       conversation.customerPhone,
       templateName,
       lang,
-      comp
+      comp,
+      category
     );
 
     // Save assistant message in conversation
