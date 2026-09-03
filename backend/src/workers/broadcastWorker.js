@@ -36,7 +36,8 @@ const broadcastWorker = new Worker(BROADCAST_QUEUE_NAME, async (job) => {
     const waAccount = await WhatsappAccount.findById(whatsappAccountId).select('+accessToken');
     if (!waAccount) throw new Error('WhatsApp Account not found');
 
-    const waService = new WhatsAppService(waAccount.accessToken, waAccount.phoneNumberId);
+    const { decrypt } = require('../utils/encryption');
+    const waService = new WhatsAppService(decrypt(waAccount.accessToken), waAccount.phoneNumberId);
 
     const Template = require('../models/Template');
     const template = await Template.findById(templateId);
