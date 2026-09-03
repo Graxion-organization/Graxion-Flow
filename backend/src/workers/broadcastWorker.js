@@ -43,7 +43,7 @@ const broadcastWorker = new Worker(BROADCAST_QUEUE_NAME, async (job) => {
     if (!template) throw new Error('Template not found');
 
     // Fetch contacts in group
-    let contactQuery = { organization: broadcast.organization, optIn: true };
+    let contactQuery = { organization: broadcast.organization };
     if (contactGroupId && contactGroupId !== 'all') {
       const ContactGroup = require('../models/ContactGroup');
       const group = await ContactGroup.findById(contactGroupId);

@@ -7,7 +7,7 @@ const contactSchema = new mongoose.Schema({
   email: String,
   tags: [String],
   customFields: { type: Map, of: String },
-  optIn: { type: Boolean, default: false },
+  optIn: { type: Boolean, default: true },
   source: String,
   lastMessageAt: Date,
   timeline: [{
