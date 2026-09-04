@@ -663,4 +663,7 @@ setInterval(async () => {
   }
 }, 5 * 60 * 1000);
 
-module.exports = instagramWebhookWorker;
+module.exports = {
+  instagramWebhookWorker,
+  processWebhookEvent
+};

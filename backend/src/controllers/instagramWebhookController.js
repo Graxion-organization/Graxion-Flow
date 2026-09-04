@@ -72,6 +72,36 @@ async function persistAndEnqueueEvent(igAccount, eventType, eventId, senderId, p
       return;
     }
 
+    if (eventType === 'comment') {
+      // Direct server processing without BullMQ for comments
+      const { processWebhookEvent } = require('../workers/instagramWebhookWorker');
+      
+      event.status = 'processing';
+      event.processingStartedAt = new Date();
+      await event.save();
+
+      // Fire and forget (don't block the webhook response)
+      // Attach the populated igAccount to the event so the worker doesn't need to fetch it
+      event.instagramAccountId = igAccount; 
+
+      processWebhookEvent(event)
+        .then(async () => {
+          event.status = 'processed';
+          event.processedAt = new Date();
+          await event.save();
+          logger.info(`[Inline Processing] Comment event ${eventId} processed successfully without Redis.`);
+        })
+        .catch(async (err) => {
+          logger.error(`[Inline Processing] Comment event ${eventId} failed: ${err.message}`);
+          event.status = 'failed';
+          event.lastError = err.message;
+          event.failedAt = new Date();
+          await event.save();
+        });
+      
+      return;
+    }
+
     try {
       await enqueueInstagramWebhook(event._id, {
         organizationId: igAccount.organization,
@@ -111,7 +141,7 @@ exports.receiveMessage = async (req, res) => {
         igAccountId,
         status: 'connected',
         isActive: true,
-      });
+      }).select('+pageAccessToken');
 
       if (!igAccount) continue;
 
