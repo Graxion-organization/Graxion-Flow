@@ -580,7 +580,7 @@ const instagramWebhookWorker = new Worker(IG_WEBHOOK_QUEUE_NAME, async (job) => 
         instagramAccountId,
         senderId: triggerEvent.senderId, // Matches either the DM sender or the commenter
         status: { $in: ['queued', 'processing', 'retrying'] }
-      }).sort({ providerTimestamp: 1 }).populate('instagramAccountId');
+      }).sort({ providerTimestamp: 1 }).populate({ path: 'instagramAccountId', select: '+pageAccessToken' });
       
       if (pendingEvents.length === 0) return;
 
