@@ -233,8 +233,15 @@ class AIService {
       const cached = await redis.get(cacheKey);
  
       if (cached) {
-        logger.info(`[AI Cache Hit] Returned instant response for ${userMessageText}`);
-        return { content: cached, isVoiceResponse: wantsVoice, tokensUsed: 0 };
+        // Reject poisoned cache entries (stale error responses that were cached before the filter existed)
+        const cachedLower = cached.toLowerCase();
+        if (cachedLower.includes('experiencing some technical difficulties') || cachedLower.includes('currently unable to process')) {
+          logger.warn(`[AI Cache] Invalidating poisoned cache entry for key ${cacheKey}`);
+          await redis.del(cacheKey);
+        } else {
+          logger.info(`[AI Cache Hit] Returned instant response for ${userMessageText}`);
+          return { content: cached, isVoiceResponse: wantsVoice, tokensUsed: 0 };
+        }
       }
  
       // If context is too long, summarize it
