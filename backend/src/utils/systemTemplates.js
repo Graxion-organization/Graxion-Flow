@@ -88,7 +88,7 @@ module.exports = [
       },
       {
         type: 'BODY',
-        text: 'Dear {{1}},\n\nWarm festive wishes from our team! To make your celebration extra special, we are giving you a flat {{2}}% discount on your next purchase.\n\nUse Promo Code: {{3}}'
+        text: 'Dear {{1}},\n\nWarm festive wishes from our team! To make your celebration extra special, we are giving you a flat {{2}}% discount on your next purchase.\n\nUse Promo Code: {{3}} at checkout to avail this offer.'
       },
       {
         type: 'FOOTER',
@@ -156,7 +156,7 @@ module.exports = [
       },
       {
         type: 'BODY',
-        text: 'Hi {{1}},\n\nAs one of our valued VIP members, you get early 24-hour access to our new collection launch before anyone else!\n\nPlus, take an extra {{2}}% OFF with your secret VIP code: {{3}}'
+        text: 'Hi {{1}},\n\nAs one of our valued VIP members, you get early 24-hour access to our new collection launch before anyone else!\n\nPlus, take an extra {{2}}% OFF with your secret VIP code: {{3}} - use it before the offer expires!'
       },
       {
         type: 'FOOTER',

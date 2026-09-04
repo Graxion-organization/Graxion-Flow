@@ -43,10 +43,20 @@ const sanitizeMetaComponents = (components) => {
 
     // 2. Sanitize & attach Meta required example.body_text for variables
     if (c.type === 'BODY' && c.text) {
-      const matches = c.text.match(/\{\{(\d+)\}\}/g) || [];
+      let bodyText = c.text;
+
+      // Meta rejects templates where variables are at the very start or end of body text
+      if (/^\{\{\d+\}\}/.test(bodyText)) {
+        bodyText = 'Hi ' + bodyText;
+      }
+      if (/\{\{\d+\}\}$/.test(bodyText)) {
+        bodyText = bodyText + ' .';
+      }
+
+      const matches = bodyText.match(/\{\{(\d+)\}\}/g) || [];
       const varCount = matches.length;
 
-      const bodyComp = { ...c };
+      const bodyComp = { ...c, text: bodyText };
 
       if (varCount > 0) {
         const sampleRow = [];
