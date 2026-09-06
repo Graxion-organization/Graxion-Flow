@@ -51,6 +51,7 @@ const enqueueWebhook = async (platform, eventType, payload) => {
 const webhookWorker = new Worker(WEBHOOK_QUEUE_NAME, async (job) => {
   const { platform, eventType, payload } = job.data;
   logger.info(`[BullMQ] Processing webhook for ${platform} (${eventType})`);
+  logger.info(`[Webhook Payload - ${platform}]:\n${JSON.stringify(payload, null, 2)}`);
 
   try {
     // Import controllers dynamically to avoid circular dependencies
