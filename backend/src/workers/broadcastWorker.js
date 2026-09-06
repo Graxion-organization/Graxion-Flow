@@ -64,7 +64,38 @@ const broadcastWorker = new Worker(BROADCAST_QUEUE_NAME, async (job) => {
 
     for (const contact of contacts) {
       try {
-        await waService.sendTemplateMessage(contact.phone, template.name, template.language, []);
+        let messageComponents = [];
+        if (template.components && Array.isArray(template.components)) {
+          template.components.forEach(comp => {
+            if (comp.type && typeof comp.text === 'string') {
+              const matches = comp.text.match(/\{\{(\d+)\}\}/g);
+              if (matches && matches.length > 0) {
+                let maxVar = 0;
+                matches.forEach(m => {
+                  const num = parseInt(m.replace(/[{}]/g, ''));
+                  if (num > maxVar) maxVar = num;
+                });
+                
+                const parameters = [];
+                for (let i = 1; i <= maxVar; i++) {
+                  let val = '';
+                  if (i === 1) val = contact.name || 'Customer';
+                  else if (i === 2) val = contact.email || contact.phone || 'User';
+                  else val = contact.customFields?.get(`var${i}`) || `Value ${i}`;
+                  
+                  parameters.push({ type: 'text', text: val });
+                }
+                
+                messageComponents.push({
+                  type: comp.type.toLowerCase(),
+                  parameters
+                });
+              }
+            }
+          });
+        }
+
+        await waService.sendTemplateMessage(contact.phone, template.name, template.language, messageComponents);
         sent++;
       } catch (err) {
         logger.error(`Broadcast failed for ${contact.phone}: ${err.message}`);
