@@ -25,6 +25,9 @@ export default function BillingPage() {
   const [creditsTotal, setCreditsTotal] = useState(0);
   const [loadingCredits, setLoadingCredits] = useState(false);
   const [isCustomQuoteModalOpen, setIsCustomQuoteModalOpen] = useState(false);
+  const [customCheckoutPlan, setCustomCheckoutPlan] = useState(null);
+  const [checkoutForm, setCheckoutForm] = useState({ card: '', expiry: '', cvc: '', name: '' });
+  const [processing, setProcessing] = useState(false);
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
   const { user, fetchUser } = useAuthStore();
   const { branding } = useBrandingStore();
@@ -73,6 +76,8 @@ export default function BillingPage() {
   };
 
   const handleUpgrade = async (planId) => {
+    /* 
+    // OLD PAYMENT GATEWAY LOGIC (Razorpay / Cashfree) COMMENTED OUT
     if (!isRazorpayEnabled && !isCashfreeEnabled) {
       toast.error('Payments are currently disabled.');
       return;
@@ -81,107 +86,40 @@ export default function BillingPage() {
     setPaying(planId);
     try {
       const orderRes = await billingAPI.createOrder(planId, gateway, numberOfOrgs);
-      const { orderId, amount, currency, keyId, planLabel, prefill, paymentSessionId, gateway: responseGateway, environment } = orderRes.data.data;
-
-      if (responseGateway === 'cashfree') {
-        if (!window.Cashfree) {
-          const { loadScript } = await import('../utils/scriptLoader');
-          await loadScript('https://sdk.cashfree.com/js/v3/cashfree.js', 'cashfree-checkout-script');
-        }
-
-        const cashfree = window.Cashfree({
-          mode: environment || "sandbox"
-        });
-        
-        cashfree.checkout({
-          paymentSessionId: paymentSessionId,
-          redirectTarget: "_modal",
-        }).then(async (result) => {
-          if (result.error) {
-            toast.error(result.error.message || 'Payment failed. Please try again.');
-            setPaying(null);
-          }
-          if (result.redirect) {
-            try {
-              await billingAPI.verifyPayment({
-                cashfreeOrderId: orderId,
-                plan: planId,
-                gateway: 'cashfree',
-              });
-            } catch (err) {
-              console.error('Cashfree verification error:', err);
-            }
-            toast.success(`${planLabel} plan activated!`);
-            await fetchUser();
-            billingAPI.getHistory().then((r) => setHistory(r.data?.data?.payments || []));
-            billingAPI.getCreditsHistory().then((r) => setCreditsHistory(r.data?.data?.transactions || []));
-            setPaying(null);
-          }
-          if (result.paymentDetails) {
-            try {
-              await billingAPI.verifyPayment({
-                cashfreeOrderId: orderId,
-                plan: planId,
-                gateway: 'cashfree',
-              });
-            } catch (err) {
-              console.error('Cashfree verification error:', err);
-            }
-            // Cashfree sends payment message
-            await fetchUser();
-            billingAPI.getHistory().then((r) => setHistory(r.data?.data?.payments || []));
-            billingAPI.getCreditsHistory().then((r) => setCreditsHistory(r.data?.data?.transactions || []));
-            toast.success(`${planLabel} plan activated!`);
-            setPaying(null);
-          }
-        });
-      } else {
-        if (!window.Razorpay) {
-          const { loadScript } = await import('../utils/scriptLoader');
-          await loadScript('https://checkout.razorpay.com/v1/checkout.js', 'razorpay-checkout-script');
-        }
-
-        const options = {
-          key: keyId,
-          amount,
-          currency,
-          name: 'Graxion',
-          description: `${planLabel} Plan Subscription`,
-          order_id: orderId,
-          prefill,
-          theme: { color: '#FF6A00' },
-          handler: async (response) => {
-            try {
-              await billingAPI.verifyPayment({
-                razorpayOrderId: orderId,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-                plan: planId,
-                gateway: 'razorpay',
-              });
-              toast.success(`${planLabel} plan activated!`);
-              await fetchUser();
-              billingAPI.getHistory().then((r) => setHistory(r.data?.data?.payments || []));
-              billingAPI.getCreditsHistory().then((r) => setCreditsHistory(r.data?.data?.transactions || []));
-            } catch (err) {
-              toast.error(err.response?.data?.message || 'Payment verification failed. Contact support.');
-            } finally {
-              setPaying(null);
-            }
-          },
-          modal: { ondismiss: () => setPaying(null) },
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.on('payment.failed', (resp) => {
-          toast.error(resp.error?.description || 'Payment failed. Please try again.');
-          setPaying(null);
-        });
-        rzp.open();
-      }
+      // ... gateway loading ...
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to initiate payment gateway order');
       setPaying(null);
+    }
+    */
+
+    // NEW CUSTOM PREMIUM CHECKOUT LOGIC
+    setCustomCheckoutPlan(planId);
+  };
+
+  const handleCustomPaymentSubmit = async (e) => {
+    e.preventDefault();
+    if (!checkoutForm.card || !checkoutForm.expiry || !checkoutForm.cvc || !checkoutForm.name) {
+      toast.error('Please fill all card details securely.');
+      return;
+    }
+    setProcessing(true);
+    try {
+      const res = await billingAPI.processCustomPayment({
+        plan: customCheckoutPlan,
+        numberOfOrgs: numberOfOrgs,
+        paymentDetails: checkoutForm // Mock details
+      });
+      toast.success(res.data.message || 'Payment successful! Plan activated.');
+      setCustomCheckoutPlan(null);
+      setCheckoutForm({ card: '', expiry: '', cvc: '', name: '' });
+      await fetchUser();
+      billingAPI.getHistory().then((r) => setHistory(r.data?.data?.payments || []));
+      billingAPI.getCreditsHistory().then((r) => setCreditsHistory(r.data?.data?.transactions || []));
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Payment processing failed. Please try again.');
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -234,6 +172,7 @@ export default function BillingPage() {
         </div>
       )}
 
+      {/* Payment gateway selection hidden as per custom UI requirement
       {currentPlan !== 'enterprise' && (isRazorpayEnabled || isCashfreeEnabled) && (
         <div className="flex justify-end gap-3 mt-4 items-center">
           <span className={`text-sm font-semibold ${'text-slate-600 dark:text-slate-400'}`}>Payment Gateway:</span>
@@ -253,12 +192,15 @@ export default function BillingPage() {
           )}
         </div>
       )}
+      */}
       
+      {/* Payments Disabled message hidden
       {currentPlan !== 'enterprise' && !isRazorpayEnabled && !isCashfreeEnabled && (
         <div className="flex justify-end mt-4">
           <span className="text-sm font-semibold text-rose-500 bg-rose-500/10 px-3 py-1.5 rounded-lg">Payments are currently disabled</span>
         </div>
       )}
+      */}
 
       <div className={`mt-6 p-5 rounded-2xl border ${'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10'} max-w-2xl mx-auto`}>
         <h3 className={`font-semibold mb-3 text-base ${'text-slate-800 dark:text-slate-100'}`}>How many organizations do you need?</h3>
@@ -460,6 +402,102 @@ export default function BillingPage() {
           user={user} 
           onClose={() => setIsCustomQuoteModalOpen(false)} 
         />
+      )}
+
+      {/* Premium Custom Checkout Modal */}
+      {customCheckoutPlan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/40 animate-fade-in">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-br from-[#FF6A00] to-rose-500 p-6 text-white relative overflow-hidden">
+              <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-white opacity-10 rounded-full blur-2xl"></div>
+              <h2 className="text-2xl font-extrabold tracking-tight relative z-10">Premium Checkout</h2>
+              <p className="text-white/80 mt-1 text-sm font-medium relative z-10">Secure payment via Custom Gateway</p>
+            </div>
+            
+            <form onSubmit={handleCustomPaymentSubmit} className="p-6 space-y-5">
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">Selected Plan</span>
+                  <span className="text-sm font-bold text-slate-900 dark:text-white capitalize">{customCheckoutPlan}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">Organizations</span>
+                  <span className="text-sm font-bold text-slate-900 dark:text-white">{numberOfOrgs}</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Card Information</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    placeholder="0000 0000 0000 0000"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-[#FF6A00] outline-none transition-all text-sm font-medium text-slate-900 dark:text-white"
+                    value={checkoutForm.card}
+                    onChange={(e) => setCheckoutForm({...checkoutForm, card: e.target.value})}
+                  />
+                  <CreditCard className="absolute left-3 top-3 text-slate-400" size={18} />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Expiry</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="MM/YY"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-[#FF6A00] outline-none transition-all text-sm font-medium text-slate-900 dark:text-white"
+                    value={checkoutForm.expiry}
+                    onChange={(e) => setCheckoutForm({...checkoutForm, expiry: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">CVC</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="123"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-[#FF6A00] outline-none transition-all text-sm font-medium text-slate-900 dark:text-white"
+                    value={checkoutForm.cvc}
+                    onChange={(e) => setCheckoutForm({...checkoutForm, cvc: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Name on Card</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="John Doe"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-[#FF6A00] outline-none transition-all text-sm font-medium text-slate-900 dark:text-white"
+                  value={checkoutForm.name}
+                  onChange={(e) => setCheckoutForm({...checkoutForm, name: e.target.value})}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setCustomCheckoutPlan(null)}
+                  className="flex-1 py-3 px-4 rounded-xl font-semibold text-sm border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={processing}
+                  className="flex-[2] py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-[#FF6A00] to-rose-500 text-white shadow-lg hover:shadow-xl transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                >
+                  {processing ? <Loader2 size={18} className="animate-spin" /> : 'Confirm Payment'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

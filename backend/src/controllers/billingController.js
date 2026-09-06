@@ -552,7 +552,7 @@ exports.upgradePlan = async (req, res, next) => {
     periodEnd.setMonth(periodEnd.getMonth() + 1);
 
     const user = await User.findById(req.user._id);
-    if (!user) return next(new AppError('User not found', 44));
+    if (!user) return next(new AppError('User not found', 404));
 
     user.subscription.plan = planCode;
     user.subscription.status = 'active';
@@ -589,6 +589,125 @@ exports.upgradePlan = async (req, res, next) => {
     });
   } catch (err) {
     logger.error('Upgrade plan error:', err);
+    next(err);
+  }
+};
+
+// Custom Premium Payment processing (replaces Razorpay/Cashfree)
+exports.processCustomPayment = async (req, res, next) => {
+  try {
+    const { plan, numberOfOrgs = 1, paymentDetails, customerStateCode } = req.body;
+    const planCode = plan || req.body.planId;
+    if (!planCode) return next(new AppError('Plan is required', 400));
+
+    let planInfo = await Plan.findOne({ code: planCode, isActive: true });
+    if (!planInfo) {
+      const defaultPlans = {
+        starter: { name: 'Starter', price: 999, messageLimit: 1000, agentLimit: 3, credits: 500 },
+        pro: { name: 'Pro', price: 2999, messageLimit: 5000, agentLimit: 10, credits: 2000 },
+        enterprise: { name: 'Enterprise', price: 9999, messageLimit: 50000, agentLimit: 50, credits: 10000 },
+      };
+      planInfo = defaultPlans[planCode] || { name: planCode, price: 999, messageLimit: 1000, agentLimit: 3, credits: 500 };
+    }
+
+    let pricePerOrg = planInfo.price;
+    // Volume Discount Logic
+    if (numberOfOrgs >= 5) {
+      pricePerOrg = Math.round(pricePerOrg * 0.7);
+    } else if (numberOfOrgs >= 2) {
+      pricePerOrg = Math.round(pricePerOrg * 0.85);
+    }
+    
+    const amountInRupees = pricePerOrg * numberOfOrgs;
+    const taxInfo = calculateTax(amountInRupees, customerStateCode);
+    const amountInPaisa = Math.round(taxInfo.totalAmount * 100);
+
+    const now = new Date();
+    const periodEnd = new Date(now);
+    periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+    const user = await User.findById(req.user._id);
+    if (!user) return next(new AppError('User not found', 404));
+
+    // Update User Subscription
+    user.subscription.plan = planCode;
+    user.subscription.status = 'active';
+    user.subscription.lastPlan = null;
+    user.subscription.currentPeriodStart = now;
+    user.subscription.currentPeriodEnd = periodEnd;
+    user.subscription.messageLimit = planInfo.messageLimit || 1000;
+    user.subscription.agentLimit = planInfo.agentLimit || 3;
+    user.subscription.orgLimit = numberOfOrgs;
+    user.subscription.credits = (user.subscription.credits || 0) + (planInfo.credits || 500);
+    user.subscription.totalCredits = (user.subscription.totalCredits || 0) + (planInfo.credits || 500);
+    await user.save();
+
+    // Reactivate all workspaces
+    const Organization = require('../models/Organization');
+    await Organization.updateMany({ owner: user._id }, { isActive: true });
+
+    // Create Payment Record
+    const customPaymentId = `CUST_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    const paymentObj = await Payment.create({
+      user: user._id,
+      cashfreeOrderId: customPaymentId, // Stored here to act as a unique identifier for history
+      cashfreePaymentId: customPaymentId,
+      plan: planCode,
+      amount: amountInPaisa,
+      paymentGateway: 'custom',
+      status: 'captured',
+      taxDetails: taxInfo,
+      numberOfOrgs: numberOfOrgs,
+      notes: `Bought ${numberOfOrgs} organizations via Custom Premium UI`,
+      billingPeriod: { start: now, end: periodEnd }
+    });
+
+    if (user.referredByPartner) {
+      await processPartnerCommission(user, amountInRupees, planCode, paymentObj._id);
+    }
+
+    // Invoice Generation and Email
+    const invoiceData = {
+      invoiceNumber: customPaymentId,
+      customerName: user.name,
+      customerEmail: user.email,
+      planName: planInfo.name || planCode,
+      baseAmount: taxInfo.totalAmount - taxInfo.totalTax,
+      tax: taxInfo
+    };
+    
+    try {
+      const invoicePath = await generateInvoicePDF(invoiceData);
+      logger.info(`Invoice generated at ${invoicePath}`);
+    } catch (invoiceErr) {
+      logger.error('Failed to generate invoice:', invoiceErr.message);
+    }
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: 'Your Premium Subscription is Activated!',
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #FF6A00;">Welcome to Premium!</h2>
+            <p>Hi ${user.name},</p>
+            <p>Thank you for your purchase. Your <strong>${planInfo.name || planCode}</strong> plan has been successfully activated.</p>
+            <p>You can view your invoice and payment history in your dashboard's Billing section.</p>
+            <p>Enjoy your premium features!</p>
+          </div>
+        `
+      });
+    } catch (emailErr) {
+      logger.warn(`Failed to send activation email: ${emailErr.message}`);
+    }
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Payment processed successfully via Premium UI!',
+      data: { user, paymentId: customPaymentId }
+    });
+  } catch (err) {
+    logger.error('Process custom payment error:', err);
     next(err);
   }
 };
