@@ -59,8 +59,11 @@ const broadcastWorker = new Worker(BROADCAST_QUEUE_NAME, async (job) => {
 
     const contacts = await Contact.find(contactQuery);
 
+    const BroadcastMessage = require('../models/BroadcastMessage');
     let sent = 0;
     let failed = 0;
+    let broadcastMessagesBatch = [];
+    const BATCH_SIZE = 50;
 
     for (const contact of contacts) {
       try {
@@ -95,7 +98,32 @@ const broadcastWorker = new Worker(BROADCAST_QUEUE_NAME, async (job) => {
           });
         }
 
-        await waService.sendTemplateMessage(contact.phone, template.name, template.language, messageComponents);
+        // --- SAFE DEBUG LOGGING & ISOLATION CHECKS ---
+        if (waAccount.organization.toString() !== broadcast.organization.toString()) {
+          throw new Error('SECURITY VIOLATION: WhatsApp Account does not belong to the broadcast organization.');
+        }
+        if (template.organization.toString() !== broadcast.organization.toString()) {
+          throw new Error('SECURITY VIOLATION: Template does not belong to the broadcast organization.');
+        }
+
+        const result = await waService.sendTemplateMessage(contact.phone, template.name, template.language, messageComponents);
+        const messageId = result?.messages?.[0]?.id;
+
+        if (messageId) {
+          broadcastMessagesBatch.push({
+            broadcast: broadcast._id,
+            organization: broadcast.organization,
+            messageId: messageId,
+            phone: contact.phone,
+            status: 'sent'
+          });
+        }
+        
+        if (broadcastMessagesBatch.length >= BATCH_SIZE) {
+          await BroadcastMessage.insertMany(broadcastMessagesBatch);
+          broadcastMessagesBatch = [];
+        }
+
         sent++;
       } catch (err) {
         logger.error(`Broadcast failed for ${contact.phone}: ${err.message}`);
@@ -104,6 +132,10 @@ const broadcastWorker = new Worker(BROADCAST_QUEUE_NAME, async (job) => {
       
       // Basic rate limiting to respect Meta APIs (50 msgs / sec)
       await new Promise(r => setTimeout(r, 20));
+    }
+
+    if (broadcastMessagesBatch.length > 0) {
+      await BroadcastMessage.insertMany(broadcastMessagesBatch);
     }
 
     broadcast.status = 'COMPLETED';

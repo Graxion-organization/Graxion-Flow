@@ -86,6 +86,31 @@ exports.processWebhookPayload = async (payload) => {
           await conversationPricingService.processPricingWebhook(conv.organization, parsed.pricing, parsed.timestamp);
         }
       }
+
+      // Track Broadcast Message Status
+      try {
+        const BroadcastMessage = require('../models/BroadcastMessage');
+        const Broadcast = require('../models/Broadcast');
+        const bMsg = await BroadcastMessage.findOne({ messageId });
+        
+        if (bMsg && bMsg.status !== status) {
+          // Meta's webhook can send 'delivered', 'read', 'failed'
+          bMsg.status = status;
+          await bMsg.save();
+
+          const incQuery = {};
+          if (status === 'delivered') incQuery.deliveredCount = 1;
+          if (status === 'read') incQuery.readCount = 1;
+          if (status === 'failed') incQuery.failedCount = 1;
+          
+          if (Object.keys(incQuery).length > 0) {
+            await Broadcast.findByIdAndUpdate(bMsg.broadcast, { $inc: incQuery });
+          }
+        }
+      } catch (err) {
+        logger.error(`Error updating broadcast message status for ${messageId}: ${err.message}`);
+      }
+
       return;
     }
 
@@ -426,6 +451,10 @@ exports.processWebhookPayload = async (payload) => {
 
       // 6. Check user message limit & credits
       const user = await User.findById(waAccount.user).select('+usage +subscription');
+      if (!user) {
+        logger.warn(`User not found for WA account ${waAccount._id}`);
+        return;
+      }
       const Plan = require('../models/Plan');
       const userPlan = await Plan.findOne({ code: user.subscription?.plan || 'free' });
       const creditCost = userPlan ? userPlan.agentMsgCreditCost : 1;
@@ -547,19 +576,21 @@ exports.processWebhookPayload = async (payload) => {
         wantsVoice
       });
       emitToUser(waAccount.user.toString(), 'ai_typing', { conversationId: conversation._id, isTyping: false });
- 
-      const targetAgent = aiResult.agent;
- 
-      // 9b. Check business hours of the target routed agent
-      const withinHours = AIService.isWithinBusinessHours(targetAgent.businessHours);
-      if (!withinHours && targetAgent.outOfHoursMessage) {
-        await waService.sendTextMessage(from, targetAgent.outOfHoursMessage);
-        return;
-      }
 
       if (!aiResult || !aiResult.content) {
         logger.warn(`AI returned null content for WhatsApp message from ${from}, aborting silent fail.`);
         return;
+      }
+ 
+      const targetAgent = aiResult.agent || agent;
+ 
+      // 9b. Check business hours of the target routed agent
+      if (targetAgent) {
+        const withinHours = AIService.isWithinBusinessHours(targetAgent.businessHours);
+        if (!withinHours && targetAgent.outOfHoursMessage) {
+          await waService.sendTextMessage(from, targetAgent.outOfHoursMessage);
+          return;
+        }
       }
  
       // 9c. Sanitize response - remove markdown symbols not supported by WhatsApp
