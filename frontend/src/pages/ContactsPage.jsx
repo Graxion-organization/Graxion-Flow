@@ -79,10 +79,10 @@ export default function ContactsPage() {
               contacts.map(contact => (
                 <tr key={contact._id} className={`transition ${isDark ? 'hover:bg-white/5' : 'hover:bg-slate-50'}`}>
                   <td className={`p-4 font-medium ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{contact.name || 'Unknown'}</td>
-                  <td className={`p-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{contact.phoneNumber}</td>
+                  <td className={`p-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{contact.phone}</td>
                   <td className="p-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${contact.status === 'active' ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
-                      {contact.status}
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${contact.optIn ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
+                      {contact.optIn ? 'Subscribed' : 'Opted Out'}
                     </span>
                   </td>
                   <td className="p-4 flex gap-1">
