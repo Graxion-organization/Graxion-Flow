@@ -11,7 +11,7 @@ router.post('/cashfree-webhook', billingController.cashfreeWebhook);
 router.use(protect);
 
 router.get('/plans', billingController.getPlans);
-router.post('/custom-payment', billingController.processCustomPayment);
+
 router.post('/create-order', billingController.createSubscription);
 router.post('/create-subscription', billingController.createSubscription);
 router.post('/verify-payment', billingController.verifyPayment);

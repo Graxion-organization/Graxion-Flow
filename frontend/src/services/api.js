@@ -264,7 +264,6 @@ export const billingAPI = {
   getPlans: () => api.get('/billing/plans'),
   createOrder: (plan, gateway = 'razorpay', numberOfOrgs = 1) => api.post('/billing/create-order', { plan, gateway, numberOfOrgs }),
   verifyPayment: (data) => api.post('/billing/verify-payment', data),
-  processCustomPayment: (data) => api.post('/billing/custom-payment', data),
   getHistory: () => api.get('/billing/history'),
   getCreditsHistory: (params) => api.get('/billing/credits/history', { params }),
   cancel: () => api.delete('/billing/cancel'),
