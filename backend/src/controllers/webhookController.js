@@ -96,6 +96,7 @@ exports.processWebhookPayload = async (payload) => {
         if (bMsg && bMsg.status !== status) {
           // Meta's webhook can send 'delivered', 'read', 'failed'
           bMsg.status = status;
+          if (parsed.reason) bMsg.errorReason = parsed.reason;
           await bMsg.save();
 
           const incQuery = {};
