@@ -17,4 +17,8 @@ router
   .route('/:id')
   .get(broadcastController.getBroadcast);
 
+router
+  .route('/:id/failures')
+  .get(broadcastController.getBroadcastFailures);
+
 module.exports = router;

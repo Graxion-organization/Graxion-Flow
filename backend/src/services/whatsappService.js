@@ -361,7 +361,7 @@ class WhatsAppService {
           isStatusUpdate: true,
           messageId: statusObj.id,
           status: statusObj.status, // 'sent', 'delivered', 'read', 'failed'
-          reason: statusObj.errors ? (statusObj.errors[0]?.message || statusObj.errors[0]?.title) : undefined,
+          reason: statusObj.errors ? (statusObj.errors[0]?.error_data?.details || statusObj.errors[0]?.message || statusObj.errors[0]?.title) : undefined,
           recipientId: statusObj.recipient_id,
           timestamp: statusObj.timestamp,
           pricing: statusObj.pricing // For conversation pricing tracking

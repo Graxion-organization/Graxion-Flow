@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { templateAPI, contactGroupAPI, whatsappAPI, broadcastAPI } from '../services/api';
 import toast from 'react-hot-toast';
+import FailedMessagesModal from '../components/broadcasts/FailedMessagesModal';
 
 export default function BroadcastPage() {
   const [templates, setTemplates] = useState([]);
@@ -35,6 +36,7 @@ export default function BroadcastPage() {
   // Broadcast History states
   const [broadcasts, setBroadcasts] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [selectedBroadcastFailures, setSelectedBroadcastFailures] = useState(null);
 
   const loadData = async () => {
     try {
@@ -409,7 +411,17 @@ export default function BroadcastPage() {
                   <td className="p-4 text-center font-semibold">
                     <span className="text-emerald-400">{b.sentCount || 0}</span>
                     <span className="text-slate-500 mx-1">/</span>
-                    <span className="text-red-400">{b.failedCount || 0}</span>
+                    {b.failedCount > 0 ? (
+                      <button 
+                        onClick={() => setSelectedBroadcastFailures(b._id)}
+                        className="text-red-400 hover:text-red-300 underline decoration-red-400/30 underline-offset-4 transition-colors"
+                        title="Click to view detailed failure reasons"
+                      >
+                        {b.failedCount}
+                      </button>
+                    ) : (
+                      <span className="text-red-400">0</span>
+                    )}
                   </td>
                   <td className="p-4 text-slate-400 font-mono">
                     {b.scheduledAt ? new Date(b.scheduledAt).toLocaleString() : new Date(b.createdAt).toLocaleString()}
@@ -427,6 +439,14 @@ export default function BroadcastPage() {
           </table>
         </div>
       </div>
+
+      {selectedBroadcastFailures && (
+        <FailedMessagesModal
+          broadcastId={selectedBroadcastFailures}
+          onClose={() => setSelectedBroadcastFailures(null)}
+          isDark={true}
+        />
+      )}
     </div>
   );
 }

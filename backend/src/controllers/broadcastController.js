@@ -50,3 +50,14 @@ exports.getBroadcast = catchAsync(async (req, res, next) => {
   if (!broadcast) return next(new AppError('Broadcast not found', 404));
   res.status(200).json({ status: 'success', data: { broadcast } });
 });
+
+exports.getBroadcastFailures = catchAsync(async (req, res, next) => {
+  const BroadcastMessage = require('../models/BroadcastMessage');
+  const failures = await BroadcastMessage.find({
+    broadcast: req.params.id,
+    organization: req.organization._id,
+    status: 'failed'
+  }).select('phone errorReason createdAt');
+  
+  res.status(200).json({ status: 'success', data: { failures } });
+});
