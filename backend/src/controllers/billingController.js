@@ -596,7 +596,7 @@ exports.upgradePlan = async (req, res, next) => {
 // Custom Premium Payment processing (replaces Razorpay/Cashfree)
 exports.processCustomPayment = async (req, res, next) => {
   try {
-    const { plan, numberOfOrgs = 1, paymentDetails, customerStateCode } = req.body;
+    const { plan, numberOfOrgs = 1, paymentDetails, paymentMethod = 'card', customerStateCode } = req.body;
     const planCode = plan || req.body.planId;
     if (!planCode) return next(new AppError('Plan is required', 400));
 
@@ -658,7 +658,7 @@ exports.processCustomPayment = async (req, res, next) => {
       status: 'captured',
       taxDetails: taxInfo,
       numberOfOrgs: numberOfOrgs,
-      notes: `Bought ${numberOfOrgs} organizations via Custom Premium UI`,
+      notes: `Bought ${numberOfOrgs} organizations via Graxion Pay (${paymentMethod.toUpperCase()})`,
       billingPeriod: { start: now, end: periodEnd }
     });
 
