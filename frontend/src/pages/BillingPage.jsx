@@ -107,11 +107,6 @@ export default function BillingPage() {
         toast.error('Please fill all card details securely.');
         return;
       }
-    } else if (paymentMethod === 'upi') {
-      if (!checkoutForm.upiId) {
-        toast.error('Please enter a valid UPI ID.');
-        return;
-      }
     }
 
     setProcessing(true);
@@ -178,11 +173,16 @@ export default function BillingPage() {
         };
         rzp.createPayment(paymentData);
       } else if (paymentMethod === 'upi') {
-        paymentData = {
-          method: 'upi',
-          upi: { vpa: checkoutForm.upiId }
-        };
-        rzp.createPayment(paymentData);
+        if (checkoutForm.upiId) {
+          paymentData = {
+            method: 'upi',
+            upi: { vpa: checkoutForm.upiId }
+          };
+          rzp.createPayment(paymentData);
+        } else {
+          // If no UPI ID is entered, open standard Razorpay checkout to show the QR Scanner
+          rzp.open();
+        }
       } else {
         // Fallback for NetBanking/Wallets to standard Razorpay Checkout
         rzp.open();
@@ -627,18 +627,17 @@ export default function BillingPage() {
                   {/* UPI FORM */}
                   {paymentMethod === 'upi' && (
                     <div className="space-y-6 animate-fade-in py-4 flex flex-col items-center">
-                      <div className="w-32 h-32 bg-white p-2 rounded-xl shadow-sm border border-slate-200">
-                          {/* Mock QR Code Pattern */}
-                          <div className="w-full h-full bg-slate-900 flex items-center justify-center rounded-lg">
-                            <div className="text-white text-xs text-center p-2 opacity-50">Scan via any UPI App</div>
-                          </div>
+                      <div className="w-32 h-32 bg-white p-2 rounded-xl shadow-sm border border-slate-200 cursor-pointer hover:border-[#FF6A00] transition-colors" onClick={(e) => { e.preventDefault(); document.getElementById('pay-btn').click(); }}>
+                         {/* Mock QR Code Pattern - Click to open Real Scanner */}
+                         <div className="w-full h-full bg-slate-100 flex items-center justify-center rounded-lg border-2 border-dashed border-slate-300">
+                           <div className="text-[#FF6A00] text-xs text-center font-bold px-2">Click to open QR Scanner</div>
+                         </div>
                       </div>
                       <div className="text-center w-full">
                         <span className="text-sm text-slate-500 font-medium">OR Enter UPI ID</span>
                         <div className="mt-3 relative max-w-sm mx-auto">
                             <input
                             type="text"
-                            required
                             placeholder="username@bank"
                             className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-[#FF6A00] outline-none transition-all text-sm font-medium text-slate-900 dark:text-white shadow-sm"
                             value={checkoutForm.upiId || ''}
@@ -684,6 +683,7 @@ export default function BillingPage() {
                 </div>
                 
                 <button
+                  id="pay-btn"
                   type="submit"
                   disabled={processing}
                   className="mt-8 w-full py-4 rounded-xl font-bold text-base bg-gradient-to-r from-[#FF6A00] to-rose-500 text-white shadow-lg hover:shadow-[0_10px_25px_rgba(255,106,0,0.4)] hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
