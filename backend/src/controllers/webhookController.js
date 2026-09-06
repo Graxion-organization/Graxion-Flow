@@ -106,11 +106,23 @@ exports.processWebhookPayload = async (payload) => {
 
           const incQuery = {};
           if (status === 'delivered') incQuery.deliveredCount = 1;
-          if (status === 'read') incQuery.readCount = 1;
-          if (status === 'failed') incQuery.failedCount = 1;
+          else if (status === 'read') incQuery.readCount = 1;
+          else if (status === 'failed') incQuery.failedCount = 1;
           
           if (Object.keys(incQuery).length > 0) {
-            await Broadcast.findByIdAndUpdate(bMsg.broadcast, { $inc: incQuery });
+            const updatedBroadcast = await Broadcast.findByIdAndUpdate(
+              bMsg.broadcast, 
+              { $inc: incQuery },
+              { new: true }
+            );
+
+            // If the webhook is a failure, check if the entire broadcast should be marked as FAILED
+            if (status === 'failed' && updatedBroadcast && updatedBroadcast.status === 'COMPLETED') {
+              if (updatedBroadcast.sentCount > 0 && updatedBroadcast.failedCount >= updatedBroadcast.sentCount) {
+                updatedBroadcast.status = 'FAILED';
+                await updatedBroadcast.save();
+              }
+            }
           }
         }
       } catch (err) {
