@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom";
 import {
   MessageSquare,
   Home as HomeIcon,
@@ -9,7 +9,6 @@ import {
   BarChart3,
   Shield,
   Workflow,
-  ChevronRight,
   Menu,
   X,
   ArrowRight,
@@ -28,26 +27,86 @@ import {
   Linkedin,
   MessageCircle,
   CalendarDays,
-  Clock3,
   LayoutDashboard,
-  Activity,
   BadgeCheck,
   Play,
   Layers,
-  PieChart,
-  TrendingUp,
-  MousePointerClick,
-  BellRing,
-  Eye
-} from 'lucide-react';
-import { useAuthStore, useBrandingStore } from '../store';
+  ChevronRight,
+} from "lucide-react";
+import { useAuthStore, useBrandingStore } from "../store";
+
+/* ─────────────────────────────────────────────────────────
+   Premium Light Theme Tokens (Self-contained)
+   Background:    #FFFFFF (White) & #F8FAFC (Slate 50)
+   Surface:       #FFFFFF with subtle shadows
+   Primary Text:  #0F172A (Slate 900)
+   Muted Text:    #64748B (Slate 500)
+   Accent Blue:   #2563EB (Blue 600)
+   Accent Light:  #EFF6FF (Blue 50)
+───────────────────────────────────────────────────────── */
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+  },
+};
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1 } },
+};
+
+/* ─── Global styles: Clean modern sans-serif ─── */
+const GlobalStyles = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    
+    .gflow-sans { 
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; 
+    }
+    
+    @keyframes gflow-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .gflow-marquee { animation: gflow-marquee 35s linear infinite; }
+    
+    @keyframes gflow-float { 
+      0%, 100% { transform: translateY(0px) rotate(0deg); } 
+      50% { transform: translateY(-12px) rotate(2deg); } 
+    }
+    .gflow-float { animation: gflow-float 6s ease-in-out infinite; }
+
+    .gflow-gradient-text {
+      background: linear-gradient(135deg, #0F172A 0%, #334155 40%, #1E40AF 70%, #2563EB 100%);
+      -webkit-background-clip: text; 
+      background-clip: text; 
+      color: transparent;
+    }
+    
+    .glass-nav {
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(255,255,255,0.4);
+    }
+    
+    .premium-glass-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: 0 30px 60px -12px rgba(15,23,42,0.08), 0 0 0 1px rgba(255,255,255,0.6) inset;
+    }
+
+    ::selection { background: rgba(37, 99, 235, 0.2); color: #0F172A; }
+  `}</style>
+);
 
 /* ─── Animated Counter ─── */
-const AnimatedCounter = ({ target, suffix = '', prefix = '' }) => {
+const AnimatedCounter = ({ target, suffix = "" }) => {
   const [count, setCount] = useState(0);
   useEffect(() => {
-    const duration = 2000;
-    const steps = 60;
+    const steps = 48;
     const increment = target / steps;
     let current = 0;
     const timer = setInterval(() => {
@@ -58,193 +117,190 @@ const AnimatedCounter = ({ target, suffix = '', prefix = '' }) => {
       } else {
         setCount(Math.floor(current));
       }
-    }, duration / steps);
+    }, 1800 / steps);
     return () => clearInterval(timer);
   }, [target]);
-  return <span>{prefix}{count.toLocaleString()}{suffix}</span>;
+  return (
+    <span>
+      {count.toLocaleString()}
+      {suffix}
+    </span>
+  );
 };
 
-/* ─── Dashboard Mockup Component ─── */
+/* ─── Premium Dashboard Mockup (Light Mode) ─── */
 const DashboardMockup = () => (
-  <div className="dashboard-mockup p-1.5 sm:p-2">
-    {/* Title bar */}
-    <div className="flex items-center gap-2 px-3 py-2 border-b border-white/5">
+  <div className="rounded-2xl premium-glass-card overflow-hidden">
+    {/* Browser Header */}
+    <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-100 bg-slate-50/50">
       <div className="flex gap-1.5">
-        <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
-        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
-        <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+        <div className="w-3 h-3 rounded-full bg-slate-200" />
+        <div className="w-3 h-3 rounded-full bg-slate-200" />
+        <div className="w-3 h-3 rounded-full bg-slate-200" />
       </div>
-      <div className="flex-1 mx-4">
-        <div className="max-w-[200px] mx-auto h-5 bg-white/5 rounded-md flex items-center justify-center">
-          <span className="text-[10px] text-white/30 font-medium">flow.graxion.in/app</span>
-        </div>
+      <div className="flex-1 mx-4 max-w-[240px] mx-auto h-6 bg-white border border-slate-200 rounded-md flex items-center justify-center shadow-sm">
+        <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+          <Shield className="w-3 h-3 text-blue-500" /> flow.graxion.in/app
+        </span>
       </div>
     </div>
-    
-    {/* Dashboard content */}
-    <div className="flex h-[220px] sm:h-[280px] lg:h-[340px]">
+
+    <div className="flex h-[240px] sm:h-[300px] lg:h-[380px] bg-slate-50/30">
       {/* Sidebar */}
-      <div className="w-12 sm:w-14 border-r border-white/5 py-3 flex flex-col items-center gap-3">
-        <div className="w-7 h-7 rounded-lg bg-brand-500/20 flex items-center justify-center">
-          <LayoutDashboard className="w-3.5 h-3.5 text-brand-400" />
+      <div className="w-14 sm:w-16 border-r border-slate-100 py-4 flex flex-col items-center gap-4 bg-white">
+        <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20">
+          <MessageSquare className="w-4 h-4 text-white" />
         </div>
-        {[MessageCircle, Users, Send, BarChart3, Workflow].map((Icon, i) => (
-          <div key={i} className="w-7 h-7 rounded-lg bg-white/[0.03] flex items-center justify-center hover:bg-white/[0.06] transition-colors">
-            <Icon className="w-3.5 h-3.5 text-white/30" />
-          </div>
-        ))}
+        <div className="flex flex-col gap-2 mt-2">
+          {[LayoutDashboard, MessageCircle, Users, BarChart3, Workflow].map(
+            (Icon, i) => (
+              <div
+                key={i}
+                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${i === 0 ? "bg-blue-50 text-blue-600" : "text-slate-400 hover:bg-slate-50 hover:text-slate-600"}`}
+              >
+                <Icon className="w-4.5 h-4.5" />
+              </div>
+            ),
+          )}
+        </div>
       </div>
-      
-      {/* Main area */}
-      <div className="flex-1 p-3 sm:p-4">
-        {/* Stats row */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-3 sm:mb-4">
+
+      {/* Main Content */}
+      <div className="flex-1 p-4 sm:p-6 overflow-hidden">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-sm font-semibold text-slate-800">Overview</h2>
+          <span className="text-[10px] bg-white border border-slate-200 px-2.5 py-1 rounded-full text-slate-500 font-medium shadow-sm">
+            Last 30 Days
+          </span>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-5">
           {[
-            { label: 'Messages', value: '12.4K', color: 'text-brand-400', bg: 'bg-brand-500/10' },
-            { label: 'Engagement', value: '89%', color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
-            { label: 'Published', value: '234', color: 'text-purple-400', bg: 'bg-purple-500/10' },
+            { label: "Messages Sent", value: "12.4K", trend: "+14%" },
+            { label: "Avg Engagement", value: "89%", trend: "+5%" },
+            { label: "Posts Published", value: "234", trend: "+22%" },
           ].map((stat) => (
-            <div key={stat.label} className="dashboard-mockup-inner p-2 sm:p-3">
-              <p className="text-[9px] sm:text-[10px] text-white/40 mb-1">{stat.label}</p>
-              <p className={`text-sm sm:text-lg font-bold ${stat.color}`}>{stat.value}</p>
+            <div
+              key={stat.label}
+              className="rounded-xl border border-slate-100 bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="flex justify-between items-start mb-2">
+                <p className="text-[10px] sm:text-xs text-slate-500 font-medium">
+                  {stat.label}
+                </p>
+                <span className="text-[9px] font-bold text-emerald-500 bg-emerald-50 px-1.5 py-0.5 rounded">
+                  {stat.trend}
+                </span>
+              </div>
+              <p className="text-lg sm:text-2xl font-bold text-slate-900">
+                {stat.value}
+              </p>
             </div>
           ))}
         </div>
-        
-        {/* Chart area */}
-        <div className="dashboard-mockup-inner p-3 sm:p-4 flex-1">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] sm:text-xs text-white/40 font-medium">Engagement Overview</span>
-            <div className="flex gap-1">
-              {['7D', '30D', '90D'].map(p => (
-                <span key={p} className={`text-[8px] sm:text-[10px] px-2 py-0.5 rounded ${p === '30D' ? 'bg-brand-500/20 text-brand-400' : 'text-white/30'}`}>{p}</span>
-              ))}
-            </div>
-          </div>
-          {/* Mini chart bars */}
-          <div className="flex items-end gap-1 sm:gap-1.5 h-16 sm:h-24">
+
+        {/* Chart Area */}
+        <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+          <div className="flex items-end gap-1.5 sm:gap-2 h-20 sm:h-28">
             {[40, 65, 45, 80, 55, 90, 70, 85, 60, 95, 75, 88].map((h, i) => (
-              <div key={i} className="flex-1 rounded-sm sm:rounded" style={{ height: `${h}%`, background: `linear-gradient(180deg, rgba(34,197,94,${0.3 + (h/200)}) 0%, rgba(34,197,94,0.05) 100%)` }} />
+              <div
+                key={i}
+                className="group flex-1 flex flex-col justify-end relative"
+              >
+                <div
+                  className="w-full rounded-t-sm transition-all duration-300 group-hover:opacity-80"
+                  style={{
+                    height: `${h}%`,
+                    background: `linear-gradient(180deg, #3B82F6 0%, #EFF6FF 100%)`,
+                  }}
+                />
+              </div>
             ))}
           </div>
         </div>
-      </div>
-
-      {/* Right panel - hidden on small screens */}
-      <div className="hidden lg:block w-48 border-l border-white/5 p-3">
-        <p className="text-[10px] text-white/40 font-medium mb-3">Recent Activity</p>
-        {[
-          { platform: 'Instagram', action: 'Post published', time: '2m ago', color: 'text-pink-400' },
-          { platform: 'YouTube', action: 'Comment replied', time: '5m ago', color: 'text-red-400' },
-          { platform: 'WhatsApp', action: 'Broadcast sent', time: '12m ago', color: 'text-green-400' },
-          { platform: 'Facebook', action: 'Scheduled post', time: '18m ago', color: 'text-blue-400' },
-        ].map((item, i) => (
-          <div key={i} className="flex items-start gap-2 py-2 border-b border-white/[0.03] last:border-0">
-            <div className={`w-1.5 h-1.5 rounded-full mt-1.5 ${item.color.replace('text-', 'bg-')}`} />
-            <div>
-              <p className="text-[10px] text-white/60 font-medium">{item.platform}</p>
-              <p className="text-[9px] text-white/30">{item.action}</p>
-              <p className="text-[8px] text-white/20 mt-0.5">{item.time}</p>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   </div>
 );
 
-/* ─── Floating Platform Icon ─── */
-const FloatingPlatformIcon = ({ icon: Icon, color, position, delay, size = 'w-10 h-10' }) => (
+/* ─── Floating platform chip (Light mode) ─── */
+const PlatformChip = ({ icon: Icon, color, position, delay }) => (
   <motion.div
-    initial={{ opacity: 0, scale: 0 }}
+    initial={{ opacity: 0, scale: 0.5 }}
     animate={{ opacity: 1, scale: 1 }}
-    transition={{ duration: 0.6, delay }}
-    className={`absolute ${position} ${size} rounded-xl flex items-center justify-center shadow-lg animate-float-slow z-20`}
-    style={{ 
-      background: `linear-gradient(135deg, ${color}20, ${color}40)`,
-      border: `1px solid ${color}30`,
-      animationDelay: `${delay}s` 
+    transition={{ duration: 0.6, delay, type: "spring" }}
+    className={`absolute ${position} gflow-float w-12 h-12 rounded-2xl flex items-center justify-center z-20 bg-white border border-slate-100`}
+    style={{
+      animationDelay: `${delay}s`,
+      boxShadow: "0 12px 30px -8px rgba(0,0,0,0.08)",
     }}
   >
     <Icon className="w-5 h-5" style={{ color }} />
   </motion.div>
 );
 
-/* ─── How It Works Step ─── */
-const FlowStep = ({ number, title, description, icon: Icon, delay, isLast }) => (
+/* ─── Feature row (Light clean style) ─── */
+const FeatureRow = ({ icon: Icon, title, description }) => (
   <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.5, delay }}
-    className="relative flex flex-col items-center text-center flex-1"
+    variants={fadeUp}
+    className="flex items-start gap-4 p-5 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100"
   >
-    {/* Step circle */}
-    <div className="relative mb-6">
-      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 flex items-center justify-center shadow-lg shadow-brand-500/10">
-        <Icon className="w-7 h-7 sm:w-8 sm:h-8 text-brand-400" />
-      </div>
-      <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-brand-500/30">
-        {number}
-      </div>
+    <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+      <Icon className="w-5 h-5 text-blue-600" />
     </div>
-    <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">{title}</h3>
-    <p className="text-slate-500 text-sm leading-relaxed max-w-[240px]">{description}</p>
+    <div>
+      <h3 className="text-base font-bold text-slate-900 mb-1.5">{title}</h3>
+      <p className="text-slate-500 text-sm leading-relaxed">{description}</p>
+    </div>
   </motion.div>
 );
 
-/* ─── Feature Bento Card ─── */
-const BentoFeatureCard = ({ icon: Icon, title, description, delay, className = '' }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.5, delay }}
-    className={`bento-card p-6 sm:p-8 group cursor-default ${className}`}
-  >
-    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-brand-500/15 to-brand-500/5 border border-brand-200/50 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-brand-500/10 transition-all duration-300">
-      <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-brand-600" />
-    </div>
-    <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">{title}</h3>
-    <p className="text-slate-500 leading-relaxed text-sm sm:text-[15px]">{description}</p>
-  </motion.div>
-);
-
-/* ─── Platform Card ─── */
-const PlatformShowcaseCard = ({ icon: Icon, name, color, description, capabilities, delay, metaVerified = false }) => (
+/* ─── Platform card (Light Mode) ─── */
+const PlatformCard = ({
+  icon: Icon,
+  name,
+  color,
+  description,
+  capabilities,
+  metaVerified = false,
+}) => (
   <motion.article
-    initial={{ opacity: 0, y: 24 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, amount: 0.15 }}
-    transition={{ duration: 0.45, delay }}
-    className="platform-glow group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 transition-all duration-300 hover:-translate-y-1"
+    variants={fadeUp}
+    className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-7 transition-all duration-300 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] hover:-translate-y-1"
   >
-    <div className="absolute inset-x-0 top-0 h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
-    <div className="flex items-center gap-3 mb-4">
-      <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${color}18, ${color}35)` }}>
-        <Icon className="w-5 h-5" style={{ color }} />
+    <div className="absolute top-0 right-0 w-32 h-32 opacity-[0.03] transform translate-x-8 -translate-y-8 group-hover:scale-110 transition-transform duration-500">
+      <Icon className="w-full h-full" style={{ color }} />
+    </div>
+
+    <div className="flex items-center gap-3 mb-5 relative z-10">
+      <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-slate-50 border border-slate-100 group-hover:bg-white transition-colors shadow-sm">
+        <Icon className="w-6 h-6" style={{ color }} />
       </div>
       <div>
         <h3 className="text-lg font-bold text-slate-900">{name}</h3>
         {metaVerified && (
-          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#1877f2]">
-            <BadgeCheck className="h-3.5 w-3.5 fill-[#1877f2] text-white" /> Meta verified
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full mt-0.5">
+            <BadgeCheck className="h-3 w-3" /> Meta verified
           </span>
         )}
       </div>
     </div>
-    <p className="min-h-[48px] text-sm leading-relaxed text-slate-500 mb-4">{description}</p>
-    <ul className="space-y-2.5">
-      {capabilities.map(cap => (
-        <li key={cap} className="flex items-start gap-2 text-sm text-slate-600">
-          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-500" />
+    <p className="min-h-[48px] text-sm leading-relaxed text-slate-600 mb-6 relative z-10">
+      {description}
+    </p>
+    <ul className="space-y-3 relative z-10">
+      {capabilities.map((cap) => (
+        <li
+          key={cap}
+          className="flex items-start gap-2.5 text-sm font-medium text-slate-700"
+        >
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
           <span>{cap}</span>
         </li>
       ))}
     </ul>
   </motion.article>
 );
-
 
 export default function Home() {
   const navigate = useNavigate();
@@ -254,15 +310,24 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
-  // Dynamic branding from Admin Settings (Overridden for Google Compliance)
   const brandName = "Graxion Flow";
-  const heroTitle = "AI-Powered Social Media Automation";
-  const heroSubtitle = "Graxion Flow is a social media management and automation platform that helps businesses create, schedule, and publish content across supported social media platforms from one centralized dashboard.";
-  const tagline = "Graxion Flow is a product by Graxion.";
-  const contactEmail = useMemo(() => branding?.branding_contact_email || "support@graxion.in", [branding]);
-  const contactPhone = useMemo(() => branding?.branding_contact_phone || "+1 (800) 123-4567", [branding]);
-  const footerText = useMemo(() => branding?.branding_footer_text || "© 2026 Graxion. All rights reserved.", [branding]);
-  const logoUrl = "https://res.cloudinary.com/dh6uiegxw/image/upload/v1784957805/social_hub/qth6s6bzkoawy0q1qprl.png";
+  const tagline = "Premium Social Operations";
+  const contactEmail = useMemo(
+    () => branding?.branding_contact_email || "hello@graxion.in",
+    [branding],
+  );
+  const contactPhone = useMemo(
+    () => branding?.branding_contact_phone || "+1 (800) 123-4567",
+    [branding],
+  );
+  const footerText = useMemo(
+    () =>
+      branding?.branding_footer_text || "© 2026 Graxion. All rights reserved.",
+    [branding],
+  );
+  const logoUrl =
+    "https://res.cloudinary.com/dh6uiegxw/image/upload/v1784957805/social_hub/qth6s6bzkoawy0q1qprl.png";
+
   const address = useMemo(() => branding?.branding_address || '', [branding]);
   const socialTwitter = useMemo(() => branding?.branding_social_twitter || '', [branding]);
   const socialLinkedin = useMemo(() => branding?.branding_social_linkedin || '', [branding]);
@@ -271,113 +336,118 @@ export default function Home() {
 
   const testimonials = [
     {
-      quote: "Graxion Flow basically gave me my weekends back. The AI automation is like having a full-time social media manager who never sleeps. Absolutely a game-changer for our agency.",
+      quote:
+        "Graxion Flow completely transformed our workflow. It feels like an Apple product—clean, incredibly fast, and it just works out of the box.",
       name: "Sarah Jenkins",
-      role: "Marketing Director",
+      role: "Marketing Director, TechNova",
+      avatar: "bg-blue-100 text-blue-700",
       initials: "SJ",
-      color: "from-brand-500 to-emerald-400"
     },
     {
-      quote: "I was skeptical about automated replies feeling 'robotic', but the AI assistance here feels incredibly natural. Our customer engagement has gone up by 300% since we started.",
+      quote:
+        "The interface is gorgeous. We finally ditched our clunky legacy tools. Scheduling and AI replies in one clean dashboard saves us 15 hours a week.",
       name: "Michael Chen",
       role: "E-commerce Founder",
+      avatar: "bg-indigo-100 text-indigo-700",
       initials: "MC",
-      color: "from-cyan-500 to-blue-400"
     },
     {
-      quote: "The unified dashboard is a lifesaver. No more jumping between 5 different tabs just to reply to comments. It's clean, intuitive, and just works beautifully.",
+      quote:
+        "It's rare to find B2B software that looks this good and performs even better. The WhatsApp automation alone paid for itself on day one.",
       name: "Elena Rodriguez",
-      role: "Content Creator",
+      role: "Head of Support",
+      avatar: "bg-emerald-100 text-emerald-700",
       initials: "ER",
-      color: "from-purple-500 to-pink-400"
-    }
+    },
   ];
 
   useEffect(() => {
-    fetchBranding().catch(() => {});
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    fetchBranding().catch(() => { });
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [fetchBranding]);
 
   useEffect(() => {
     document.title = `${brandName} — ${tagline}`;
   }, [brandName, tagline]);
 
-  // Auto-rotate testimonials
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveTestimonial(prev => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [testimonials.length]);
-
   const goAuth = (path) => {
     if (isAuthenticated) {
-      navigate('/app/dashboard');
+      navigate("/app/dashboard");
       return;
     }
     navigate(path);
   };
 
   const navLinks = [
-    { label: 'Features', href: '#features' },
-    { label: 'Platforms', href: '#platforms' },
-    { label: 'How it Works', href: '#workflow' },
-    { label: 'Contact', href: '/contact' },
+    { label: "Platform", href: "#features" },
+    { label: "Integrations", href: "#platforms" },
+    { label: "Workflow", href: "#workflow" },
+    { label: "Pricing", href: "/pricing" },
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans overflow-x-hidden">
-      
-      {/* ═══════════════════════════════════════════ */}
-      {/* ─── NAVBAR ─── */}
-      {/* ═══════════════════════════════════════════ */}
+    <div className="gflow-sans min-h-screen bg-slate-50 text-slate-900 overflow-x-hidden selection:bg-blue-100 selection:text-blue-900">
+      <GlobalStyles />
+
+      {/* ─── PREMIUM NAVBAR ─── */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled
-            ? 'bg-white/90 backdrop-blur-xl border-b border-slate-200/80 py-3 shadow-[0_4px_30px_rgba(0,0,0,0.06)]'
-            : 'bg-transparent py-4 sm:py-5'
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+            ? "glass-nav border-b border-slate-200/60 py-3"
+            : "bg-transparent py-5"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-5 lg:px-8 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center gap-2.5 group">
             {logoUrl ? (
-              <img src={logoUrl} alt="Graxion Flow Logo" className="h-9 w-auto" />
+              <img
+                src={logoUrl}
+                alt="Graxion Flow"
+                className="h-8 w-auto group-hover:scale-105 transition-transform"
+              />
             ) : (
-              <div className="h-10 w-10 bg-gradient-to-br from-brand-500 to-emerald-400 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:shadow-brand-500/40 transition-shadow">
-                <MessageSquare className="text-white h-5 w-5" />
+              <div className="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20">
+                <MessageSquare className="text-white h-4.5 w-4.5" />
               </div>
             )}
-            <span className={`text-xl font-bold tracking-tight transition-colors ${isScrolled ? 'text-slate-900' : 'text-white'}`}>
+            <span className="text-xl font-bold tracking-tight text-slate-900">
               {brandName}
             </span>
           </Link>
 
-          <nav className={`hidden md:flex items-center gap-8 text-sm font-medium ${isScrolled ? 'text-slate-600' : 'text-white/70'}`}>
-            {navLinks.map(link => (
-              link.href.startsWith('#') ? (
-                <a key={link.label} href={link.href} className={`hover:${isScrolled ? 'text-brand-600' : 'text-white'} transition-colors duration-200`}>{link.label}</a>
-              ) : (
-                <Link key={link.label} to={link.href} className={`hover:${isScrolled ? 'text-brand-600' : 'text-white'} transition-colors duration-200`}>{link.label}</Link>
-              )
+          <nav className="hidden md:flex items-center gap-8 bg-white/50 backdrop-blur-md px-6 py-2.5 rounded-full border border-slate-200 shadow-sm">
+            {navLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="text-[14px] font-semibold text-slate-600 hover:text-blue-600 transition-colors"
+              >
+                {link.label}
+              </a>
             ))}
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
-            <button onClick={() => goAuth('/login')} className={`px-5 py-2.5 text-sm font-medium transition-colors ${isScrolled ? 'text-slate-600 hover:text-slate-950' : 'text-white/80 hover:text-white'}`}>
-              Sign In
+            <button
+              onClick={() => goAuth("/login")}
+              className="px-5 py-2.5 text-[14px] font-bold text-slate-600 hover:text-slate-900 transition-colors"
+            >
+              Log in
             </button>
             <button
-              onClick={() => goAuth('/register')}
-              className="px-6 py-2.5 text-sm font-semibold rounded-full bg-brand-500 text-white hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(34,197,94,0.25)] hover:shadow-[0_0_30px_rgba(34,197,94,0.4)] active:scale-[0.98]"
+              onClick={() => goAuth("/register")}
+              className="px-6 py-2.5 text-[14px] font-bold rounded-full text-white bg-slate-900 hover:bg-blue-600 shadow-lg shadow-slate-900/10 hover:shadow-blue-600/25 transition-all duration-300 active:scale-95"
             >
-              Get Started Free
+              Get Started
             </button>
           </div>
 
-          <button className={`md:hidden p-2 ${isScrolled ? 'text-slate-700' : 'text-white'}`} onClick={() => setMobileMenuOpen(true)}>
-            <Menu className="h-6 w-6" />
+          <button
+            className="md:hidden p-2 text-slate-600 bg-white rounded-full shadow-sm border border-slate-200"
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <Menu className="h-5 w-5" />
           </button>
         </div>
       </header>
@@ -386,96 +456,106 @@ export default function Home() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-[#030712]/98 backdrop-blur-2xl flex flex-col"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 z-[60] bg-white flex flex-col"
           >
-            <div className="flex justify-between items-center p-5">
+            <div className="flex justify-between items-center p-5 border-b border-slate-100">
               <div className="flex items-center gap-3">
                 {logoUrl ? (
-                  <img src={logoUrl} alt="Graxion Flow Logo" className="h-8 w-auto" />
-                ) : (
-                  <div className="h-9 w-9 bg-gradient-to-br from-brand-500 to-emerald-400 rounded-xl flex items-center justify-center">
-                    <MessageSquare className="text-white h-4 w-4" />
-                  </div>
-                )}
-                <span className="text-lg font-bold text-white">{brandName}</span>
+                  <img
+                    src={logoUrl}
+                    alt="Graxion Flow"
+                    className="h-7 w-auto"
+                  />
+                ) : null}
+                <span className="text-xl font-bold text-slate-900">
+                  {brandName}
+                </span>
               </div>
-              <button onClick={() => setMobileMenuOpen(false)} className="text-gray-400 hover:text-white p-2">
-                <X className="h-6 w-6" />
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-slate-500 hover:text-slate-900 p-2 bg-slate-50 rounded-full"
+              >
+                <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="flex flex-col gap-1 px-5 mt-8">
-              {navLinks.map(link => (
-                link.href.startsWith('#') ? (
-                  <a key={link.label} href={link.href} onClick={() => setMobileMenuOpen(false)} className="text-xl font-semibold text-gray-200 py-4 border-b border-white/5 hover:text-brand-400 transition-colors">{link.label}</a>
-                ) : (
-                  <Link key={link.label} to={link.href} onClick={() => setMobileMenuOpen(false)} className="text-xl font-semibold text-gray-200 py-4 border-b border-white/5 hover:text-brand-400 transition-colors">{link.label}</Link>
-                )
+            <div className="flex flex-col px-6 py-8 gap-6">
+              {navLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-2xl font-bold text-slate-800"
+                >
+                  {link.label}
+                </a>
               ))}
             </div>
-            <div className="mt-auto p-5 space-y-3">
-              <button onClick={() => { setMobileMenuOpen(false); goAuth('/register'); }} className="w-full py-4 bg-brand-500 text-white rounded-2xl font-semibold text-lg hover:bg-brand-400 transition-colors">
-                Get Started Free
+            <div className="mt-auto p-6 space-y-4 bg-slate-50 border-t border-slate-100">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  goAuth("/register");
+                }}
+                className="w-full py-4 rounded-2xl font-bold text-lg text-white bg-blue-600 shadow-lg shadow-blue-500/25"
+              >
+                Start for free
               </button>
-              <button onClick={() => { setMobileMenuOpen(false); goAuth('/login'); }} className="w-full py-4 bg-white/5 text-white rounded-2xl font-semibold text-lg border border-white/10 hover:bg-white/10 transition-colors">
-                Sign In
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  goAuth("/login");
+                }}
+                className="w-full py-4 bg-white text-slate-700 rounded-2xl font-bold text-lg border border-slate-200 shadow-sm"
+              >
+                Sign in
               </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* ─── HERO SECTION (Light & Clean) ─── */}
+      <section className="relative pt-36 sm:pt-48 pb-20 lg:pt-56 lg:pb-32 overflow-hidden bg-[#F8FAFC]">
+        {/* Soft Background Orbs */}
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-br from-blue-200/50 via-indigo-200/40 to-purple-200/30 rounded-full blur-[120px] -translate-y-1/3 translate-x-1/4 pointer-events-none mix-blend-multiply" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-emerald-100/50 to-blue-200/40 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4 pointer-events-none mix-blend-multiply" />
+        <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] bg-violet-200/30 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none mix-blend-multiply" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.025] pointer-events-none"></div>
 
-      {/* ═══════════════════════════════════════════ */}
-      {/* ─── HERO SECTION (Dark, Premium) ─── */}
-      {/* ═══════════════════════════════════════════ */}
-      <section id="hero" className="relative pt-28 sm:pt-36 pb-8 lg:pt-44 lg:pb-16 overflow-hidden hero-gradient-mesh min-h-screen flex items-center">
-        {/* Animated background mesh orbs */}
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-500/[0.08] blur-[150px] rounded-full pointer-events-none animate-mesh-shift" />
-        <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-emerald-500/[0.06] blur-[120px] rounded-full pointer-events-none animate-mesh-shift" style={{ animationDelay: '4s' }} />
-        <div className="absolute bottom-1/4 left-1/3 w-[350px] h-[350px] bg-brand-500/[0.05] blur-[100px] rounded-full pointer-events-none animate-mesh-shift" style={{ animationDelay: '8s' }} />
-        
-        {/* Grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-5 lg:px-8 relative z-10 w-full">
-          <div className="grid lg:grid-cols-[1fr_1.15fr] gap-12 lg:gap-16 items-center">
-            
-            {/* Left: Text content */}
+        <div className="max-w-7xl mx-auto px-5 lg:px-8 relative z-10">
+          <div className="grid lg:grid-cols-[1fr_1.1fr] gap-16 lg:gap-20 items-center">
             <div className="text-center lg:text-left">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.06] border border-white/[0.08] text-sm text-white/60 mb-8 backdrop-blur-sm"
+                transition={{ duration: 0.5 }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 text-sm font-semibold text-blue-600 mb-8 shadow-sm"
               >
-                <span className="flex h-2 w-2 rounded-full bg-brand-500 animate-pulse" />
-                <span>AI-Powered Social Media Platform</span>
+                <Sparkles className="w-4 h-4" /> The new standard for social ops
               </motion.div>
 
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight mb-6 leading-[1.08]"
+                className="text-5xl sm:text-6xl lg:text-[4.5rem] font-extrabold tracking-tight mb-6 leading-[1.05] text-slate-900"
               >
-                <span className="text-white">Automate Your</span>
-                <br />
-                <span className="text-white">Social.</span>{' '}
-                <span className="text-gradient">Amplify</span>
-                <br />
-                <span className="text-gradient">Your Brand.</span>
+                Manage social <br className="hidden lg:block" />
+                <span className="gflow-gradient-text">without the chaos.</span>
               </motion.h1>
 
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-base sm:text-lg text-white/50 max-w-lg mx-auto lg:mx-0 mb-8 leading-relaxed"
+                className="text-lg sm:text-xl text-slate-500 max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed font-medium"
               >
-                Create, schedule, and publish content across YouTube, Instagram, Facebook, LinkedIn & WhatsApp — all from one powerful dashboard with AI assistance.
+                Graxion Flow brings YouTube, Instagram, and WhatsApp into one
+                beautiful workspace. Schedule, reply, and automate—all in one
+                place.
               </motion.p>
 
               <motion.div
@@ -485,684 +565,616 @@ export default function Home() {
                 className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10"
               >
                 <button
-                  onClick={() => goAuth('/register')}
-                  className="w-full sm:w-auto px-8 py-4 rounded-full bg-brand-500 hover:bg-brand-400 text-white font-semibold flex items-center justify-center gap-2 transition-all shadow-[0_0_30px_rgba(34,197,94,0.3)] hover:shadow-[0_0_50px_rgba(34,197,94,0.5)] transform hover:-translate-y-0.5 active:scale-[0.98] text-base"
+                  onClick={() => goAuth("/register")}
+                  className="w-full sm:w-auto px-8 py-4 rounded-full font-bold flex items-center justify-center gap-2 text-white bg-slate-900 hover:bg-slate-800 shadow-[0_8px_30px_rgba(15,23,42,0.15)] hover:shadow-[0_12px_40px_rgba(15,23,42,0.25)] transition-all hover:-translate-y-0.5 active:scale-95 text-lg border border-slate-700"
                 >
-                  Start Free <ArrowRight className="h-5 w-5" />
+                  Start your free trial <ArrowRight className="h-5 w-5" />
                 </button>
                 <Link
-                  to="/contact"
-                  className="w-full sm:w-auto px-8 py-4 rounded-full bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-white font-semibold transition-all text-center backdrop-blur-sm flex items-center justify-center gap-2"
+                  to="/demo"
+                  className="w-full sm:w-auto px-8 py-4 rounded-full font-bold flex items-center justify-center gap-2 text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all text-lg"
                 >
-                  <Play className="h-4 w-4" /> Watch Demo
+                  <Play className="h-5 w-5 fill-slate-700" /> Watch Demo
                 </Link>
               </motion.div>
 
-              {/* Trust indicators */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-sm text-white/40"
+                className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 text-sm font-semibold text-slate-500"
               >
-                {['No credit card required', 'Free tier available', '5-minute setup'].map(item => (
+                {[
+                  "No credit card needed",
+                  "14-day free trial",
+                  "Cancel anytime",
+                ].map((item) => (
                   <div key={item} className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-brand-500/70" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                     <span>{item}</span>
                   </div>
                 ))}
               </motion.div>
             </div>
 
-            {/* Right: Dashboard mockup */}
             <motion.div
-              initial={{ opacity: 0, y: 40, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="relative"
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative lg:ml-10"
             >
-              {/* Floating platform icons around the mockup */}
-              <FloatingPlatformIcon icon={Youtube} color="#FF0000" position="top-0 -left-4 sm:-left-6" delay={0.8} />
-              <FloatingPlatformIcon icon={Instagram} color="#E4405F" position="-top-4 right-12 sm:right-20" delay={1.0} />
-              <FloatingPlatformIcon icon={Facebook} color="#1877F2" position="top-1/3 -right-4 sm:-right-6" delay={1.2} />
-              <FloatingPlatformIcon icon={Linkedin} color="#0A66C2" position="bottom-12 -right-3 sm:-right-5" delay={1.4} />
-              <FloatingPlatformIcon icon={MessageCircle} color="#25D366" position="bottom-8 -left-3 sm:-left-5" delay={1.6} />
+              {/* Decorative background for mockup */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 to-indigo-50 rounded-3xl transform rotate-3 scale-105 -z-10 shadow-inner border border-white/50"></div>
 
-              {/* Green glow behind mockup */}
-              <div className="absolute inset-0 bg-brand-500/[0.06] blur-[60px] rounded-3xl" />
-              
+              <PlatformChip
+                icon={Instagram}
+                color="#E1306C"
+                position="-top-6 right-8 sm:right-12"
+                delay={0.8}
+              />
+              <PlatformChip
+                icon={MessageCircle}
+                color="#25D366"
+                position="top-1/4 -left-6 sm:-left-8"
+                delay={1.0}
+              />
+              <PlatformChip
+                icon={Youtube}
+                color="#FF0000"
+                position="bottom-12 -right-4 sm:-right-6"
+                delay={1.2}
+              />
+
               <DashboardMockup />
             </motion.div>
           </div>
         </div>
-
-        {/* Bottom gradient fade to light */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#f8fafc] to-transparent pointer-events-none" />
       </section>
 
-
-      {/* ═══════════════════════════════════════════ */}
-      {/* ─── SOCIAL PROOF / STATS BAR ─── */}
-      {/* ═══════════════════════════════════════════ */}
-      <section className="py-12 sm:py-16 bg-[#f8fafc] relative -mt-8">
-        <div className="max-w-6xl mx-auto px-5 lg:px-8">
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-10"
-          >
-            {[
-              { value: '5', suffix: '+', label: 'Platforms Connected', icon: Globe },
-              { value: '10', suffix: 'K+', label: 'Messages Automated', icon: Send },
-              { value: '99', suffix: '%', label: 'Uptime Guaranteed', icon: Shield },
-              { value: '50', suffix: '+', label: 'Countries Served', icon: Users },
-            ].map((stat, i) => (
-              <div key={i} className="text-center p-5 rounded-2xl border border-slate-200/60 bg-white shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_30px_rgba(15,23,42,0.08)] hover:border-brand-200 transition-all duration-300">
-                <stat.icon className="w-6 h-6 text-brand-500 mx-auto mb-3" />
-                <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-1">
-                  <AnimatedCounter target={parseInt(stat.value)} suffix={stat.suffix} />
-                </p>
-                <p className="text-sm text-slate-500 font-medium">{stat.label}</p>
-              </div>
-            ))}
-          </motion.div>
-
-          {/* Platform marquee */}
-          <div className="marquee-container py-4">
-            <div className="flex animate-marquee gap-12 items-center w-max">
-              {[...Array(2)].flatMap((_, setIdx) => 
-                ['YouTube', 'Instagram', 'Facebook', 'LinkedIn', 'WhatsApp', 'Telegram'].map((platform, i) => (
-                  <div key={`${setIdx}-${i}`} className="flex items-center gap-2 text-slate-400/60 whitespace-nowrap">
-                    {platform === 'YouTube' && <Youtube className="w-5 h-5" />}
-                    {platform === 'Instagram' && <Instagram className="w-5 h-5" />}
-                    {platform === 'Facebook' && <Facebook className="w-5 h-5" />}
-                    {platform === 'LinkedIn' && <Linkedin className="w-5 h-5" />}
-                    {platform === 'WhatsApp' && <MessageCircle className="w-5 h-5" />}
-                    {platform === 'Telegram' && <Send className="w-5 h-5" />}
-                    <span className="text-sm font-semibold">{platform}</span>
+      {/* ─── LOGO CLOUD & STATS ─── */}
+      <section className="py-16 bg-white border-y border-slate-200">
+        <div className="max-w-7xl mx-auto px-5 lg:px-8">
+          <p className="text-center text-sm font-bold text-slate-400 uppercase tracking-widest mb-10">
+            Powering modern social teams
+          </p>
+          <div className="overflow-hidden relative before:absolute before:left-0 before:top-0 before:bottom-0 before:w-20 before:bg-gradient-to-r before:from-white before:to-transparent before:z-10 after:absolute after:right-0 after:top-0 after:bottom-0 after:w-20 after:bg-gradient-to-l after:from-white after:to-transparent after:z-10">
+            <div className="flex gflow-marquee gap-16 items-center w-max">
+              {[...Array(3)].flatMap((_, setIdx) =>
+                [
+                  "YouTube",
+                  "Instagram",
+                  "Facebook",
+                  "LinkedIn",
+                  "WhatsApp",
+                  "Telegram",
+                ].map((platform, i) => (
+                  <div
+                    key={`${setIdx}-${i}`}
+                    className="flex items-center gap-3 text-slate-800 opacity-60 hover:opacity-100 transition-opacity whitespace-nowrap grayscale hover:grayscale-0 cursor-default"
+                  >
+                    {platform === "YouTube" && (
+                      <Youtube className="w-7 h-7 text-[#FF0000]" />
+                    )}
+                    {platform === "Instagram" && (
+                      <Instagram className="w-7 h-7 text-[#E1306C]" />
+                    )}
+                    {platform === "Facebook" && (
+                      <Facebook className="w-7 h-7 text-[#1877F2]" />
+                    )}
+                    {platform === "LinkedIn" && (
+                      <Linkedin className="w-7 h-7 text-[#0A66C2]" />
+                    )}
+                    {platform === "WhatsApp" && (
+                      <MessageCircle className="w-7 h-7 text-[#25D366]" />
+                    )}
+                    {platform === "Telegram" && (
+                      <Send className="w-7 h-7 text-[#229ED9]" />
+                    )}
+                    <span className="text-xl font-bold tracking-tight">
+                      {platform}
+                    </span>
                   </div>
-                ))
+                )),
               )}
             </div>
           </div>
         </div>
       </section>
 
+      {/* ─── WHY CHOOSE GRAXION FLOW (Bento Grid Style) ─── */}
+      <section id="features" className="py-24 sm:py-32 relative bg-slate-50">
+        <div className="max-w-7xl mx-auto px-5 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-24">
+            <h2 className="text-blue-600 font-bold tracking-wide uppercase text-sm mb-3">
+              Platform Features
+            </h2>
+            <h3 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">
+              Everything you need, beautifully designed.
+            </h3>
+            <p className="text-lg text-slate-500 font-medium">
+              We stripped away the clutter of traditional tools. What remains is
+              a lightning-fast, intuitive workspace that your team will actually
+              enjoy using.
+            </p>
+          </div>
 
-      {/* ═══════════════════════════════════════════ */}
-      {/* ─── WHAT IS GRAXION FLOW? (Product Explainer) ─── */}
-      {/* ═══════════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 relative bg-white overflow-hidden">
-        <div className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-brand-50/50 to-transparent pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-5 lg:px-8 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            {/* Left: Copy */}
-            <div>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="inline-flex rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-brand-700 text-xs font-bold uppercase tracking-wider mb-6"
-              >
-                Why Graxion Flow?
-              </motion.div>
-              
-              <motion.h2
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-6 text-slate-900 leading-tight"
-              >
-                One Platform to{' '}
-                <span className="text-brand-600">Rule All</span>{' '}
-                Your Social Channels
-              </motion.h2>
-              
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="text-slate-500 text-lg leading-relaxed mb-8"
-              >
-                Stop switching between tabs. Graxion Flow brings YouTube, Instagram, Facebook, LinkedIn, and WhatsApp into a single dashboard where you can create content, schedule posts, manage conversations, and automate engagement — powered by AI.
-              </motion.p>
+          <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
+            {/* Big Bento Card 1 */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="lg:col-span-2 rounded-3xl bg-white border border-slate-200 p-8 sm:p-10 shadow-sm flex flex-col justify-between overflow-hidden relative group"
+            >
+              <div className="relative z-10 max-w-md">
+                <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-6">
+                  <LayoutDashboard className="w-6 h-6 text-indigo-600" />
+                </div>
+                <h4 className="text-2xl font-bold text-slate-900 mb-3">
+                  Unified Workspace
+                </h4>
+                <p className="text-slate-500 font-medium leading-relaxed">
+                  Stop constantly switching between tabs. View all your incoming
+                  messages, mentions, and scheduled posts across 5 networks in
+                  one seamless view.
+                </p>
+              </div>
+              <div className="mt-8 pt-8 border-t border-slate-100 relative z-10">
+                <div className="flex -space-x-3">
+                  {[Youtube, Instagram, Facebook, Linkedin, MessageCircle].map(
+                    (Icon, i) => (
+                      <div
+                        key={i}
+                        className="w-12 h-12 rounded-full bg-white border-2 border-slate-50 shadow-sm flex items-center justify-center relative hover:z-20 transition-transform hover:-translate-y-1"
+                      >
+                        <Icon className="w-5 h-5 text-slate-600" />
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+              {/* Decorative BG */}
+              <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-indigo-50 rounded-full blur-3xl group-hover:bg-indigo-100 transition-colors duration-700"></div>
+            </motion.div>
 
-              {/* Value props */}
-              <div className="space-y-5">
+            {/* Small Bento Card 1 */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-700 p-8 sm:p-10 shadow-xl shadow-blue-600/20 text-white flex flex-col justify-between relative overflow-hidden border border-blue-500/30"
+            >
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-6">
+                  <Bot className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="text-2xl font-bold mb-3">AI Co-Pilot</h4>
+                <p className="text-blue-100 font-medium leading-relaxed">
+                  Draft context-aware replies in your brand's exact tone of
+                  voice with one click.
+                </p>
+              </div>
+              <div className="absolute top-0 right-0 p-6 opacity-20">
+                <Sparkles className="w-32 h-32" />
+              </div>
+            </motion.div>
+
+            {/* List Bento Card */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="lg:col-span-3 grid md:grid-cols-2 rounded-3xl premium-glass-card overflow-hidden"
+            >
+              <div className="p-8 sm:p-10 border-b md:border-b-0 md:border-r border-slate-100">
+                <FeatureRow
+                  icon={CalendarDays}
+                  title="Visual Scheduler"
+                  description="Drag and drop content onto a beautiful calendar. Flow picks the best times to post."
+                />
+                <FeatureRow
+                  icon={Send}
+                  title="Auto-Publishing"
+                  description="Set it and forget it. Content goes live perfectly formatted for each specific network."
+                />
+              </div>
+              <div className="p-8 sm:p-10">
+                <FeatureRow
+                  icon={BarChart3}
+                  title="Deep Analytics"
+                  description="Gorgeous, easy-to-read reports that actually tell you what's working and what isn't."
+                />
+                <FeatureRow
+                  icon={Shield}
+                  title="Enterprise Security"
+                  description="Bank-level encryption and secure OAuth connections keep your accounts perfectly safe."
+                />
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── HOW IT WORKS (Clean Steps) ─── */}
+      <section
+        id="workflow"
+        className="py-24 sm:py-32 bg-white border-t border-slate-200 overflow-hidden"
+      >
+        <div className="max-w-7xl mx-auto px-5 lg:px-8">
+          <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-center">
+            <div className="lg:w-1/2">
+              <h2 className="text-blue-600 font-bold tracking-wide uppercase text-sm mb-3">
+                How it works
+              </h2>
+              <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-6">
+                From setup to live in minutes, not days.
+              </h3>
+              <p className="text-lg text-slate-500 font-medium mb-10">
+                We designed the onboarding to be friction-free. No engineering
+                required, no complex webhooks to configure.
+              </p>
+
+              <div className="space-y-8">
                 {[
-                  { icon: LayoutDashboard, title: 'One Dashboard, Every Platform', desc: 'Manage all your social accounts from a single unified interface.' },
-                  { icon: Bot, title: 'AI-Powered Smart Replies', desc: 'Let AI handle repetitive conversations while you focus on strategy.' },
-                  { icon: CalendarDays, title: 'Schedule & Publish Everywhere', desc: 'Plan your content calendar and auto-publish at the best times.' },
-                ].map((item, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.3 + (i * 0.1) }}
-                    className="flex items-start gap-4 group"
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-brand-50 border border-brand-100 flex items-center justify-center shrink-0 group-hover:bg-brand-100 group-hover:scale-105 transition-all duration-300">
-                      <item.icon className="w-6 h-6 text-brand-600" />
+                  {
+                    n: "1",
+                    title: "Connect your channels",
+                    desc: "Securely link your social accounts with 1-click OAuth.",
+                  },
+                  {
+                    n: "2",
+                    title: "Build your workflow",
+                    desc: "Set up automation rules or just start scheduling posts immediately.",
+                  },
+                  {
+                    n: "3",
+                    title: "Let Flow take over",
+                    desc: "Sit back as Flow publishes content and auto-replies to routine queries.",
+                  },
+                ].map((step, i) => (
+                  <div key={i} className="flex gap-5 relative group">
+                    {/* Connecting line */}
+                    {i !== 2 && (
+                      <div className="absolute left-[19px] top-12 bottom-[-24px] w-[2px] bg-slate-100 group-hover:bg-blue-100 transition-colors"></div>
+                    )}
+
+                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 font-bold flex items-center justify-center shrink-0 border-2 border-white shadow-sm ring-1 ring-slate-200 z-10 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                      {step.n}
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-slate-900 mb-1">{item.title}</h3>
-                      <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+                      <h4 className="text-xl font-bold text-slate-900 mb-2">
+                        {step.title}
+                      </h4>
+                      <p className="text-slate-500 font-medium">{step.desc}</p>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </div>
 
-            {/* Right: Visual grid */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="grid grid-cols-2 gap-4"
-            >
-              {[
-                { num: '01', title: 'Create', text: 'Plan content with AI assistance', icon: Sparkles },
-                { num: '02', title: 'Publish', text: 'Schedule across all channels', icon: Send },
-                { num: '03', title: 'Engage', text: 'Reply without the chaos', icon: MessageCircle },
-                { num: '04', title: 'Measure', text: 'Track what performs best', icon: TrendingUp },
-              ].map((card, i) => (
-                <div
-                  key={card.num}
-                  className={`rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-[0_8px_30px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)] hover:border-brand-200 transition-all duration-300 ${i === 0 || i === 3 ? 'translate-y-4' : ''}`}
-                >
-                  <div className="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center mb-4">
-                    <card.icon className="w-5 h-5 text-brand-600" />
-                  </div>
-                  <span className="text-[11px] font-bold text-brand-500 uppercase tracking-wider">{card.num}</span>
-                  <h3 className="font-bold text-slate-900 mt-1 mb-1">{card.title}</h3>
-                  <p className="text-sm text-slate-500 leading-relaxed">{card.text}</p>
+            <div className="lg:w-1/2 relative w-full">
+              <div className="absolute inset-0 bg-blue-50 rounded-[2.5rem] transform rotate-3 scale-105"></div>
+              <div className="relative bg-white rounded-3xl border border-slate-200 shadow-xl p-8 aspect-square flex flex-col items-center justify-center text-center">
+                <div className="w-24 h-24 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-6 shadow-inner">
+                  <CheckCircle2 className="w-12 h-12" />
                 </div>
-              ))}
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-
-      {/* Section divider */}
-      <div className="section-divider mx-auto max-w-5xl" />
-
-
-      {/* ═══════════════════════════════════════════ */}
-      {/* ─── HOW IT WORKS — Animated Flow ─── */}
-      {/* ═══════════════════════════════════════════ */}
-      <section id="workflow" className="py-20 sm:py-28 relative bg-white overflow-hidden">
-        <div className="absolute left-1/2 top-0 h-64 w-[600px] -translate-x-1/2 rounded-full bg-brand-50 blur-[100px] pointer-events-none opacity-50" />
-        <div className="max-w-6xl mx-auto px-5 lg:px-8 relative z-10">
-          <div className="text-center mb-16 sm:mb-20">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="inline-flex rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-brand-700 text-xs font-bold uppercase tracking-wider mb-5"
-            >
-              How It Works
-            </motion.div>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 mb-5"
-            >
-              Up and Running in{' '}
-              <span className="text-brand-600">Minutes</span>
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-slate-500 max-w-2xl mx-auto text-lg"
-            >
-              Four simple steps to transform your social media management forever.
-            </motion.p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6 relative">
-            {/* Connecting line (desktop) */}
-            <div className="hidden lg:block absolute top-10 left-[12.5%] right-[12.5%] flow-timeline-line" />
-
-            <FlowStep number="1" title="Connect Accounts" description="Link your YouTube, Instagram, Facebook, LinkedIn & WhatsApp in seconds." icon={Layers} delay={0} />
-            <FlowStep number="2" title="Create Content" description="Use AI-powered tools to craft engaging posts, reels, and stories." icon={Sparkles} delay={0.15} />
-            <FlowStep number="3" title="Schedule Posts" description="Pick the optimal times and let the smart scheduler do the rest." icon={CalendarDays} delay={0.3} />
-            <FlowStep number="4" title="Auto-Publish" description="Sit back as Graxion Flow publishes and manages engagement for you." icon={Zap} delay={0.45} isLast />
-          </div>
-        </div>
-      </section>
-
-
-      {/* Section divider */}
-      <div className="section-divider mx-auto max-w-5xl" />
-
-
-      {/* ═══════════════════════════════════════════ */}
-      {/* ─── FEATURES BENTO GRID ─── */}
-      {/* ═══════════════════════════════════════════ */}
-      <section id="features" className="py-20 sm:py-28 relative overflow-hidden bg-[#f8fafc]">
-        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-brand-100/40 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute -bottom-40 -right-24 h-96 w-96 rounded-full bg-emerald-100/30 blur-[100px] pointer-events-none" />
-        
-        <div className="max-w-7xl mx-auto px-5 lg:px-8 relative z-10">
-          <div className="text-center mb-16 max-w-3xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="inline-flex rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-brand-700 text-xs font-bold uppercase tracking-wider mb-5"
-            >
-              Powerful Features
-            </motion.div>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-5 text-slate-900"
-            >
-              Everything You Need to{' '}
-              <span className="text-brand-600">Scale</span>
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-slate-500 max-w-2xl mx-auto text-lg leading-relaxed"
-            >
-              A complete toolkit to create, automate, engage, and grow your business across every social channel.
-            </motion.p>
-          </div>
-
-          {/* Bento grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <BentoFeatureCard
-              icon={Globe}
-              title="Social Media Management"
-              description="Manage content workflows and oversee all connected social accounts securely from one centralized hub."
-              delay={0}
-              className="lg:col-span-2"
-            />
-            <BentoFeatureCard
-              icon={Sparkles}
-              title="AI Content Creation"
-              description="Generate engaging posts, captions, and replies using AI that understands your brand voice."
-              delay={0.1}
-            />
-            <BentoFeatureCard
-              icon={CalendarDays}
-              title="Smart Scheduling"
-              description="Schedule your posts for optimal delivery times across all channels with intelligent recommendations."
-              delay={0.2}
-            />
-            <BentoFeatureCard
-              icon={Send}
-              title="Automated Publishing"
-              description="Automatically publish content directly to YouTube, Facebook, Instagram, LinkedIn, and more."
-              delay={0.3}
-              className="lg:col-span-2"
-            />
-            <BentoFeatureCard
-              icon={Bot}
-              title="AI Marketing Workflows"
-              description="Use AI to streamline content ideation, automate responses, and organize your engagement pipeline."
-              delay={0.4}
-            />
-            <BentoFeatureCard
-              icon={BarChart3}
-              title="Analytics Dashboard"
-              description="Monitor engagement, track growth, and measure ROI across all your platforms in real-time."
-              delay={0.5}
-            />
-            <BentoFeatureCard
-              icon={Workflow}
-              title="Automation Flows"
-              description="Build custom automation workflows with our visual flow builder — no coding required."
-              delay={0.6}
-            />
-          </div>
-        </div>
-      </section>
-
-
-      {/* ═══════════════════════════════════════════ */}
-      {/* ─── PLATFORM AUTOMATIONS ─── */}
-      {/* ═══════════════════════════════════════════ */}
-      <section id="platforms" className="relative py-20 sm:py-28 overflow-hidden bg-white">
-        <div className="absolute top-1/2 left-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-50/50 blur-[120px] pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-5 lg:px-8 relative z-10">
-          <div className="max-w-3xl mx-auto text-center mb-14">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="inline-flex rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-brand-700 text-xs font-bold uppercase tracking-wider mb-5"
-            >
-              One platform, every channel
-            </motion.div>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-5 text-slate-900"
-            >
-              What You Can Automate on{' '}
-              <span className="text-brand-600">Each Channel</span>
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-slate-500 text-lg leading-relaxed"
-            >
-              Connect the accounts you already use and let Graxion Flow handle publishing, engagement, and follow-ups from one place.
-            </motion.p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            <PlatformShowcaseCard
-              icon={Youtube}
-              name="YouTube"
-              color="#FF0000"
-              delay={0}
-              description="Keep your Shorts and community engagement moving without manually watching every comment."
-              capabilities={['Publish and schedule YouTube Shorts', 'View video comments in one workspace', 'Use AI-assisted replies or respond manually']}
-            />
-            <PlatformShowcaseCard
-              icon={Facebook}
-              name="Facebook"
-              color="#1877F2"
-              delay={0.08}
-              metaVerified
-              description="Turn Page posts, comments, and Messenger conversations into a more responsive customer experience."
-              capabilities={['Publish and schedule Page content', 'Manage comments and AI-assisted replies', 'Automate Messenger and comment responses']}
-            />
-            <PlatformShowcaseCard
-              icon={Instagram}
-              name="Instagram"
-              color="#E4405F"
-              delay={0.16}
-              metaVerified
-              description="Create faster engagement around your Instagram content while giving interested people a direct path to your inbox."
-              capabilities={['Publish and schedule posts, Reels, and Stories', 'Reply to comments with AI assistance', 'Send automated DMs from comment triggers']}
-            />
-            <PlatformShowcaseCard
-              icon={Linkedin}
-              name="LinkedIn"
-              color="#0A66C2"
-              delay={0.24}
-              description="Stay active on professional conversations and keep your LinkedIn content workflow organised."
-              capabilities={['Publish and schedule LinkedIn content', 'Monitor post comments in one view', 'Reply manually or with AI assistance']}
-            />
-            <PlatformShowcaseCard
-              icon={MessageCircle}
-              name="WhatsApp"
-              color="#25D366"
-              delay={0.32}
-              metaVerified
-              description="Build a faster, more consistent way to communicate with customers over WhatsApp."
-              capabilities={['Manage customer conversations centrally', 'Create automated conversation flows', 'Send campaigns and follow-up broadcasts']}
-            />
-            {/* Coming soon card */}
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: 0.4 }}
-              className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-6 flex flex-col items-center justify-center text-center"
-            >
-              <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mb-4">
-                <Sparkles className="w-6 h-6 text-slate-400" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-500 mb-2">More Coming Soon</h3>
-              <p className="text-sm text-slate-400">Telegram, Twitter/X and more integrations are on the way.</p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-
-      {/* ═══════════════════════════════════════════ */}
-      {/* ─── TESTIMONIALS ─── */}
-      {/* ═══════════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 relative bg-[#f8fafc] overflow-hidden">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-100/30 rounded-full blur-[100px] pointer-events-none" />
-        <div className="max-w-5xl mx-auto px-5 lg:px-8 relative z-10">
-          <div className="text-center mb-14">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="inline-flex rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-brand-700 text-xs font-bold uppercase tracking-wider mb-5"
-            >
-              Testimonials
-            </motion.div>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 mb-4"
-            >
-              Real People,{' '}
-              <span className="text-brand-600">Real Results</span>
-            </motion.h2>
-          </div>
-
-          {/* Testimonial carousel */}
-          <div className="relative">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTestimonial}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4 }}
-                className="testimonial-card p-8 sm:p-12 relative"
-              >
-                {/* Quote icon */}
-                <div className="absolute top-8 right-8 text-brand-100 opacity-40">
-                  <svg width="50" height="40" viewBox="0 0 45 36" fill="currentColor">
-                    <path d="M13.5 0C6.04416 0 0 6.04416 0 13.5V36H18V13.5H9C9 8.52943 13.0294 4.5 18 4.5V0H13.5ZM40.5 0C33.0442 0 27 6.04416 27 13.5V36H45V13.5H36C36 8.52943 40.0294 4.5 45 4.5V0H40.5Z" />
-                  </svg>
-                </div>
-                
-                <div className="flex items-center gap-1 mb-6">
-                  {[1, 2, 3, 4, 5].map(s => <Star key={s} className="w-5 h-5 fill-amber-400 text-amber-400" />)}
-                </div>
-                
-                <p className="text-slate-700 text-lg sm:text-xl leading-relaxed mb-8 max-w-3xl relative z-10">
-                  "{testimonials[activeTestimonial].quote}"
+                <h4 className="text-2xl font-bold text-slate-900 mb-2">
+                  You're all set!
+                </h4>
+                <p className="text-slate-500 font-medium">
+                  Your social presence is now on autopilot.
                 </p>
-                
-                <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${testimonials[activeTestimonial].color} flex items-center justify-center text-white font-bold text-sm shadow-lg`}>
-                    {testimonials[activeTestimonial].initials}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900">{testimonials[activeTestimonial].name}</h4>
-                    <p className="text-sm text-slate-500">{testimonials[activeTestimonial].role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Dots */}
-            <div className="flex items-center justify-center gap-2 mt-8">
-              {testimonials.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveTestimonial(i)}
-                  className={`rounded-full transition-all duration-300 ${i === activeTestimonial ? 'w-8 h-2.5 bg-brand-500' : 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400'}`}
-                />
-              ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* ─── PLATFORMS / INTEGRATIONS ─── */}
+      <section
+        id="platforms"
+        className="relative py-24 sm:py-32 bg-slate-50 border-t border-slate-200"
+      >
+        <div className="max-w-7xl mx-auto px-5 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="text-blue-600 font-bold tracking-wide uppercase text-sm mb-3">
+              Integrations
+            </h2>
+            <h3 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">
+              Connects to your world.
+            </h3>
+            <p className="text-lg text-slate-500 font-medium">
+              Native, approved integrations with the platforms where your
+              audience actually lives.
+            </p>
+          </div>
 
-      {/* ═══════════════════════════════════════════ */}
-      {/* ─── CTA SECTION ─── */}
-      {/* ═══════════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 relative overflow-hidden bg-white">
-        <div className="max-w-5xl mx-auto px-5 lg:px-8">
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8"
+          >
+            <PlatformCard
+              icon={Youtube}
+              name="YouTube"
+              color="#FF0000"
+              description="Manage Shorts and video comments without logging into Studio."
+              capabilities={[
+                "Schedule Shorts & Videos",
+                "Threaded comment replies",
+                "AI sentiment analysis",
+              ]}
+            />
+            <PlatformCard
+              icon={Instagram}
+              name="Instagram"
+              color="#E1306C"
+              metaVerified
+              description="Drive massive engagement with automated DM funnels from Reels."
+              capabilities={[
+                "Direct Story & Reel scheduling",
+                "Comment-to-DM triggers",
+                "Visual grid planner",
+              ]}
+            />
+            <PlatformCard
+              icon={MessageCircle}
+              name="WhatsApp"
+              color="#25D366"
+              metaVerified
+              description="The ultimate CRM for WhatsApp Business. Send broadcasts safely."
+              capabilities={[
+                "Shared team inbox",
+                "Interactive message templates",
+                "Contact tagging & routing",
+              ]}
+            />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ─── TESTIMONIALS (Clean Cards) ─── */}
+      <section className="py-24 sm:py-32 bg-white border-t border-slate-200">
+        <div className="max-w-7xl mx-auto px-5 lg:px-8">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-16 text-center">
+            Loved by modern teams
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((t, i) => (
+              <div
+                key={i}
+                className="bg-slate-50 rounded-3xl p-8 border border-slate-100 relative"
+              >
+                <div className="flex gap-1 mb-6">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star
+                      key={s}
+                      className="w-5 h-5 fill-yellow-400 text-yellow-400"
+                    />
+                  ))}
+                </div>
+                <p className="text-slate-700 font-medium text-lg leading-relaxed mb-8">
+                  "{t.quote}"
+                </p>
+                <div className="flex items-center gap-4 mt-auto">
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center font-bold ${t.avatar}`}
+                  >
+                    {t.initials}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900">{t.name}</h4>
+                    <p className="text-sm font-medium text-slate-500">
+                      {t.role}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── CTA (Premium Blue Gradient) ─── */}
+      <section className="py-24 relative bg-white">
+        <div className="max-w-6xl mx-auto px-5 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative rounded-[2rem] overflow-hidden"
+            className="relative rounded-[2.5rem] overflow-hidden shadow-2xl shadow-blue-900/20"
           >
-            {/* Background */}
-            <div className="cta-gradient absolute inset-0" />
-            <div className="absolute inset-0 bg-grid-white bg-grid opacity-20" />
-            <div className="absolute -bottom-32 -left-24 w-[400px] h-[400px] bg-white/10 blur-[100px] rounded-full" />
-            <div className="absolute -top-20 -right-20 w-[300px] h-[300px] bg-white/10 blur-[80px] rounded-full" />
+            {/* Rich Blue Background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900" />
 
-            <div className="relative z-10 p-10 md:p-16 lg:p-20 text-center">
-              <motion.h2
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-white"
-              >
-                Ready to Transform Your{' '}
-                <span className="underline decoration-white/30 underline-offset-4">Social Media?</span>
-              </motion.h2>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="text-white/80 text-lg max-w-2xl mx-auto mb-10"
-              >
-                Join thousands of businesses already automating their social media management with {brandName}. Start free, no credit card needed.
-              </motion.p>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="flex flex-col sm:flex-row items-center justify-center gap-4"
-              >
+            {/* Abstract Shapes */}
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/30 rounded-full blur-[120px] mix-blend-screen" />
+            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-500/30 rounded-full blur-[100px] mix-blend-screen" />
+
+            <div className="relative z-10 px-8 py-16 md:py-24 text-center max-w-3xl mx-auto">
+              <h2 className="text-3xl md:text-5xl font-extrabold mb-6 text-white tracking-tight">
+                Ready to upgrade your social workflow?
+              </h2>
+              <p className="text-blue-100 text-lg md:text-xl font-medium mb-10 max-w-2xl mx-auto">
+                Join thousands of creators and brands using {brandName} to
+                automate their growth. Setup takes 3 minutes.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <button
-                  onClick={() => goAuth('/register')}
-                  className="w-full sm:w-auto px-10 py-4 rounded-full bg-white hover:bg-emerald-50 text-brand-700 font-bold flex items-center justify-center gap-2 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5"
+                  onClick={() => goAuth("/register")}
+                  className="w-full sm:w-auto px-8 py-4 rounded-full font-bold flex items-center justify-center gap-2 text-blue-900 bg-white hover:bg-slate-50 shadow-xl transition-transform hover:-translate-y-1 active:scale-95 text-lg"
                 >
-                  Start Free <ArrowRight className="h-5 w-5" />
+                  Start your free trial
                 </button>
                 <Link
-                  to="/contact"
-                  className="w-full sm:w-auto px-10 py-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold transition-all text-center backdrop-blur-sm"
+                  to="/pricing"
+                  className="w-full sm:w-auto px-8 py-4 rounded-full font-bold flex items-center justify-center gap-2 text-white border-2 border-blue-400/30 hover:bg-white/10 transition-colors text-lg"
                 >
-                  Talk to Sales
+                  View pricing
                 </Link>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-
-      {/* ═══════════════════════════════════════════ */}
-      {/* ─── FOOTER ─── */}
-      {/* ═══════════════════════════════════════════ */}
-      <footer className="pt-16 pb-8 bg-[#030712]">
+      {/* ─── CLEAN FOOTER ─── */}
+      <footer className="pt-20 pb-10 bg-white border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-5 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-            {/* Brand */}
-            <div className="sm:col-span-2 lg:col-span-1">
-              <div className="flex items-center gap-2.5 mb-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-16">
+            <div className="col-span-2 lg:col-span-2">
+              <div className="flex items-center gap-2.5 mb-6">
                 {logoUrl ? (
-                  <img src={logoUrl} alt="Graxion Flow Logo" className="h-7 w-auto opacity-90" />
-                ) : (
-                  <div className="h-9 w-9 bg-gradient-to-br from-brand-500 to-emerald-400 rounded-xl flex items-center justify-center">
-                    <MessageSquare className="text-white h-4 w-4" />
-                  </div>
-                )}
-                <span className="text-lg font-bold text-white">{brandName}</span>
+                  <img
+                    src={logoUrl}
+                    alt="Graxion Flow"
+                    className="h-8 w-auto"
+                  />
+                ) : null}
+                <span className="text-xl font-bold text-slate-900">
+                  {brandName}
+                </span>
               </div>
-              <p className="text-gray-500 text-sm leading-relaxed mb-6 max-w-xs">
-                AI-powered social media management platform. Create, schedule, publish, and automate across every channel from one dashboard.
+              <p className="text-slate-500 font-medium text-sm leading-relaxed mb-6 max-w-sm">
+                The premium workspace for social media operations. Create,
+                schedule, and automate across every channel with ease.
               </p>
-              {/* Social links */}
               <div className="flex items-center gap-3">
-                {socialTwitter && (
-                  <a href={socialTwitter} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-gray-400 hover:text-brand-400 hover:border-brand-500/30 hover:bg-brand-500/10 transition-all">
-                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                {[
+                  { Icon: Facebook, link: "#" },
+                  { Icon: Instagram, link: "#" },
+                  { Icon: Linkedin, link: "#" },
+                  { Icon: Youtube, link: "#" },
+                ].map((social, i) => (
+                  <a
+                    key={i}
+                    href={social.link}
+                    className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                  >
+                    <social.Icon className="w-4.5 h-4.5" />
                   </a>
-                )}
-                {socialLinkedin && (
-                  <a href={socialLinkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-gray-400 hover:text-brand-400 hover:border-brand-500/30 hover:bg-brand-500/10 transition-all">
-                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                  </a>
-                )}
-                {socialInstagram && (
-                  <a href={socialInstagram} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-gray-400 hover:text-brand-400 hover:border-brand-500/30 hover:bg-brand-500/10 transition-all">
-                    <Instagram className="w-4 h-4" />
-                  </a>
-                )}
-                {socialYoutube && (
-                  <a href={socialYoutube} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-gray-400 hover:text-brand-400 hover:border-brand-500/30 hover:bg-brand-500/10 transition-all">
-                    <Youtube className="w-4 h-4" />
-                  </a>
-                )}
+                ))}
               </div>
             </div>
 
-            {/* Product */}
             <div>
-              <h4 className="text-white font-semibold mb-5 text-sm">Product</h4>
-              <ul className="space-y-3">
-                <li><a href="#features" className="text-gray-500 hover:text-brand-400 transition-colors text-sm">Features</a></li>
-                <li><a href="#workflow" className="text-gray-500 hover:text-brand-400 transition-colors text-sm">How It Works</a></li>
-                <li><Link to="/integrations" className="text-gray-500 hover:text-brand-400 transition-colors text-sm">Integrations</Link></li>
-                <li><Link to="/changelog" className="text-gray-500 hover:text-brand-400 transition-colors text-sm">Changelog</Link></li>
+              <h4 className="text-slate-900 font-bold mb-5">Product</h4>
+              <ul className="space-y-4">
+                <li>
+                  <a
+                    href="#features"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                  >
+                    Features
+                  </a>
+                </li>
+                <li>
+                  <Link
+                    to="/integrations"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                  >
+                    Integrations
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/pricing"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                  >
+                    Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/changelog"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                  >
+                    Changelog
+                  </Link>
+                </li>
               </ul>
             </div>
 
-            {/* Company */}
             <div>
-              <h4 className="text-white font-semibold mb-5 text-sm">Company</h4>
-              <ul className="space-y-3">
-                <li><Link to="/about" className="text-gray-500 hover:text-brand-400 transition-colors text-sm">About</Link></li>
-                <li><Link to="/careers" className="text-gray-500 hover:text-brand-400 transition-colors text-sm">Careers</Link></li>
-                <li><Link to="/contact" className="text-gray-500 hover:text-brand-400 transition-colors text-sm">Contact</Link></li>
-                <li><Link to="/blog" className="text-gray-500 hover:text-brand-400 transition-colors text-sm">Blog</Link></li>
+              <h4 className="text-slate-900 font-bold mb-5">Company</h4>
+              <ul className="space-y-4">
+                <li>
+                  <Link
+                    to="/about"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                  >
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/blog"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                  >
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/careers"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                  >
+                    Careers
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contact"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                  >
+                    Contact
+                  </Link>
+                </li>
               </ul>
             </div>
 
-            {/* Legal + Contact */}
             <div>
-              <h4 className="text-white font-semibold mb-5 text-sm">Legal</h4>
-              <ul className="space-y-3">
-                <li><Link to="/privacy-policy" className="text-gray-500 hover:text-brand-400 transition-colors text-sm">Privacy Policy</Link></li>
-                <li><Link to="/terms-of-service" className="text-gray-500 hover:text-brand-400 transition-colors text-sm">Terms of Service</Link></li>
-                <li><Link to="/data-deletion-policy" className="text-gray-500 hover:text-brand-400 transition-colors text-sm">Data Deletion</Link></li>
-                <li><Link to="/security" className="text-gray-500 hover:text-brand-400 transition-colors text-sm">Security</Link></li>
+              <h4 className="text-slate-900 font-bold mb-5">Legal</h4>
+              <ul className="space-y-4">
+                <li>
+                  <Link
+                    to="/privacy"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                  >
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/terms"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                  >
+                    Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/security"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                  >
+                    Security
+                  </Link>
+                </li>
               </ul>
               {(contactEmail || contactPhone) && (
-                <div className="mt-6 space-y-2">
+                <div className="mt-8 space-y-3 pt-8 border-t border-slate-100">
                   {contactEmail && (
-                    <a href={`mailto:${contactEmail}`} className="flex items-center gap-2 text-gray-500 hover:text-brand-400 transition-colors text-sm">
-                      <Mail className="w-3.5 h-3.5" /> {contactEmail}
-                    </a>
-                  )}
-                  {contactPhone && (
-                    <a href={`tel:${contactPhone}`} className="flex items-center gap-2 text-gray-500 hover:text-brand-400 transition-colors text-sm">
-                      <Phone className="w-3.5 h-3.5" /> {contactPhone}
+                    <a
+                      href={`mailto:${contactEmail}`}
+                      className="flex items-center gap-2 text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
+                    >
+                      <Mail className="w-4 h-4" /> {contactEmail}
                     </a>
                   )}
                 </div>
@@ -1170,69 +1182,44 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Bottom bar */}
-          <div className="pt-8 border-t border-white/[0.06] flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-600 text-sm">{footerText}</p>
-            <div className="flex items-center gap-6 text-sm text-gray-600">
-              <Link to="/privacy-policy" className="hover:text-gray-300 transition-colors">Privacy</Link>
-              <Link to="/terms-of-service" className="hover:text-gray-300 transition-colors">Terms</Link>
-              {address && (
-                <span className="flex items-center gap-1.5">
-                  <MapPin className="w-3 h-3" /> {address}
-                </span>
-              )}
-            </div>
+          <div className="pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-slate-500 font-medium text-sm">{footerText}</p>
+            {address && (
+              <span className="flex items-center gap-1.5 text-slate-500 font-medium text-sm">
+                <MapPin className="w-4 h-4" /> {address}
+              </span>
+            )}
           </div>
         </div>
       </footer>
 
-      {/* ═══════════════════════════════════════════ */}
-      {/* ─── FLOATING DYNAMIC ISLAND PILL (MOBILE) ─── */}
-      {/* ═══════════════════════════════════════════ */}
-      <div className="md:hidden fixed bottom-5 sm:bottom-7 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
-        <nav className="pointer-events-auto flex items-center justify-between gap-1 sm:gap-2 p-1.5 sm:p-2.5 rounded-full bg-slate-950/90 backdrop-blur-2xl border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.45),0_0_20px_rgba(34,197,94,0.15)] ring-1 ring-black/5">
+      {/* ─── MOBILE FLOATING NAV (Light Glass) ─── */}
+      <div className="md:hidden fixed bottom-6 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
+        <nav className="pointer-events-auto flex items-center justify-between gap-1 p-2 rounded-full glass-nav border border-slate-200/60 shadow-lg shadow-slate-200/50">
           <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-white hover:bg-white/10 active:scale-95 transition-all"
-            title="Home"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-bold text-blue-600 bg-blue-50"
           >
-            <HomeIcon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-400" />
-            <span className="text-[11px] sm:text-xs">Home</span>
+            <HomeIcon className="w-4.5 h-4.5" />
+            <span>Home</span>
           </button>
-
           <a
             href="#features"
-            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
-            title="Features"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-bold text-slate-600 hover:bg-slate-50"
           >
-            <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
-            <span className="text-[11px] sm:text-xs">Features</span>
+            <LayoutDashboard className="w-4.5 h-4.5" />
           </a>
-
           <a
             href="#platforms"
-            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
-            title="Channels"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-bold text-slate-600 hover:bg-slate-50"
           >
-            <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
-            <span className="text-[11px] sm:text-xs">Channels</span>
+            <Globe className="w-4.5 h-4.5" />
           </a>
-
           <button
-            onClick={() => goAuth('/login')}
-            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
-            title="Sign In"
+            onClick={() => goAuth("/register")}
+            className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-bold text-white bg-blue-600 ml-1"
           >
-            <Users className="w-4 h-4 sm:w-5 sm:h-5 text-slate-300" />
-            <span className="text-[11px] sm:text-xs">Sign In</span>
-          </button>
-
-          <button
-            onClick={() => goAuth('/register')}
-            className="flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4.5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-brand-500 to-emerald-500 hover:from-brand-400 hover:to-emerald-400 shadow-md shadow-brand-500/30 active:scale-95 transition-all"
-          >
-            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="text-[11px] sm:text-xs">Start</span>
+            Start
           </button>
         </nav>
       </div>

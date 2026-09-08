@@ -153,7 +153,7 @@ export default function App() {
   return (
     <HelmetProvider>
       <SEO /> {/* Default Site-wide SEO */}
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Toaster
         position="top-right"
         toastOptions={{
