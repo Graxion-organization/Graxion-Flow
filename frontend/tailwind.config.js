@@ -36,10 +36,17 @@ module.exports = {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'gradient': 'gradient 8s ease infinite',
         'float': 'float 6s ease-in-out infinite',
+        'float-slow': 'floatSlow 8s ease-in-out infinite',
+        'float-delayed': 'floatDelayed 7s ease-in-out infinite',
         'shimmer': 'shimmer 2s linear infinite',
         'glow-pulse': 'glowPulse 3s ease-in-out infinite',
         'gradient-shift': 'gradientShift 6s ease infinite',
         'spin-slow': 'spin 8s linear infinite',
+        'marquee': 'marquee 30s linear infinite',
+        'marquee-reverse': 'marquee 30s linear infinite reverse',
+        'glow-ping': 'glowPing 2s ease-in-out infinite',
+        'mesh-shift': 'meshShift 12s ease-in-out infinite',
+        'dash-flow': 'dashFlow 2s linear infinite',
       },
       keyframes: {
         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
@@ -51,6 +58,15 @@ module.exports = {
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-20px)' },
+        },
+        floatSlow: {
+          '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+          '50%': { transform: 'translateY(-12px) rotate(2deg)' },
+        },
+        floatDelayed: {
+          '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+          '33%': { transform: 'translateY(-8px) rotate(-1deg)' },
+          '66%': { transform: 'translateY(4px) rotate(1deg)' },
         },
         shimmer: {
           '0%': { 'background-position': '-200% 0' },
@@ -64,6 +80,24 @@ module.exports = {
           '0%': { 'background-position': '0% 50%' },
           '50%': { 'background-position': '100% 50%' },
           '100%': { 'background-position': '0% 50%' },
+        },
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+        glowPing: {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(34, 197, 94, 0.4)' },
+          '50%': { boxShadow: '0 0 0 12px rgba(34, 197, 94, 0)' },
+        },
+        meshShift: {
+          '0%': { transform: 'translate(0%, 0%) scale(1)' },
+          '33%': { transform: 'translate(5%, -5%) scale(1.05)' },
+          '66%': { transform: 'translate(-3%, 3%) scale(0.97)' },
+          '100%': { transform: 'translate(0%, 0%) scale(1)' },
+        },
+        dashFlow: {
+          '0%': { 'stroke-dashoffset': '12' },
+          '100%': { 'stroke-dashoffset': '0' },
         },
       },
       backgroundImage: {
