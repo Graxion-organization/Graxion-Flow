@@ -32,6 +32,9 @@ import {
   Play,
   Layers,
   ChevronRight,
+  TrendingUp,
+  ArrowUpRight,
+  Activity,
 } from "lucide-react";
 import { useAuthStore, useBrandingStore } from "../store";
 
@@ -129,99 +132,337 @@ const AnimatedCounter = ({ target, suffix = "" }) => {
 };
 
 /* ─── Premium Dashboard Mockup (Light Mode) ─── */
-const DashboardMockup = () => (
-  <div className="rounded-2xl premium-glass-card overflow-hidden">
-    {/* Browser Header */}
-    <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-      <div className="flex gap-1.5">
-        <div className="w-3 h-3 rounded-full bg-slate-200" />
-        <div className="w-3 h-3 rounded-full bg-slate-200" />
-        <div className="w-3 h-3 rounded-full bg-slate-200" />
-      </div>
-      <div className="flex-1 mx-4 max-w-[240px] mx-auto h-6 bg-white border border-slate-200 rounded-md flex items-center justify-center shadow-sm">
-        <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
-          <Shield className="w-3 h-3 text-blue-500" /> flow.graxion.in/app
-        </span>
-      </div>
-    </div>
+const MiniSparkline = ({ points, color = "#2563EB", id }) => {
+  const min = Math.min(...points);
+  const max = Math.max(...points);
+  const range = max - min || 1;
+  const width = 84;
+  const height = 26;
+  const step = width / (points.length - 1);
+  const coords = points.map((p, i) => {
+    const x = i * step;
+    const y = height - ((p - min) / range) * (height - 6) - 3;
+    return `${x},${y}`;
+  });
+  const pathD = `M ${coords.join(" L ")}`;
+  const areaD = `${pathD} L ${width},${height} L 0,${height} Z`;
 
-    <div className="flex h-[240px] sm:h-[300px] lg:h-[380px] bg-slate-50/30">
-      {/* Sidebar */}
-      <div className="w-14 sm:w-16 border-r border-slate-100 py-4 flex flex-col items-center gap-4 bg-white">
-        <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20">
-          <MessageSquare className="w-4 h-4 text-white" />
-        </div>
-        <div className="flex flex-col gap-2 mt-2">
-          {[LayoutDashboard, MessageCircle, Users, BarChart3, Workflow].map(
-            (Icon, i) => (
-              <div
-                key={i}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${i === 0 ? "bg-blue-50 text-blue-600" : "text-slate-400 hover:bg-slate-50 hover:text-slate-600"}`}
-              >
-                <Icon className="w-4.5 h-4.5" />
-              </div>
-            ),
-          )}
-        </div>
-      </div>
+  return (
+    <svg className="w-[74px] sm:w-[84px] h-[26px] overflow-visible" viewBox={`0 0 ${width} ${height}`}>
+      <defs>
+        <linearGradient id={`spark-${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.22" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.0" />
+        </linearGradient>
+      </defs>
+      <path d={areaD} fill={`url(#spark-${id})`} />
+      <path d={pathD} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+};
 
-      {/* Main Content */}
-      <div className="flex-1 p-4 sm:p-6 overflow-hidden">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-sm font-semibold text-slate-800">Overview</h2>
-          <span className="text-[10px] bg-white border border-slate-200 px-2.5 py-1 rounded-full text-slate-500 font-medium shadow-sm">
-            Last 30 Days
+const DashboardMockup = () => {
+  const [selectedRange, setSelectedRange] = useState("30d");
+  const [hoveredBarIndex, setHoveredBarIndex] = useState(4);
+
+  const dataset = {
+    "7d": {
+      label: "Last 7 Days",
+      messages: { value: "3.4K", trend: "+18.2%", spark: [14, 22, 19, 28, 35, 42, 54] },
+      engagement: { value: "91.8%", trend: "+4.6%", spark: [84, 86, 85, 88, 89, 90, 92] },
+      posts: { value: "62", trend: "+28.4%", spark: [4, 6, 8, 12, 16, 20, 26] },
+      bars: [
+        { label: "Mon", height: 50, value: "480 msgs" },
+        { label: "Tue", height: 65, value: "620 msgs" },
+        { label: "Wed", height: 82, value: "810 msgs" },
+        { label: "Thu", height: 70, value: "690 msgs" },
+        { label: "Fri", height: 95, value: "940 msgs" },
+        { label: "Sat", height: 58, value: "560 msgs" },
+        { label: "Sun", height: 75, value: "720 msgs" },
+      ],
+      ticker: "Auto-DM campaign engaged 142 followers across Instagram & Facebook"
+    },
+    "30d": {
+      label: "Last 30 Days",
+      messages: { value: "12.4K", trend: "+14.2%", spark: [28, 34, 30, 48, 55, 68, 76, 92] },
+      engagement: { value: "89.4%", trend: "+5.1%", spark: [78, 81, 80, 83, 85, 87, 89] },
+      posts: { value: "234", trend: "+22.5%", spark: [18, 24, 22, 32, 40, 52, 64] },
+      bars: [
+        { label: "W1", height: 45, value: "2.6K msgs" },
+        { label: "W2", height: 68, value: "3.4K msgs" },
+        { label: "W3", height: 85, value: "4.1K msgs" },
+        { label: "W4", height: 96, value: "4.9K msgs" },
+        { label: "Peak", height: 88, value: "4.3K msgs" },
+        { label: "Avg", height: 72, value: "3.6K msgs" },
+        { label: "Live", height: 92, value: "4.7K msgs" },
+      ],
+      ticker: "AI Lead Copilot resolved +3,480 queries autonomously with zero escalations"
+    },
+    "90d": {
+      label: "Last 90 Days",
+      messages: { value: "48.2K", trend: "+34.5%", spark: [20, 32, 44, 58, 68, 82, 98] },
+      engagement: { value: "88.6%", trend: "+6.8%", spark: [76, 79, 82, 84, 86, 88, 89] },
+      posts: { value: "812", trend: "+41.2%", spark: [120, 180, 240, 360, 490, 640, 812] },
+      bars: [
+        { label: "M1", height: 58, value: "13.8K msgs" },
+        { label: "M2", height: 78, value: "16.9K msgs" },
+        { label: "M3", height: 98, value: "21.4K msgs" },
+        { label: "Q-Avg", height: 75, value: "15.2K msgs" },
+        { label: "High", height: 92, value: "19.8K msgs" },
+        { label: "Scale", height: 86, value: "18.1K msgs" },
+        { label: "Target", height: 94, value: "20.5K msgs" },
+      ],
+      ticker: "Enterprise pipeline: 120 WhatsApp broadcast campaigns successfully delivered"
+    },
+  };
+
+  const current = dataset[selectedRange];
+
+  return (
+    <div className="rounded-2xl premium-glass-card overflow-hidden shadow-2xl border border-slate-200/80 bg-white/95">
+      {/* Top Browser / Window Bar */}
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 bg-slate-50/80">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-rose-400/80" />
+          <div className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400/80" />
+        </div>
+        
+        {/* Address Pill */}
+        <div className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200/80 rounded-full text-[11px] text-slate-500 shadow-xs font-medium">
+          <Shield className="w-3 h-3 text-blue-600" />
+          <span className="text-slate-700">app.graxionflow.com</span>
+          <span className="text-slate-300">/</span>
+          <span className="text-blue-600">analytics</span>
+        </div>
+
+        {/* Live sync beacon */}
+        <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-600">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
+          <span className="hidden sm:inline">Live Engine</span>
+        </div>
+      </div>
+
+      <div className="flex bg-slate-50/20">
+        {/* Vertical Icon Rail */}
+        <div className="w-11 sm:w-14 border-r border-slate-100 py-3.5 flex flex-col items-center justify-between bg-white shrink-0">
+          <div className="flex flex-col items-center gap-2.5 sm:gap-3">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
+              <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-white" />
+            </div>
+            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+              <LayoutDashboard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </div>
+            <div className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors">
+              <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </div>
+            <div className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors">
+              <Workflow className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </div>
+            <div className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors">
+              <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </div>
+          </div>
+
+          {/* Connected Platform Status Dots */}
+          <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" title="WhatsApp Connected" />
+            <span className="w-2 h-2 rounded-full bg-pink-500" title="Instagram Connected" />
+            <span className="w-2 h-2 rounded-full bg-red-500" title="YouTube Connected" />
+          </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-5">
-          {[
-            { label: "Messages Sent", value: "12.4K", trend: "+14%" },
-            { label: "Avg Engagement", value: "89%", trend: "+5%" },
-            { label: "Posts Published", value: "234", trend: "+22%" },
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-xl border border-slate-100 bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="flex justify-between items-start mb-2">
-                <p className="text-[10px] sm:text-xs text-slate-500 font-medium">
-                  {stat.label}
-                </p>
-                <span className="text-[9px] font-bold text-emerald-500 bg-emerald-50 px-1.5 py-0.5 rounded">
-                  {stat.trend}
-                </span>
+        {/* Main Content Area */}
+        <div className="flex-1 p-3 sm:p-5 overflow-hidden">
+          {/* Header Row: Title & Range Selector */}
+          <div className="flex flex-wrap items-center justify-between gap-2.5 mb-3.5 sm:mb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                  Overview
+                </h3>
+                <span className="text-slate-300">·</span>
+                <span className="text-[11px] text-slate-500 font-medium">{current.label}</span>
               </div>
-              <p className="text-lg sm:text-2xl font-bold text-slate-900">
-                {stat.value}
+              <p className="text-[11px] text-slate-500 hidden sm:block">
+                Unified metrics across Meta, YouTube, LinkedIn & Telegram
               </p>
             </div>
-          ))}
-        </div>
 
-        {/* Chart Area */}
-        <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
-          <div className="flex items-end gap-1.5 sm:gap-2 h-20 sm:h-28">
-            {[40, 65, 45, 80, 55, 90, 70, 85, 60, 95, 75, 88].map((h, i) => (
-              <div
-                key={i}
-                className="group flex-1 flex flex-col justify-end relative"
-              >
-                <div
-                  className="w-full rounded-t-sm transition-all duration-300 group-hover:opacity-80"
-                  style={{
-                    height: `${h}%`,
-                    background: `linear-gradient(180deg, #3B82F6 0%, #EFF6FF 100%)`,
-                  }}
-                />
+            {/* Interactive Filter Controls */}
+            <div className="flex items-center gap-0.5 p-0.5 bg-slate-100 rounded-lg border border-slate-200/60 shadow-xs">
+              {[
+                { id: "7d", label: "7D" },
+                { id: "30d", label: "30D" },
+                { id: "90d", label: "90D" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setSelectedRange(tab.id)}
+                  type="button"
+                  className={`px-2 sm:px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
+                    selectedRange === tab.id
+                      ? "bg-white text-slate-900 shadow-sm"
+                      : "text-slate-500 hover:text-slate-900"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 3 Redesigned KPI Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mb-3.5 sm:mb-4">
+            {/* Card 1: Messages Sent */}
+            <div className="group rounded-xl border border-slate-200/80 bg-white p-3 sm:p-3.5 shadow-xs hover:border-blue-200 hover:shadow-sm transition-all">
+              <div className="flex items-start justify-between gap-1 mb-1">
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                  <div className="w-5 h-5 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                    <MessageSquare className="w-3 h-3" />
+                  </div>
+                  <span className="truncate">Messages Sent</span>
+                </div>
+                <div className="flex items-center gap-0.5 text-emerald-600 text-[11px] font-semibold">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>{current.messages.trend}</span>
+                </div>
               </div>
-            ))}
+
+              <div className="flex items-baseline justify-between mt-1">
+                <p className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                  {current.messages.value}
+                </p>
+                <MiniSparkline points={current.messages.spark} color="#2563EB" id="msgs" />
+              </div>
+
+              <p className="text-[10px] text-slate-400 mt-1 truncate">
+                99.8% delivery · WhatsApp & DMs
+              </p>
+            </div>
+
+            {/* Card 2: Avg Engagement */}
+            <div className="group rounded-xl border border-slate-200/80 bg-white p-3 sm:p-3.5 shadow-xs hover:border-emerald-200 hover:shadow-sm transition-all">
+              <div className="flex items-start justify-between gap-1 mb-1">
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                  <div className="w-5 h-5 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <Bot className="w-3 h-3" />
+                  </div>
+                  <span className="truncate">Avg Engagement</span>
+                </div>
+                <div className="flex items-center gap-0.5 text-emerald-600 text-[11px] font-semibold">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>{current.engagement.trend}</span>
+                </div>
+              </div>
+
+              <div className="flex items-baseline justify-between mt-1">
+                <p className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                  {current.engagement.value}
+                </p>
+                <MiniSparkline points={current.engagement.spark} color="#059669" id="eng" />
+              </div>
+
+              <p className="text-[10px] text-slate-400 mt-1 truncate">
+                1.4s AI response latency
+              </p>
+            </div>
+
+            {/* Card 3: Posts Published */}
+            <div className="group rounded-xl border border-slate-200/80 bg-white p-3 sm:p-3.5 shadow-xs hover:border-indigo-200 hover:shadow-sm transition-all">
+              <div className="flex items-start justify-between gap-1 mb-1">
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                  <div className="w-5 h-5 rounded-md bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                    <CalendarDays className="w-3 h-3" />
+                  </div>
+                  <span className="truncate">Posts Published</span>
+                </div>
+                <div className="flex items-center gap-0.5 text-emerald-600 text-[11px] font-semibold">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>{current.posts.trend}</span>
+                </div>
+              </div>
+
+              <div className="flex items-baseline justify-between mt-1">
+                <p className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                  {current.posts.value}
+                </p>
+                <MiniSparkline points={current.posts.spark} color="#6366F1" id="posts" />
+              </div>
+
+              <div className="flex items-center gap-1.5 mt-1">
+                <div className="flex items-center -space-x-1">
+                  <span className="w-2 h-2 rounded-full bg-[#25D366] border border-white" />
+                  <span className="w-2 h-2 rounded-full bg-[#E1306C] border border-white" />
+                  <span className="w-2 h-2 rounded-full bg-[#FF0000] border border-white" />
+                  <span className="w-2 h-2 rounded-full bg-[#0A66C2] border border-white" />
+                </div>
+                <span className="text-[10px] text-slate-400 font-medium">Across 5 channels</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Throughput Visualizer Area */}
+          <div className="rounded-xl border border-slate-200/80 bg-white p-3 sm:p-3.5 shadow-xs">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2 text-xs">
+                <span className="font-semibold text-slate-800">Dispatch Velocity</span>
+                <span className="text-slate-300">·</span>
+                <span className="text-[11px] text-slate-500 font-medium">{current.label}</span>
+              </div>
+              <div className="text-[11px] font-semibold text-blue-600">
+                {current.bars[hoveredBarIndex]?.value || "4.3K msgs"}
+              </div>
+            </div>
+
+            {/* Micro Bar Chart */}
+            <div className="flex items-end gap-1.5 sm:gap-2 h-14 sm:h-16 pt-1">
+              {current.bars.map((bar, i) => {
+                const isHovered = hoveredBarIndex === i;
+                return (
+                  <div
+                    key={bar.label + i}
+                    onMouseEnter={() => setHoveredBarIndex(i)}
+                    className="group flex-1 flex flex-col justify-end items-center h-full cursor-pointer relative"
+                  >
+                    <div
+                      className={`w-full rounded-t-sm sm:rounded-t transition-all duration-200 ${
+                        isHovered
+                          ? "bg-blue-600 shadow-xs scale-y-105"
+                          : "bg-gradient-to-t from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300"
+                      }`}
+                      style={{ height: `${bar.height}%` }}
+                    />
+                    <span
+                      className={`text-[9px] sm:text-[10px] font-medium mt-1 transition-colors ${
+                        isHovered ? "text-blue-600 font-bold" : "text-slate-400"
+                      }`}
+                    >
+                      {bar.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Live Ticker Feed */}
+            <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+              <div className="flex items-center gap-2 truncate">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                <span className="font-semibold text-slate-700">Automation Trigger:</span>
+                <span className="truncate text-slate-500">{current.ticker}</span>
+              </div>
+              <span className="text-[10px] text-slate-400 shrink-0 ml-2 hidden sm:inline">Live Sync</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 /* ─── Floating platform chip (Light mode) ─── */
 const PlatformChip = ({ icon: Icon, color, position, delay }) => (
