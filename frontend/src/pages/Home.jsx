@@ -221,34 +221,32 @@ const DashboardMockup = () => {
   return (
     <div className="rounded-2xl premium-glass-card overflow-hidden shadow-2xl border border-slate-200/80 bg-white/95">
       {/* Top Browser / Window Bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 bg-slate-50/80">
-        <div className="flex items-center gap-1.5">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-2.5 border-b border-slate-100 bg-slate-50/80">
+        <div className="flex items-center gap-1.5 shrink-0">
           <div className="w-2.5 h-2.5 rounded-full bg-rose-400/80" />
           <div className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
           <div className="w-2.5 h-2.5 rounded-full bg-emerald-400/80" />
         </div>
         
         {/* Address Pill */}
-        <div className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200/80 rounded-full text-[11px] text-slate-500 shadow-xs font-medium">
-          <Shield className="w-3 h-3 text-blue-600" />
+        <div className="flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 bg-white border border-slate-200/80 rounded-full text-[10px] sm:text-[11px] text-slate-500 shadow-xs font-medium">
+          <Shield className="w-3 h-3 text-blue-600 shrink-0" />
           <span className="text-slate-700">app.graxionflow.com</span>
-          <span className="text-slate-300">/</span>
-          <span className="text-blue-600">analytics</span>
         </div>
 
         {/* Live sync beacon */}
-        <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-600">
+        <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-medium text-emerald-600 shrink-0">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
-          <span className="hidden sm:inline">Live Engine</span>
+          <span className="font-semibold text-[10px] sm:text-[11px]">Live</span>
         </div>
       </div>
 
       <div className="flex bg-slate-50/20">
-        {/* Vertical Icon Rail */}
-        <div className="w-11 sm:w-14 border-r border-slate-100 py-3.5 flex flex-col items-center justify-between bg-white shrink-0">
+        {/* Vertical Icon Rail - hidden on mobile to give full space to dashboard stats */}
+        <div className="hidden sm:flex w-11 sm:w-14 border-r border-slate-100 py-3.5 flex-col items-center justify-between bg-white shrink-0">
           <div className="flex flex-col items-center gap-2.5 sm:gap-3">
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
               <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-white" />
@@ -276,16 +274,16 @@ const DashboardMockup = () => {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 p-3 sm:p-5 overflow-hidden">
+        <div className="flex-1 p-2.5 sm:p-5 overflow-hidden">
           {/* Header Row: Title & Range Selector */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5 mb-3.5 sm:mb-4">
+          <div className="flex items-center justify-between gap-2 mb-2.5 sm:mb-4">
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h3 className="text-xs sm:text-base font-bold text-slate-900 tracking-tight">
                   Overview
                 </h3>
                 <span className="text-slate-300">·</span>
-                <span className="text-[11px] text-slate-500 font-medium">{current.label}</span>
+                <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium">{current.label}</span>
               </div>
               <p className="text-[11px] text-slate-500 hidden sm:block">
                 Unified metrics across Meta, YouTube, LinkedIn & Telegram
@@ -293,7 +291,7 @@ const DashboardMockup = () => {
             </div>
 
             {/* Interactive Filter Controls */}
-            <div className="flex items-center gap-0.5 p-0.5 bg-slate-100 rounded-lg border border-slate-200/60 shadow-xs">
+            <div className="flex items-center gap-0.5 p-0.5 bg-slate-100 rounded-lg border border-slate-200/60 shadow-xs shrink-0">
               {[
                 { id: "7d", label: "7D" },
                 { id: "30d", label: "30D" },
@@ -303,7 +301,7 @@ const DashboardMockup = () => {
                   key={tab.id}
                   onClick={() => setSelectedRange(tab.id)}
                   type="button"
-                  className={`px-2 sm:px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
+                  className={`px-2 sm:px-2.5 py-0.5 sm:py-1 text-[11px] sm:text-xs font-semibold rounded-md transition-all ${
                     selectedRange === tab.id
                       ? "bg-white text-slate-900 shadow-sm"
                       : "text-slate-500 hover:text-slate-900"
@@ -315,85 +313,85 @@ const DashboardMockup = () => {
             </div>
           </div>
 
-          {/* 3 Redesigned KPI Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mb-3.5 sm:mb-4">
+          {/* 3 Responsive KPI Cards */}
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-3 mb-2.5 sm:mb-4">
             {/* Card 1: Messages Sent */}
-            <div className="group rounded-xl border border-slate-200/80 bg-white p-3 sm:p-3.5 shadow-xs hover:border-blue-200 hover:shadow-sm transition-all">
-              <div className="flex items-start justify-between gap-1 mb-1">
-                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-                  <div className="w-5 h-5 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                    <MessageSquare className="w-3 h-3" />
+            <div className="group rounded-xl border border-slate-200/80 bg-white p-2 sm:p-3.5 shadow-xs hover:border-blue-200 hover:shadow-sm transition-all flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] sm:text-xs font-semibold text-slate-500 truncate">
+                    Messages
+                  </span>
+                  <span className="text-[9px] sm:text-[11px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded">
+                    {current.messages.trend}
+                  </span>
+                </div>
+
+                <div className="flex items-baseline justify-between mt-0.5 sm:mt-1">
+                  <p className="text-base sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                    {current.messages.value}
+                  </p>
+                  <div className="hidden sm:block">
+                    <MiniSparkline points={current.messages.spark} color="#2563EB" id="msgs" />
                   </div>
-                  <span className="truncate">Messages Sent</span>
-                </div>
-                <div className="flex items-center gap-0.5 text-emerald-600 text-[11px] font-semibold">
-                  <TrendingUp className="w-3 h-3" />
-                  <span>{current.messages.trend}</span>
                 </div>
               </div>
 
-              <div className="flex items-baseline justify-between mt-1">
-                <p className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                  {current.messages.value}
-                </p>
-                <MiniSparkline points={current.messages.spark} color="#2563EB" id="msgs" />
-              </div>
-
-              <p className="text-[10px] text-slate-400 mt-1 truncate">
+              <p className="text-[10px] text-slate-400 mt-1 truncate hidden sm:block">
                 99.8% delivery · WhatsApp & DMs
               </p>
             </div>
 
             {/* Card 2: Avg Engagement */}
-            <div className="group rounded-xl border border-slate-200/80 bg-white p-3 sm:p-3.5 shadow-xs hover:border-emerald-200 hover:shadow-sm transition-all">
-              <div className="flex items-start justify-between gap-1 mb-1">
-                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-                  <div className="w-5 h-5 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                    <Bot className="w-3 h-3" />
+            <div className="group rounded-xl border border-slate-200/80 bg-white p-2 sm:p-3.5 shadow-xs hover:border-emerald-200 hover:shadow-sm transition-all flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] sm:text-xs font-semibold text-slate-500 truncate">
+                    Engagement
+                  </span>
+                  <span className="text-[9px] sm:text-[11px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded">
+                    {current.engagement.trend}
+                  </span>
+                </div>
+
+                <div className="flex items-baseline justify-between mt-0.5 sm:mt-1">
+                  <p className="text-base sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                    {current.engagement.value}
+                  </p>
+                  <div className="hidden sm:block">
+                    <MiniSparkline points={current.engagement.spark} color="#059669" id="eng" />
                   </div>
-                  <span className="truncate">Avg Engagement</span>
-                </div>
-                <div className="flex items-center gap-0.5 text-emerald-600 text-[11px] font-semibold">
-                  <TrendingUp className="w-3 h-3" />
-                  <span>{current.engagement.trend}</span>
                 </div>
               </div>
 
-              <div className="flex items-baseline justify-between mt-1">
-                <p className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                  {current.engagement.value}
-                </p>
-                <MiniSparkline points={current.engagement.spark} color="#059669" id="eng" />
-              </div>
-
-              <p className="text-[10px] text-slate-400 mt-1 truncate">
+              <p className="text-[10px] text-slate-400 mt-1 truncate hidden sm:block">
                 1.4s AI response latency
               </p>
             </div>
 
             {/* Card 3: Posts Published */}
-            <div className="group rounded-xl border border-slate-200/80 bg-white p-3 sm:p-3.5 shadow-xs hover:border-indigo-200 hover:shadow-sm transition-all">
-              <div className="flex items-start justify-between gap-1 mb-1">
-                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-                  <div className="w-5 h-5 rounded-md bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                    <CalendarDays className="w-3 h-3" />
+            <div className="group rounded-xl border border-slate-200/80 bg-white p-2 sm:p-3.5 shadow-xs hover:border-indigo-200 hover:shadow-sm transition-all flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] sm:text-xs font-semibold text-slate-500 truncate">
+                    Published
+                  </span>
+                  <span className="text-[9px] sm:text-[11px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded">
+                    {current.posts.trend}
+                  </span>
+                </div>
+
+                <div className="flex items-baseline justify-between mt-0.5 sm:mt-1">
+                  <p className="text-base sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                    {current.posts.value}
+                  </p>
+                  <div className="hidden sm:block">
+                    <MiniSparkline points={current.posts.spark} color="#6366F1" id="posts" />
                   </div>
-                  <span className="truncate">Posts Published</span>
-                </div>
-                <div className="flex items-center gap-0.5 text-emerald-600 text-[11px] font-semibold">
-                  <TrendingUp className="w-3 h-3" />
-                  <span>{current.posts.trend}</span>
                 </div>
               </div>
 
-              <div className="flex items-baseline justify-between mt-1">
-                <p className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                  {current.posts.value}
-                </p>
-                <MiniSparkline points={current.posts.spark} color="#6366F1" id="posts" />
-              </div>
-
-              <div className="flex items-center gap-1.5 mt-1">
+              <div className="items-center gap-1.5 mt-1 hidden sm:flex">
                 <div className="flex items-center -space-x-1">
                   <span className="w-2 h-2 rounded-full bg-[#25D366] border border-white" />
                   <span className="w-2 h-2 rounded-full bg-[#E1306C] border border-white" />
@@ -406,32 +404,33 @@ const DashboardMockup = () => {
           </div>
 
           {/* Interactive Throughput Visualizer Area */}
-          <div className="rounded-xl border border-slate-200/80 bg-white p-3 sm:p-3.5 shadow-xs">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2 text-xs">
-                <span className="font-semibold text-slate-800">Dispatch Velocity</span>
-                <span className="text-slate-300">·</span>
-                <span className="text-[11px] text-slate-500 font-medium">{current.label}</span>
+          <div className="rounded-xl border border-slate-200/80 bg-white p-2.5 sm:p-3.5 shadow-xs">
+            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+              <div className="flex items-center gap-1.5 text-xs">
+                <span className="font-semibold text-slate-800 text-[11px] sm:text-xs">Dispatch Velocity</span>
+                <span className="text-slate-300 hidden sm:inline">·</span>
+                <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium hidden sm:inline">{current.label}</span>
               </div>
-              <div className="text-[11px] font-semibold text-blue-600">
+              <div className="text-[10px] sm:text-[11px] font-bold text-blue-600">
                 {current.bars[hoveredBarIndex]?.value || "4.3K msgs"}
               </div>
             </div>
 
             {/* Micro Bar Chart */}
-            <div className="flex items-end gap-1.5 sm:gap-2 h-14 sm:h-16 pt-1">
+            <div className="flex items-end gap-1 sm:gap-2 h-14 sm:h-16 pt-1">
               {current.bars.map((bar, i) => {
                 const isHovered = hoveredBarIndex === i;
                 return (
                   <div
                     key={bar.label + i}
+                    onClick={() => setHoveredBarIndex(i)}
                     onMouseEnter={() => setHoveredBarIndex(i)}
                     className="group flex-1 flex flex-col justify-end items-center h-full cursor-pointer relative"
                   >
                     <div
                       className={`w-full rounded-t-sm sm:rounded-t transition-all duration-200 ${
                         isHovered
-                          ? "bg-blue-600 shadow-xs scale-y-105"
+                          ? "bg-blue-600 shadow-xs"
                           : "bg-gradient-to-t from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300"
                       }`}
                       style={{ height: `${bar.height}%` }}
@@ -449,13 +448,13 @@ const DashboardMockup = () => {
             </div>
 
             {/* Live Ticker Feed */}
-            <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-              <div className="flex items-center gap-2 truncate">
+            <div className="mt-2 pt-1.5 sm:pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] text-slate-500">
+              <div className="flex items-center gap-1.5 truncate">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
-                <span className="font-semibold text-slate-700">Automation Trigger:</span>
+                <span className="font-semibold text-slate-700 shrink-0">Auto-action:</span>
                 <span className="truncate text-slate-500">{current.ticker}</span>
               </div>
-              <span className="text-[10px] text-slate-400 shrink-0 ml-2 hidden sm:inline">Live Sync</span>
+              <span className="text-[10px] text-slate-400 shrink-0 ml-1.5 hidden sm:inline">Live Sync</span>
             </div>
           </div>
         </div>
@@ -470,7 +469,7 @@ const PlatformChip = ({ icon: Icon, color, position, delay }) => (
     initial={{ opacity: 0, scale: 0.5 }}
     animate={{ opacity: 1, scale: 1 }}
     transition={{ duration: 0.6, delay, type: "spring" }}
-    className={`absolute ${position} gflow-float w-12 h-12 rounded-2xl flex items-center justify-center z-20 bg-white border border-slate-100`}
+    className={`absolute ${position} gflow-float w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl hidden md:flex items-center justify-center z-20 bg-white border border-slate-100 shadow-md`}
     style={{
       animationDelay: `${delay}s`,
       boxShadow: "0 12px 30px -8px rgba(0,0,0,0.08)",
@@ -759,40 +758,40 @@ export default function Home() {
       </AnimatePresence>
 
       {/* ─── HERO SECTION (Light & Clean) ─── */}
-      <section className="relative pt-36 sm:pt-48 pb-20 lg:pt-56 lg:pb-32 overflow-hidden bg-[#F8FAFC]">
+      <section className="relative pt-24 sm:pt-36 lg:pt-48 pb-14 sm:pb-24 lg:pb-32 overflow-hidden bg-[#F8FAFC]">
         {/* Soft Background Orbs */}
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-br from-blue-200/50 via-indigo-200/40 to-purple-200/30 rounded-full blur-[120px] -translate-y-1/3 translate-x-1/4 pointer-events-none mix-blend-multiply" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-emerald-100/50 to-blue-200/40 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4 pointer-events-none mix-blend-multiply" />
-        <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] bg-violet-200/30 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none mix-blend-multiply" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.025] pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-[280px] sm:w-[600px] lg:w-[800px] h-[280px] sm:h-[600px] lg:h-[800px] bg-gradient-to-br from-blue-200/40 via-indigo-200/30 to-purple-200/20 rounded-full blur-[60px] sm:blur-[120px] -translate-y-1/3 translate-x-1/4 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[240px] sm:w-[500px] lg:w-[600px] h-[240px] sm:h-[500px] lg:h-[600px] bg-gradient-to-tr from-emerald-100/40 to-blue-200/30 rounded-full blur-[50px] sm:blur-[100px] translate-y-1/3 -translate-x-1/4 pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 w-[200px] sm:w-[400px] lg:w-[500px] h-[200px] sm:h-[400px] lg:h-[500px] bg-violet-200/20 rounded-full blur-[60px] sm:blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] pointer-events-none"></div>
 
-        <div className="max-w-7xl mx-auto px-5 lg:px-8 relative z-10">
-          <div className="grid lg:grid-cols-[1fr_1.1fr] gap-16 lg:gap-20 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid lg:grid-cols-[1fr_1.1fr] gap-10 sm:gap-14 lg:gap-16 items-center">
             <div className="text-center lg:text-left">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 text-sm font-semibold text-blue-600 mb-8 shadow-sm"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white border border-slate-200 text-xs sm:text-sm font-semibold text-blue-600 mb-6 sm:mb-8 shadow-xs"
               >
-                <Sparkles className="w-4 h-4" /> The new standard for social ops
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600" /> The new standard for social ops
               </motion.div>
 
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-5xl sm:text-6xl lg:text-[4.5rem] font-extrabold tracking-tight mb-6 leading-[1.05] text-slate-900"
+                className="text-3xl sm:text-5xl lg:text-[4.2rem] font-extrabold tracking-tight mb-4 sm:mb-6 leading-[1.15] sm:leading-[1.1] text-slate-900"
               >
-                Manage social <br className="hidden lg:block" />
-                <span className="gflow-gradient-text">without the chaos.</span>
+                <span className="block sm:inline">Manage social</span>{" "}
+                <span className="gflow-gradient-text block sm:inline">without the chaos.</span>
               </motion.h1>
 
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-lg sm:text-xl text-slate-500 max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed font-medium"
+                className="text-sm sm:text-lg lg:text-xl text-slate-600 max-w-xl mx-auto lg:mx-0 mb-6 sm:mb-8 leading-relaxed font-normal sm:font-medium"
               >
                 Graxion Flow brings YouTube, Instagram, and WhatsApp into one
                 beautiful workspace. Schedule, reply, and automate—all in one
@@ -803,19 +802,19 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10"
+                className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 sm:gap-4 mb-6 sm:mb-8 w-full max-w-sm sm:max-w-none mx-auto lg:mx-0"
               >
                 <button
                   onClick={() => goAuth("/register")}
-                  className="w-full sm:w-auto px-8 py-4 rounded-full font-bold flex items-center justify-center gap-2 text-white bg-slate-900 hover:bg-slate-800 shadow-[0_8px_30px_rgba(15,23,42,0.15)] hover:shadow-[0_12px_40px_rgba(15,23,42,0.25)] transition-all hover:-translate-y-0.5 active:scale-95 text-lg border border-slate-700"
+                  className="w-full sm:w-auto px-7 py-3.5 sm:py-4 rounded-xl sm:rounded-full font-bold flex items-center justify-center gap-2 text-white bg-slate-900 hover:bg-slate-800 shadow-md shadow-slate-900/10 active:scale-95 text-base sm:text-lg border border-slate-700"
                 >
-                  Start your free trial <ArrowRight className="h-5 w-5" />
+                  Start your free trial <ArrowRight className="h-4.5 w-4.5" />
                 </button>
                 <Link
                   to="/demo"
-                  className="w-full sm:w-auto px-8 py-4 rounded-full font-bold flex items-center justify-center gap-2 text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all text-lg"
+                  className="w-full sm:w-auto px-7 py-3.5 sm:py-4 rounded-xl sm:rounded-full font-bold flex items-center justify-center gap-2 text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 shadow-xs active:scale-95 text-base sm:text-lg"
                 >
-                  <Play className="h-5 w-5 fill-slate-700" /> Watch Demo
+                  <Play className="h-4 w-4 sm:h-5 sm:w-5 fill-slate-700" /> Watch Demo
                 </Link>
               </motion.div>
 
@@ -823,15 +822,15 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 text-sm font-semibold text-slate-500"
+                className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-2 sm:gap-x-6 sm:gap-y-3 text-xs sm:text-sm font-semibold text-slate-500 mb-8 lg:mb-0"
               >
                 {[
                   "No credit card needed",
                   "14-day free trial",
                   "Cancel anytime",
                 ].map((item) => (
-                  <div key={item} className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <div key={item} className="flex items-center gap-1.5 sm:gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                     <span>{item}</span>
                   </div>
                 ))}
@@ -839,13 +838,27 @@ export default function Home() {
             </div>
 
             <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative lg:ml-10"
+              className="relative w-full max-w-[540px] mx-auto lg:max-w-none mt-2 lg:mt-0"
             >
+              {/* Mobile connected platform indicator */}
+              <div className="flex md:hidden items-center justify-center mb-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200/80 shadow-xs text-xs font-semibold text-slate-600">
+                  <span className="text-[11px] text-slate-400 font-normal">Connects with</span>
+                  <span className="flex items-center gap-2">
+                    <span className="flex items-center gap-1 text-[#25D366] font-bold"><MessageCircle className="w-3.5 h-3.5" /> WhatsApp</span>
+                    <span className="text-slate-300">·</span>
+                    <span className="flex items-center gap-1 text-[#E1306C] font-bold"><Instagram className="w-3.5 h-3.5" /> Instagram</span>
+                    <span className="text-slate-300">·</span>
+                    <span className="flex items-center gap-1 text-[#FF0000] font-bold"><Youtube className="w-3.5 h-3.5" /> YouTube</span>
+                  </span>
+                </div>
+              </div>
+
               {/* Decorative background for mockup */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 to-indigo-50 rounded-3xl transform rotate-3 scale-105 -z-10 shadow-inner border border-white/50"></div>
+              <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 to-indigo-50 rounded-2xl sm:rounded-3xl transform rotate-0 sm:rotate-2 scale-100 sm:scale-[1.03] -z-10 shadow-inner border border-white/50"></div>
 
               <PlatformChip
                 icon={Instagram}
