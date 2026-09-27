@@ -17,7 +17,12 @@ WORKDIR /app
 COPY package*.json ./
 
 # Ignore scripts to prevent the custom postinstall (which forces a chrome download) from running and failing
-RUN npm ci --omit=dev --legacy-peer-deps --ignore-scripts
+# Install production dependencies. Use npm ci if lockfile is present, otherwise fallback to npm install
+RUN if [ -f package-lock.json ]; then \
+        npm ci --omit=dev --legacy-peer-deps --ignore-scripts; \
+    else \
+        npm install --omit=dev --legacy-peer-deps --ignore-scripts; \
+    fi
 
 COPY . .
 EXPOSE 5000
