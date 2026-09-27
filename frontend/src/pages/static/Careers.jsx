@@ -1,170 +1,158 @@
 import React from "react";
 import StaticPageLayout from "./StaticPageLayout";
-import { Briefcase, MapPin, Clock, ArrowRight, Heart, Zap, Globe, Shield } from "lucide-react";
+import { Briefcase, MapPin, Clock, ArrowRight, Heart, Zap, Globe, Shield, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Careers() {
   const jobs = [
     {
-      title: "Senior Full Stack Engineer",
-      team: "Engineering",
-      location: "Bengaluru (Remote Friendly)",
+      title: "Senior Full Stack Engineer (Node.js & React)",
+      team: "Core Platform",
+      location: "Bengaluru (Hybrid / Remote)",
       type: "Full-time",
-      link: "#"
+      link: "/contact"
     },
     {
-      title: "AI Research Scientist",
-      team: "Data Science",
-      location: "Remote",
+      title: "AI Research & Systems Engineer",
+      team: "Intelligence",
+      location: "Remote (Global)",
       type: "Full-time",
-      link: "#"
+      link: "/contact"
     },
     {
-      title: "Product Designer",
-      team: "Design",
+      title: "Staff Product Designer",
+      team: "Design & UX",
       location: "Bengaluru",
       type: "Full-time",
-      link: "#"
+      link: "/contact"
     },
     {
-      title: "Growth Marketing Manager",
-      team: "Marketing",
-      location: "Mumbai",
+      title: "Enterprise Solutions Architect",
+      team: "Customer Success",
+      location: "Mumbai / Remote",
       type: "Full-time",
-      link: "#"
+      link: "/contact"
     }
   ];
 
   const perks = [
-    { title: "Remote Work", desc: "Work from anywhere in the world or join us in our beautiful offices.", icon: Globe },
-    { title: "Health & Wellness", desc: "Comprehensive health insurance and wellness programs for you and your family.", icon: Heart },
-    { title: "Equity Options", desc: "We want everyone to be an owner. Every full-time employee gets equity.", icon: Zap },
-    { title: "Learning Budget", desc: "A generous annual budget for books, courses, and conferences.", icon: Shield }
+    {
+      title: "Remote-First Flexibility",
+      desc: "Work where you are most productive. We focus on outcomes, autonomy, and deep work.",
+      icon: Globe,
+      color: "text-blue-600 dark:text-blue-400",
+      bg: "bg-blue-50 dark:bg-blue-950/50"
+    },
+    {
+      title: "Comprehensive Wellness",
+      desc: "Premium health, dental, and vision insurance for you and your family members.",
+      icon: Heart,
+      color: "text-rose-600 dark:text-rose-400",
+      bg: "bg-rose-50 dark:bg-rose-950/50"
+    },
+    {
+      title: "Meaningful Ownership",
+      desc: "Every single team member receives significant equity options in our high-growth platform.",
+      icon: Zap,
+      color: "text-amber-600 dark:text-amber-400",
+      bg: "bg-amber-50 dark:bg-amber-950/50"
+    },
+    {
+      title: "Annual Learning Stipend",
+      desc: "Dedicated personal budget for books, technical workshops, and global engineering conferences.",
+      icon: Shield,
+      color: "text-purple-600 dark:text-purple-400",
+      bg: "bg-purple-50 dark:bg-purple-950/50"
+    }
   ];
 
   return (
-    <StaticPageLayout 
-      title="Build the Future with Us" 
-      subtitle="Join a team of dreamers and doers building the world's most advanced AI automation platform."
+    <StaticPageLayout
+      title="Build the Future of Social Ops"
+      subtitle="Join an elite team of engineers and operators building the world's most intuitive social automation ecosystem."
+      badge="We're Hiring"
     >
-      {/* Why Join Us */}
-      <section style={{ marginBottom: "100px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "30px" }}>
+      {/* Perks Grid */}
+      <section className="mb-20">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-display mb-3">
+            Why You'll Love Building Here
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 text-sm">
+            We care deeply about craftsmanship, speed, and fostering high-agency talent.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {perks.map((perk, i) => (
-            <div key={i} style={{ 
-              padding: "40px", 
-              borderRadius: "32px", 
-              background: "rgba(255, 255, 255, 0.02)", 
-              border: "1px solid rgba(255, 255, 255, 0.05)",
-              textAlign: "center"
-            }}>
-              <div style={{ 
-                width: "60px", 
-                height: "60px", 
-                borderRadius: "18px", 
-                background: "rgba(37, 211, 102, 0.1)", 
-                color: "#25D366",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 25px"
-              }}>
-                <perk.icon size={28} />
+            <div
+              key={i}
+              className="p-7 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs"
+            >
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-5 ${perk.bg} ${perk.color}`}>
+                <perk.icon size={22} />
               </div>
-              <h3 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "12px" }}>{perk.title}</h3>
-              <p style={{ color: "#7a9b8a", fontSize: "15px", lineHeight: 1.6 }}>{perk.desc}</p>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">
+                {perk.title}
+              </h3>
+              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
+                {perk.desc}
+              </p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Open Positions */}
-      <section>
-        <div style={{ marginBottom: "50px" }}>
-          <h2 style={{ fontFamily: "Syne, sans-serif", fontSize: "36px", fontWeight: 800, marginBottom: "15px" }}>Open Positions</h2>
-          <p style={{ color: "#7a9b8a", fontSize: "17px" }}>Find your next challenge at Graxion Flow.</p>
+      <section className="mb-16">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-display">
+              Open Positions
+            </h2>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">
+              Discover your next career leap at Graxion Flow.
+            </p>
+          </div>
+          <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/50">
+            {jobs.length} Roles Open
+          </span>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div className="space-y-4">
           {jobs.map((job, i) => (
-            <div key={i} style={{ 
-              padding: "30px 40px", 
-              borderRadius: "24px", 
-              background: "rgba(255, 255, 255, 0.02)", 
-              border: "1px solid rgba(255, 255, 255, 0.05)",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: "20px",
-              transition: "border-color 0.2s"
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.borderColor = "rgba(37, 211, 102, 0.3)"}
-            onMouseLeave={(e) => e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.05)"}
+            <div
+              key={i}
+              className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
               <div>
-                <h3 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "10px", color: "#fff" }}>{job.title}</h3>
-                <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-                   <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#7a9b8a", fontSize: "14px" }}>
-                     <Briefcase size={16} /> {job.team}
-                   </div>
-                   <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#7a9b8a", fontSize: "14px" }}>
-                     <MapPin size={16} /> {job.location}
-                   </div>
-                   <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#7a9b8a", fontSize: "14px" }}>
-                     <Clock size={16} /> {job.type}
-                   </div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 block">
+                  {job.team}
+                </span>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                  {job.title}
+                </h3>
+                <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+                  <span className="flex items-center gap-1.5">
+                    <MapPin size={13} /> {job.location}
+                  </span>
+                  <span>·</span>
+                  <span className="flex items-center gap-1.5">
+                    <Clock size={13} /> {job.type}
+                  </span>
                 </div>
               </div>
-              <button style={{ 
-                background: "rgba(255, 255, 255, 0.05)", 
-                color: "#fff", 
-                padding: "12px 24px", 
-                borderRadius: "12px", 
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                transition: "all 0.2s"
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "#25D366"; e.currentTarget.style.color = "#000"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)"; e.currentTarget.style.color = "#fff"; }}
+
+              <Link
+                to={job.link}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 transition-all shrink-0"
               >
-                Apply Now <ArrowRight size={18} />
-              </button>
+                Apply Now <ArrowRight size={14} />
+              </Link>
             </div>
           ))}
         </div>
       </section>
-
-      <div style={{ 
-        marginTop: "100px",
-        padding: "80px", 
-        borderRadius: "40px", 
-        background: "rgba(255, 255, 255, 0.02)", 
-        border: "1px solid rgba(255, 255, 255, 0.05)",
-        textAlign: "center"
-      }}>
-        <h2 style={{ fontFamily: "Syne, sans-serif", fontSize: "32px", fontWeight: 800, marginBottom: "20px" }}>Don't see a role for you?</h2>
-        <p style={{ color: "#7a9b8a", fontSize: "17px", marginBottom: "30px", maxWidth: "600px", margin: "0 auto 30px" }}>
-          We're always looking for great people. Send us your resume and tell us how you can help Graxion Flow grow.
-        </p>
-        <a href="mailto:careers@graxion.in" style={{ 
-          display: "inline-flex", 
-          alignItems: "center", 
-          gap: "8px", 
-          background: "linear-gradient(135deg, #10B981, #059669)", 
-          color: "#fff", 
-          padding: "16px 32px", 
-          borderRadius: "12px", 
-          fontWeight: 700, 
-          textDecoration: "none",
-          boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.4)"
-        }}>
-          careers@graxion.in <ArrowRight size={20} />
-        </a>
-      </div>
     </StaticPageLayout>
   );
 }

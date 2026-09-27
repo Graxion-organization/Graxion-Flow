@@ -1,82 +1,143 @@
-import React from 'react';
+import React from "react";
 import StaticPageLayout from "./StaticPageLayout";
-import { Shield, Trash2, Clock, CheckCircle2, AlertTriangle, ArrowRight, Lock } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import {
+  Shield,
+  Trash2,
+  Clock,
+  CheckCircle2,
+  AlertTriangle,
+  ArrowRight,
+  Lock,
+  Mail,
+  RefreshCcw,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import SEO from "../../components/seo/SEO";
 
 export default function DataDeletion() {
   const steps = [
     {
-      title: "Step 1: Request Deletion",
-      desc: "Go to your account settings and initiate the data deletion process.",
+      step: "01",
+      title: "Initiate Deletion Request",
+      desc: "Navigate to Account Settings > Privacy & Data Controls. Authenticate with your enterprise administrator credentials and click 'Request Account & Data Deletion'.",
       icon: Trash2,
-      color: "#ff4757"
+      color: "text-rose-600 dark:text-rose-400",
+      bg: "bg-rose-50 dark:bg-rose-950/50 border-rose-100 dark:border-rose-900/40",
     },
     {
-      title: "Step 2: Multi-Step Verification",
-      desc: "For your security, we'll send 3 unique verification codes to your registered email.",
+      step: "02",
+      title: "Multi-Step Ownership Verification",
+      desc: "To protect your business from malicious takeovers, Graxion Flow dispatches a cryptographically signed verification challenge to your registered primary email.",
       icon: Lock,
-      color: "#1e90ff"
+      color: "text-blue-600 dark:text-blue-400",
+      bg: "bg-blue-50 dark:bg-blue-950/50 border-blue-100 dark:border-blue-900/40",
     },
     {
-      title: "Step 3: Immediate Account Disabling",
-      desc: "Once verified, your account is immediately disabled. All automated tasks and Graxion Flow agents will be paused.",
+      step: "03",
+      title: "Immediate Operational Quarantine",
+      desc: "Once confirmed, all active webhooks, scheduled dispatches, AI agents, and third-party channel integrations (WhatsApp, Instagram, YouTube) are immediately halted.",
       icon: AlertTriangle,
-      color: "#ffa502"
+      color: "text-amber-600 dark:text-amber-400",
+      bg: "bg-amber-50 dark:bg-amber-950/50 border-amber-100 dark:border-amber-900/40",
     },
     {
-      title: "Step 4: 30-Day Grace Period",
-      desc: "Your data is kept for 30 days. You can cancel the request by logging in and clicking 'Restore'.",
+      step: "04",
+      title: "30-Day Recovery Grace Period",
+      desc: "Your data is placed into an encrypted, isolated archive for 30 days. You can cancel your request and restore your workflows anytime during this window.",
       icon: Clock,
-      color: "#25D366"
+      color: "text-purple-600 dark:text-purple-400",
+      bg: "bg-purple-50 dark:bg-purple-950/50 border-purple-100 dark:border-purple-900/40",
     },
     {
-      title: "Step 5: Permanent Deletion",
-      desc: "After 30 days, all your data, including profile, tokens, and chat history, is permanently deleted.",
+      step: "05",
+      title: "Permanent & Irreversible Purge",
+      desc: "Upon expiration of the 30-day window, all customer records, conversation threads, authorization tokens, media assets, and analytics are permanently wiped from all servers and backups.",
       icon: CheckCircle2,
-      color: "#ff4757"
-    }
+      color: "text-emerald-600 dark:text-emerald-400",
+      bg: "bg-emerald-50 dark:bg-emerald-950/50 border-emerald-100 dark:border-emerald-900/40",
+    },
   ];
 
   return (
-    <StaticPageLayout 
-      title="Data Deletion Policy" 
-      subtitle="Your data, your choice. We believe in complete transparency and control over your enterprise data."
+    <StaticPageLayout
+      title="User Data Deletion Policy"
+      subtitle="Complete transparency and full control over your enterprise data, token revocation, and account removal."
+      badge="GDPR & Platform Compliance"
     >
-      <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
-        
-        <div style={{ marginBottom: "60px", padding: "40px", borderRadius: "32px", background: "rgba(37, 211, 102, 0.05)", border: "1px solid rgba(37, 211, 102, 0.2)" }}>
-          <div style={{ display: "flex", gap: "20px", alignItems: "center", marginBottom: "20px" }}>
-            <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", color: "#25D366" }}>
-              <Shield size={24} />
-            </div>
-            <h2 style={{ fontSize: "24px", fontWeight: 800, margin: 0, color: "#fff", fontFamily: "Syne, sans-serif" }}>Maximum Security Verification</h2>
+      <SEO
+        title="User Data Deletion Policy | Graxion Flow"
+        description="Learn how to initiate data deletion, revoke social platform tokens, and request permanent erasure under GDPR, Meta, and Google platform requirements."
+        canonicalUrl="https://flow.graxion.in/data-deletion-policy"
+      />
+
+      <div className="max-w-3xl mx-auto space-y-12">
+        {/* Meta / Platform Regulatory Notice */}
+        <div className="p-7 sm:p-9 rounded-3xl bg-blue-50/50 dark:bg-slate-900/80 border border-blue-100 dark:border-blue-900/40 shadow-xs space-y-4">
+          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400 font-bold text-sm uppercase tracking-wider">
+            <Shield className="w-4 h-4" /> Compliance Notice (Meta, WhatsApp, Google)
           </div>
-          <p style={{ fontSize: "16px", lineHeight: 1.8, color: "#7a9b8a", margin: 0 }}>
-            To prevent unauthorized account deletions, Graxion Flow requires a 3-step OTP verification sent to your registered email. This ensures that only the rightful enterprise owner can initiate a data wipe.
+          <p className="text-sm sm:text-base leading-relaxed text-slate-700 dark:text-slate-300">
+            In compliance with Meta Platform Terms, WhatsApp Business Policy, and Google API Services User Data Policy, Graxion Flow provides full autonomy to delete your data and revoke OAuth tokens at any time. When you remove Graxion Flow from your Meta or Google Account settings, our automated Data Deletion Callback will process your request within 24 hours.
           </p>
         </div>
 
-        <h2 style={{ fontSize: "28px", fontWeight: 800, marginBottom: "40px", textAlign: "center", color: "#fff", fontFamily: "Syne, sans-serif" }}>How Deletion Works</h2>
-        
-        <div style={{ display: "grid", gap: "20px", marginBottom: "80px" }}>
-          {steps.map((step, idx) => (
-            <div key={idx} style={{ display: "flex", gap: "20px", padding: "30px", borderRadius: "24px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", alignItems: "center" }}>
-              <div style={{ width: "60px", height: "60px", borderRadius: "16px", background: `${step.color}15`, display: "flex", alignItems: "center", justifyContent: "center", color: step.color, flexShrink: 0 }}>
-                <step.icon size={28} />
+        {/* 5-Step Process */}
+        <div>
+          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-display mb-6">
+            The Data Deletion Lifecycle
+          </h2>
+
+          <div className="space-y-4">
+            {steps.map((item, idx) => (
+              <div
+                key={idx}
+                className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row gap-5 items-start sm:items-center"
+              >
+                <div
+                  className={`w-12 h-12 rounded-2xl flex items-center justify-center border shrink-0 ${item.bg} ${item.color}`}
+                >
+                  <item.icon size={22} />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2.5 mb-1.5">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono">
+                      {item.step}
+                    </span>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white font-display">
+                      {item.title}
+                    </h3>
+                  </div>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 style={{ fontSize: "20px", fontWeight: 700, color: "#fff", marginBottom: "8px" }}>{step.title}</h3>
-                <p style={{ color: "#7a9b8a", fontSize: "15px", margin: 0 }}>{step.desc}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        <div style={{ textAlign: "center", padding: "60px", borderRadius: "32px", background: "linear-gradient(135deg, rgba(37, 211, 102, 0.1), transparent)", border: "1px solid rgba(37, 211, 102, 0.2)" }}>
-          <h3 style={{ fontSize: "24px", fontWeight: 800, color: "#fff", marginBottom: "20px" }}>Ready to manage your privacy?</h3>
-          <Link to="/app/settings" style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: "#25D366", color: "#060a0f", padding: "16px 32px", borderRadius: "100px", fontWeight: 700, textDecoration: "none", transition: "transform 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.transform="scale(1.05)"} onMouseLeave={(e) => e.currentTarget.style.transform="scale(1)"}>
-            Go to Settings <ArrowRight size={20} />
-          </Link>
+        {/* Action Card */}
+        <div className="p-8 sm:p-10 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-center shadow-xs">
+          <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-display mb-3">
+            Need to Manage Your Privacy Settings?
+          </h3>
+          <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-lg mx-auto mb-6">
+            You can configure data retention durations, disconnect social channels, or request a complete data export from your workspace dashboard.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link
+              to="/app/settings"
+              className="px-6 py-3 rounded-full font-bold text-sm text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/25 transition-all inline-flex items-center gap-2"
+            >
+              Account Settings <ArrowRight size={16} />
+            </Link>
+            <a
+              href="mailto:privacy@graxion.in"
+              className="px-6 py-3 rounded-full font-bold text-sm text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all inline-flex items-center gap-2"
+            >
+              <Mail size={16} /> Contact DPO
+            </a>
+          </div>
         </div>
       </div>
     </StaticPageLayout>

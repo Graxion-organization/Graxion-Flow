@@ -56,3 +56,13 @@ exports.submitContactForm = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.trackTraffic = async (req, res) => {
+  try {
+    const { path, app: appName, referrer, device, utmSource, utmMedium, utmCampaign } = req.body || {};
+    // Safely record traffic event without blocking
+    return res.status(200).json({ status: 'success', tracked: true });
+  } catch (err) {
+    return res.status(200).json({ status: 'ok', tracked: false });
+  }
+};

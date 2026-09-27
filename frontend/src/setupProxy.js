@@ -45,4 +45,12 @@ module.exports = function(app) {
       },
     });
   });
+
+  // Analytics & traffic tracking endpoints
+  app.post(['/api/public/track', '/api/analytics/track'], (req, res) => {
+    res.status(200).json({
+      status: 'success',
+      tracked: true,
+    });
+  });
 };

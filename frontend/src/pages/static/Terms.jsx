@@ -1,49 +1,61 @@
 import React from "react";
 import StaticPageLayout from "./StaticPageLayout";
-import { ShieldAlert, Lock, CheckCircle, Info } from "lucide-react";
+import { ShieldCheck, FileText, CheckCircle2 } from "lucide-react";
 
 export default function Terms() {
   const sections = [
     {
       title: "1. Acceptance of Terms",
-      content: "By accessing and using Graxion Flow, you agree to be bound by these Terms of Service and all applicable laws and regulations."
+      content:
+        "By accessing, registering, or utilizing Graxion Flow, you agree to be legally bound by these Terms of Service, our Privacy Policy, and all applicable global laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this service.",
     },
     {
-      title: "2. Use License",
-      content: "Permission is granted to temporarily use our automation platform for personal or commercial business purposes, subject to the restrictions outlined in this section."
+      title: "2. License & Service Scope",
+      content:
+        "Subject to compliance with these Terms, Graxion grants you a non-exclusive, non-transferable, revocable license to access the platform to automate social channels, schedule posts, manage customer interactions, and deploy AI autonomous agents.",
     },
     {
       title: "3. Meta Integrations (Facebook, Instagram, WhatsApp)",
-      content: "When connecting Facebook, Instagram, or WhatsApp to Graxion Flow, you agree to comply with Meta's Platform Terms and Developer Policies. You grant Graxion Flow permission to manage your pages, messaging, and publishing activities as configured within the platform. We are not responsible for any actions taken by Meta regarding your account, including suspensions due to policy violations on your end."
+      content:
+        "When connecting Meta accounts, you explicitly agree to comply with Meta's Platform Terms and Developer Policies. You authorize Graxion Flow to publish, reply, and process messages in accordance with your configured automation settings. You remain solely responsible for the content you distribute through your connected channels.",
     },
     {
-      title: "4. Google and YouTube Integrations",
-      content: "By connecting your YouTube account to Graxion Flow, you agree to be bound by the YouTube Terms of Service (https://www.youtube.com/t/terms) and Google Privacy Policy. You grant us permission to manage your channel content and activities as per the automation workflows you set up. Graxion Flow adheres to the Google API Services User Data Policy."
+      title: "4. Google & YouTube Platform Terms",
+      content:
+        "Connecting your YouTube account requires acceptance of YouTube Terms of Service (https://www.youtube.com/t/terms) and Google's Privacy Policy. Graxion Flow accesses YouTube data strictly within the boundaries of user-configured scheduling, comment replies, and analytics retrieval.",
     },
     {
-      title: "5. User Responsibilities",
-      content: "You are responsible for maintaining the confidentiality of your account and for all activities that occur under your account."
+      title: "5. User Conduct & Account Security",
+      content:
+        "You must maintain the confidentiality of your credentials. You agree never to use the Service for abusive, deceptive, spamming, copyright-infringing, or malicious activities. Any breach results in immediate account termination.",
     },
     {
-      title: "6. Limitations",
-      content: "Graxion shall not be held liable for any damages arising out of the use or inability to use the Graxion Flow platform."
-    }
+      title: "6. Limitation of Liability",
+      content:
+        "In no event shall Graxion, its officers, or its partners be liable for any indirect, incidental, or consequential damages resulting from platform downtime, third-party API outages, or unauthorized access.",
+    },
   ];
 
   return (
-    <StaticPageLayout 
-      title="Terms of Service" 
-      subtitle="Please read these terms carefully before using our platform."
+    <StaticPageLayout
+      title="Terms of Service"
+      subtitle="Please read these legal terms carefully before deploying or operating Graxion Flow."
+      badge="Legal Agreement"
     >
-      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
-          {sections.map((section, i) => (
-            <div key={i}>
-              <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "15px", color: "#fff" }}>{section.title}</h2>
-              <p style={{ fontSize: "16px", lineHeight: 1.7, color: "#7a9b8a" }}>{section.content}</p>
-            </div>
-          ))}
-        </div>
+      <div className="max-w-3xl mx-auto space-y-6">
+        {sections.map((section, i) => (
+          <div
+            key={i}
+            className="p-7 sm:p-9 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs"
+          >
+            <h2 className="text-xl font-bold mb-3 text-slate-900 dark:text-white font-display">
+              {section.title}
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+              {section.content}
+            </p>
+          </div>
+        ))}
       </div>
     </StaticPageLayout>
   );

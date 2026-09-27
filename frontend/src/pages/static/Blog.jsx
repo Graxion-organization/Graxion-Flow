@@ -1,113 +1,151 @@
-import React from "react";
+import React, { useState } from "react";
 import StaticPageLayout from "./StaticPageLayout";
-import { Search, ArrowRight, Calendar, User, Tag } from "lucide-react";
+import { ArrowRight, Calendar, Tag, Clock, Sparkles, Zap, MessageSquare, Shield, Globe } from "lucide-react";
+import SEO from "../../components/seo/SEO";
 
 export default function Blog() {
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const categories = ["All", "Automation", "Marketing", "Guides", "Enterprise"];
+
   const posts = [
     {
       title: "How AI Agents are Revolutionizing WhatsApp Marketing",
-      excerpt: "Discover how businesses are using intelligent AI agents to automate sales and support on the world's most popular messaging app.",
-      date: "April 20, 2024",
+      excerpt: "Discover how businesses are using intelligent AI agents to automate sales qualification and 24/7 client response on WhatsApp Cloud API.",
+      date: "May 2025",
+      readTime: "4 min read",
       author: "Aditya Singh",
       category: "Marketing",
-      image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=800"
+      icon: MessageSquare,
+      gradient: "from-blue-600 via-indigo-600 to-cyan-500",
+      image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=800",
     },
     {
-      title: "The Future of Omni-channel Customer Support",
-      excerpt: "Learn why a unified approach to customer communication is essential for modern brands and how Graxion Flow makes it easy.",
-      date: "April 15, 2024",
+      title: "The Future of Omnichannel Social Media Customer Support",
+      excerpt: "Learn why unifying Instagram DMs, WhatsApp chats, and YouTube comments into a synchronized inbox reduces churn by up to 40%.",
+      date: "April 2025",
+      readTime: "5 min read",
       author: "Sarah Chen",
-      category: "Technology",
-      image: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=800"
+      category: "Automation",
+      icon: Zap,
+      gradient: "from-purple-600 via-pink-600 to-rose-500",
+      image: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=800",
     },
     {
-      title: "5 Tips for Training Your AI Agent for Better Conversions",
-      excerpt: "Technical guide on how to optimize your Graxion Flow agent's knowledge base and personality for maximum sales performance.",
-      date: "April 10, 2024",
+      title: "5 Strategies to Convert Instagram Comments into Warm Pipeline Leads",
+      excerpt: "Technical walkthrough on configuring keyword trigger automations that immediately dispatch customized DMs and product links.",
+      date: "April 2025",
+      readTime: "6 min read",
       author: "Michael Ross",
-      category: "Guide",
-      image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=800"
-    }
+      category: "Guides",
+      icon: Sparkles,
+      gradient: "from-amber-500 via-orange-600 to-rose-600",
+      image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=800",
+    },
+    {
+      title: "Scaling Enterprise AI Workflows Without Hitting Rate Limits",
+      excerpt: "Architectural deep-dive into Redis queue dispatching, BullMQ throttling, and multi-tenant webhook segregation.",
+      date: "March 2025",
+      readTime: "7 min read",
+      author: "Priya Sharma",
+      category: "Enterprise",
+      icon: Shield,
+      gradient: "from-emerald-600 via-teal-600 to-blue-600",
+      image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=800",
+    },
   ];
 
+  const filteredPosts =
+    selectedCategory === "All"
+      ? posts
+      : posts.filter((p) => p.category === selectedCategory);
+
   return (
-    <StaticPageLayout 
-      title="Graxion Flow Blog" 
-      subtitle="Insights, guides, and news from the forefront of business automation."
+    <StaticPageLayout
+      title="Graxion Flow Blog"
+      subtitle="Engineering deep-dives, automation architecture, and strategic guides for modern social operations."
+      badge="Engineering & Strategy"
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "60px", flexWrap: "wrap", gap: "20px" }}>
-        <div style={{ display: "flex", gap: "15px" }}>
-          {["All Posts", "Marketing", "Technology", "Guides", "Case Studies"].map((cat, i) => (
-            <button key={i} style={{ 
-              padding: "10px 20px", 
-              borderRadius: "100px", 
-              background: i === 0 ? "#25D366" : "rgba(255, 255, 255, 0.05)", 
-              color: i === 0 ? "#060a0f" : "#7a9b8a",
-              border: "none",
-              fontWeight: 600,
-              fontSize: "14px",
-              cursor: "pointer"
-            }}>{cat}</button>
-          ))}
-        </div>
-        <div style={{ position: "relative" }}>
-          <Search size={18} style={{ position: "absolute", left: "15px", top: "50%", transform: "translateY(-50%)", color: "#7a9b8a" }} />
-          <input 
-            type="text" 
-            placeholder="Search articles..." 
-            style={{ 
-              padding: "12px 15px 12px 45px", 
-              background: "rgba(255, 255, 255, 0.05)", 
-              border: "1px solid rgba(255, 255, 255, 0.1)", 
-              borderRadius: "12px", 
-              color: "#fff", 
-              outline: "none",
-              width: "300px"
-            }} 
-          />
-        </div>
+      <SEO
+        title="Engineering & Automation Blog | Graxion Flow"
+        description="Read articles and technical walkthroughs on WhatsApp Cloud API, Instagram automation, and autonomous multi-agent workflows."
+        canonicalUrl="https://flow.graxion.in/blog"
+      />
+
+      {/* Category Filter Tabs */}
+      <div className="flex items-center justify-center gap-2 flex-wrap mb-14">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              selectedCategory === cat
+                ? "bg-blue-600 text-white shadow-sm"
+                : "bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: "40px" }}>
-        {posts.map((post, i) => (
-          <div key={i} style={{ 
-            borderRadius: "32px", 
-            background: "rgba(255, 255, 255, 0.02)", 
-            border: "1px solid rgba(255, 255, 255, 0.05)",
-            overflow: "hidden",
-            transition: "transform 0.3s ease"
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-10px)"}
-          onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
+      {/* Blog Posts Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+        {filteredPosts.map((post, i) => (
+          <article
+            key={i}
+            className="group rounded-3xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col justify-between"
           >
-            <div style={{ height: "240px", overflow: "hidden" }}>
-              <img src={post.image} alt={post.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            </div>
-            <div style={{ padding: "30px" }}>
-              <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
-                <span style={{ fontSize: "12px", fontWeight: 700, color: "#25D366", display: "flex", alignItems: "center", gap: "5px" }}>
-                  <Tag size={14} /> {post.category}
-                </span>
-                <span style={{ fontSize: "12px", color: "#7a9b8a", display: "flex", alignItems: "center", gap: "5px" }}>
-                  <Calendar size={14} /> {post.date}
-                </span>
-              </div>
-              <h3 style={{ fontSize: "22px", fontWeight: 800, marginBottom: "15px", fontFamily: "Syne, sans-serif", lineHeight: 1.3 }}>{post.title}</h3>
-              <p style={{ color: "#7a9b8a", fontSize: "15px", lineHeight: 1.6, marginBottom: "25px" }}>{post.excerpt}</p>
-              
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px" }}>
-                    <User size={16} />
+            <div>
+              {/* Resilient Thumbnail with Graceful Gradient Fallback */}
+              <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center">
+                <div className={`absolute inset-0 bg-gradient-to-tr ${post.gradient} opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500`} />
+                <div className="relative z-10 text-center p-6 text-white">
+                  <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <post.icon size={24} />
                   </div>
-                  <span style={{ fontSize: "14px", fontWeight: 600, color: "#fff" }}>{post.author}</span>
+                  <span className="text-xs uppercase tracking-widest font-bold text-white/80">
+                    {post.category} Insights
+                  </span>
                 </div>
-                <button style={{ background: "transparent", border: "none", color: "#25D366", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "5px" }}>
-                  Read More <ArrowRight size={18} />
-                </button>
+                <span className="absolute top-4 left-4 z-20 px-3 py-1 rounded-full text-[11px] font-bold bg-black/40 backdrop-blur-md text-white border border-white/20 shadow-xs">
+                  {post.category}
+                </span>
+              </div>
+
+              <div className="p-7">
+                <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mb-3 font-medium">
+                  <span className="flex items-center gap-1.5">
+                    <Calendar size={13} /> {post.date}
+                  </span>
+                  <span>·</span>
+                  <span className="flex items-center gap-1.5">
+                    <Clock size={13} /> {post.readTime}
+                  </span>
+                </div>
+
+                <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white font-display group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug">
+                  {post.title}
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
+                  {post.excerpt}
+                </p>
               </div>
             </div>
-          </div>
+
+            <div className="px-7 pb-7 pt-0 flex items-center justify-between border-t border-slate-100 dark:border-slate-800/80 mt-auto">
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2 pt-4">
+                <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 flex items-center justify-center text-[10px] font-bold">
+                  {post.author[0]}
+                </span>
+                {post.author}
+              </span>
+
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 pt-4 group-hover:translate-x-0.5 transition-transform">
+                Read article <ArrowRight size={13} />
+              </span>
+            </div>
+          </article>
         ))}
       </div>
     </StaticPageLayout>

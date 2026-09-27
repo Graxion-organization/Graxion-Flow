@@ -1,132 +1,95 @@
 import React from "react";
 import StaticPageLayout from "./StaticPageLayout";
-import { Zap, Bug, Sparkles, Rocket, ArrowRight } from "lucide-react";
+import { Zap, Bug, Sparkles, Rocket, CheckCircle2 } from "lucide-react";
 
 export default function Changelog() {
   const updates = [
     {
-      version: "v1.2.0",
-      date: "April 25, 2024",
-      type: "Major Update",
-      title: "Telegram & Multi-Agent Support",
-      desc: "We've officially launched Telegram integration! You can now connect multiple agents to a single platform for advanced workflows.",
+      version: "v2.1.0",
+      date: "May 2025",
+      type: "Major Release",
+      title: "Omnichannel Social Hub & Visual Flow Builder",
+      desc: "Unified WhatsApp Cloud API, Instagram Professional DM, and YouTube Community comment monitoring into an instant-synchronization cockpit.",
       items: [
-        { label: "New", text: "Official Telegram Bot API support", icon: Sparkles },
-        { label: "Improved", text: "AI response speed reduced to < 0.5s", icon: Zap },
-        { label: "Fixed", text: "Minor bug in Instagram DM image handling", icon: Bug }
-      ]
+        { label: "New", text: "Drag-and-drop conversational node trigger workflow builder", icon: Sparkles, color: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50" },
+        { label: "Improved", text: "Sub-500ms AI agent response latency with streaming inference", icon: Zap, color: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50" },
+        { label: "Fixed", text: "Resolved token refresh edge case during high-volume WhatsApp broadcasts", icon: Bug, color: "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50" },
+      ],
     },
     {
-      version: "v1.1.5",
-      date: "April 10, 2024",
-      type: "Improvement",
-      title: "Enhanced Lead Scoring",
-      desc: "Our AI can now automatically score leads based on conversation quality and intent markers.",
+      version: "v2.0.4",
+      date: "April 2025",
+      type: "Enhancement",
+      title: "Automated Lead Scoring & CRM Two-Way Sync",
+      desc: "AI now continuously evaluates conversation intent, scoring prospects dynamically and dispatching notifications to your sales teams.",
       items: [
-        { label: "New", text: "Visual lead scoring indicator in dashboard", icon: Sparkles },
-        { label: "Fixed", text: "Resolved session timeout issue on mobile", icon: Bug }
-      ]
+        { label: "New", text: "Visual throughput velocity indicator in central dashboard", icon: Sparkles, color: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50" },
+        { label: "Improved", text: "Multi-tenant role-based team management and granular permissions", icon: Zap, color: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50" },
+      ],
     },
     {
-      version: "v1.0.0",
-      date: "March 15, 2024",
-      type: "Release",
-      title: "Graxion Flow Public Launch",
-      desc: "The wait is over! Graxion Flow is now open to the public with support for WhatsApp and Instagram.",
+      version: "v1.9.0",
+      date: "March 2025",
+      type: "Platform Release",
+      title: "Enterprise Multi-Agent Intelligence Launch",
+      desc: "Public rollout of autonomous agents trained on proprietary product knowledge bases with zero halluncination constraints.",
       items: [
-        { label: "New", text: "Public Beta access for all users", icon: Rocket },
-        { label: "New", text: "Official WhatsApp Business integration", icon: Sparkles }
-      ]
-    }
+        { label: "New", text: "Support for OpenAI GPT-4o, Claude 3.5 Sonnet, and Gemini 2.0 Flash", icon: Rocket, color: "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/50" },
+        { label: "New", text: "Official WhatsApp Cloud API QR linking and template approvals", icon: Sparkles, color: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50" },
+      ],
+    },
   ];
 
   return (
-    <StaticPageLayout 
-      title="What's New" 
-      subtitle="Stay up to date with the latest features, improvements, and bug fixes."
+    <StaticPageLayout
+      title="Product Changelog"
+      subtitle="Stay up to date with the latest features, architectural upgrades, and bug fixes delivered weekly."
+      badge="Continuous Deployment"
     >
-      <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-        {updates.map((update, i) => (
-          <div key={i} style={{ 
-            marginBottom: "80px", 
-            position: "relative",
-            paddingLeft: "40px",
-            borderLeft: "2px solid rgba(37, 211, 102, 0.2)"
-          }}>
-            {/* Timeline Dot */}
-            <div style={{ 
-              position: "absolute", 
-              left: "-9px", 
-              top: "0", 
-              width: "16px", 
-              height: "16px", 
-              borderRadius: "50%", 
-              background: "#25D366", 
-              border: "4px solid #060a0f",
-              boxShadow: "0 0 15px rgba(37, 211, 102, 0.5)"
-            }}></div>
-
-            <div style={{ marginBottom: "15px", display: "flex", alignItems: "center", gap: "15px" }}>
-              <span style={{ fontSize: "14px", fontWeight: 700, color: "#25D366", fontFamily: "Syne, sans-serif" }}>{update.version}</span>
-              <span style={{ fontSize: "14px", color: "#7a9b8a" }}>• {update.date}</span>
-              <span style={{ 
-                fontSize: "11px", 
-                fontWeight: 700, 
-                padding: "4px 10px", 
-                borderRadius: "100px", 
-                background: "rgba(255, 255, 255, 0.05)", 
-                color: "#e8f5ee",
-                textTransform: "uppercase"
-              }}>
-                {update.type}
-              </span>
-            </div>
-
-            <h2 style={{ fontFamily: "Syne, sans-serif", fontSize: "28px", fontWeight: 800, marginBottom: "15px" }}>{update.title}</h2>
-            <p style={{ color: "#7a9b8a", fontSize: "16px", lineHeight: 1.7, marginBottom: "30px" }}>{update.desc}</p>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-              {update.items.map((item, j) => (
-                <div key={j} style={{ 
-                  display: "flex", 
-                  alignItems: "center", 
-                  gap: "12px", 
-                  padding: "15px 20px", 
-                  borderRadius: "16px", 
-                  background: "rgba(255, 255, 255, 0.02)", 
-                  border: "1px solid rgba(255, 255, 255, 0.05)" 
-                }}>
-                   <span style={{ 
-                     fontSize: "10px", 
-                     fontWeight: 800, 
-                     padding: "3px 8px", 
-                     borderRadius: "6px", 
-                     background: item.label === "New" ? "rgba(37, 211, 102, 0.1)" : item.label === "Fixed" ? "rgba(255, 95, 86, 0.1)" : "rgba(30, 144, 255, 0.1)",
-                     color: item.label === "New" ? "#25D366" : item.label === "Fixed" ? "#ff5f56" : "#1e90ff",
-                     textTransform: "uppercase",
-                     width: "70px",
-                     textAlign: "center"
-                   }}>
-                     {item.label}
-                   </span>
-                   <span style={{ color: "#e8f5ee", fontSize: "15px" }}>{item.text}</span>
+      <div className="max-w-3xl mx-auto relative">
+        <div className="space-y-12">
+          {updates.map((update, i) => (
+            <div
+              key={i}
+              className="p-7 sm:p-9 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-base font-extrabold text-slate-900 dark:text-white font-display">
+                    {update.version}
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/50">
+                    {update.type}
+                  </span>
                 </div>
-              ))}
-            </div>
-          </div>
-        ))}
+                <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">
+                  {update.date}
+                </span>
+              </div>
 
-        <div style={{ 
-          textAlign: "center", 
-          padding: "40px", 
-          borderRadius: "32px", 
-          background: "rgba(255, 255, 255, 0.02)", 
-          border: "1px dashed rgba(255, 255, 255, 0.1)" 
-        }}>
-          <p style={{ color: "#7a9b8a", marginBottom: "20px" }}>Want to see what's coming next?</p>
-          <a href="/roadmap" style={{ color: "#25D366", fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "10px" }}>
-            View Product Roadmap <ArrowRight size={18} />
-          </a>
+              <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white font-display">
+                {update.title}
+              </h3>
+              <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
+                {update.desc}
+              </p>
+
+              <div className="space-y-2.5 pt-4 border-t border-slate-100 dark:border-slate-800/80">
+                {update.items.map((item, j) => (
+                  <div key={j} className="flex items-start gap-3 text-xs sm:text-sm">
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-bold text-[10px] uppercase shrink-0 mt-0.5 ${item.color}`}
+                    >
+                      <item.icon size={11} /> {item.label}
+                    </span>
+                    <span className="text-slate-700 dark:text-slate-300 leading-snug">
+                      {item.text}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </StaticPageLayout>

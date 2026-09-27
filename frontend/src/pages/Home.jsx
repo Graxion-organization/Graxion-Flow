@@ -35,6 +35,8 @@ import {
   TrendingUp,
   ArrowUpRight,
   Activity,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useAuthStore, useBrandingStore } from "../store";
 
@@ -601,6 +603,34 @@ export default function Home() {
     },
   ];
 
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("app-theme") || "light";
+  });
+
+  useEffect(() => {
+    const handleThemeChange = (e) => {
+      if (e.detail?.theme) setTheme(e.detail.theme);
+    };
+    window.addEventListener("app-theme-change", handleThemeChange);
+    return () => window.removeEventListener("app-theme-change", handleThemeChange);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("app-theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    window.dispatchEvent(new CustomEvent("app-theme-change", { detail: { theme: nextTheme } }));
+  };
+
   useEffect(() => {
     fetchBranding().catch(() => { });
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -628,13 +658,13 @@ export default function Home() {
   ];
 
   return (
-    <div className="gflow-sans min-h-screen bg-slate-50 text-slate-900 w-full max-w-full overflow-x-hidden selection:bg-blue-100 selection:text-blue-900">
+    <div className="gflow-sans min-h-screen bg-slate-50 dark:bg-[#080C15] text-slate-900 dark:text-slate-100 w-full max-w-full overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 transition-colors duration-300">
       <GlobalStyles />
 
       {/* ─── PREMIUM NAVBAR ─── */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-            ? "glass-nav border-b border-slate-200/60 py-3"
+            ? "glass-nav border-b border-slate-200/60 dark:border-slate-800/80 bg-white/80 dark:bg-[#0B0F19]/85 backdrop-blur-xl py-3"
             : "bg-transparent py-5"
           }`}
       >
@@ -651,17 +681,17 @@ export default function Home() {
                 <MessageSquare className="text-white h-4.5 w-4.5" />
               </div>
             )}
-            <span className="text-xl font-bold tracking-tight text-slate-900">
+            <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
               {brandName}
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 bg-white/50 backdrop-blur-md px-6 py-2.5 rounded-full border border-slate-200 shadow-sm">
+          <nav className="hidden md:flex items-center gap-8 bg-white/50 dark:bg-slate-900/60 backdrop-blur-md px-6 py-2.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                className="text-[14px] font-semibold text-slate-600 hover:text-blue-600 transition-colors"
+                className="text-[14px] font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
                 {link.label}
               </a>
@@ -669,26 +699,55 @@ export default function Home() {
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              type="button"
+              aria-label="Toggle theme"
+              className="p-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-xs"
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-4.5 w-4.5 text-amber-400 transition-transform hover:rotate-45" />
+              ) : (
+                <Moon className="h-4.5 w-4.5 text-slate-600 transition-transform hover:-rotate-12" />
+              )}
+            </button>
+
             <button
               onClick={() => goAuth("/login")}
-              className="px-5 py-2.5 text-[14px] font-bold text-slate-600 hover:text-slate-900 transition-colors"
+              className="px-5 py-2.5 text-[14px] font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               Log in
             </button>
             <button
               onClick={() => goAuth("/register")}
-              className="px-6 py-2.5 text-[14px] font-bold rounded-full text-white bg-slate-900 hover:bg-blue-600 shadow-lg shadow-slate-900/10 hover:shadow-blue-600/25 transition-all duration-300 active:scale-95"
+              className="px-6 py-2.5 text-[14px] font-bold rounded-full text-white bg-slate-900 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-500 shadow-lg shadow-slate-900/10 dark:shadow-blue-600/20 hover:shadow-blue-600/25 transition-all duration-300 active:scale-95"
             >
               Get Started
             </button>
           </div>
 
-          <button
-            className="md:hidden p-2 text-slate-600 bg-white rounded-full shadow-sm border border-slate-200"
-            onClick={() => setMobileMenuOpen(true)}
-          >
-            <Menu className="h-5 w-5" />
-          </button>
+          <div className="flex md:hidden items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              type="button"
+              aria-label="Toggle theme"
+              className="p-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 shadow-xs"
+            >
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4 text-amber-400" />
+              ) : (
+                <Moon className="h-4 w-4 text-slate-600" />
+              )}
+            </button>
+            <button
+              className="p-2 text-slate-600 dark:text-slate-200 bg-white dark:bg-slate-900 rounded-full shadow-sm border border-slate-200 dark:border-slate-800"
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -699,9 +758,9 @@ export default function Home() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-[60] bg-white flex flex-col"
+            className="fixed inset-0 z-[60] bg-white dark:bg-[#080C15] flex flex-col"
           >
-            <div className="flex justify-between items-center p-5 border-b border-slate-100">
+            <div className="flex justify-between items-center p-5 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-3">
                 {logoUrl ? (
                   <img
@@ -710,16 +769,28 @@ export default function Home() {
                     className="h-7 w-auto"
                   />
                 ) : null}
-                <span className="text-xl font-bold text-slate-900">
+                <span className="text-xl font-bold text-slate-900 dark:text-white">
                   {brandName}
                 </span>
               </div>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-slate-500 hover:text-slate-900 p-2 bg-slate-50 rounded-full"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 rounded-full border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900"
+                >
+                  {theme === "dark" ? (
+                    <Sun className="h-4.5 w-4.5 text-amber-400" />
+                  ) : (
+                    <Moon className="h-4.5 w-4.5 text-slate-600" />
+                  )}
+                </button>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white p-2 bg-slate-50 dark:bg-slate-900 rounded-full"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
             <div className="flex flex-col px-6 py-6 gap-6 overflow-y-auto">
               <div className="space-y-4">
@@ -1326,7 +1397,7 @@ export default function Home() {
       </section>
 
       {/* ─── CLEAN FOOTER ─── */}
-      <footer className="pt-20 pb-10 bg-white border-t border-slate-200">
+      <footer className="pt-20 pb-10 bg-white dark:bg-[#05080E] border-t border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto px-5 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-16">
             <div className="col-span-2 lg:col-span-2">
@@ -1338,11 +1409,11 @@ export default function Home() {
                     className="h-8 w-auto"
                   />
                 ) : null}
-                <span className="text-xl font-bold text-slate-900">
+                <span className="text-xl font-bold text-slate-900 dark:text-white">
                   {brandName}
                 </span>
               </div>
-              <p className="text-slate-500 font-medium text-sm leading-relaxed mb-6 max-w-sm">
+              <p className="text-slate-500 dark:text-slate-400 font-medium text-sm leading-relaxed mb-6 max-w-sm">
                 The premium workspace for social media operations. Create,
                 schedule, and automate across every channel with ease.
               </p>
@@ -1356,7 +1427,7 @@ export default function Home() {
                   <a
                     key={i}
                     href={social.link}
-                    className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                    className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors"
                   >
                     <social.Icon className="w-4.5 h-4.5" />
                   </a>
@@ -1365,7 +1436,7 @@ export default function Home() {
             </div>
 
             <div>
-              <h4 className="text-slate-900 font-bold mb-5">Product</h4>
+              <h4 className="text-slate-900 dark:text-white font-bold mb-5">Product</h4>
               <ul className="space-y-3.5">
                 <li>
                   <a
@@ -1378,7 +1449,7 @@ export default function Home() {
                 <li>
                   <Link
                     to="/integrations"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     Integrations
                   </Link>
@@ -1386,7 +1457,7 @@ export default function Home() {
                 <li>
                   <Link
                     to="/pricing"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     Pricing
                   </Link>
@@ -1394,7 +1465,7 @@ export default function Home() {
                 <li>
                   <Link
                     to="/roadmap"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     Roadmap
                   </Link>
@@ -1402,7 +1473,7 @@ export default function Home() {
                 <li>
                   <Link
                     to="/changelog"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     Changelog
                   </Link>
@@ -1411,12 +1482,12 @@ export default function Home() {
             </div>
 
             <div>
-              <h4 className="text-slate-900 font-bold mb-5">Company</h4>
+              <h4 className="text-slate-900 dark:text-white font-bold mb-5">Company</h4>
               <ul className="space-y-3.5">
                 <li>
                   <Link
                     to="/about-us"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     About Us
                   </Link>
@@ -1424,7 +1495,7 @@ export default function Home() {
                 <li>
                   <Link
                     to="/blog"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     Blog
                   </Link>
@@ -1432,7 +1503,7 @@ export default function Home() {
                 <li>
                   <Link
                     to="/careers"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     Careers
                   </Link>
@@ -1440,7 +1511,7 @@ export default function Home() {
                 <li>
                   <Link
                     to="/contact"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     Contact
                   </Link>
@@ -1449,12 +1520,12 @@ export default function Home() {
             </div>
 
             <div>
-              <h4 className="text-slate-900 font-bold mb-5">Legal & Policies</h4>
+              <h4 className="text-slate-900 dark:text-white font-bold mb-5">Legal & Policies</h4>
               <ul className="space-y-3">
                 <li>
                   <Link
                     to="/privacy-policy"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
                   >
                     Privacy Policy
                   </Link>
@@ -1462,7 +1533,7 @@ export default function Home() {
                 <li>
                   <Link
                     to="/terms-of-service"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
                   >
                     Terms of Service
                   </Link>
@@ -1470,7 +1541,7 @@ export default function Home() {
                 <li>
                   <Link
                     to="/security"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
                   >
                     Security
                   </Link>
@@ -1478,7 +1549,7 @@ export default function Home() {
                 <li>
                   <Link
                     to="/cookie-policy"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
                   >
                     Cookie Policy
                   </Link>
@@ -1486,7 +1557,7 @@ export default function Home() {
                 <li>
                   <Link
                     to="/data-deletion-policy"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
                   >
                     Data Deletion
                   </Link>
@@ -1494,7 +1565,7 @@ export default function Home() {
                 <li>
                   <Link
                     to="/ai-policy"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
                   >
                     AI Ethics Policy
                   </Link>
@@ -1502,18 +1573,18 @@ export default function Home() {
                 <li>
                   <Link
                     to="/acceptable-use"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
+                    className="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
                   >
                     Acceptable Use
                   </Link>
                 </li>
               </ul>
               {(contactEmail || contactPhone) && (
-                <div className="mt-6 space-y-2 pt-6 border-t border-slate-100">
+                <div className="mt-6 space-y-2 pt-6 border-t border-slate-100 dark:border-slate-800">
                   {contactEmail && (
                     <a
                       href={`mailto:${contactEmail}`}
-                      className="flex items-center gap-2 text-slate-500 font-medium hover:text-blue-600 transition-colors text-xs"
+                      className="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-xs"
                     >
                       <Mail className="w-3.5 h-3.5" /> {contactEmail}
                     </a>
@@ -1523,20 +1594,20 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-slate-500 font-medium text-sm">{footerText}</p>
-            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-400">
-              <Link to="/privacy-policy" className="hover:text-slate-700 transition-colors">Privacy</Link>
+          <div className="pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">{footerText}</p>
+            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-400 dark:text-slate-500">
+              <Link to="/privacy-policy" className="hover:text-slate-700 dark:hover:text-slate-200 transition-colors">Privacy</Link>
               <span>·</span>
-              <Link to="/terms-of-service" className="hover:text-slate-700 transition-colors">Terms</Link>
+              <Link to="/terms-of-service" className="hover:text-slate-700 dark:hover:text-slate-200 transition-colors">Terms</Link>
               <span>·</span>
-              <Link to="/security" className="hover:text-slate-700 transition-colors">Security</Link>
+              <Link to="/security" className="hover:text-slate-700 dark:hover:text-slate-200 transition-colors">Security</Link>
               <span>·</span>
-              <Link to="/cookie-policy" className="hover:text-slate-700 transition-colors">Cookies</Link>
+              <Link to="/cookie-policy" className="hover:text-slate-700 dark:hover:text-slate-200 transition-colors">Cookies</Link>
               {address && (
                 <>
                   <span>·</span>
-                  <span className="flex items-center gap-1 text-slate-400 font-normal">
+                  <span className="flex items-center gap-1 text-slate-400 dark:text-slate-500 font-normal">
                     <MapPin className="w-3.5 h-3.5" /> {address}
                   </span>
                 </>

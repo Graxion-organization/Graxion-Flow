@@ -1,206 +1,180 @@
 import React from "react";
 import StaticPageLayout from "./StaticPageLayout";
-import { Smartphone, Instagram, Send, MessageSquare, Globe, ArrowRight, Zap, Code, Shield, Target } from "lucide-react";
+import { MessageSquare, Instagram, Smartphone, Send, Globe, ArrowRight, Zap, Code, Shield, Target } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Integrations() {
   const integrationList = [
     {
-      name: "WhatsApp",
-      desc: "Connect your official WhatsApp Business API or personal number to automate customer service and sales.",
-      icon: Smartphone,
+      name: "WhatsApp Cloud API",
+      desc: "Connect your official WhatsApp Business account to automate 24/7 customer service, broadcast campaigns, and dynamic flows.",
+      icon: MessageSquare,
       color: "#25D366",
-      status: "Native",
-      features: ["Auto-replies", "Bulk Broadcast", "Contact Management"]
+      status: "Native Official",
+      features: ["Instant Auto-replies", "Bulk Broadcast Engine", "Live Contact Management"],
+      link: "/app/automation"
     },
     {
-      name: "Instagram",
-      desc: "Manage DMs and comments automatically. Turn your Instagram followers into customers with AI-driven engagement.",
+      name: "Instagram Professional",
+      desc: "Manage Story mentions, DMs, and post comments automatically. Convert followers into loyal customers with instant AI engagement.",
       icon: Instagram,
       color: "#E1306C",
-      status: "Native",
-      features: ["DM Automation", "Comment Filtering", "Lead Capture"]
+      status: "Meta Partner API",
+      features: ["DM AI Agent Automation", "Smart Comment-to-DM", "Lead Capture & Funneling"],
+      link: "/app/automation/instagram"
     },
     {
-      name: "Telegram",
-      desc: "Build powerful bots and automate group/channel communications with our deep Telegram integration.",
+      name: "YouTube Channel Ops",
+      desc: "Automate video comment monitoring, community post replies, and audience conversion directly from your unified hub.",
+      icon: Smartphone,
+      color: "#FF0000",
+      status: "Official Google API",
+      features: ["Auto-moderation & Replies", "Shorts Engagement Tracking", "Lead Qualifier"],
+      link: "/app/automation/youtube"
+    },
+    {
+      name: "Telegram Bots",
+      desc: "Build powerful autonomous channel dispatchers and interactive customer bots with Webhook & Bot API support.",
       icon: Send,
-      color: "#0088cc",
-      status: "Native",
-      features: ["Custom Bot Logic", "Channel Broadcast", "Webhook Support"]
-    },
-    {
-      name: "Facebook",
-      desc: "Integrate with Facebook Messenger and Pages. Handle all Meta-ecosystem queries from one single dashboard.",
-      icon: MessageSquare,
-      color: "#1877F2",
-      status: "Native",
-      features: ["Page Automation", "Messenger Bots", "Lead Sync"]
+      color: "#229ED9",
+      status: "Native Bot API",
+      features: ["Custom Bot Logic", "Broadcast Pipelines", "Multi-tenant Sync"],
+      link: "/app/automation"
     }
   ];
 
   const comingSoon = [
-    { name: "Shopify", icon: Zap },
-    { name: "Salesforce", icon: Globe },
-    { name: "Slack", icon: MessageSquare },
-    { name: "HubSpot", icon: Target },
+    { name: "Shopify Store Sync", icon: Zap, desc: "Order tracking & abandoned cart recovery on WhatsApp" },
+    { name: "HubSpot CRM", icon: Target, desc: "Two-way contact and deal synchronization" },
+    { name: "Salesforce Cloud", icon: Globe, desc: "Enterprise account & lead orchestration" },
+    { name: "Slack Internal Dispatch", icon: MessageSquare, desc: "Real-time human agent alerts & escalations" },
   ];
 
   return (
-    <StaticPageLayout 
-      title="Infinite Integrations" 
-      subtitle="Connect Graxion Flow with the tools you already use. Scale your enterprise without switching platforms."
+    <StaticPageLayout
+      title="Infinite Integrations"
+      subtitle="Connect Graxion Flow with the channels and platforms you rely on every single day."
+      badge="Omnichannel Ecosystem"
     >
-      {/* Platform Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: "30px", marginBottom: "100px" }}>
+      {/* Platform Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-20">
         {integrationList.map((platform, i) => (
-          <div key={i} style={{ 
-            padding: "40px", 
-            borderRadius: "32px", 
-            background: "rgba(255, 255, 255, 0.02)", 
-            border: "1px solid rgba(255, 255, 255, 0.05)",
-            position: "relative",
-            overflow: "hidden"
-          }}>
-            <div style={{ 
-              position: "absolute", 
-              top: "-20px", 
-              right: "-20px", 
-              width: "100px", 
-              height: "100px", 
-              background: `radial-gradient(circle, ${platform.color}15 0%, transparent 70%)` 
-            }}></div>
-            
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "30px" }}>
-              <div style={{ 
-                width: "60px", 
-                height: "60px", 
-                borderRadius: "18px", 
-                background: `${platform.color}15`, 
-                color: platform.color,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center"
-              }}>
-                <platform.icon size={32} />
-              </div>
-              <span style={{ fontSize: "12px", fontWeight: 700, padding: "6px 12px", borderRadius: "100px", background: "rgba(37, 211, 102, 0.1)", color: "#25D366" }}>
-                {platform.status}
-              </span>
-            </div>
-
-            <h3 style={{ fontSize: "24px", fontWeight: 800, marginBottom: "15px", fontFamily: "Syne, sans-serif" }}>{platform.name}</h3>
-            <p style={{ color: "#7a9b8a", fontSize: "16px", lineHeight: 1.6, marginBottom: "30px" }}>{platform.desc}</p>
-            
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "30px" }}>
-              {platform.features.map((feat, j) => (
-                <div key={j} style={{ display: "flex", alignItems: "center", gap: "10px", color: "#e8f5ee", fontSize: "14px" }}>
-                  <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: platform.color }}></div>
-                  {feat}
+          <div
+            key={i}
+            className="p-7 sm:p-9 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between gap-3 mb-6">
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-xs"
+                  style={{ backgroundColor: `${platform.color}15`, color: platform.color }}
+                >
+                  <platform.icon size={28} />
                 </div>
-              ))}
+                <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700">
+                  {platform.status}
+                </span>
+              </div>
+
+              <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white font-display">
+                {platform.name}
+              </h3>
+              <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
+                {platform.desc}
+              </p>
+
+              <div className="space-y-2 mb-8">
+                {platform.features.map((feat, j) => (
+                  <div key={j} className="flex items-center gap-2.5 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-medium">
+                    <span
+                      className="w-2 h-2 rounded-full shrink-0"
+                      style={{ backgroundColor: platform.color }}
+                    />
+                    <span>{feat}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <button style={{ 
-              width: "100%", 
-              background: "rgba(255, 255, 255, 0.05)", 
-              color: "#fff", 
-              padding: "14px", 
-              borderRadius: "14px", 
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              fontWeight: 600,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              transition: "all 0.2s"
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = platform.color; e.currentTarget.style.color = "#000"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)"; e.currentTarget.style.color = "#fff"; }}
+            <Link
+              to="/register"
+              className="w-full py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-900 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-all"
             >
-              Setup Integration <ArrowRight size={18} />
-            </button>
+              Connect Channel <ArrowRight size={16} />
+            </Link>
           </div>
         ))}
       </div>
 
       {/* Developer API Section */}
-      <section style={{ 
-        padding: "80px", 
-        borderRadius: "40px", 
-        background: "rgba(255, 255, 255, 0.02)", 
-        border: "1px solid rgba(255, 255, 255, 0.05)",
-        marginBottom: "100px",
-        display: "flex",
-        gap: "60px",
-        alignItems: "center",
-        flexWrap: "wrap"
-      }}>
-        <div style={{ flex: "1 1 400px" }}>
-          <div style={{ display: "inline-flex", padding: "10px 20px", borderRadius: "100px", background: "rgba(37, 211, 102, 0.1)", color: "#25D366", fontSize: "13px", fontWeight: 700, marginBottom: "20px" }}>
-            FOR DEVELOPERS
-          </div>
-          <h2 style={{ fontFamily: "Syne, sans-serif", fontSize: "36px", fontWeight: 800, marginBottom: "20px" }}>Power Your Own Apps with <span style={{ color: "#25D366" }}>Graxion API</span></h2>
-          <p style={{ color: "#7a9b8a", fontSize: "17px", lineHeight: 1.8, marginBottom: "30px" }}>
-            Our robust REST API allows you to integrate Graxion Flow's automation engine directly into your custom applications, CRMs, or ERPs. Send and receive messages, manage contacts, and trigger workflows programmatically.
-          </p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "40px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "#fff" }}>
-              <Code size={20} color="#25D366" /> Comprehensive SDKs
+      <section className="p-8 sm:p-12 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider mb-4 border border-blue-100 dark:border-blue-900/50">
+              <Code className="w-3.5 h-3.5" /> Webhooks & REST API
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "#fff" }}>
-              <Zap size={20} color="#25D366" /> Real-time Webhooks
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "#fff" }}>
-              <Shield size={20} color="#25D366" /> OAuth 2.0 Security
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "#fff" }}>
-              <Globe size={20} color="#25D366" /> Global Edge Network
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-display mb-4">
+              Custom Enterprise Connectors
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed mb-6">
+              Need custom CRM synchronization, internal ERP triggers, or proprietary database access? Use our real-time webhook engine and OpenAPI-compliant endpoints to wire Graxion Flow directly into your existing infrastructure.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/contact"
+                className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm transition-all"
+              >
+                Request API Access
+              </Link>
+              <Link
+                to="/roadmap"
+                className="px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm transition-all"
+              >
+                View Roadmap
+              </Link>
             </div>
           </div>
-          <button style={{ 
-            padding: "16px 36px", 
-            borderRadius: "14px", 
-            background: "#25D366", 
-            color: "#060a0f", 
-            fontWeight: 700, 
-            border: "none", 
-            cursor: "pointer",
-            fontSize: "16px"
-          }}>
-            Explore API Docs
-          </button>
-        </div>
-        <div style={{ flex: "1 1 400px", background: "#0c1117", borderRadius: "24px", padding: "30px", border: "1px solid rgba(255, 255, 255, 0.1)", fontFamily: "'Fira Code', monospace", fontSize: "14px" }}>
-          <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
-            <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#ff5f56" }}></div>
-            <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#ffbd2e" }}></div>
-            <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#27c93f" }}></div>
-          </div>
-          <pre style={{ margin: 0, color: "#d1d5db" }}>
-            <code>
-{`POST /v1/messages/send
+          <div className="rounded-2xl bg-slate-950 p-6 text-slate-200 font-mono text-xs overflow-x-auto shadow-inner border border-slate-800">
+            <div className="flex items-center gap-1.5 mb-4 border-b border-slate-800 pb-3 text-slate-400 text-[11px]">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
+              <span className="ml-2">webhook_dispatch.json</span>
+            </div>
+            <pre className="text-slate-300 leading-relaxed">
+{`POST /api/v1/webhook/incoming
 {
-  "to": "+919876543210",
-  "type": "text",
-  "content": {
-    "text": "Hello from Graxion API! 🚀"
-  },
-  "agent_id": "agent_8x2k..."
+  "channel": "whatsapp",
+  "sender_id": "+919876543210",
+  "intent": "sales_lead_high_priority",
+  "ai_agent_action": "handoff_ready",
+  "status": "synchronized"
 }`}
-            </code>
-          </pre>
+            </pre>
+          </div>
         </div>
       </section>
 
-      {/* Coming Soon Section */}
-      <section style={{ textAlign: "center" }}>
-        <h3 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "40px", color: "#7a9b8a" }}>Coming Soon to Graxion Flow</h3>
-        <div style={{ display: "flex", justifyContent: "center", gap: "40px", flexWrap: "wrap" }}>
+      {/* Coming Soon Ecosystem */}
+      <section className="mb-12">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 text-center font-display">
+          Expanding Ecosystem
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {comingSoon.map((item, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px", opacity: 0.6 }}>
-              <item.icon size={24} />
-              <span style={{ fontSize: "18px", fontWeight: 600 }}>{item.name}</span>
+            <div
+              key={i}
+              className="p-6 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 shadow-xs text-center"
+            >
+              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-3">
+                <item.icon size={20} />
+              </div>
+              <h4 className="text-base font-bold text-slate-900 dark:text-white mb-1">
+                {item.name}
+              </h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {item.desc}
+              </p>
             </div>
           ))}
         </div>
