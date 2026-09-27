@@ -1,5 +1,8 @@
 # WhatsAgent — WhatsApp AI SaaS Platform...
 
+> 🤖 **Committed & Updated via Google AI Studio**  
+> *Ye commit aur platform improvements Google AI dwara execute kiye gaye hain.*
+
 Full-stack SaaS platform jisme users apna WhatsApp Business number connect karke AI agents bana sakte hain jo automatically messages reply karte hain.
 
 ---

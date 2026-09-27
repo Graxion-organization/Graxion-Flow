@@ -1,0 +1,7 @@
+{
+  "name": "Graxion Flow",
+  "description": "AI-powered social media automation and omnichannel customer engagement platform for WhatsApp, Instagram, Facebook, YouTube, LinkedIn, and Telegram.",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
