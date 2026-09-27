@@ -67,6 +67,7 @@ const Careers = lazy(() => import("./pages/static/Careers"));
 const Terms = lazy(() => import("./pages/static/Terms"));
 const Security = lazy(() => import("./pages/static/Security"));
 const DataDeletion = lazy(() => import("./pages/static/DataDeletion"));
+const Pricing = lazy(() => import("./pages/static/Pricing"));
 
 // New Legal/Trust Policies (SEO Phase)
 const CookiePolicy = lazy(() => import("./pages/policies/CookiePolicy"));
@@ -229,10 +230,14 @@ export default function App() {
           <Route path="/coming-soon" element={<ComingSoon />} />
 
           {/* 📄 Static Pages */}
+          <Route path="/pricing" element={<Pricing />} />
           <Route path="/privacy-policy" element={<Privacy />} />
+          <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
           <Route path="/terms-of-service" element={<Terms />} />
+          <Route path="/terms" element={<Navigate to="/terms-of-service" replace />} />
           <Route path="/security" element={<Security />} />
           <Route path="/about-us" element={<About />} />
+          <Route path="/about" element={<Navigate to="/about-us" replace />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/careers" element={<Careers />} />
           <Route path="/contact" element={<Contact />} />
@@ -240,6 +245,7 @@ export default function App() {
           <Route path="/changelog" element={<Changelog />} />
           <Route path="/roadmap" element={<Roadmap />} />
           <Route path="/data-deletion-policy" element={<DataDeletion />} />
+          <Route path="/data-deletion" element={<Navigate to="/data-deletion-policy" replace />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/ai-policy" element={<AIPolicy />} />
           <Route path="/acceptable-use" element={<AcceptableUse />} />

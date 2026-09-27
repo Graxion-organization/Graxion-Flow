@@ -721,17 +721,59 @@ export default function Home() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="flex flex-col px-6 py-8 gap-6">
-              {navLinks.map((link) => (
+            <div className="flex flex-col px-6 py-6 gap-6 overflow-y-auto">
+              <div className="space-y-4">
+                <p className="text-xs uppercase font-bold tracking-wider text-slate-400">Navigation</p>
                 <a
-                  key={link.label}
-                  href={link.href}
+                  href="#features"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-2xl font-bold text-slate-800"
+                  className="block text-2xl font-bold text-slate-800 hover:text-blue-600 transition-colors"
                 >
-                  {link.label}
+                  Features
                 </a>
-              ))}
+                <Link
+                  to="/integrations"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-2xl font-bold text-slate-800 hover:text-blue-600 transition-colors"
+                >
+                  Integrations
+                </Link>
+                <Link
+                  to="/pricing"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-2xl font-bold text-slate-800 hover:text-blue-600 transition-colors"
+                >
+                  Pricing
+                </Link>
+                <Link
+                  to="/roadmap"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-2xl font-bold text-slate-800 hover:text-blue-600 transition-colors"
+                >
+                  Roadmap
+                </Link>
+                <Link
+                  to="/changelog"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-2xl font-bold text-slate-800 hover:text-blue-600 transition-colors"
+                >
+                  Changelog
+                </Link>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100">
+                <p className="text-xs uppercase font-bold tracking-wider text-slate-400 mb-3">Company & Legal</p>
+                <div className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-sm font-semibold text-slate-600">
+                  <Link to="/about-us" onClick={() => setMobileMenuOpen(false)} className="hover:text-blue-600">About Us</Link>
+                  <Link to="/blog" onClick={() => setMobileMenuOpen(false)} className="hover:text-blue-600">Blog</Link>
+                  <Link to="/careers" onClick={() => setMobileMenuOpen(false)} className="hover:text-blue-600">Careers</Link>
+                  <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="hover:text-blue-600">Contact</Link>
+                  <Link to="/privacy-policy" onClick={() => setMobileMenuOpen(false)} className="hover:text-blue-600">Privacy Policy</Link>
+                  <Link to="/terms-of-service" onClick={() => setMobileMenuOpen(false)} className="hover:text-blue-600">Terms of Service</Link>
+                  <Link to="/security" onClick={() => setMobileMenuOpen(false)} className="hover:text-blue-600">Security</Link>
+                  <Link to="/cookie-policy" onClick={() => setMobileMenuOpen(false)} className="hover:text-blue-600">Cookie Policy</Link>
+                </div>
+              </div>
             </div>
             <div className="mt-auto p-6 space-y-4 bg-slate-50 border-t border-slate-100">
               <button
@@ -1324,7 +1366,7 @@ export default function Home() {
 
             <div>
               <h4 className="text-slate-900 font-bold mb-5">Product</h4>
-              <ul className="space-y-4">
+              <ul className="space-y-3.5">
                 <li>
                   <a
                     href="#features"
@@ -1351,6 +1393,14 @@ export default function Home() {
                 </li>
                 <li>
                   <Link
+                    to="/roadmap"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                  >
+                    Roadmap
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     to="/changelog"
                     className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
                   >
@@ -1362,10 +1412,10 @@ export default function Home() {
 
             <div>
               <h4 className="text-slate-900 font-bold mb-5">Company</h4>
-              <ul className="space-y-4">
+              <ul className="space-y-3.5">
                 <li>
                   <Link
-                    to="/about"
+                    to="/about-us"
                     className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
                   >
                     About Us
@@ -1399,20 +1449,20 @@ export default function Home() {
             </div>
 
             <div>
-              <h4 className="text-slate-900 font-bold mb-5">Legal</h4>
-              <ul className="space-y-4">
+              <h4 className="text-slate-900 font-bold mb-5">Legal & Policies</h4>
+              <ul className="space-y-3">
                 <li>
                   <Link
-                    to="/privacy"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                    to="/privacy-policy"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
                   >
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
                   <Link
-                    to="/terms"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                    to="/terms-of-service"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
                   >
                     Terms of Service
                   </Link>
@@ -1420,20 +1470,52 @@ export default function Home() {
                 <li>
                   <Link
                     to="/security"
-                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
                   >
                     Security
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    to="/cookie-policy"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
+                  >
+                    Cookie Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/data-deletion-policy"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
+                  >
+                    Data Deletion
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/ai-policy"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
+                  >
+                    AI Ethics Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/acceptable-use"
+                    className="text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
+                  >
+                    Acceptable Use
+                  </Link>
+                </li>
               </ul>
               {(contactEmail || contactPhone) && (
-                <div className="mt-8 space-y-3 pt-8 border-t border-slate-100">
+                <div className="mt-6 space-y-2 pt-6 border-t border-slate-100">
                   {contactEmail && (
                     <a
                       href={`mailto:${contactEmail}`}
-                      className="flex items-center gap-2 text-slate-500 font-medium hover:text-blue-600 transition-colors text-sm"
+                      className="flex items-center gap-2 text-slate-500 font-medium hover:text-blue-600 transition-colors text-xs"
                     >
-                      <Mail className="w-4 h-4" /> {contactEmail}
+                      <Mail className="w-3.5 h-3.5" /> {contactEmail}
                     </a>
                   )}
                 </div>
@@ -1443,11 +1525,23 @@ export default function Home() {
 
           <div className="pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-slate-500 font-medium text-sm">{footerText}</p>
-            {address && (
-              <span className="flex items-center gap-1.5 text-slate-500 font-medium text-sm">
-                <MapPin className="w-4 h-4" /> {address}
-              </span>
-            )}
+            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-400">
+              <Link to="/privacy-policy" className="hover:text-slate-700 transition-colors">Privacy</Link>
+              <span>·</span>
+              <Link to="/terms-of-service" className="hover:text-slate-700 transition-colors">Terms</Link>
+              <span>·</span>
+              <Link to="/security" className="hover:text-slate-700 transition-colors">Security</Link>
+              <span>·</span>
+              <Link to="/cookie-policy" className="hover:text-slate-700 transition-colors">Cookies</Link>
+              {address && (
+                <>
+                  <span>·</span>
+                  <span className="flex items-center gap-1 text-slate-400 font-normal">
+                    <MapPin className="w-3.5 h-3.5" /> {address}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </footer>
@@ -1468,12 +1562,12 @@ export default function Home() {
           >
             <LayoutDashboard className="w-4.5 h-4.5" />
           </a>
-          <a
-            href="#platforms"
+          <Link
+            to="/integrations"
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-bold text-slate-600 hover:bg-slate-50"
           >
             <Globe className="w-4.5 h-4.5" />
-          </a>
+          </Link>
           <button
             onClick={() => goAuth("/register")}
             className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-bold text-white bg-blue-600 ml-1"
