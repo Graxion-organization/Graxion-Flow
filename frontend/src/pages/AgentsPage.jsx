@@ -586,7 +586,7 @@ export default function AgentsPage() {
   }
 
   return (
-    <div className={`space-y-8 animate-fade-in ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+    <div className={`space-y-8 animate-fade-in pb-28 max-w-7xl mx-auto px-2 sm:px-4 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

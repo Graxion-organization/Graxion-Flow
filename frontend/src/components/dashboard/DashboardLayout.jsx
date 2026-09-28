@@ -368,6 +368,13 @@ export default function DashboardLayout() {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+    }
     localStorage.setItem("app-theme", theme);
     window.dispatchEvent(new CustomEvent("app-theme-change", { detail: { theme } }));
   }, [theme]);
@@ -685,6 +692,75 @@ export default function DashboardLayout() {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile Top Header (Visible on screens < 640px) */}
+        <header className={`sm:hidden sticky top-0 z-30 px-3.5 py-2.5 border-b backdrop-blur-2xl transition-colors flex items-center justify-between gap-2 ${
+          isDark ? "bg-[#0b101e]/90 border-white/10" : "bg-white/90 border-slate-200/90 shadow-xs"
+        }`}>
+          {/* Left: Menu + Org Switcher */}
+          <div className="flex items-center gap-1.5 min-w-0">
+            <button 
+              onClick={() => setSidebarOpen(true)} 
+              className={`p-1.5 rounded-xl transition-colors shrink-0 ${isDark ? "hover:bg-white/10 text-slate-300" : "hover:bg-slate-100 text-slate-700"}`}
+              aria-label="Open menu"
+            >
+              <Menu size={20} />
+            </button>
+            <div className="min-w-0">
+              <OrganizationSwitcher isDark={isDark} />
+            </div>
+          </div>
+
+          {/* Right: Theme Toggle + Notifications + User Avatar */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+              className={`p-2 rounded-xl transition-all border ${
+                isDark 
+                  ? "bg-white/5 border-white/10 hover:bg-white/10 text-slate-300" 
+                  : "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-700"
+              }`}
+              title="Toggle Theme"
+              aria-label="Toggle Theme"
+            >
+              {isDark ? <SunMedium size={16} className="text-amber-400" /> : <Moon size={16} className="text-slate-700" />}
+            </button>
+
+            {/* Notifications Button */}
+            <div className="relative">
+              <button 
+                onClick={() => setNotifOpen((o) => !o)} 
+                className={`relative p-2 rounded-xl transition-all border ${
+                  isDark ? "bg-white/5 border-white/10 text-slate-300" : "bg-slate-100 border-slate-200 text-slate-700"
+                }`}
+                aria-label="Notifications"
+              >
+                <Bell size={16} className={unreadCount > 0 ? "text-[#FF6A00]" : ""} />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-0.5 bg-[#FF6A00] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* User Avatar */}
+            <button
+              onClick={() => setUserMenuOpen((o) => !o)}
+              className="p-0.5 rounded-xl transition-all"
+              aria-label="User profile"
+            >
+              {user?.avatar ? (
+                <img src={user.avatar} alt={user.name} className="w-7 h-7 rounded-lg object-cover" />
+              ) : (
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#FF6A00] to-[#FF4500] text-white flex items-center justify-center text-xs font-bold shadow-xs">
+                  {user?.name?.[0]?.toUpperCase() || 'U'}
+                </div>
+              )}
+            </button>
+          </div>
+        </header>
+
         <header className={`hidden sm:block relative z-30 px-4 lg:px-6 py-3 border-b backdrop-blur-2xl transition-colors ${isDark ? "bg-[#0b101e]/80 border-white/5" : "bg-white/80 border-slate-200/80"}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

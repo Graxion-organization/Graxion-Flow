@@ -949,7 +949,7 @@ export default function SocialPublishingPage() {
   }
 
   return (
-    <div className="w-full h-[calc(100vh-100px)] min-h-[600px] flex flex-col max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-2 space-y-4">
+    <div className="w-full min-h-[500px] flex flex-col max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 py-2 space-y-4 pb-28 lg:pb-8">
 
       {/* Horizontal Tabs & Header */}
       <div className="flex flex-col">
