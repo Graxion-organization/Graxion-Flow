@@ -552,26 +552,49 @@ export default function IntegrationsPage() {
   return (
     <div className="min-h-screen text-slate-800 dark:text-slate-200">
 
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pb-28">
         
         {/* Main Title Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">Integrations</h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Connect your favorite platforms and power your workflows</p>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-1 tracking-tight">Integrations</h1>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Connect your messaging channels, social media, and CRM tools</p>
           </div>
-          <div className="flex items-center gap-3">
-            <a href="https://docs.graxion.com/api" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm font-medium hover:bg-slate-50 dark:hover:bg-white/10 transition-colors shadow-sm dark:shadow-none">
-              <Book size={16} className="text-slate-500 dark:text-slate-400" /> <span className="hidden sm:inline text-slate-700 dark:text-slate-300">View API Docs</span>
+          <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap sm:flex-nowrap w-full sm:w-auto">
+            {/* Search Input */}
+            <div className="relative flex-1 sm:w-64 min-w-[180px]">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search integrations..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full text-xs rounded-xl pl-8 pr-7 py-2 bg-white dark:bg-[#12141c] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:border-violet-500 shadow-xs transition-all"
+              />
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery('')} 
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+
+            <a 
+              href="https://docs.graxion.com/api" 
+              target="_blank" 
+              rel="noreferrer" 
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-white/10 transition-colors shadow-xs shrink-0"
+            >
+              <Book size={14} className="text-slate-500 dark:text-slate-400" /> 
+              <span className="hidden sm:inline text-slate-700 dark:text-slate-300">Docs</span>
             </a>
-            <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium transition-colors shadow-[0_4px_14px_0_rgb(124,58,237,0.39)]">
-              <Plus size={16} /> <span className="hidden sm:inline">Add Integration</span>
-            </button>
           </div>
         </div>
 
         {/* Categories Tabs */}
-        <div className="flex items-center gap-2 sm:gap-6 mb-8 overflow-x-auto custom-scrollbar pb-1 border-b border-slate-200 dark:border-white/5">
+        <div className="flex items-center gap-1.5 sm:gap-4 mb-6 overflow-x-auto custom-scrollbar pb-1 border-b border-slate-200 dark:border-white/5">
           {CATEGORIES.map(category => {
             const count = category === 'All Integrations' 
               ? INTEGRATIONS_CONFIG.length 
@@ -581,14 +604,18 @@ export default function IntegrationsPage() {
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`flex items-center gap-2 px-1 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all ${
+                className={`flex items-center gap-1.5 px-2.5 py-2.5 text-xs sm:text-sm font-semibold whitespace-nowrap border-b-2 transition-all ${
                   selectedCategory === category
                     ? 'border-violet-500 text-violet-600 dark:text-violet-400'
                     : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-white/20'
                 }`}
               >
                 {category}
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${selectedCategory === category ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300' : 'bg-slate-100 dark:bg-white/5 text-slate-500'}`}>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  selectedCategory === category 
+                    ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300' 
+                    : 'bg-slate-100 dark:bg-white/5 text-slate-500'
+                }`}>
                   {count}
                 </span>
               </button>
@@ -596,80 +623,177 @@ export default function IntegrationsPage() {
           })}
         </div>
 
-        <div className="flex flex-col xl:flex-row gap-8 items-start">
+        <div className="flex flex-col xl:flex-row gap-6 sm:gap-8 items-start">
           
           {/* MAIN CONTENT COLUMN */}
-          <div className="flex-1 w-full space-y-10">
+          <div className="flex-1 w-full space-y-8 sm:space-y-10">
             
             {/* CONNECTED INTEGRATIONS */}
             {connectedList.length > 0 && (
               <section>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">Connected Integrations <span className="text-slate-500 dark:text-slate-400 font-normal text-sm">({connectedList.length})</span></h2>
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between mb-3.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+                    <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                      Connected Channels & Apps
+                      <span className="ml-1.5 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        {connectedList.length}
+                      </span>
+                    </h2>
+                  </div>
+
+                  <div className="flex items-center gap-2">
                     <div className="relative hidden sm:block">
                       <select 
                         value={sortOrder}
                         onChange={(e) => setSortOrder(e.target.value)}
-                        className="appearance-none bg-white dark:bg-[#12141c] border border-slate-200 dark:border-white/5 rounded-lg pl-3 pr-8 py-1.5 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:border-violet-500"
+                        className="appearance-none bg-white dark:bg-[#12141c] border border-slate-200 dark:border-white/5 rounded-xl pl-3 pr-7 py-1 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:border-violet-500 cursor-pointer"
                       >
-                        <option>Sort by: Recent</option>
-                        <option>Sort by: Name A-Z</option>
+                        <option>Sort: Recent</option>
+                        <option>Sort: Name A-Z</option>
                       </select>
                       <MoreVertical className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 dark:text-slate-500 pointer-events-none" />
                     </div>
-                    <div className="flex items-center bg-white dark:bg-[#12141c] rounded-lg p-1 border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none">
-                      <button onClick={() => setViewMode('grid')} className={`p-1 rounded ${viewMode === 'grid' ? 'bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}>
+
+                    <div className="flex items-center bg-white dark:bg-[#12141c] rounded-xl p-0.5 border border-slate-200 dark:border-white/5 shadow-xs">
+                      <button 
+                        onClick={() => setViewMode('grid')} 
+                        className={`p-1.5 rounded-lg transition-colors ${
+                          viewMode === 'grid' 
+                            ? 'bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white font-bold' 
+                            : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                        }`}
+                        title="Grid View"
+                      >
                         <LayoutGrid size={14} />
                       </button>
-                      <button onClick={() => setViewMode('list')} className={`p-1 rounded ${viewMode === 'list' ? 'bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}>
+                      <button 
+                        onClick={() => setViewMode('list')} 
+                        className={`p-1.5 rounded-lg transition-colors ${
+                          viewMode === 'list' 
+                            ? 'bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white font-bold' 
+                            : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                        }`}
+                        title="List View"
+                      >
                         <List size={14} />
                       </button>
                     </div>
                   </div>
                 </div>
 
-                <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4" : "flex flex-col gap-3"}>
+                <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 sm:gap-4" : "flex flex-col gap-2.5"}>
                   {connectedList.map(int => (
-                    <div key={int.id} className={`group flex flex-col justify-between rounded-2xl bg-white dark:bg-[#12141c]/80 border border-slate-200 dark:border-white/5 p-5 transition-all hover:border-slate-300 dark:hover:border-white/10 hover:shadow-xl hover:bg-slate-50 dark:hover:bg-[#161923] shadow-sm`}>
-                      <div className="mb-4">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/5 shrink-0 shadow-sm`}>
-                            <img src={int.logo} alt={int.name} className="h-6 w-6 object-contain drop-shadow-sm" />
+                    viewMode === 'grid' ? (
+                      /* Compact, Balanced Grid Card */
+                      <div 
+                        key={int.id} 
+                        className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-[#12141c]/90 border border-slate-200 dark:border-white/10 p-3.5 sm:p-4 md:p-5 transition-all hover:border-slate-300 dark:hover:border-white/20 hover:shadow-md hover:bg-slate-50/50 dark:hover:bg-[#161923] shadow-xs"
+                      >
+                        <div>
+                          {/* Header: Logo, Name & Status Badge */}
+                          <div className="flex items-start justify-between gap-2.5">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-50 dark:bg-[#0b0c10] border border-slate-200/80 dark:border-white/10 shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                                <img src={int.logo} alt={int.name} className="h-5 w-5 object-contain" />
+                              </div>
+                              <div className="min-w-0">
+                                <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate tracking-tight">
+                                  {int.name}
+                                </h3>
+                                <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                                  {int.category}
+                                </p>
+                              </div>
+                            </div>
+
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_6px_#10b981]" />
+                              Connected
+                            </span>
+                          </div>
+
+                          {/* Body: Description */}
+                          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2 mt-2.5 mb-2.5">
+                            {int.description}
+                          </p>
+
+                          {/* Meta tags */}
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="inline-flex items-center text-[10px] font-semibold text-violet-600 dark:text-violet-300 bg-violet-50 dark:bg-violet-500/10 border border-violet-200/60 dark:border-violet-500/20 px-2 py-0.5 rounded-md">
+                              {int.features?.length || 0} Features
+                            </span>
+                            {int.connectedAccounts?.length > 0 && (
+                              <span className="inline-flex items-center text-[10px] font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 px-2 py-0.5 rounded-md">
+                                {int.connectedAccounts.length} {int.connectedAccounts.length === 1 ? 'account' : 'accounts'}
+                              </span>
+                            )}
                           </div>
                         </div>
-                        <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1.5">{int.name}</h3>
-                        <div className="flex items-center gap-1.5 mb-3">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_#10b981]"></span>
-                          <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/10 px-1.5 py-0.5 rounded">Connected</span>
-                        </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2 mb-3 h-8">
-                          {int.description}
-                        </p>
-                        <span className="inline-block text-[10px] font-medium text-violet-600 dark:text-violet-300 bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/10 px-2 py-1 rounded-md">
-                          {int.features?.length || 0} Active Features
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-white/5">
-                        <button onClick={() => setActiveManageModal(int)} className="flex-1 py-2 rounded-lg bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/5 text-xs font-medium text-slate-700 dark:text-white transition-colors">
-                          Manage
-                        </button>
-                        <div className="relative group/menu">
-                          <button className="p-2 rounded-lg bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                            <MoreVertical size={16} />
+                        
+                        {/* Footer: Manage + Disconnect Action */}
+                        <div className="flex items-center gap-2 mt-3.5 pt-3 border-t border-slate-100 dark:border-white/5">
+                          <button 
+                            onClick={() => setActiveManageModal(int)} 
+                            className="flex-1 py-1.5 sm:py-2 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200/70 dark:border-white/10 text-xs font-semibold text-slate-800 dark:text-white transition-all text-center"
+                          >
+                            Manage
                           </button>
-                          <div className="absolute right-0 bottom-full mb-1 hidden group-hover/menu:block w-36 bg-white dark:bg-[#1a1d27] border border-slate-200 dark:border-white/10 rounded-lg shadow-xl overflow-hidden z-20">
+                          <div className="relative group/menu">
                             <button 
-                              onClick={() => int.type === 'channel' ? handleDisconnectChannel(int.connectedAccounts[0] || int) : handleDisconnectTool(int.id, int.name)} 
-                              className="w-full text-left px-3 py-2.5 text-xs text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-2"
+                              className="p-1.5 sm:p-2 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200/70 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+                              aria-label="Options"
                             >
-                              <Trash2 size={12} /> Disconnect
+                              <MoreVertical size={15} />
                             </button>
+                            <div className="absolute right-0 bottom-full mb-1.5 hidden group-hover/menu:block w-36 bg-white dark:bg-[#1a1d27] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl overflow-hidden z-20">
+                              <button 
+                                onClick={() => int.type === 'channel' ? handleDisconnectChannel(int.connectedAccounts[0] || int) : handleDisconnectTool(int.id, int.name)} 
+                                className="w-full text-left px-3 py-2 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-2 transition-colors font-medium"
+                              >
+                                <Trash2 size={12} /> Disconnect
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    ) : (
+                      /* Compact List Card */
+                      <div 
+                        key={int.id} 
+                        className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-white dark:bg-[#12141c]/90 border border-slate-200 dark:border-white/10 p-3 sm:p-4 hover:border-slate-300 dark:hover:border-white/20 transition-all shadow-xs"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 dark:bg-[#0b0c10] border border-slate-200/80 dark:border-white/10 shrink-0">
+                            <img src={int.logo} alt={int.name} className="h-5 w-5 object-contain" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate">{int.name}</h3>
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                <span className="w-1 h-1 rounded-full bg-emerald-500" /> Connected
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-md">{int.description}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 self-end sm:self-auto shrink-0 w-full sm:w-auto">
+                          <button 
+                            onClick={() => setActiveManageModal(int)} 
+                            className="flex-1 sm:flex-initial px-4 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200/70 dark:border-white/10 text-xs font-semibold text-slate-800 dark:text-white transition-all"
+                          >
+                            Manage
+                          </button>
+                          <button 
+                            onClick={() => int.type === 'channel' ? handleDisconnectChannel(int.connectedAccounts[0] || int) : handleDisconnectTool(int.id, int.name)}
+                            className="p-1.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 border border-slate-200/70 dark:border-white/10 text-slate-400 transition-all"
+                            title="Disconnect"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    )
                   ))}
                 </div>
               </section>
@@ -677,42 +801,58 @@ export default function IntegrationsPage() {
 
             {/* AVAILABLE INTEGRATIONS */}
             <section>
-              <h2 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-4">Available Integrations <span className="text-slate-500 dark:text-slate-400 font-normal text-sm">({availableList.length})</span></h2>
+              <div className="flex items-center justify-between mb-3.5">
+                <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                  Available Integrations
+                  <span className="ml-1.5 text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10">
+                    {availableList.length}
+                  </span>
+                </h2>
+              </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 {availableList.map(int => (
                   <div 
                     key={int.id}
                     onClick={() => openModal(int)}
-                    className="group flex items-center gap-4 rounded-2xl bg-white dark:bg-[#12141c]/50 border border-slate-200 dark:border-white/5 p-4 cursor-pointer transition-all hover:border-slate-300 dark:hover:border-white/10 hover:bg-slate-50 dark:hover:bg-[#161923] shadow-sm dark:shadow-none"
+                    className="group flex items-center justify-between gap-3 rounded-2xl bg-white dark:bg-[#12141c]/60 border border-slate-200 dark:border-white/10 p-3 sm:p-3.5 cursor-pointer transition-all hover:border-violet-400/50 hover:bg-slate-50 dark:hover:bg-[#161923] shadow-xs"
                   >
-                    <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/5 shrink-0 shadow-sm`}>
-                      <img src={int.logo} alt={int.name} className="h-6 w-6 object-contain" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-0.5">
-                        <h3 className="text-sm font-semibold text-slate-900 dark:text-white truncate">{int.name}</h3>
-                        <span className="hidden sm:inline-block text-[10px] font-medium text-slate-500 dark:text-slate-500 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-2 py-0.5 rounded-md shrink-0">
-                          {int.category}
-                        </span>
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                      <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-50 dark:bg-[#0b0c10] border border-slate-200/80 dark:border-white/10 shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                        <img src={int.logo} alt={int.name} className="h-5 w-5 object-contain" />
                       </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug truncate">
-                        {int.description}
-                      </p>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">{int.name}</h3>
+                          <span className="hidden sm:inline-block text-[9px] font-semibold text-slate-500 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-1.5 py-0.2 rounded-md">
+                            {int.category}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug truncate mt-0.5">
+                          {int.description}
+                        </p>
+                      </div>
                     </div>
+
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-200/60 dark:border-violet-500/20 group-hover:bg-violet-600 group-hover:text-white transition-all shrink-0">
+                      <Plus size={12} /> Connect
+                    </span>
                   </div>
                 ))}
               </div>
               
               {availableList.length === 0 && (
-                <div className="py-16 flex flex-col items-center justify-center text-center rounded-2xl border border-dashed border-slate-300 dark:border-white/10 bg-slate-50 dark:bg-[#12141c]/30">
-                  <HelpCircle className="h-10 w-10 text-slate-400 dark:text-slate-600 mb-3" />
-                  <h4 className="text-slate-700 dark:text-slate-300 font-semibold text-sm mb-1">No Available Integrations</h4>
-                  <p className="text-slate-500 text-xs max-w-xs">All apps in this category are connected or none match your search.</p>
+                <div className="py-12 sm:py-16 flex flex-col items-center justify-center text-center rounded-2xl border border-dashed border-slate-300 dark:border-white/10 bg-slate-50 dark:bg-[#12141c]/30 px-4">
+                  <HelpCircle className="h-9 w-9 text-slate-400 dark:text-slate-600 mb-2.5" />
+                  <h4 className="text-slate-800 dark:text-slate-200 font-bold text-sm mb-1">No Available Integrations</h4>
+                  <p className="text-slate-500 text-xs max-w-xs">
+                    {searchQuery ? 'No integrations match your search query.' : 'All apps in this category are already connected.'}
+                  </p>
                 </div>
               )}
             </section>
           </div>
+
 
           {/* RIGHT SIDEBAR */}
           <div className="w-full xl:w-[320px] shrink-0 space-y-4">
