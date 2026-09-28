@@ -18,80 +18,100 @@ const TrafficTracker = () => {
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import ErrorBoundary from "./components/ErrorBoundary";
 
+// Resilient lazy-loading helper with automatic retry on chunk failure
+const lazyWithRetry = (componentImport) =>
+  lazy(async () => {
+    const pageHasAlreadyBeenForceRefreshed = JSON.parse(
+      window.sessionStorage.getItem('page_has_been_force_refreshed') || 'false'
+    );
+    try {
+      const component = await componentImport();
+      window.sessionStorage.setItem('page_has_been_force_refreshed', 'false');
+      return component;
+    } catch (error) {
+      if (!pageHasAlreadyBeenForceRefreshed) {
+        window.sessionStorage.setItem('page_has_been_force_refreshed', 'true');
+        window.location.reload();
+        return { default: () => null };
+      }
+      throw error;
+    }
+  });
+
 // Lazy-loaded page-level components
-const LoginPage = lazy(() => import("./pages/LoginPage"));
-const RegisterPage = lazy(() => import("./pages/RegisterPage"));
-const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
-const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
-const DashboardPage = lazy(() => import("./pages/DashboardPage"));
-const AgentsPage = lazy(() => import("./pages/AgentsPage"));
-const ConversationsPage = lazy(() => import("./pages/ConversationsPage"));
-const BillingPage = lazy(() => import("./pages/BillingPage"));
-const SettingsPage = lazy(() => import("./pages/SettingsPage"));
-const TelegramPage = lazy(() => import("./pages/TelegramPage"));
-const InstagramPage = lazy(() => import("./pages/InstagramPage"));
-const IntegrationsPage = lazy(() => import("./pages/IntegrationsPage"));
-const SocialPublishingPage = lazy(() => import("./pages/SocialPublishingPage"));
-const LeadsDashboardPage = lazy(() => import("./pages/LeadsDashboardPage"));
-const CallbackPage = lazy(() => import("./pages/CallbackPage"));
-const SsoCallbackPage = lazy(() => import("./pages/SsoCallbackPage"));
-const WhatsAppSignup = lazy(() => import("./pages/watsapphd"));
-const AIPresenterPage = lazy(() => import("./pages/AIPresenterPage"));
-const YoutubeCallbackPage = lazy(() => import("./pages/YoutubeCallbackPage"));
-const LinkedinCallbackPage = lazy(() => import("./pages/LinkedinCallbackPage"));
-const AutomationHubPage = lazy(() => import("./pages/AutomationHubPage"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const Home = lazy(() => import("./pages/Home"));
-const ComingSoon = lazy(() => import("./pages/ComingSoon"));
-const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
-const SalesPartnerDashboard = lazy(() => import("./pages/SalesPartnerDashboard"));
+const LoginPage = lazyWithRetry(() => import("./pages/LoginPage"));
+const RegisterPage = lazyWithRetry(() => import("./pages/RegisterPage"));
+const ForgotPasswordPage = lazyWithRetry(() => import("./pages/ForgotPasswordPage"));
+const ResetPasswordPage = lazyWithRetry(() => import("./pages/ResetPasswordPage"));
+const DashboardPage = lazyWithRetry(() => import("./pages/DashboardPage"));
+const AgentsPage = lazyWithRetry(() => import("./pages/AgentsPage"));
+const ConversationsPage = lazyWithRetry(() => import("./pages/ConversationsPage"));
+const BillingPage = lazyWithRetry(() => import("./pages/BillingPage"));
+const SettingsPage = lazyWithRetry(() => import("./pages/SettingsPage"));
+const TelegramPage = lazyWithRetry(() => import("./pages/TelegramPage"));
+const InstagramPage = lazyWithRetry(() => import("./pages/InstagramPage"));
+const IntegrationsPage = lazyWithRetry(() => import("./pages/IntegrationsPage"));
+const SocialPublishingPage = lazyWithRetry(() => import("./pages/SocialPublishingPage"));
+const LeadsDashboardPage = lazyWithRetry(() => import("./pages/LeadsDashboardPage"));
+const CallbackPage = lazyWithRetry(() => import("./pages/CallbackPage"));
+const SsoCallbackPage = lazyWithRetry(() => import("./pages/SsoCallbackPage"));
+const WhatsAppSignup = lazyWithRetry(() => import("./pages/watsapphd"));
+const AIPresenterPage = lazyWithRetry(() => import("./pages/AIPresenterPage"));
+const YoutubeCallbackPage = lazyWithRetry(() => import("./pages/YoutubeCallbackPage"));
+const LinkedinCallbackPage = lazyWithRetry(() => import("./pages/LinkedinCallbackPage"));
+const AutomationHubPage = lazyWithRetry(() => import("./pages/AutomationHubPage"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
+const Home = lazyWithRetry(() => import("./pages/Home"));
+const ComingSoon = lazyWithRetry(() => import("./pages/ComingSoon"));
+const OnboardingPage = lazyWithRetry(() => import("./pages/OnboardingPage"));
+const SalesPartnerDashboard = lazyWithRetry(() => import("./pages/SalesPartnerDashboard"));
 
 // Phase 8 New Pages
-const ContactsPage = lazy(() => import("./pages/ContactsPage"));
-const TemplatesPage = lazy(() => import("./pages/TemplatesPage"));
-const BroadcastPage = lazy(() => import("./pages/BroadcastPage"));
-const CampaignsPage = lazy(() => import("./pages/CampaignsPage"));
-const WhatsAppMarketingSetup = lazy(() => import("./pages/WhatsAppMarketingSetup"));
-const FlowBuilderPage = lazy(() => import("./pages/FlowBuilderPage"));
-const KeywordTriggersPage = lazy(() => import("./pages/KeywordTriggersPage"));
-const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage"));
+const ContactsPage = lazyWithRetry(() => import("./pages/ContactsPage"));
+const TemplatesPage = lazyWithRetry(() => import("./pages/TemplatesPage"));
+const BroadcastPage = lazyWithRetry(() => import("./pages/BroadcastPage"));
+const CampaignsPage = lazyWithRetry(() => import("./pages/CampaignsPage"));
+const WhatsAppMarketingSetup = lazyWithRetry(() => import("./pages/WhatsAppMarketingSetup"));
+const FlowBuilderPage = lazyWithRetry(() => import("./pages/FlowBuilderPage"));
+const KeywordTriggersPage = lazyWithRetry(() => import("./pages/KeywordTriggersPage"));
+const AnalyticsPage = lazyWithRetry(() => import("./pages/AnalyticsPage"));
 // Static pages
-const About = lazy(() => import("./pages/static/About"));
-const Contact = lazy(() => import("./pages/static/Contact"));
-const Privacy = lazy(() => import("./pages/static/Privacy"));
-const Integrations = lazy(() => import("./pages/static/Integrations"));
-const Roadmap = lazy(() => import("./pages/static/Roadmap"));
-const Changelog = lazy(() => import("./pages/static/Changelog"));
-const Blog = lazy(() => import("./pages/static/Blog"));
-const Careers = lazy(() => import("./pages/static/Careers"));
-const Terms = lazy(() => import("./pages/static/Terms"));
-const Security = lazy(() => import("./pages/static/Security"));
-const DataDeletion = lazy(() => import("./pages/static/DataDeletion"));
-const Pricing = lazy(() => import("./pages/static/Pricing"));
+const About = lazyWithRetry(() => import("./pages/static/About"));
+const Contact = lazyWithRetry(() => import("./pages/static/Contact"));
+const Privacy = lazyWithRetry(() => import("./pages/static/Privacy"));
+const Integrations = lazyWithRetry(() => import("./pages/static/Integrations"));
+const Roadmap = lazyWithRetry(() => import("./pages/static/Roadmap"));
+const Changelog = lazyWithRetry(() => import("./pages/static/Changelog"));
+const Blog = lazyWithRetry(() => import("./pages/static/Blog"));
+const Careers = lazyWithRetry(() => import("./pages/static/Careers"));
+const Terms = lazyWithRetry(() => import("./pages/static/Terms"));
+const Security = lazyWithRetry(() => import("./pages/static/Security"));
+const DataDeletion = lazyWithRetry(() => import("./pages/static/DataDeletion"));
+const Pricing = lazyWithRetry(() => import("./pages/static/Pricing"));
 
 // New Legal/Trust Policies (SEO Phase)
-const CookiePolicy = lazy(() => import("./pages/policies/CookiePolicy"));
-const AIPolicy = lazy(() => import("./pages/policies/AIPolicy"));
-const AcceptableUse = lazy(() => import("./pages/policies/AcceptableUse"));
+const CookiePolicy = lazyWithRetry(() => import("./pages/policies/CookiePolicy"));
+const AIPolicy = lazyWithRetry(() => import("./pages/policies/AIPolicy"));
+const AcceptableUse = lazyWithRetry(() => import("./pages/policies/AcceptableUse"));
 
 
 // Other pages
-const PendingDeletionPage = lazy(() => import("./pages/PendingDeletionPage"));
-const VerifyEmailPage = lazy(() => import("./pages/VerifyEmailPage"));
-const InstagramToolPage = lazy(() => import("./pages/InstagramToolPage"));
-const FacebookToolPage = lazy(() => import("./pages/FacebookToolPage"));
-const YouTubeToolPage = lazy(() => import("./pages/YouTubeToolPage"));
-const LinkedInToolPage = lazy(() => import("./pages/LinkedInToolPage"));
-const DealsPipeline = lazy(() => import("./pages/DealsPipeline"));
-const CustomerPortal = lazy(() => import("./pages/CustomerPortal"));
-const QualityRatingPage = lazy(() => import("./pages/QualityRatingPage"));
-const TeamManagementPage = lazy(() => import("./pages/TeamManagementPage"));
+const PendingDeletionPage = lazyWithRetry(() => import("./pages/PendingDeletionPage"));
+const VerifyEmailPage = lazyWithRetry(() => import("./pages/VerifyEmailPage"));
+const InstagramToolPage = lazyWithRetry(() => import("./pages/InstagramToolPage"));
+const FacebookToolPage = lazyWithRetry(() => import("./pages/FacebookToolPage"));
+const YouTubeToolPage = lazyWithRetry(() => import("./pages/YouTubeToolPage"));
+const LinkedInToolPage = lazyWithRetry(() => import("./pages/LinkedInToolPage"));
+const DealsPipeline = lazyWithRetry(() => import("./pages/DealsPipeline"));
+const CustomerPortal = lazyWithRetry(() => import("./pages/CustomerPortal"));
+const QualityRatingPage = lazyWithRetry(() => import("./pages/QualityRatingPage"));
+const TeamManagementPage = lazyWithRetry(() => import("./pages/TeamManagementPage"));
 
 // Dedicated Enterprise Analytics Pages
-const InstagramAnalyticsPage = lazy(() => import("./pages/InstagramAnalyticsPage"));
-const YouTubeAnalyticsPage = lazy(() => import("./pages/YouTubeAnalyticsPage"));
-const FacebookAnalyticsPage = lazy(() => import("./pages/FacebookAnalyticsPage"));
-const WhatsAppAnalyticsPage = lazy(() => import("./pages/WhatsAppAnalyticsPage"));
+const InstagramAnalyticsPage = lazyWithRetry(() => import("./pages/InstagramAnalyticsPage"));
+const YouTubeAnalyticsPage = lazyWithRetry(() => import("./pages/YouTubeAnalyticsPage"));
+const FacebookAnalyticsPage = lazyWithRetry(() => import("./pages/FacebookAnalyticsPage"));
+const WhatsAppAnalyticsPage = lazyWithRetry(() => import("./pages/WhatsAppAnalyticsPage"));
 
 // Centered loading fallback design
 const LoadingFallback = () => (
@@ -170,8 +190,9 @@ export default function App() {
       <CookieConsentModal />
       <TrafficTracker />
 
-      <Suspense fallback={<LoadingFallback />}>
-        <Routes>
+      <ErrorBoundary>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
           {/* 🌍 HOME (Landing Page) */}
           <Route path="/" element={<ErrorBoundary><Home /></ErrorBoundary>} />
 
@@ -308,6 +329,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/not-found" replace />} />
         </Routes>
       </Suspense>
+    </ErrorBoundary>
     </BrowserRouter>
     </HelmetProvider>
   );
