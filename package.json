@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "cd frontend && PORT=3000 npm start",
     "start": "cd frontend && PORT=3000 npm start",
+    "postinstall": "cd frontend && npm install --legacy-peer-deps",
     "build": "node -e 'console.log(\"Graxion Flow Build verified successfully\")'"
   }
 }

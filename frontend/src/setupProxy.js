@@ -145,6 +145,66 @@ module.exports = function(app) {
     });
   });
 
+  // Partner Dashboard endpoint
+  app.get('/api/partner/dashboard', (req, res) => {
+    res.status(200).json({
+      status: 'success',
+      data: {
+        partnerCode: 'SP-FLOW2026',
+        commissionRate: 20,
+        commissionType: 'PERCENTAGE',
+        minPayoutThreshold: 1000,
+        totalReferrals: 12,
+        totalEarned: 24500,
+        pendingPayout: 4200,
+        paidOut: 20300,
+        referredUsers: [
+          {
+            _id: 'ref_1',
+            name: 'Priya Sharma',
+            email: 'pr***@apexretail.com',
+            createdAt: '2026-09-18T10:30:00Z',
+            subscription: { plan: 'enterprise' },
+            commissionEarned: 8000
+          },
+          {
+            _id: 'ref_2',
+            name: 'Vikram Mehta',
+            email: 'vi***@novatech.io',
+            createdAt: '2026-09-21T14:15:00Z',
+            subscription: { plan: 'pro' },
+            commissionEarned: 4500
+          },
+          {
+            _id: 'ref_3',
+            name: 'Rohit Verma',
+            email: 'ro***@urbanstyle.co',
+            createdAt: '2026-09-24T09:00:00Z',
+            subscription: { plan: 'growth' },
+            commissionEarned: 3200
+          },
+          {
+            _id: 'ref_4',
+            name: 'Sneha Patel',
+            email: 'sn***@growthpulse.in',
+            createdAt: '2026-09-26T16:45:00Z',
+            subscription: { plan: 'starter' },
+            commissionEarned: 1800
+          },
+          {
+            _id: 'ref_5',
+            name: 'Aman Gupta',
+            email: 'am***@cloudreach.org',
+            createdAt: '2026-09-27T11:20:00Z',
+            subscription: { plan: 'free' },
+            commissionEarned: 0
+          }
+        ],
+        recentCommissions: []
+      }
+    });
+  });
+
   // Analytics & traffic tracking endpoints
   app.post(['/api/public/track', '/api/analytics/track'], (req, res) => {
     res.status(200).json({
