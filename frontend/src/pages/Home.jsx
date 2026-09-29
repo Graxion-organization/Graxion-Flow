@@ -881,13 +881,13 @@ export default function Home() {
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] pointer-events-none"></div>
 
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex flex-col lg:grid lg:grid-cols-[1fr_1.1fr] gap-8 sm:gap-14 lg:gap-16 items-center justify-center w-full max-w-full">
-            <div className="flex flex-col items-center lg:items-start text-center lg:text-left w-full max-w-2xl mx-auto lg:mx-0">
+          <div className="flex flex-col items-center justify-center text-center w-full max-w-full">
+            <div className="flex flex-col items-center text-center w-full max-w-4xl mx-auto">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white border border-slate-200 text-xs sm:text-sm font-semibold text-blue-600 mb-6 sm:mb-8 shadow-xs"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white border border-slate-200 text-xs sm:text-sm font-semibold text-blue-600 mb-5 sm:mb-7 shadow-xs"
               >
                 <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600" /> The new standard for social ops
               </motion.div>
@@ -896,7 +896,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-2xl xs:text-3xl sm:text-5xl lg:text-[4.2rem] font-extrabold tracking-tight mb-4 sm:mb-6 leading-[1.2] sm:leading-[1.1] text-slate-900 w-full text-center lg:text-left"
+                className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-[4.75rem] xl:text-[5.5rem] font-black tracking-tight mb-4 sm:mb-6 leading-[1.12] sm:leading-[1.05] text-slate-900 w-full text-center max-w-5xl mx-auto"
               >
                 <span className="block sm:inline">Manage social</span>{" "}
                 <span className="gflow-gradient-text block sm:inline">without the chaos.</span>
@@ -906,7 +906,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-sm sm:text-lg lg:text-xl text-slate-600 max-w-xl mx-auto lg:mx-0 mb-6 sm:mb-8 leading-relaxed font-normal sm:font-medium text-center lg:text-left"
+                className="text-sm sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto mb-6 sm:mb-8 leading-relaxed font-normal sm:font-medium text-center"
               >
                 Graxion Flow brings YouTube, Instagram, and WhatsApp into one
                 beautiful workspace. Schedule, reply, and automate—all in one
@@ -917,7 +917,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 sm:gap-4 mb-6 sm:mb-8 w-full max-w-xs sm:max-w-none mx-auto lg:mx-0"
+                className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 mb-6 sm:mb-8 w-full max-w-xs sm:max-w-none mx-auto"
               >
                 <button
                   onClick={() => goAuth("/register")}
@@ -937,7 +937,7 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-2 sm:gap-x-6 sm:gap-y-3 text-xs sm:text-sm font-semibold text-slate-500 mb-8 lg:mb-0 w-full"
+                className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:gap-x-6 sm:gap-y-3 text-xs sm:text-sm font-semibold text-slate-500 mb-10 sm:mb-14 w-full"
               >
                 {[
                   "No credit card needed",
@@ -953,10 +953,10 @@ export default function Home() {
             </div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative w-full max-w-lg lg:max-w-none mx-auto mt-2 lg:mt-0 flex flex-col items-center justify-center"
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="relative w-full max-w-4xl lg:max-w-5xl mx-auto flex flex-col items-center justify-center"
             >
               {/* Mobile connected platform indicator */}
               <div className="flex md:hidden items-center justify-center mb-3 w-full px-1">
