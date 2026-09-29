@@ -682,7 +682,7 @@ export default function IntegrationsPage() {
                   </div>
                 </div>
 
-                <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 sm:gap-4" : "flex flex-col gap-2.5"}>
+                <div key={viewMode} className={`animate-view-fade ${viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 sm:gap-4" : "flex flex-col gap-2.5"}`}>
                   {connectedList.map(int => (
                     viewMode === 'grid' ? (
                       /* Compact, Balanced Grid Card */

@@ -300,7 +300,7 @@ export default function TemplatesPage() {
 
       {/* TAB 1: MY META TEMPLATES */}
       {activeTab === 'my-templates' && (
-        <div>
+        <div className="animate-view-fade">
           {/* Filters Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
             <div className="relative w-full sm:w-72">
@@ -481,7 +481,7 @@ export default function TemplatesPage() {
 
       {/* TAB 2: SYSTEM TEMPLATE LIBRARY */}
       {activeTab === 'system-library' && (
-        <div>
+        <div className="animate-view-fade">
           <div className="mb-6 p-4 bg-[#FF6A00]/10 border border-[#FF6A00]/30 rounded-xl flex items-center gap-3 text-xs text-slate-200">
             <InformationCircleIcon className="w-5 h-5 text-[#FF8A00] shrink-0" />
             <span>
@@ -546,7 +546,7 @@ export default function TemplatesPage() {
 
       {/* TAB 3: CUSTOM TEMPLATE BUILDER WITH LIVE PHONE MOCKUP */}
       {activeTab === 'custom-builder' && (
-        <div className="grid lg:grid-cols-12 gap-8">
+        <div className="grid lg:grid-cols-12 gap-8 animate-view-fade">
           {/* Left Builder Form */}
           <div className="lg:col-span-7 bg-[#0b111d]/90 border border-white/10 rounded-2xl p-6 shadow-xl">
             <h2 className="text-lg font-extrabold text-slate-100 mb-4 flex items-center gap-2">

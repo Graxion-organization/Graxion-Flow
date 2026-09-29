@@ -156,8 +156,9 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Top KPI Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      {/* Top KPI Row & Dynamic Metrics */}
+      <div key={timeframe} className="space-y-6 animate-view-fade">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <MiniStat isDark={isDark} icon={MessageSquare} label="Total Messages" value={totalMessages.toLocaleString()} sub={`${totalSent} sent / ${totalReceived} received`} tint="#3B82F6" />
         <MiniStat isDark={isDark} icon={Award} label="Active Agents" value={agentPerformance.length.toLocaleString()} sub="Handling conversations" tint="#F59E0B" />
         <MiniStat isDark={isDark} icon={Radio} label="Broadcasts Sent" value={(broadcastStats?.totalSent || 0).toLocaleString()} sub="Marketing messages" tint="#10B981" />
@@ -597,6 +598,7 @@ export default function AnalyticsPage() {
           </div>
         </ChartCard>
       )}
+      </div>
     </div>
   );
 }

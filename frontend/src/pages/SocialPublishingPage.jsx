@@ -978,17 +978,17 @@ export default function SocialPublishingPage() {
         </div>
       </div>
         {activeTab === 'calendar' && (
-          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2">
+          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 animate-view-fade">
             <SocialCalendarTab />
           </div>
         )}
         {activeTab === 'today' && (
-          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2">
+          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 animate-view-fade">
             <TodayAnalyticsPanel  />
           </div>
         )}
         {activeTab === 'publish' && (
-          <div className="flex-1 min-h-0 grid grid-cols-1 xl:grid-cols-12 gap-6 items-start pb-10 h-full">
+          <div className="flex-1 min-h-0 grid grid-cols-1 xl:grid-cols-12 gap-6 items-start pb-10 h-full animate-view-fade">
             <div className="xl:col-span-7 h-full overflow-y-auto custom-scrollbar pr-2 space-y-4 pb-10">
               
               {/* STEP 1: Platforms & Format */}
@@ -1462,7 +1462,7 @@ export default function SocialPublishingPage() {
           </div>
         )}
         {activeTab === 'copilot' && (
-          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 pb-4">
+          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 pb-4 animate-view-fade">
             <div style={{ zoom: 0.85 }} className="w-full">
               <BrandCopilotTab  />
             </div>
@@ -1470,7 +1470,7 @@ export default function SocialPublishingPage() {
         )}
 
         {activeTab === 'feed' && (
-          <div className={`flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
+          <div className={`flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 rounded-2xl border p-5 sm:p-6 transition-all duration-300 animate-view-fade ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5">
               <h2 className="text-lg font-semibold">Content Library</h2>
               <div className="flex flex-wrap gap-2">
@@ -1833,7 +1833,7 @@ export default function SocialPublishingPage() {
         )}
 
         {activeTab === 'accounts' && (
-          <div className={`flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
+          <div className={`flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 rounded-2xl border p-5 sm:p-6 transition-all duration-300 animate-view-fade ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
             <h2 className="text-lg font-semibold mb-5">Connected Accounts</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {connectedAccounts.map((acc) => (
@@ -1910,7 +1910,7 @@ export default function SocialPublishingPage() {
         )}
 
         {activeTab === 'yt_automation' && (
-          <div className={`flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 rounded-3xl border p-12 text-center max-w-2xl mx-auto shadow-sm transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
+          <div className={`flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 rounded-3xl border p-12 text-center max-w-2xl mx-auto shadow-sm transition-all duration-300 animate-view-fade ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
             <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 ${'bg-red-50 dark:bg-red-500/10'}`}>
               <Youtube size={40} className="text-red-600" />
             </div>
@@ -1932,7 +1932,7 @@ export default function SocialPublishingPage() {
         )}
 
         {activeTab === 'profile' && (
-          <form onSubmit={handleProfileUpdate} className={`flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 rounded-2xl border p-5 sm:p-6 max-w-3xl transition-all duration-300 ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
+          <form onSubmit={handleProfileUpdate} className={`flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 rounded-2xl border p-5 sm:p-6 max-w-3xl transition-all duration-300 animate-view-fade ${'bg-white border-slate-200 dark:bg-slate-900 dark:border-white/10'}`}>
             <h2 className="text-lg font-semibold mb-5">Profile Sync</h2>
             <div className="space-y-4">
               <div>

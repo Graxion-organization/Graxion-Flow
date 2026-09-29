@@ -657,7 +657,7 @@ export default function ConversationsPage() {
           </div>
 
           {/* List */}
-          <div className="flex-1 overflow-y-auto">
+          <div key={`${activeTab}_${activePlatform}`} className="flex-1 overflow-y-auto animate-view-fade">
             {loading ? (
               <div className="flex items-center justify-center h-32">
                 <div className="w-6 h-6 border-4 border-whatsapp border-t-transparent rounded-full animate-spin" />

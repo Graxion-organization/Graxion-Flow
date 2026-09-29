@@ -909,9 +909,19 @@ export default function DashboardLayout() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF6A00]"></div>
               </div>
             ) : (
-              <div className="space-y-6">
-                {/* Removed inner banner, moved to top of layout */}
-                <Outlet key={currentOrganization._id} context={{ onboardingStatus }} />
+              <div className="space-y-6 min-h-full">
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={`${currentOrganization?._id || 'org'}_${location.pathname}`}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1.0] }}
+                    className="w-full h-full"
+                  >
+                    <Outlet context={{ onboardingStatus }} />
+                  </motion.div>
+                </AnimatePresence>
               </div>
             )}
           </div>

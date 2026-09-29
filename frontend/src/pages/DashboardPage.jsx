@@ -11,6 +11,7 @@ import {
 import { analyticsAPI } from '../services/api';
 import { useAuthStore } from '../store';
 import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 import { DashboardSkeleton } from '../components/common/ShimmerSkeleton';
 
 const COLORS = ['#FF6A00', '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EC4899'];
@@ -189,7 +190,16 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ⚠️ Usage Warning Banner */}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={timeframe}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+          className="space-y-6 sm:space-y-8"
+        >
+          {/* ⚠️ Usage Warning Banner */}
       {usagePercent >= 80 && (
         <div
           className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl border transition-all ${
@@ -830,6 +840,8 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
