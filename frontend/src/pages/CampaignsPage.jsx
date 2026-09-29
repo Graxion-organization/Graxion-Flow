@@ -4,6 +4,7 @@ import { ChartBarIcon, UsersIcon, CheckCircleIcon, PlusIcon } from '@heroicons/r
 import { broadcastAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import { DataCardGridSkeleton, TableSkeleton } from '../components/common/ShimmerSkeleton';
 
 export default function CampaignsPage() {
   const [broadcasts, setBroadcasts] = useState([]);
@@ -53,8 +54,16 @@ export default function CampaignsPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF6A00]"></div>
+      <div className="p-3 sm:p-6 max-w-7xl mx-auto pb-28 space-y-6 sm:space-y-8 animate-in fade-in duration-300">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <div className="shimmer-sweep h-8 w-60 rounded-xl bg-slate-200 dark:bg-white/10" />
+            <div className="shimmer-sweep h-3.5 w-72 rounded-md bg-slate-200 dark:bg-white/10" />
+          </div>
+          <div className="shimmer-sweep h-11 w-36 rounded-xl bg-slate-200 dark:bg-white/10" />
+        </div>
+        <DataCardGridSkeleton count={3} cols="grid-cols-1 sm:grid-cols-2 md:grid-cols-3" isDark={isDark} />
+        <TableSkeleton rows={4} isDark={isDark} />
       </div>
     );
   }

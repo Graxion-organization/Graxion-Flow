@@ -11,6 +11,7 @@ import {
 import { analyticsAPI } from '../services/api';
 import { useAuthStore } from '../store';
 import toast from 'react-hot-toast';
+import { DashboardSkeleton } from '../components/common/ShimmerSkeleton';
 
 const COLORS = ['#FF6A00', '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EC4899'];
 
@@ -119,20 +120,7 @@ export default function DashboardPage() {
   }, []);
 
   if (loading && !data) {
-    return (
-      <div className="space-y-6 animate-pulse p-2 sm:p-4 pb-28">
-        <div className="h-16 bg-white/5 rounded-2xl w-2/3" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map(n => (
-            <div key={n} className="h-32 bg-white/5 rounded-2xl" />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 h-96 bg-white/5 rounded-2xl" />
-          <div className="h-96 bg-white/5 rounded-2xl" />
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton isDark={isDark} />;
   }
 
   return (

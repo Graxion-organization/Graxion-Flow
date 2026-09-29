@@ -14,6 +14,7 @@ import {
 import { analyticsAPI, conversationAPI } from '../services/api';
 import { useAuthStore } from '../store';
 import toast from 'react-hot-toast';
+import { AnalyticsSkeleton } from '../components/common/ShimmerSkeleton';
 
 // ─── Mini Stat Card ────────────────────────────────────────────────────────────
 const MiniStat = ({ icon: Icon, label, value, sub, tint, isDark }) => (
@@ -122,11 +123,7 @@ export default function AnalyticsPage() {
   ] : [];
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-[70vh]">
-        <div className="w-8 h-8 border-4 border-[#FF6A00] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <AnalyticsSkeleton isDark={isDark} />;
   }
 
   return (

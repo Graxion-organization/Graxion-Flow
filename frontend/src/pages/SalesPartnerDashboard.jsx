@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { partnerAPI } from '../services/api';
 import toast from 'react-hot-toast';
+import { SalesPartnerSkeleton } from '../components/common/ShimmerSkeleton';
 import { 
   Users, 
   Copy, 
@@ -145,18 +146,7 @@ export default function SalesPartnerDashboard() {
   const isPayoutEligible = pendingPayout >= minPayout;
 
   if (loading && !data) {
-    return (
-      <div className="space-y-6 animate-pulse p-4 sm:p-6 pb-28 max-w-7xl mx-auto">
-        <div className="h-44 bg-white/5 rounded-3xl" />
-        <div className="h-28 bg-white/5 rounded-2xl" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-32 bg-white/5 rounded-2xl" />
-          ))}
-        </div>
-        <div className="h-80 bg-white/5 rounded-2xl" />
-      </div>
-    );
+    return <SalesPartnerSkeleton isDark={isDark} />;
   }
 
   return (

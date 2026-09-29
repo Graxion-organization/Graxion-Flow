@@ -108,7 +108,7 @@ function AnimCounter({ value }) {
 }
 
 // ─── Summary Card ─────────────────────────────────────────────────────────────
-function SummaryCard({ icon: Icon, label, value, sub, accent, glow, delay = 0 }) {
+function SummaryCard({ icon: Icon, label, value, sub, accent, glow, delay = 0, loading = false }) {
   const [visible, setVisible] = useState(false);
   useEffect(() => { const t = setTimeout(() => setVisible(true), delay); return () => clearTimeout(t); }, [delay]);
   return (
@@ -132,9 +132,13 @@ function SummaryCard({ icon: Icon, label, value, sub, accent, glow, delay = 0 })
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', position: 'relative' }}>
         <div>
           <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 600, marginBottom: 8, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{label}</p>
-          <p style={{ fontSize: 36, fontWeight: 800, color: '#fff', lineHeight: 1, marginBottom: 6 }}>
-            {visible ? <AnimCounter value={value} /> : '0'}
-          </p>
+          {loading ? (
+            <div className="shimmer-sweep" style={{ height: 36, width: 72, borderRadius: 8, background: 'rgba(255,255,255,0.08)', marginBottom: 6 }} />
+          ) : (
+            <p style={{ fontSize: 36, fontWeight: 800, color: '#fff', lineHeight: 1, marginBottom: 6 }}>
+              {visible ? <AnimCounter value={value} /> : '0'}
+            </p>
+          )}
           {sub && <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{sub}</p>}
         </div>
         <div style={{
@@ -344,10 +348,10 @@ export default function LeadsDashboardPage() {
 
       {/* ── Summary Cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 28 }}>
-        <SummaryCard icon={Users} label="Total Leads" value={summary?.totalLeads ?? 0} sub="All conversations" accent="#6366f1" glow="#6366f1" delay={0} />
-        <SummaryCard icon={Flame} label="Hot Leads" value={summary?.hotLeads ?? 0} sub="High engagement" accent="#f87171" glow="#f87171" delay={100} />
-        <SummaryCard icon={PhoneCall} label="Want Human" value={summary?.wantHuman ?? 0} sub="Requested agent" accent="#fbbf24" glow="#fbbf24" delay={200} />
-        <SummaryCard icon={Activity} label="Showing" value={total} sub="In current filter" accent="#34d399" glow="#34d399" delay={300} />
+        <SummaryCard icon={Users} label="Total Leads" value={summary?.totalLeads ?? 0} sub="All conversations" accent="#6366f1" glow="#6366f1" delay={0} loading={loading && !summary} />
+        <SummaryCard icon={Flame} label="Hot Leads" value={summary?.hotLeads ?? 0} sub="High engagement" accent="#f87171" glow="#f87171" delay={100} loading={loading && !summary} />
+        <SummaryCard icon={PhoneCall} label="Want Human" value={summary?.wantHuman ?? 0} sub="Requested agent" accent="#fbbf24" glow="#fbbf24" delay={200} loading={loading && !summary} />
+        <SummaryCard icon={Activity} label="Showing" value={total} sub="In current filter" accent="#34d399" glow="#34d399" delay={300} loading={loading && !summary} />
       </div>
 
       {/* ── Platform Breakdown ── */}
