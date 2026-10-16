@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const FacebookService = require('../services/facebookService');
 const AIService = require('../services/aiService');
 const FacebookAccount = require('../models/FacebookAccount');
@@ -607,3 +608,84 @@ async function handleFacebookComment(commentData, fbAccount, agent) {
     logger.error(`Error in handleFacebookComment: ${error.message}`);
   }
 }
+
+function base64UrlDecode(str) {
+  let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (base64.length % 4) {
+    base64 += '=';
+  }
+  return Buffer.from(base64, 'base64').toString('utf8');
+}
+
+function parseSignedRequest(signedRequest, appSecret) {
+  if (!signedRequest || typeof signedRequest !== 'string' || !signedRequest.includes('.')) {
+    return null;
+  }
+  const [encodedSig, payload] = signedRequest.split('.', 2);
+  const data = JSON.parse(base64UrlDecode(payload));
+  
+  if (appSecret) {
+    let sig = encodedSig.replace(/-/g, '+').replace(/_/g, '/');
+    while (sig.length % 4) sig += '=';
+    const expectedSig = crypto
+      .createHmac('sha256', appSecret)
+      .update(payload)
+      .digest('base64');
+    
+    if (sig !== expectedSig) {
+      logger.warn('[Meta Data Deletion] Signature mismatch in signed_request');
+    }
+  }
+  return data;
+}
+
+/**
+ * Meta (Facebook/Instagram) User Data Deletion Callback
+ * Official Meta Graph API compliance requirement:
+ * Returns { url, confirmation_code } JSON response within 200ms
+ */
+exports.handleDataDeletionCallback = async (req, res) => {
+  try {
+    const signedRequest = req.body?.signed_request || req.query?.signed_request;
+    const appSecret = process.env.FACEBOOK_APP_SECRET || process.env.META_APP_SECRET || process.env.INSTAGRAM_APP_SECRET;
+    
+    let userId = null;
+    if (signedRequest) {
+      try {
+        const data = parseSignedRequest(signedRequest, appSecret);
+        userId = data?.user_id;
+      } catch (parseErr) {
+        logger.warn(`[Meta Data Deletion] Failed to parse signed request: ${parseErr.message}`);
+      }
+    }
+
+    const confirmationCode = 'DEL-' + crypto.randomBytes(8).toString('hex').toUpperCase();
+    const frontendBase = process.env.FRONTEND_URL || 'https://flow.graxion.in';
+    const statusUrl = `${frontendBase}/data-deletion-policy?code=${confirmationCode}`;
+
+    logger.info(`[Meta Data Deletion] Received callback for user_id=${userId || 'unknown'}, generated code=${confirmationCode}`);
+
+    if (userId) {
+      try {
+        await FacebookAccount.updateMany(
+          { $or: [{ pageId: userId }, { 'metadata.userId': userId }] },
+          { $set: { status: 'disconnected', isActive: false } }
+        );
+      } catch (dbErr) {
+        logger.error(`[Meta Data Deletion] Error disconnecting account: ${dbErr.message}`);
+      }
+    }
+
+    return res.status(200).json({
+      url: statusUrl,
+      confirmation_code: confirmationCode
+    });
+  } catch (err) {
+    logger.error('[Meta Data Deletion] Handler error:', err);
+    return res.status(200).json({
+      url: `${process.env.FRONTEND_URL || 'https://flow.graxion.in'}/data-deletion-policy`,
+      confirmation_code: 'DEL-' + Date.now()
+    });
+  }
+};
+

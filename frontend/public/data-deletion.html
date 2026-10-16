@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#25D366">
-    <meta name="description" content="Data Deletion Instructions for WhatsAgent - WhatsApp AI Automation Platform">
-    <title>Data Deletion Instructions | WhatsAgent</title>
+    <meta name="theme-color" content="#2563EB">
+    <meta name="description" content="Data Deletion Instructions and Status for Graxion Flow - Omnichannel Social Media Automation Platform">
+    <title>Data Deletion Policy & Callback | Graxion Flow</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #25D366;
-            --primary-dark: #128C7E;
+            --primary: #3B82F6;
+            --primary-dark: #1D4ED8;
+            --accent: #FF6A00;
             --bg: #030712;
-            --card-bg: #111827;
-            --text-main: #f9fafb;
-            --text-muted: #9ca3af;
-            --red: #ef4444;
+            --card-bg: #0F172A;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border: rgba(255, 255, 255, 0.08);
+            --green: #10B981;
         }
 
         * {
@@ -35,138 +37,178 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 840px;
             margin: 0 auto;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 60px;
+            margin-bottom: 45px;
         }
 
         .logo {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            color: var(--primary);
+            gap: 12px;
+            color: #fff;
             font-weight: 800;
-            font-size: 28px;
+            font-size: 26px;
             margin-bottom: 20px;
             text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 900;
+            font-size: 18px;
         }
 
         h1 {
-            font-size: 42px;
+            font-size: 38px;
             font-weight: 800;
-            margin-bottom: 15px;
-            background: linear-gradient(to right, #fff, var(--text-muted));
+            margin-bottom: 12px;
+            background: linear-gradient(to right, #ffffff, #94a3b8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .description {
             color: var(--text-muted);
-            font-size: 18px;
-            max-width: 600px;
+            font-size: 17px;
+            max-width: 620px;
             margin: 0 auto;
+        }
+
+        #statusBanner {
+            display: none;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 35px;
+            text-align: left;
+        }
+
+        #statusBanner.active {
+            display: block;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #10B981;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
         }
 
         .steps {
             display: grid;
-            gap: 24px;
-            margin-bottom: 60px;
+            gap: 20px;
+            margin-bottom: 45px;
         }
 
         .step-card {
             background-color: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 30px;
-            border-radius: 24px;
+            border: 1px solid var(--border);
+            padding: 24px;
+            border-radius: 20px;
             display: flex;
             gap: 20px;
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            transition: transform 0.2s ease, border-color 0.2s ease;
         }
 
         .step-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(37, 211, 102, 0.2);
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.3);
         }
 
         .step-num {
-            width: 48px;
-            height: 48px;
-            background-color: rgba(37, 211, 102, 0.1);
+            width: 44px;
+            height: 44px;
+            background-color: rgba(59, 130, 246, 0.12);
             color: var(--primary);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 20px;
+            font-size: 18px;
             flex-shrink: 0;
         }
 
         .step-content h3 {
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #fff;
         }
 
         .step-content p {
             color: var(--text-muted);
-            font-size: 15px;
+            font-size: 14.5px;
         }
 
         .security-box {
-            background: linear-gradient(135deg, rgba(37, 211, 102, 0.1) 0%, rgba(18, 140, 126, 0.05) 100%);
-            border: 1px solid rgba(37, 211, 102, 0.2);
-            padding: 40px;
-            border-radius: 32px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(30, 64, 175, 0.04) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 32px;
+            border-radius: 24px;
             text-align: center;
-            margin-bottom: 60px;
+            margin-bottom: 45px;
         }
 
         .security-box h2 {
-            font-size: 24px;
-            margin-bottom: 15px;
-            color: var(--primary);
+            font-size: 22px;
+            margin-bottom: 10px;
+            color: #fff;
         }
 
         .security-box p {
             color: var(--text-muted);
-            font-size: 16px;
-            margin-bottom: 25px;
+            font-size: 15px;
+            margin-bottom: 22px;
         }
 
         .btn {
             display: inline-block;
-            background-color: var(--primary);
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
             color: #fff;
-            padding: 14px 32px;
-            border-radius: 14px;
+            padding: 12px 28px;
+            border-radius: 12px;
             font-weight: 600;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .btn:hover {
-            background-color: var(--primary-dark);
-            transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2);
+            opacity: 0.95;
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25);
         }
 
         .footer {
             text-align: center;
             color: var(--text-muted);
-            font-size: 14px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding-top: 40px;
+            font-size: 13.5px;
+            border-top: 1px solid var(--border);
+            padding-top: 30px;
         }
 
         @media (max-width: 640px) {
-            h1 { font-size: 32px; }
-            .step-card { flex-direction: column; text-align: center; align-items: center; }
+            h1 { font-size: 28px; }
+            .step-card { flex-direction: column; text-align: left; }
         }
     </style>
 </head>
@@ -174,67 +216,80 @@
     <div class="container">
         <div class="header">
             <a href="/" class="logo">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.767 5.767 0 1.267.405 2.436 1.096 3.389l-.715 2.613 2.734-.715a5.727 5.727 0 002.652.652c3.181 0 5.767-2.586 5.767-5.767 0-3.181-2.586-5.767-5.767-5.767zm3.39 8.13c-.147.414-.733.754-1.018.795-.259.037-.585.045-.945-.074-.224-.074-.5-.17-.864-.326-1.545-.662-2.545-2.226-2.62-2.33-.075-.104-.616-.819-.616-1.562 0-.743.386-1.109.525-1.258.14-.148.304-.185.407-.185.104 0 .207.001.296.005.093.003.22.003.344.301.127.306.436 1.066.474 1.144.038.077.063.167.012.271-.051.104-.077.167-.154.256-.077.089-.161.2-.23.27-.077.078-.157.163-.067.319.09.156.401.662.861 1.071.593.528 1.092.69 1.248.767.156.077.248.064.341-.044.093-.108.397-.463.504-.62.107-.158.214-.132.359-.078.145.054.919.434 1.076.512.157.078.262.117.3.183.037.066.037.38-.11.794zM12 2C6.477 2 2 6.477 2 12c0 1.891.524 3.66 1.438 5.168L2 22l4.957-1.302C8.423 21.524 10.155 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/>
-                </svg>
-                WhatsAgent
+                <div class="logo-icon">G</div>
+                Graxion Flow
             </a>
-            <h1>Data Deletion Policy</h1>
-            <p class="description">Follow these steps to permanently delete your WhatsAgent account and all associated data.</p>
+            <h1>Data Deletion Policy & Request Status</h1>
+            <p class="description">Meta Platform Compliance and Account Data Management for Graxion Flow.</p>
+        </div>
+
+        <div id="statusBanner">
+            <span class="status-badge">Deletion Request Verified</span>
+            <h3 style="color: #fff; margin-bottom: 4px;">Request ID: <span id="codeDisplay" style="color: #38BDF8;"></span></h3>
+            <p style="color: var(--text-muted); font-size: 14px;">Your data deletion request has been registered under Meta Graph API compliance. All associated social tokens and webhooks have been quarantined and are scheduled for permanent purge.</p>
         </div>
 
         <div class="steps">
             <div class="step-card">
                 <div class="step-num">01</div>
                 <div class="step-content">
-                    <h3>Request Deletion</h3>
-                    <p>Log in to your WhatsAgent dashboard and navigate to <b>Settings > Danger Zone</b>. Click on "Request Account Deletion".</p>
+                    <h3>Initiate Deletion Request</h3>
+                    <p>Log in to your Graxion Flow dashboard, navigate to <b>Settings > Privacy & Data Controls</b>, and click "Request Account & Data Deletion".</p>
                 </div>
             </div>
 
             <div class="step-card">
                 <div class="step-num">02</div>
                 <div class="step-content">
-                    <h3>Security Verification</h3>
-                    <p>For your protection, we will send <b>3 unique verification codes</b> to your registered email. You must enter all codes in the correct order.</p>
+                    <h3>Ownership Verification</h3>
+                    <p>A secure verification challenge is dispatched to your registered primary email. Confirming the code ensures only authorized workspace administrators can trigger data removal.</p>
                 </div>
             </div>
 
             <div class="step-card">
                 <div class="step-num">03</div>
                 <div class="step-content">
-                    <h3>Provide Feedback</h3>
-                    <p>Select the reason for leaving and provide any feedback. This helps us improve our service for others.</p>
+                    <h3>Instant Quarantine</h3>
+                    <p>Upon verification or Meta App removal callback, your account is immediately disabled. All active AI bots, webhooks, dispatches, and connected accounts (WhatsApp, Facebook, Instagram) are instantly disconnected.</p>
                 </div>
             </div>
 
             <div class="step-card">
                 <div class="step-num">04</div>
                 <div class="step-content">
-                    <h3>Instant Disable</h3>
-                    <p>Once verified, your account is immediately disabled. All active AI bots, automation tasks, and agents will stop instantly.</p>
+                    <h3>30-Day Recovery Grace Period</h3>
+                    <p>Your data is securely isolated in encrypted cold storage for 30 days. You can restore your workspace anytime during this window by contacting support.</p>
                 </div>
             </div>
 
             <div class="step-card">
                 <div class="step-num">05</div>
                 <div class="step-content">
-                    <h3>30-Day Grace Period</h3>
-                    <p>Your data is kept for 30 days. You can restore your account anytime during this period. After 30 days, all data is purged permanently.</p>
+                    <h3>Permanent Purge</h3>
+                    <p>After 30 days, all conversation logs, media attachments, auth tokens, customer records, and analytics are permanently and irreversibly purged from our database.</p>
                 </div>
             </div>
         </div>
 
         <div class="security-box">
-            <h2>Manage Your Data Now</h2>
-            <p>You can manage your account and data privacy directly from your user dashboard.</p>
-            <a href="/app/settings" class="btn">Go to Dashboard</a>
+            <h2>Manage Your Data Directly</h2>
+            <p>Access your privacy controls, export your data, or manage connected channels directly in your workspace settings.</p>
+            <a href="/app/settings" class="btn">Open Account Settings</a>
         </div>
 
         <div class="footer">
             <p>&copy; 2026 Graxion Flow. All rights reserved.</p>
-            <p style="margin-top: 8px;">Need help? Contact us at support@graxion.in</p>
+            <p style="margin-top: 8px;">Compliance & Privacy inquiries: support@graxion.in | Data Protection Officer</p>
         </div>
     </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        if (code) {
+            document.getElementById('codeDisplay').textContent = code;
+            document.getElementById('statusBanner').classList.add('active');
+        }
+    </script>
 </body>
 </html>

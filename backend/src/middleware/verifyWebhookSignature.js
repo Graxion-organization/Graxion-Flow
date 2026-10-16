@@ -10,11 +10,12 @@ exports.verifyMetaSignature = (req, res, next) => {
   const signatureHeader = req.headers['x-hub-signature-256'];
   const isProduction = process.env.NODE_ENV === 'production';
   
-  // Collect all available secrets (Instagram App Secret takes precedence)
+  // Collect all available secrets (Instagram, Meta, Facebook, WhatsApp)
   const appSecrets = [
     process.env.INSTAGRAM_APP_SECRET,
     process.env.META_APP_SECRET,
-    process.env.FACEBOOK_APP_SECRET
+    process.env.FACEBOOK_APP_SECRET,
+    process.env.WHATSAPP_APP_SECRET
   ].filter(Boolean);
 
   const hasAppSecret = appSecrets.length > 0;

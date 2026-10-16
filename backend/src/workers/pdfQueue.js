@@ -3,15 +3,14 @@ const Redis = require('ioredis');
 const logger = require('../utils/logger');
 
 
+const { redis } = require('../config/redis');
+
 const useRedis = process.env.USE_REDIS === 'true';
 
 let connection, pdfQueue;
 
 if (useRedis) {
-  connection = new Redis({
-    host: process.env.REDIS_HOST || '127.0.0.1',
-    port: process.env.REDIS_PORT || 6379,
-  });
+  connection = redis;
   pdfQueue = new Queue('pdf-processing', { connection });
 } else {
   pdfQueue = {

@@ -322,6 +322,16 @@ startSocialPostScheduler();
 startDeletionScheduler();
 startInstagramWorker();
 
+// Initialize BullMQ broadcast worker in inline mode (for single-process hosts like Render)
+if (process.env.DISABLE_INLINE_WORKERS !== 'true') {
+  try {
+    require('./workers/broadcastWorker');
+    logger.info('BullMQ broadcast worker initialized in inline mode');
+  } catch (err) {
+    logger.error('Failed to initialize inline broadcast worker:', err.message);
+  }
+}
+
 // Start Meeting auto-scheduler
 const { startAutoScheduler } = require('./services/schedulerService');
 startAutoScheduler();

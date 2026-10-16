@@ -38,10 +38,11 @@ const validateCsrf = (req, res, next) => {
     return next();
   }
 
-  // Skip webhooks and auth refresh-token endpoint (uses httpOnly refreshToken cookie)
+  // Skip webhooks, data-deletion callbacks, and auth refresh-token endpoint (uses httpOnly refreshToken cookie)
   if (
     req.originalUrl.includes('/webhook') || 
     req.originalUrl.includes('/api/whatsapp/webhook') ||
+    req.originalUrl.includes('/data-deletion') ||
     req.originalUrl.includes('/api/auth/refresh-token')
   ) {
     return next();

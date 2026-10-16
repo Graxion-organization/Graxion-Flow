@@ -1,9 +1,17 @@
 const express = require('express');
 const facebookController = require('../controllers/facebookController');
+const facebookWebhookController = require('../controllers/facebookWebhookController');
 const { protect } = require('../middleware/auth');
 const { injectOrganization, requireOrganization } = require('../middleware/organizationMiddleware');
 
 const router = express.Router();
+
+// Public Meta Data Deletion Callback endpoint
+router.post('/data-deletion', facebookWebhookController.handleDataDeletionCallback);
+router.get('/data-deletion', (req, res) => {
+  const code = req.query.code || 'STATUS_ACTIVE';
+  res.redirect(`${process.env.FRONTEND_URL || 'https://flow.graxion.in'}/data-deletion-policy?code=${code}`);
+});
 
 router.use(protect);
 router.use(injectOrganization);

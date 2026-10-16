@@ -338,7 +338,8 @@ class WhatsAppService {
 
   // --- Static Verifier & Parser ---
   static async verifyWebhook(mode, token, challenge) {
-    if (mode === 'subscribe' && token === process.env.META_WEBHOOK_VERIFY_TOKEN) {
+    const validVerifyToken = process.env.META_WEBHOOK_VERIFY_TOKEN || process.env.WHATSAPP_VERIFY_TOKEN;
+    if (mode === 'subscribe' && validVerifyToken && token === validVerifyToken) {
       return challenge;
     }
     throw new Error('Verification failed');

@@ -7,6 +7,7 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "jest --coverage",
+    "test:stress": "node tests/stress/webhookStressTest.js",
     "postinstall": "npx puppeteer browsers install chrome"
   },
   "dependencies": {
