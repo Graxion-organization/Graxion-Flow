@@ -121,53 +121,102 @@ export default function FlowBuilderPage() {
             </button>
           </div>
         ) : (
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className={`text-xs uppercase tracking-wider ${isDark ? 'bg-white/5 text-slate-400' : 'bg-slate-50 text-slate-500'}`}>
-                <th className="p-4 font-semibold">Flow Name</th>
-                <th className="p-4 font-semibold">Trigger Keyword</th>
-                <th className="p-4 font-semibold">Status</th>
-                <th className="p-4 font-semibold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className={`divide-y ${isDark ? 'divide-white/5' : 'divide-slate-100'}`}>
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className={`text-xs uppercase tracking-wider ${isDark ? 'bg-white/5 text-slate-400 border-b border-white/10' : 'bg-slate-50 text-slate-500 border-b border-slate-200'}`}>
+                    <th className="p-4 font-semibold">Flow Name</th>
+                    <th className="p-4 font-semibold">Trigger Keyword</th>
+                    <th className="p-4 font-semibold">Status</th>
+                    <th className="p-4 font-semibold text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className={`divide-y ${isDark ? 'divide-white/5' : 'divide-slate-100'}`}>
+                  {flows.map((flow) => (
+                    <tr key={flow._id} onClick={() => handleEdit(flow)} className={`transition cursor-pointer group ${isDark ? 'hover:bg-white/5' : 'hover:bg-slate-50'}`}>
+                      <td className={`p-4 font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{flow.name}</td>
+                      <td className="p-4">
+                        {flow.triggerKeyword ? (
+                          <span className="bg-blue-500/10 text-blue-500 dark:text-blue-400 px-2.5 py-1 rounded-md text-xs font-mono">
+                            {flow.triggerKeyword}
+                          </span>
+                        ) : (
+                          <span className={`text-xs italic ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Every Message</span>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${flow.isActive ? 'bg-green-500/10 text-green-600 dark:text-green-400' : (isDark ? 'bg-white/5 text-slate-400' : 'bg-slate-100 text-slate-500')}`}>
+                          {flow.isActive ? 'Active' : 'Draft'}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right space-x-2">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleEdit(flow); }}
+                          className={`p-2 rounded-lg transition ${isDark ? 'text-slate-400 hover:text-blue-400 bg-white/5 hover:bg-white/10' : 'text-slate-400 hover:text-blue-600 bg-slate-50 hover:bg-slate-100'}`}
+                          title="Edit Flow"
+                        >
+                          <PencilSquareIcon className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={(e) => handleDelete(flow._id, e)}
+                          className={`p-2 rounded-lg transition ${isDark ? 'text-slate-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10' : 'text-slate-400 hover:text-red-600 bg-slate-50 hover:bg-red-50'}`}
+                          title="Delete Flow"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile View: High readability cards on phones */}
+            <div className="block md:hidden divide-y divide-inherit">
               {flows.map((flow) => (
-                <tr key={flow._id} onClick={() => handleEdit(flow)} className={`transition cursor-pointer group ${isDark ? 'hover:bg-white/5' : 'hover:bg-slate-50'}`}>
-                  <td className={`p-4 font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{flow.name}</td>
-                  <td className="p-4">
-                    {flow.triggerKeyword ? (
-                      <span className="bg-blue-500/10 text-blue-500 dark:text-blue-400 px-2.5 py-1 rounded-md text-xs font-mono">
-                        {flow.triggerKeyword}
-                      </span>
-                    ) : (
-                      <span className={`text-xs italic ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Every Message</span>
-                    )}
-                  </td>
-                  <td className="p-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${flow.isActive ? 'bg-green-500/10 text-green-600 dark:text-green-400' : (isDark ? 'bg-white/5 text-slate-400' : 'bg-slate-100 text-slate-500')}`}>
+                <div key={flow._id} onClick={() => handleEdit(flow)} className={`p-4 space-y-2.5 cursor-pointer transition ${isDark ? 'hover:bg-white/5' : 'hover:bg-slate-50'}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`font-bold text-sm truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>{flow.name}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${flow.isActive ? 'bg-green-500/10 text-green-600 dark:text-green-400' : (isDark ? 'bg-white/5 text-slate-400' : 'bg-slate-100 text-slate-500')}`}>
                       {flow.isActive ? 'Active' : 'Draft'}
                     </span>
-                  </td>
-                  <td className="p-4 text-right space-x-2">
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); handleEdit(flow); }}
-                      className={`p-2 rounded-lg transition ${isDark ? 'text-slate-400 hover:text-blue-400 bg-white/5 hover:bg-white/10' : 'text-slate-400 hover:text-blue-600 bg-slate-50 hover:bg-slate-100'}`}
-                      title="Edit Flow"
-                    >
-                      <PencilSquareIcon className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={(e) => handleDelete(flow._id, e)}
-                      className={`p-2 rounded-lg transition ${isDark ? 'text-slate-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10' : 'text-slate-400 hover:text-red-600 bg-slate-50 hover:bg-red-50'}`}
-                      title="Delete Flow"
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                      <span>Trigger:</span>
+                      {flow.triggerKeyword ? (
+                        <span className="bg-blue-500/10 text-blue-500 dark:text-blue-400 px-2 py-0.5 rounded text-[11px] font-mono">
+                          {flow.triggerKeyword}
+                        </span>
+                      ) : (
+                        <span className="italic text-slate-400">Every Message</span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      <button 
+                        onClick={() => handleEdit(flow)}
+                        className={`p-2 rounded-lg transition ${isDark ? 'text-blue-400 bg-white/5' : 'text-blue-600 bg-slate-100'}`}
+                        title="Edit Flow"
+                      >
+                        <PencilSquareIcon className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={(e) => handleDelete(flow._id, e)}
+                        className={`p-2 rounded-lg transition ${isDark ? 'text-red-400 bg-white/5' : 'text-red-600 bg-slate-100'}`}
+                        title="Delete Flow"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </div>
 

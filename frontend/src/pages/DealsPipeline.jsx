@@ -31,6 +31,7 @@ export default function DealsPipeline() {
   });
   const [creating, setCreating] = useState(false);
   const [draggedDealId, setDraggedDealId] = useState(null);
+  const [activeMobileStage, setActiveMobileStage] = useState('ALL');
 
   useEffect(() => {
     fetchData();
@@ -124,6 +125,25 @@ export default function DealsPipeline() {
     setDraggedDealId(null);
   };
 
+  const handleMoveStage = async (dealId, stageId) => {
+    const deal = deals.find(d => d._id === dealId);
+    if (!deal || deal.stage === stageId) return;
+
+    setDeals(prevDeals =>
+      prevDeals.map(d =>
+        d._id === dealId ? { ...d, stage: stageId } : d
+      )
+    );
+
+    try {
+      await dealAPI.update(dealId, { stage: stageId });
+      toast.success('Deal moved successfully');
+    } catch (err) {
+      toast.error('Failed to move deal');
+      fetchData();
+    }
+  };
+
   // Metrics Calculations
   const totalValue = deals.reduce((acc, deal) => acc + (Number(deal.amount) || 0), 0);
   const activeDealsCount = deals.filter(d => d.stage !== 'WON' && d.stage !== 'LOST').length;
@@ -133,7 +153,7 @@ export default function DealsPipeline() {
 
   return (
     <>
-      <div className="p-4 sm:p-6 h-[calc(100vh-80px)] flex flex-col relative overflow-hidden">
+      <div className="p-3 sm:p-6 min-h-[calc(100vh-140px)] flex flex-col relative overflow-hidden">
         
         {/* Background Premium Glows */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FF6A00]/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
@@ -155,63 +175,95 @@ export default function DealsPipeline() {
         </div>
 
         {/* Metrics Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 z-10 shrink-0">
-          <div className={`p-5 rounded-2xl border flex flex-col justify-between group transition-colors ${isDark ? 'bg-white/5 border-white/10 hover:border-[#FF6A00]/50' : 'bg-white border-slate-200 hover:border-[#FF6A00]/50'}`}>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 z-10 shrink-0">
+          <div className={`p-4 sm:p-5 rounded-2xl border flex flex-col justify-between group transition-colors ${isDark ? 'bg-white/5 border-white/10 hover:border-[#FF6A00]/50' : 'bg-white border-slate-200 hover:border-[#FF6A00]/50'}`}>
             <div className="flex items-start justify-between">
               <div>
-                <p className={`text-sm font-medium mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Total Pipeline</p>
-                <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>${totalValue.toLocaleString()}</h3>
+                <p className={`text-xs sm:text-sm font-medium mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Total Pipeline</p>
+                <h3 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>${totalValue.toLocaleString()}</h3>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-[#FF6A00]/10 flex items-center justify-center text-[#FF6A00] group-hover:scale-110 transition-transform">
-                <DollarSign className="w-5 h-5" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#FF6A00]/10 flex items-center justify-center text-[#FF6A00] group-hover:scale-110 transition-transform">
+                <DollarSign className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
           </div>
           
-          <div className={`p-5 rounded-2xl border flex flex-col justify-between group transition-colors ${isDark ? 'bg-white/5 border-white/10 hover:border-indigo-500/50' : 'bg-white border-slate-200 hover:border-indigo-500/50'}`}>
+          <div className={`p-4 sm:p-5 rounded-2xl border flex flex-col justify-between group transition-colors ${isDark ? 'bg-white/5 border-white/10 hover:border-indigo-500/50' : 'bg-white border-slate-200 hover:border-indigo-500/50'}`}>
             <div className="flex items-start justify-between">
               <div>
-                <p className={`text-sm font-medium mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Active Deals</p>
-                <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{activeDealsCount}</h3>
+                <p className={`text-xs sm:text-sm font-medium mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Active Deals</p>
+                <h3 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{activeDealsCount}</h3>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
-                <Activity className="w-5 h-5" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
+                <Activity className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
           </div>
 
-          <div className={`p-5 rounded-2xl border flex flex-col justify-between group transition-colors ${isDark ? 'bg-white/5 border-white/10 hover:border-emerald-500/50' : 'bg-white border-slate-200 hover:border-emerald-500/50'}`}>
+          <div className={`p-4 sm:p-5 rounded-2xl border flex flex-col justify-between group transition-colors ${isDark ? 'bg-white/5 border-white/10 hover:border-emerald-500/50' : 'bg-white border-slate-200 hover:border-emerald-500/50'}`}>
             <div className="flex items-start justify-between">
               <div>
-                <p className={`text-sm font-medium mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Deals Won</p>
-                <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{wonDealsCount}</h3>
+                <p className={`text-xs sm:text-sm font-medium mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Deals Won</p>
+                <h3 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{wonDealsCount}</h3>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
-                <TrendingUp className="w-5 h-5" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
           </div>
 
-          <div className={`p-5 rounded-2xl border flex flex-col justify-between group transition-colors ${isDark ? 'bg-white/5 border-white/10 hover:border-amber-500/50' : 'bg-white border-slate-200 hover:border-amber-500/50'}`}>
+          <div className={`p-4 sm:p-5 rounded-2xl border flex flex-col justify-between group transition-colors ${isDark ? 'bg-white/5 border-white/10 hover:border-amber-500/50' : 'bg-white border-slate-200 hover:border-amber-500/50'}`}>
             <div className="flex items-start justify-between">
               <div>
-                <p className={`text-sm font-medium mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Win Rate</p>
-                <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{winRate}%</h3>
+                <p className={`text-xs sm:text-sm font-medium mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Win Rate</p>
+                <h3 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{winRate}%</h3>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
-                <Target className="w-5 h-5" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
+                <Target className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
           </div>
         </div>
 
+        {/* Mobile Stage Selector Filter Pills */}
+        <div className="sm:hidden flex items-center gap-1.5 overflow-x-auto pb-3 mb-2 no-scrollbar shrink-0">
+          <button
+            onClick={() => setActiveMobileStage('ALL')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeMobileStage === 'ALL'
+                ? 'bg-[#FF6A00] text-white shadow-md'
+                : isDark ? 'bg-white/5 text-slate-400 border border-white/10' : 'bg-slate-100 text-slate-600 border border-slate-200'
+            }`}
+          >
+            All Stages ({deals.length})
+          </button>
+          {INITIAL_STAGES.map((s) => {
+            const count = deals.filter(d => d.stage === s.id).length;
+            return (
+              <button
+                key={s.id}
+                onClick={() => setActiveMobileStage(s.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
+                  activeMobileStage === s.id
+                    ? 'bg-[#FF6A00] text-white shadow-md'
+                    : isDark ? 'bg-white/5 text-slate-400 border border-white/10' : 'bg-slate-100 text-slate-600 border border-slate-200'
+                }`}
+              >
+                <span className={`w-2 h-2 rounded-full ${s.color}`} />
+                <span>{s.label}</span>
+                <span className="text-[10px] opacity-75">({count})</span>
+              </button>
+            );
+          })}
+        </div>
+
         {loading ? (
-          <div className="flex-1 flex items-center justify-center z-10">
+          <div className="flex-1 flex items-center justify-center z-10 py-12">
             <div className="w-10 h-10 border-4 border-[#FF6A00] border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
-          <div className="flex-1 flex gap-6 overflow-x-auto pb-4 custom-scrollbar items-start z-10 snap-x sm:snap-none">
-            {INITIAL_STAGES.map((stage) => {
+          <div className="flex-1 flex gap-4 sm:gap-6 overflow-x-auto pb-4 custom-scrollbar items-start z-10 snap-x sm:snap-none">
+            {INITIAL_STAGES.filter(stage => activeMobileStage === 'ALL' || activeMobileStage === stage.id).map((stage) => {
               const stageDeals = deals.filter(d => d.stage === stage.id);
               const stageValue = stageDeals.reduce((acc, deal) => acc + (Number(deal.amount) || 0), 0);
 
@@ -286,6 +338,27 @@ export default function DealsPipeline() {
                             <div className={`text-[10px] font-medium uppercase ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                               ID: {deal._id.slice(-4)}
                             </div>
+                          </div>
+
+                          {/* Mobile Touch Stage Quick Mover */}
+                          <div className="mt-3 pt-2.5 border-t border-inherit flex items-center justify-between gap-2">
+                            <span className={`text-[10px] font-semibold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                              Stage:
+                            </span>
+                            <select
+                              value={deal.stage}
+                              onChange={(e) => handleMoveStage(deal._id, e.target.value)}
+                              className={`text-xs font-semibold py-1 px-2 rounded-lg border focus:outline-none focus:border-[#FF6A00] transition-colors ${
+                                isDark ? 'bg-slate-900 border-white/10 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
+                              }`}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {INITIAL_STAGES.map((s) => (
+                                <option key={s.id} value={s.id}>
+                                  {s.label}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                         </motion.div>
                       ))

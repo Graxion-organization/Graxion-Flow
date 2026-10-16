@@ -408,7 +408,8 @@ export default function BillingPage() {
               </button>
             )}
           </div>
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead className={'bg-slate-50 dark:bg-white/5'}>
                 <tr>{['Date', 'Plan', 'Amount', 'Status', 'Payment ID'].map((h) => <th key={h} className={`text-left text-xs font-medium px-6 py-3 ${'text-slate-500 dark:text-slate-400'}`}>{h}</th>)}</tr>
@@ -426,6 +427,27 @@ export default function BillingPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Cards View */}
+          <div className="block md:hidden divide-y divide-slate-100 dark:divide-white/10">
+            {(showAllHistory ? history : history.slice(0, 3)).map((p) => (
+              <div key={p._id} className="p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-sm capitalize text-slate-900 dark:text-slate-100">{p.plan} Plan</span>
+                  <span className="text-xs px-2.5 py-0.5 rounded-full font-bold capitalize" style={{ background: '#FF6A0022', color: '#FF6A00' }}>{p.status}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
+                  <span>Amount: <strong className="text-slate-900 dark:text-white">₹{(p.amount / 100).toLocaleString()}</strong></span>
+                  <span>{new Date(p.createdAt).toLocaleDateString()}</span>
+                </div>
+                {(p.razorpayPaymentId || p.cashfreePaymentId) && (
+                  <p className="text-[10px] font-mono text-slate-400 truncate">
+                    ID: {p.razorpayPaymentId || p.cashfreePaymentId}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -437,7 +459,9 @@ export default function BillingPage() {
               <h3 className={`font-semibold ${'text-slate-800 dark:text-slate-100'}`}>Credits Transaction History</h3>
             </div>
           </div>
-          <div className="overflow-x-auto">
+
+          {/* Desktop Credits Table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead className={'bg-slate-50 dark:bg-white/5'}>
                 <tr>{['Date', 'Type', 'Amount', 'Description'].map((h) => <th key={h} className={`text-left text-xs font-medium px-6 py-3 ${'text-slate-500 dark:text-slate-400'}`}>{h}</th>)}</tr>
@@ -453,6 +477,24 @@ export default function BillingPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Credits Cards */}
+          <div className="block md:hidden divide-y divide-slate-100 dark:divide-white/10">
+            {creditsHistory.map((t) => (
+              <div key={t._id} className="p-4 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold" style={{ background: '#FF6A0022', color: '#FF6A00' }}>
+                    {t.type === 'addition' ? 'Credit Added' : 'Credit Deducted'}
+                  </span>
+                  <span className="text-sm font-bold" style={{ color: t.type === 'addition' ? '#f59e0b' : '#ef4444' }}>
+                    {t.type === 'addition' ? '+' : '-'}{t.amount.toLocaleString()} Cr
+                  </span>
+                </div>
+                <p className="text-xs text-slate-700 dark:text-slate-300">{t.description}</p>
+                <p className="text-[10px] text-slate-400">{new Date(t.createdAt).toLocaleDateString()}</p>
+              </div>
+            ))}
           </div>
           {creditsHistory.length < creditsTotal && (
             <div className={`p-4 border-t flex justify-center ${'border-slate-100 dark:border-white/10'}`}>
@@ -481,9 +523,9 @@ export default function BillingPage() {
           <div className="w-full h-full md:h-auto md:max-w-4xl bg-white dark:bg-slate-900 md:border border-slate-200 dark:border-slate-700 md:rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col md:flex-row">
             
             {/* Left Sidebar - Order Summary */}
-            <div className="w-full md:w-2/5 bg-slate-50 dark:bg-slate-800/80 p-8 flex flex-col justify-between border-r border-slate-200 dark:border-slate-700">
+            <div className="w-full md:w-2/5 bg-slate-50 dark:bg-slate-800/80 p-5 sm:p-6 md:p-8 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700">
               <div>
-                <div className="flex items-center gap-2 mb-8">
+                <div className="flex items-center gap-2 mb-6 sm:mb-8">
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FF6A00] to-rose-500 flex items-center justify-center text-white font-bold text-lg">G</div>
                   <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Graxion <span className="font-light text-slate-500">Pay</span></span>
                 </div>
@@ -517,7 +559,7 @@ export default function BillingPage() {
                 </div>
               </div>
               
-              <div className="mt-12 space-y-3">
+              <div className="mt-8 md:mt-12 space-y-3">
                 <div className="flex items-center gap-2 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 p-2 rounded-lg">
                   <ShieldCheck size={16} /> 256-bit SSL Encrypted Transaction
                 </div>
@@ -526,7 +568,7 @@ export default function BillingPage() {
             </div>
             
             {/* Right Side - Payment Methods & Form */}
-            <div className="w-full md:w-3/5 p-8 flex flex-col relative bg-white dark:bg-slate-900 overflow-y-auto">
+            <div className="w-full md:w-3/5 p-5 sm:p-6 md:p-8 flex flex-col relative bg-white dark:bg-slate-900 overflow-y-auto">
               <button 
                 onClick={() => { setCustomCheckoutPlan(null); setShowOTP(false); }}
                 className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors z-10"

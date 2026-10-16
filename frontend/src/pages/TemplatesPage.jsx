@@ -609,7 +609,7 @@ export default function TemplatesPage() {
                 <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
                   Header Type (Optional)
                 </label>
-                <div className="grid grid-cols-5 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                   {['NONE', 'TEXT', 'IMAGE', 'DOCUMENT', 'VIDEO'].map(type => (
                     <button
                       type="button"
@@ -703,8 +703,8 @@ export default function TemplatesPage() {
                 </div>
 
                 {builderForm.buttons.map((btn, i) => (
-                  <div key={i} className="flex items-center gap-2 mb-2 p-2 bg-[#0B1220] rounded-xl border border-white/5 text-xs">
-                    <span className="text-slate-400 font-mono text-[10px]">{btn.type}</span>
+                  <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2.5 p-2.5 bg-[#0B1220] rounded-xl border border-white/5 text-xs">
+                    <span className="text-slate-400 font-mono text-[10px] shrink-0">{btn.type}</span>
                     <input
                       type="text"
                       placeholder="Button Text (no emojis allowed)"
@@ -714,7 +714,7 @@ export default function TemplatesPage() {
                         newBtns[i].text = e.target.value.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F191}-\u{1F251}]/gu, '').replace(/[*_~\n\r'"]/g, '');
                         setBuilderForm({ ...builderForm, buttons: newBtns });
                       }}
-                      className="flex-1 px-3 py-1.5 bg-[#070B12] border border-white/10 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-[#FF6A00]"
+                      className="w-full sm:flex-1 px-3 py-1.5 bg-[#070B12] border border-white/10 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-[#FF6A00]"
                     />
                     {btn.type === 'URL' && (
                       <input
@@ -726,13 +726,13 @@ export default function TemplatesPage() {
                           newBtns[i].url = e.target.value;
                           setBuilderForm({ ...builderForm, buttons: newBtns });
                         }}
-                        className="flex-1 px-3 py-1.5 bg-[#070B12] border border-white/10 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-[#FF6A00]"
+                        className="w-full sm:flex-1 px-3 py-1.5 bg-[#070B12] border border-white/10 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-[#FF6A00]"
                       />
                     )}
                     <button
                       type="button"
                       onClick={() => handleRemoveButton(i)}
-                      className="text-rose-400 hover:text-rose-300 p-1"
+                      className="text-rose-400 hover:text-rose-300 p-1 self-end sm:self-center"
                     >
                       <TrashIcon className="w-4 h-4" />
                     </button>

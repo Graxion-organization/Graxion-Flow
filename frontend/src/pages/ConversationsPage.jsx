@@ -305,6 +305,17 @@ export default function ConversationsPage() {
 
   useEffect(() => { fetchConversations(); }, [fetchConversations]);
 
+  useEffect(() => {
+    if (showDetail && window.innerWidth < 1024) {
+      window.dispatchEvent(new CustomEvent('graxion-toggle-mobile-nav', { detail: { hide: true } }));
+    } else {
+      window.dispatchEvent(new CustomEvent('graxion-toggle-mobile-nav', { detail: { hide: false } }));
+    }
+    return () => {
+      window.dispatchEvent(new CustomEvent('graxion-toggle-mobile-nav', { detail: { hide: false } }));
+    };
+  }, [showDetail]);
+
   // Auto-open a conversation if ?conv=<id> is in the URL (from notification click)
   useEffect(() => {
     const convId = searchParams.get('conv');
@@ -598,7 +609,7 @@ export default function ConversationsPage() {
   return (
     <div className={isFullScreen 
       ? `fixed inset-0 z-[100] p-0 lg:p-4 flex flex-col animate-fade-in ${'bg-white dark:bg-slate-950'}` 
-      : "-mx-4 -my-6 lg:mx-0 lg:my-0 h-[calc(100dvh-64px)] lg:h-[calc(100vh-115px)] lg:min-h-[500px] flex flex-col animate-fade-in"}>
+      : "h-[calc(100dvh-58px)] sm:h-[calc(100dvh-64px)] lg:h-[calc(100vh-115px)] lg:min-h-[500px] flex flex-col animate-fade-in p-0 lg:p-4"}>
       <div className="flex-1 flex gap-0 lg:gap-4 min-h-0 h-full w-full relative">
         {/* Sidebar list */}
         <div className={`${showDetail ? 'hidden lg:flex' : 'flex'} flex-col w-full lg:w-[380px] rounded-none lg:rounded-2xl border-0 lg:border-r lg:border shrink-0 min-h-0 h-full ${panelClass}`}>
@@ -1012,7 +1023,7 @@ export default function ConversationsPage() {
                           </button>
                         </div>
                       )}
-                      <form onSubmit={handleReply} className="px-5 pb-4 pt-2 flex gap-2">
+                      <form onSubmit={handleReply} className="px-3 sm:px-5 pb-3 sm:pb-4 pt-2 flex gap-2">
                       <input
                         type="text"
                         value={replyMessage}

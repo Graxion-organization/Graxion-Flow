@@ -315,6 +315,17 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation();
+  const [hideMobileNav, setHideMobileNav] = useState(false);
+
+  useEffect(() => {
+    const handleNavToggle = (e) => {
+      if (typeof e.detail?.hide === 'boolean') {
+        setHideMobileNav(e.detail.hide);
+      }
+    };
+    window.addEventListener('graxion-toggle-mobile-nav', handleNavToggle);
+    return () => window.removeEventListener('graxion-toggle-mobile-nav', handleNavToggle);
+  }, []);
   
   // Dynamically fetch fresh branding/sidebar settings every time dashboard loads
   useEffect(() => {
@@ -890,7 +901,7 @@ export default function DashboardLayout() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto px-4 lg:px-6 py-6 pb-24 lg:pb-6 custom-scrollbar relative">
+        <main className={`flex-1 ${location.pathname.startsWith('/app/conversations') ? 'overflow-hidden p-0' : 'overflow-y-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-24 lg:pb-6'} custom-scrollbar relative`}>
           <div className="h-full animate-in fade-in duration-500 max-w-[1600px] mx-auto w-full">
             {!currentOrganization ? (
               <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -928,7 +939,9 @@ export default function DashboardLayout() {
         </main>
 
         {/* ─── FLOATING DYNAMIC ISLAND PILL (MOBILE & TABLET) ─── */}
-        <div className="lg:hidden fixed bottom-5 sm:bottom-7 inset-x-0 z-40 flex justify-center px-4 pointer-events-none">
+        <div className={`lg:hidden fixed bottom-4 sm:bottom-6 inset-x-0 z-40 flex justify-center px-3 sm:px-4 pointer-events-none transition-all duration-300 ${
+          hideMobileNav ? 'translate-y-28 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+        }`}>
           <nav
             className={`pointer-events-auto flex items-center justify-between gap-1 sm:gap-2 p-1.5 sm:p-2.5 rounded-full backdrop-blur-2xl transition-all duration-300 sm:max-w-xl md:max-w-2xl ${
               isDark

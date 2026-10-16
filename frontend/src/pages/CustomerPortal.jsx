@@ -6,36 +6,36 @@ export default function CustomerPortal() {
   const [optIn, setOptIn] = useState(true);
 
   return (
-    <div className="min-h-screen bg-neutral-900 text-white flex justify-center items-center p-6">
+    <div className="min-h-screen bg-neutral-900 text-white flex justify-center items-center p-3 sm:p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="max-w-2xl w-full bg-neutral-800 rounded-2xl border border-neutral-700 overflow-hidden shadow-2xl"
       >
-        <div className="p-8 border-b border-neutral-700 bg-neutral-800/50">
-          <div className="w-16 h-16 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mb-6 border border-blue-500/30">
-            <Shield className="w-8 h-8" />
+        <div className="p-5 sm:p-8 border-b border-neutral-700 bg-neutral-800/50">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mb-4 sm:mb-6 border border-blue-500/30">
+            <Shield className="w-7 h-7 sm:w-8 sm:h-8" />
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
             Privacy Portal
           </h1>
-          <p className="text-neutral-400 mt-2">Manage your communication preferences and data.</p>
+          <p className="text-neutral-400 text-sm mt-1 sm:mt-2">Manage your communication preferences and data.</p>
         </div>
 
-        <div className="p-8 space-y-8">
+        <div className="p-5 sm:p-8 space-y-6 sm:space-y-8">
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-semibold flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-neutral-400" />
               Communication Preferences
             </h2>
-            <div className="bg-neutral-900 p-6 rounded-xl border border-neutral-700 flex items-center justify-between">
+            <div className="bg-neutral-900 p-4 sm:p-6 rounded-xl border border-neutral-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h3 className="font-medium text-lg">WhatsApp Updates</h3>
-                <p className="text-neutral-400 text-sm mt-1">Receive order updates, alerts, and promotional messages on WhatsApp.</p>
+                <h3 className="font-medium text-base sm:text-lg">WhatsApp Updates</h3>
+                <p className="text-neutral-400 text-xs sm:text-sm mt-1">Receive order updates, alerts, and promotional messages on WhatsApp.</p>
               </div>
               <button 
                 onClick={() => setOptIn(!optIn)}
-                className={`p-2 rounded-full transition-colors ${optIn ? 'text-green-400 bg-green-400/10' : 'text-neutral-500 bg-neutral-800'}`}
+                className={`p-2 rounded-full transition-colors self-end sm:self-center shrink-0 ${optIn ? 'text-green-400 bg-green-400/10' : 'text-neutral-500 bg-neutral-800'}`}
               >
                 <ToggleRight className={`w-8 h-8 ${optIn ? '' : 'rotate-180'}`} />
               </button>

@@ -158,7 +158,7 @@ export default function AnalyticsPage() {
 
       {/* Top KPI Row & Dynamic Metrics */}
       <div key={timeframe} className="space-y-6 animate-view-fade">
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         <MiniStat isDark={isDark} icon={MessageSquare} label="Total Messages" value={totalMessages.toLocaleString()} sub={`${totalSent} sent / ${totalReceived} received`} tint="#3B82F6" />
         <MiniStat isDark={isDark} icon={Award} label="Active Agents" value={agentPerformance.length.toLocaleString()} sub="Handling conversations" tint="#F59E0B" />
         <MiniStat isDark={isDark} icon={Radio} label="Broadcasts Sent" value={(broadcastStats?.totalSent || 0).toLocaleString()} sub="Marketing messages" tint="#10B981" />
@@ -167,7 +167,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Platform Deep-Dives Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <button onClick={() => navigate('/app/instagram')} className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200 ${isDark ? 'bg-gradient-to-r from-pink-500/10 to-purple-500/10 border-pink-500/20 hover:bg-pink-500/20' : 'bg-gradient-to-r from-pink-50 to-purple-50 border-pink-100 hover:bg-pink-100'}`}>
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 text-white"><Radio size={16} /></div>

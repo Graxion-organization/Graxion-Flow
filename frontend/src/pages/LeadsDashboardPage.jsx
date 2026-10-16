@@ -249,6 +249,72 @@ function LeadRow({ lead, onClick, index }) {
   );
 }
 
+function LeadCard({ lead, onClick }) {
+  const timeAgo = lead.lastActivity ? formatDistanceToNow(new Date(lead.lastActivity), { addSuffix: true }) : 'Never';
+  return (
+    <div
+      onClick={onClick}
+      className="p-4 border-b border-white/5 active:bg-white/5 transition-colors cursor-pointer space-y-3"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div style={{
+            width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+            background: 'linear-gradient(135deg, #FF6A00, #FF4500)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 800, fontSize: 13, color: '#fff',
+          }}>
+            {(lead.customerName || 'U')[0].toUpperCase()}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-slate-100 truncate flex items-center gap-1.5">
+              <span>{lead.customerName || 'Anonymous Lead'}</span>
+              {lead.wantsHuman && (
+                <span className="text-[9px] bg-red-500/20 text-red-400 border border-red-500/30 rounded-full px-1.5 py-0.2 font-bold shrink-0">
+                  HUMAN
+                </span>
+              )}
+            </p>
+            <p className="text-xs text-slate-400 truncate">
+              {lead.lastUserMessage || 'No recent messages'}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          <PlatformBadge platform={lead.platform} />
+          <ChevronRight size={16} className="text-slate-500" />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-2 pt-1 text-xs">
+        <EngagementBadge level={lead.engagementLevel} />
+        <div className="w-28 shrink-0">
+          <ScoreBar score={lead.interestScore} />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+        <span>💬 {lead.totalMessages} messages</span>
+        <span>{timeAgo}</span>
+      </div>
+
+      {lead.matchedKeywords?.length > 0 && (
+        <div className="flex flex-wrap gap-1 pt-0.5">
+          {lead.matchedKeywords.slice(0, 3).map((kw) => (
+            <span key={kw} className="text-[10px] px-2 py-0.5 rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">
+              #{kw}
+            </span>
+          ))}
+          {lead.matchedKeywords.length > 3 && (
+            <span className="text-[10px] text-slate-500">+{lead.matchedKeywords.length - 3}</span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function LeadsDashboardPage() {
   const [leads, setLeads] = useState([]);
@@ -347,7 +413,7 @@ export default function LeadsDashboardPage() {
       </div>
 
       {/* ── Summary Cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 28 }}>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-7">
         <SummaryCard icon={Users} label="Total Leads" value={summary?.totalLeads ?? 0} sub="All conversations" accent="#6366f1" glow="#6366f1" delay={0} loading={loading && !summary} />
         <SummaryCard icon={Flame} label="Hot Leads" value={summary?.hotLeads ?? 0} sub="High engagement" accent="#f87171" glow="#f87171" delay={100} loading={loading && !summary} />
         <SummaryCard icon={PhoneCall} label="Want Human" value={summary?.wantHuman ?? 0} sub="Requested agent" accent="#fbbf24" glow="#fbbf24" delay={200} loading={loading && !summary} />
@@ -457,9 +523,8 @@ export default function LeadsDashboardPage() {
         border: '1px solid rgba(255,255,255,0.07)',
         borderRadius: 16, overflow: 'hidden',
       }}>
-        {/* Table Header */}
-        <div style={{
-          display: 'grid',
+        {/* Table Header (Desktop Only) */}
+        <div className="hidden md:grid" style={{
           gridTemplateColumns: '2fr 1fr 1fr 140px 1fr 90px',
           gap: 12, padding: '12px 20px',
           background: 'rgba(255,255,255,0.03)',
@@ -482,14 +547,30 @@ export default function LeadsDashboardPage() {
             <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: 12, marginTop: 4 }}>Try adjusting your filters</p>
           </div>
         ) : (
-          leads.map((lead, i) => (
-            <LeadRow
-              key={lead._id}
-              lead={lead}
-              index={i}
-              onClick={() => navigate(`/app/conversations?conv=${lead._id}`)}
-            />
-          ))
+          <>
+            {/* Desktop Table Rows */}
+            <div className="hidden md:block">
+              {leads.map((lead, i) => (
+                <LeadRow
+                  key={lead._id}
+                  lead={lead}
+                  index={i}
+                  onClick={() => navigate(`/app/conversations?conv=${lead._id}`)}
+                />
+              ))}
+            </div>
+
+            {/* Mobile Cards */}
+            <div className="block md:hidden divide-y divide-white/5">
+              {leads.map((lead) => (
+                <LeadCard
+                  key={lead._id}
+                  lead={lead}
+                  onClick={() => navigate(`/app/conversations?conv=${lead._id}`)}
+                />
+              ))}
+            </div>
+          </>
         )}
 
         {/* Pagination */}

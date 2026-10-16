@@ -311,7 +311,8 @@ export default function KeywordTriggersPage() {
           <span className={`text-sm font-semibold px-3 py-1 rounded-full ${isDark ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>{keywords.length} Total</span>
         </div>
         
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead className={`${isDark ? 'bg-slate-800/50 text-slate-400' : 'bg-slate-50 text-slate-500'}`}>
               <tr>
@@ -393,10 +394,10 @@ export default function KeywordTriggersPage() {
                     </td>
                     <td className="px-8 py-5 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => handleEdit(kw)} className={`p-2.5 rounded-xl transition-all shadow-sm hover:-translate-y-0.5 ${isDark ? 'bg-slate-800 text-blue-400 hover:bg-blue-500/20 hover:text-blue-300' : 'bg-white border border-slate-200 text-blue-600 hover:bg-blue-50'}`}>
+                        <button onClick={() => handleEdit(kw)} className={`p-2.5 rounded-xl transition-all shadow-sm hover:-translate-y-0.5 ${isDark ? 'bg-slate-800 text-blue-400 hover:bg-blue-500/20 hover:text-blue-300' : 'bg-white border border-slate-200 text-blue-600 hover:bg-blue-50'}`} aria-label="Edit trigger">
                           <Edit2 size={16} />
                         </button>
-                        <button onClick={() => handleDelete(kw._id)} className={`p-2.5 rounded-xl transition-all shadow-sm hover:-translate-y-0.5 ${isDark ? 'bg-slate-800 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300' : 'bg-white border border-slate-200 text-rose-600 hover:bg-rose-50'}`}>
+                        <button onClick={() => handleDelete(kw._id)} className={`p-2.5 rounded-xl transition-all shadow-sm hover:-translate-y-0.5 ${isDark ? 'bg-slate-800 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300' : 'bg-white border border-slate-200 text-rose-600 hover:bg-rose-50'}`} aria-label="Delete trigger">
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -406,6 +407,66 @@ export default function KeywordTriggersPage() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile View: High Readability Cards with Touch Actions */}
+        <div className="block md:hidden divide-y divide-inherit">
+          {isLoading ? (
+            <div className="p-8 text-center">
+              <Loader2 size={24} className="animate-spin text-[#FF6A00] mx-auto mb-2" />
+              <p className="text-xs text-slate-400">Loading triggers...</p>
+            </div>
+          ) : keywords.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className="text-xs text-slate-400">No triggers found. Create one above.</p>
+            </div>
+          ) : (
+            keywords.map(kw => (
+              <div key={kw._id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${isDark ? 'bg-[#FF6A00]/15 text-[#FF6A00] border border-[#FF6A00]/25' : 'bg-[#FF6A00]/10 text-[#FF6A00] border border-[#FF6A00]/20'}`}>
+                      "{kw.keyword}"
+                    </span>
+                    <span className="ml-2 text-[10px] font-semibold text-slate-400 uppercase">
+                      {kw.matchType} Match
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button onClick={() => handleEdit(kw)} className={`p-2 rounded-xl transition-colors ${isDark ? 'bg-white/10 text-blue-400' : 'bg-slate-100 text-blue-600'}`} aria-label="Edit">
+                      <Edit2 size={15} />
+                    </button>
+                    <button onClick={() => handleDelete(kw._id)} className={`p-2 rounded-xl transition-colors ${isDark ? 'bg-white/10 text-rose-400' : 'bg-slate-100 text-rose-600'}`} aria-label="Delete">
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </div>
+
+                <p className={`text-xs line-clamp-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                  {kw.response}
+                </p>
+
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <div className="flex gap-1.5 flex-wrap">
+                    {(kw.platforms || ['whatsapp']).map(p => (
+                      <span key={p} className={`text-[9px] px-2 py-0.5 rounded font-bold uppercase ${isDark ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'}`}>
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+
+                  {kw.agent ? (
+                    <span className="text-[10px] font-bold text-indigo-500 bg-indigo-500/10 px-2 py-0.5 rounded">
+                      {agents.find(a => a._id === kw.agent)?.name || 'Agent'}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-medium text-slate-400">Universal</span>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
