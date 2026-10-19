@@ -1,10 +1,15 @@
 const crypto = require('crypto');
 
 const ALGORITHM = 'aes-256-gcm';
-if (!process.env.ENCRYPTION_KEY) {
+const rawEncryptionKey =
+  process.env.ENCRYPTION_KEY ||
+  (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined
+    ? 'test_only_32_byte_encryption_key'
+    : null);
+if (!rawEncryptionKey) {
   throw new Error('FATAL: ENCRYPTION_KEY environment variable is missing.');
 }
-const KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'utf8').slice(0, 32);
+const KEY = Buffer.from(rawEncryptionKey, 'utf8').slice(0, 32);
 
 const encrypt = (text) => {
   const iv = crypto.randomBytes(16);

@@ -112,7 +112,18 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Organization-Id', 'X-CSRF-Token', 'Accept', 'x-graxion-proxy-secret']
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Organization-Id',
+    'X-CSRF-Token',
+    'Accept',
+    'x-graxion-proxy-secret',
+    'X-Developer-Client-Id',
+    'X-Developer-Client-Secret',
+    'Idempotency-Key',
+    'X-Request-Id'
+  ]
 }));
 
 // Rate limiting - global
@@ -122,7 +133,9 @@ const globalLimiter = rateLimit({
   message: { status: 'error', message: 'Too many requests. Please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => req.originalUrl && req.originalUrl.includes('/webhook'),
+  skip: (req) =>
+    req.originalUrl &&
+    (req.originalUrl.includes('/webhook') || req.originalUrl.startsWith('/api/developer/v1')),
 });
 
 // Stricter limiter for auth routes
@@ -293,6 +306,10 @@ app.use('/api/webhooks/ecommerce', ecommerceRoutes);
 
 app.use('/api/webhooks/linkedin', linkedinWebhookRoutes);
 
+// ─── Dedicated Developer Management API (S2S v1) ──────────
+const developerV1Routes = require('./developer/routes/v1');
+app.use('/api/developer/v1', developerV1Routes);
+
 // ─── 404 Handler ─────────────────────────────────────────
 app.all('*', (req, res, next) => {
   next(new AppError(`Route ${req.originalUrl} not found.`, 404));
@@ -316,7 +333,10 @@ const server = app.listen(PORT, () => {
 initSocket(server);
 const { getIO } = require('./utils/socket');
 const { initializeClassNamespace } = require('./sockets/classNamespace');
-initializeClassNamespace(getIO());
+const ioInstance = getIO();
+if (ioInstance && typeof ioInstance.of === 'function') {
+  initializeClassNamespace(ioInstance);
+}
 
 startSocialPostScheduler();
 startDeletionScheduler();

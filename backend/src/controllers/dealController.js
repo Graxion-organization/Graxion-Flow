@@ -42,12 +42,16 @@ exports.createDeal = catchAsync(async (req, res, next) => {
 
 exports.updateDeal = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const updates = req.body;
+  const ALLOWED_DEAL_UPDATE_FIELDS = ['title', 'amount', 'stage', 'expectedCloseDate', 'notes', 'assignedTo'];
   
   const deal = await Deal.findOne({ _id: id, organization: (req.organization?._id || req.user?.currentOrganization) });
   if (!deal) return next(new AppError('Deal not found', 404));
 
-  Object.assign(deal, updates);
+  for (const field of ALLOWED_DEAL_UPDATE_FIELDS) {
+    if (req.body[field] !== undefined) {
+      deal[field] = req.body[field];
+    }
+  }
   await deal.save(); // Triggers pre-save hook for timeline
 
   res.json({ status: 'success', data: { deal } });

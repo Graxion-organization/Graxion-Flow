@@ -1,11 +1,14 @@
 const express = require('express');
 const analyticsController = require('../controllers/analyticsController');
 const authMiddleware = require('../middleware/auth');
+const { injectOrganization, requireOrganization } = require('../middleware/organizationMiddleware');
 const { requireRole } = require('../middleware/permissions');
 
 const router = express.Router();
 
 router.use(authMiddleware.protect);
+router.use(injectOrganization);
+router.use(requireOrganization);
 
 // Require admin or owner to view analytics
 router.use(requireRole('admin'));

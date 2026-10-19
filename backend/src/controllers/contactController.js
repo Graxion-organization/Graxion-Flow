@@ -7,6 +7,17 @@ const { parse } = require('json2csv');
 
 const getOrgId = (req) => req.organization?._id || req.user?.organization || req.user?.currentOrganization;
 
+const ALLOWED_CONTACT_FIELDS = ['name', 'phone', 'email', 'tags', 'customFields', 'optIn', 'source'];
+const pickAllowedContactFields = (payload = {}) => {
+  const safe = {};
+  for (const key of ALLOWED_CONTACT_FIELDS) {
+    if (payload[key] !== undefined) {
+      safe[key] = payload[key];
+    }
+  }
+  return safe;
+};
+
 exports.getAllContacts = catchAsync(async (req, res, next) => {
   const { search, page = 1, limit = 50 } = req.query;
   const orgId = getOrgId(req);
@@ -45,15 +56,17 @@ exports.createContact = catchAsync(async (req, res, next) => {
   if (!orgId) {
     return next(new AppError('Organization context missing. Please refresh or re-select organization.', 400));
   }
-  const contact = await Contact.create({ ...req.body, organization: orgId });
+  const safeFields = pickAllowedContactFields(req.body);
+  const contact = await Contact.create({ ...safeFields, organization: orgId });
   res.status(201).json({ status: 'success', data: { contact } });
 });
 
 exports.updateContact = catchAsync(async (req, res, next) => {
   const orgId = getOrgId(req);
+  const safeUpdates = pickAllowedContactFields(req.body);
   const contact = await Contact.findOneAndUpdate(
     { _id: req.params.id, organization: orgId },
-    req.body,
+    { $set: safeUpdates },
     { new: true, runValidators: true }
   );
   if (!contact) return next(new AppError('Contact not found', 404));
@@ -83,7 +96,7 @@ exports.importContacts = catchAsync(async (req, res, next) => {
         const ops = results.map(row => ({
           updateOne: {
             filter: { organization: orgId, phone: row.phone },
-            update: { $set: { ...row, organization: orgId } },
+            update: { $set: { ...pickAllowedContactFields(row), organization: orgId } },
             upsert: true
           }
         }));

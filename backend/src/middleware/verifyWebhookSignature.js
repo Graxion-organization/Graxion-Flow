@@ -83,3 +83,85 @@ exports.verifyMetaSignature = (req, res, next) => {
     return next(new AppError('Unauthorized: Signature verification error.', 401));
   }
 };
+
+/**
+ * Middleware to verify incoming E-Commerce (Shopify / WooCommerce / Graxion) webhook signatures.
+ * Checks X-Shopify-Hmac-Sha256, X-WC-Webhook-Signature, or X-Graxion-Webhook-Signature
+ * against the organization's Integration secret or ECOMMERCE_WEBHOOK_SECRET.
+ */
+exports.verifyEcommerceSignature = async (req, res, next) => {
+  try {
+    const signatureHeader =
+      req.headers['x-shopify-hmac-sha256'] ||
+      req.headers['x-wc-webhook-signature'] ||
+      req.headers['x-graxion-webhook-signature'];
+
+    if (!signatureHeader) {
+      return next(new AppError('Unauthorized: E-commerce webhook signature is missing.', 401));
+    }
+
+    const { orgId } = req.params;
+    const secrets = [];
+    if (process.env.ECOMMERCE_WEBHOOK_SECRET) {
+      secrets.push(process.env.ECOMMERCE_WEBHOOK_SECRET);
+    }
+
+    if (orgId) {
+      try {
+        const Integration = require('../models/Integration');
+        const integration = await Integration.findOne({
+          organization: orgId,
+          platform: 'shopify',
+          status: 'connected'
+        }).lean();
+        if (integration?.credentials?.webhookSecret) {
+          secrets.push(integration.credentials.webhookSecret);
+        }
+        if (integration?.credentials?.accessToken) {
+          secrets.push(integration.credentials.accessToken);
+        }
+      } catch (_) {
+        // Ignore DB lookup errors and fall back to env secret
+      }
+    }
+
+    if (secrets.length === 0) {
+      return next(new AppError('Unauthorized: No e-commerce webhook secret configured for verification.', 401));
+    }
+
+    const payloadBuffer = req.rawBody
+      ? Buffer.isBuffer(req.rawBody)
+        ? req.rawBody
+        : Buffer.from(String(req.rawBody), 'utf8')
+      : Buffer.from(JSON.stringify(req.body || {}), 'utf8');
+
+    const incomingSig = String(signatureHeader).replace(/^sha256=/, '').trim();
+    let verified = false;
+
+    for (const secret of secrets) {
+      const hexDigest = crypto.createHmac('sha256', String(secret)).update(payloadBuffer).digest('hex');
+      const base64Digest = crypto.createHmac('sha256', String(secret)).update(payloadBuffer).digest('base64');
+
+      const sigBuf = Buffer.from(incomingSig, 'utf8');
+      const hexBuf = Buffer.from(hexDigest, 'utf8');
+      const b64Buf = Buffer.from(base64Digest, 'utf8');
+
+      if (
+        (sigBuf.length === hexBuf.length && crypto.timingSafeEqual(sigBuf, hexBuf)) ||
+        (sigBuf.length === b64Buf.length && crypto.timingSafeEqual(sigBuf, b64Buf))
+      ) {
+        verified = true;
+        break;
+      }
+    }
+
+    if (!verified) {
+      return next(new AppError('Unauthorized: E-commerce webhook signature mismatch.', 401));
+    }
+
+    next();
+  } catch (err) {
+    return next(new AppError('Unauthorized: E-commerce webhook verification failed.', 401));
+  }
+};
+

@@ -3,10 +3,11 @@ const express = require('express');
 const convRouter = express.Router();
 const convController = require('../controllers/conversationController');
 const { protect } = require('../middleware/auth');
-const { injectOrganization } = require('../middleware/organizationMiddleware');
+const { injectOrganization, requireOrganization } = require('../middleware/organizationMiddleware');
 
 convRouter.use(protect);
 convRouter.use(injectOrganization);
+convRouter.use(requireOrganization);
 convRouter.get('/stats', convController.getDashboardStats);
 convRouter.get('/leads', convController.getLeadsDashboard);   // ← Lead Intelligence
 convRouter.get('/', convController.getConversations);

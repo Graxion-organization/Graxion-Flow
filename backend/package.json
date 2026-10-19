@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "jest --coverage",
+    "start:developer": "node src/developerServer.js",
+    "dev:developer": "nodemon src/developerServer.js",
+    "test": "jest --forceExit",
+    "test:developer": "jest tests/developerApi.test.js --forceExit",
+    "test:coverage": "jest --coverage --forceExit",
     "test:stress": "node tests/stress/webhookStressTest.js",
     "postinstall": "npx puppeteer browsers install chrome"
   },

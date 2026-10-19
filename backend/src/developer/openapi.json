@@ -1,0 +1,344 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Graxion Flow Developer Management API",
+    "version": "1.0.0",
+    "description": "Private server-to-server (S2S) Developer API backend for the Graxion Developer Management System. Provides workspace-isolated access to WhatsApp conversation leads, CRM contacts & deals, AI agents & automation flows, outbound webhook subscriptions, and API usage diagnostics."
+  },
+  "servers": [
+    {
+      "url": "/api/developer/v1",
+      "description": "Graxion Flow Developer API v1"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "OAuth2ClientCredentials": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "/api/developer/v1/oauth/token",
+            "scopes": {
+              "system:read": "Read capability and service metadata",
+              "leads:read": "Read WhatsApp and multi-channel conversation leads",
+              "contacts:read": "Read CRM contacts",
+              "contacts:write": "Create, update, and delete CRM contacts",
+              "deals:read": "Read CRM pipeline deals",
+              "deals:write": "Create, update, and delete CRM pipeline deals",
+              "automations:read": "List AI agents and automation flows",
+              "automations:trigger": "Invoke AI agents and trigger automation flows",
+              "webhooks:read": "List outbound webhook subscriptions and delivery logs",
+              "webhooks:write": "Create, update, test, retry, and delete webhook subscriptions",
+              "diagnostics:read": "Read API usage metrics, request logs, and inbound webhook status",
+              "auth:manage": "Rotate S2S secrets, revoke tokens, and inspect S2S audit logs"
+            }
+          }
+        }
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "ServiceClientId": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Developer-Client-Id"
+      },
+      "ServiceClientSecret": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Developer-Client-Secret"
+      }
+    },
+    "parameters": {
+      "OrganizationHeader": {
+        "name": "X-Organization-Id",
+        "in": "header",
+        "required": true,
+        "schema": { "type": "string" },
+        "description": "Target Graxion Flow Organization ObjectId"
+      },
+      "IdempotencyKeyHeader": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": false,
+        "schema": { "type": "string", "minLength": 4, "maxLength": 128 },
+        "description": "Optional unique key to guarantee idempotent mutation execution for 24 hours"
+      }
+    }
+  },
+  "security": [
+    { "BearerAuth": [] },
+    { "ServiceClientId": [], "ServiceClientSecret": [] }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Developer API service health check",
+        "security": [],
+        "responses": {
+          "200": { "description": "Service is healthy" }
+        }
+      }
+    },
+    "/capabilities": {
+      "get": {
+        "summary": "Discover supported Developer API modules, scopes, rate limits, and webhook events",
+        "responses": {
+          "200": { "description": "Capabilities manifest returned" },
+          "401": { "description": "Unauthorized S2S client" }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "summary": "Retrieve OpenAPI 3.0.3 specification",
+        "responses": {
+          "200": { "description": "OpenAPI JSON specification" }
+        }
+      }
+    },
+    "/oauth/token": {
+      "post": {
+        "summary": "Exchange S2S client_credentials for a short-lived Bearer JWT",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["grant_type", "client_id", "client_secret"],
+                "properties": {
+                  "grant_type": { "type": "string", "enum": ["client_credentials"] },
+                  "client_id": { "type": "string" },
+                  "client_secret": { "type": "string" },
+                  "scope": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Issued S2S Bearer access token" },
+          "401": { "description": "Invalid client credentials" }
+        }
+      }
+    },
+    "/auth/rotate-secret": {
+      "post": {
+        "summary": "Rotate S2S client secret with grace period for zero-downtime rollover",
+        "responses": {
+          "200": { "description": "Secret rotated" },
+          "403": { "description": "Insufficient scope" }
+        }
+      }
+    },
+    "/auth/revoke-token": {
+      "post": {
+        "summary": "Immediately revoke an issued S2S JWT by JTI",
+        "responses": {
+          "200": { "description": "Token JTI revoked" }
+        }
+      }
+    },
+    "/leads": {
+      "get": {
+        "summary": "List scored WhatsApp and omnichannel conversation leads for a workspace",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeader" },
+          { "name": "platform", "in": "query", "schema": { "type": "string", "enum": ["whatsapp", "telegram", "instagram", "facebook"] } },
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["active", "closed", "human_handoff", "waiting"] } },
+          { "name": "minScore", "in": "query", "schema": { "type": "integer", "minimum": 0, "maximum": 100 } },
+          { "name": "engagementLevel", "in": "query", "schema": { "type": "string", "enum": ["Hot", "Warm", "Interested", "Cold"] } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 } }
+        ],
+        "responses": {
+          "200": { "description": "Paginated leads and intelligence summary" }
+        }
+      }
+    },
+    "/leads/{conversationId}": {
+      "get": {
+        "summary": "Retrieve single conversation lead with messages and linked CRM contact/deals",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeader" },
+          { "name": "conversationId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Lead details, messages, and CRM context" },
+          "404": { "description": "Lead not found in workspace" }
+        }
+      }
+    },
+    "/contacts": {
+      "get": {
+        "summary": "List CRM contacts for workspace",
+        "parameters": [{ "$ref": "#/components/parameters/OrganizationHeader" }],
+        "responses": { "200": { "description": "Paginated contacts" } }
+      },
+      "post": {
+        "summary": "Create a CRM contact in workspace",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeader" },
+          { "$ref": "#/components/parameters/IdempotencyKeyHeader" }
+        ],
+        "responses": { "201": { "description": "Contact created" } }
+      }
+    },
+    "/contacts/{id}": {
+      "get": {
+        "summary": "Get CRM contact by ID",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeader" },
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Contact found" }, "404": { "description": "Not found" } }
+      },
+      "patch": {
+        "summary": "Update CRM contact by ID",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeader" },
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Contact updated" } }
+      },
+      "delete": {
+        "summary": "Delete CRM contact by ID",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeader" },
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Contact deleted" } }
+      }
+    },
+    "/deals": {
+      "get": {
+        "summary": "List CRM pipeline deals for workspace",
+        "parameters": [{ "$ref": "#/components/parameters/OrganizationHeader" }],
+        "responses": { "200": { "description": "Paginated deals" } }
+      },
+      "post": {
+        "summary": "Create a CRM deal in workspace",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeader" },
+          { "$ref": "#/components/parameters/IdempotencyKeyHeader" }
+        ],
+        "responses": { "201": { "description": "Deal created" } }
+      }
+    },
+    "/deals/{id}": {
+      "get": {
+        "summary": "Get CRM deal by ID",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeader" },
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Deal found" } }
+      },
+      "patch": {
+        "summary": "Update CRM deal stage or details",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeader" },
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Deal updated" } }
+      },
+      "delete": {
+        "summary": "Delete CRM deal",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeader" },
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Deal deleted" } }
+      }
+    },
+    "/automations/agents": {
+      "get": {
+        "summary": "Discover configured AI agents in workspace",
+        "parameters": [{ "$ref": "#/components/parameters/OrganizationHeader" }],
+        "responses": { "200": { "description": "List of agents" } }
+      }
+    },
+    "/automations/agents/{id}/invoke": {
+      "post": {
+        "summary": "Invoke an AI agent with a prompt and optional history",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeader" },
+          { "$ref": "#/components/parameters/IdempotencyKeyHeader" },
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Agent response generated" } }
+      }
+    },
+    "/automations/flows": {
+      "get": {
+        "summary": "Discover automation flows in workspace",
+        "parameters": [{ "$ref": "#/components/parameters/OrganizationHeader" }],
+        "responses": { "200": { "description": "List of flows" } }
+      }
+    },
+    "/automations/flows/{id}": {
+      "get": {
+        "summary": "Get automation flow definition by ID",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeader" },
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Flow details" } }
+      }
+    },
+    "/automations/flows/{id}/trigger": {
+      "post": {
+        "summary": "Trigger an active automation flow for a contact phone number",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeader" },
+          { "$ref": "#/components/parameters/IdempotencyKeyHeader" },
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Flow execution started or validated" } }
+      }
+    },
+    "/webhooks/subscriptions": {
+      "get": {
+        "summary": "List outbound webhook subscriptions for workspace",
+        "parameters": [{ "$ref": "#/components/parameters/OrganizationHeader" }],
+        "responses": { "200": { "description": "List of webhook subscriptions" } }
+      },
+      "post": {
+        "summary": "Create an outbound webhook subscription",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeader" },
+          { "$ref": "#/components/parameters/IdempotencyKeyHeader" }
+        ],
+        "responses": { "201": { "description": "Subscription created with signing secret" } }
+      }
+    },
+    "/webhooks/subscriptions/{id}": {
+      "get": { "summary": "Get webhook subscription by ID", "responses": { "200": { "description": "Subscription details" } } },
+      "patch": { "summary": "Update webhook subscription", "responses": { "200": { "description": "Subscription updated" } } },
+      "delete": { "summary": "Delete webhook subscription", "responses": { "200": { "description": "Subscription deleted" } } }
+    },
+    "/webhooks/subscriptions/{id}/test": {
+      "post": { "summary": "Dispatch a signed test ping event to the webhook subscription", "responses": { "200": { "description": "Test delivery result" } } }
+    },
+    "/webhooks/deliveries": {
+      "get": { "summary": "List outbound webhook delivery logs for workspace", "responses": { "200": { "description": "Paginated deliveries" } } }
+    },
+    "/webhooks/deliveries/{id}/retry": {
+      "post": { "summary": "Retry a failed outbound webhook delivery", "responses": { "200": { "description": "Retry attempt completed" } } }
+    },
+    "/diagnostics/usage": {
+      "get": { "summary": "Get workspace API usage buckets and rate limit configuration", "responses": { "200": { "description": "Usage metrics" } } }
+    },
+    "/diagnostics/requests": {
+      "get": { "summary": "Get paginated Developer API request audit logs", "responses": { "200": { "description": "Request audit logs" } } }
+    },
+    "/diagnostics/webhooks-inbound": {
+      "get": { "summary": "Get inbound platform webhook processing logs", "responses": { "200": { "description": "Inbound webhook logs" } } }
+    }
+  }
+}

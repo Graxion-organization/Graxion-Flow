@@ -38,12 +38,13 @@ const validateCsrf = (req, res, next) => {
     return next();
   }
 
-  // Skip webhooks, data-deletion callbacks, and auth refresh-token endpoint (uses httpOnly refreshToken cookie)
+  // Skip webhooks, data-deletion callbacks, auth refresh-token endpoint, and private S2S Developer API v1
   if (
     req.originalUrl.includes('/webhook') || 
     req.originalUrl.includes('/api/whatsapp/webhook') ||
     req.originalUrl.includes('/data-deletion') ||
-    req.originalUrl.includes('/api/auth/refresh-token')
+    req.originalUrl.includes('/api/auth/refresh-token') ||
+    req.originalUrl.startsWith('/api/developer/v1')
   ) {
     return next();
   }

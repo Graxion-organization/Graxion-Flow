@@ -16,6 +16,22 @@ services:
       - mongo
       - redis
 
+  developer-api:
+    build: ./backend
+    command: npm run start:developer
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - DEVELOPER_API_PORT=5001
+      - MONGODB_URI=mongodb://mongo:27017/whatsapp-saas
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "5001:5001"
+    depends_on:
+      - mongo
+      - redis
+
   frontend:
     build: ./frontend
     restart: always

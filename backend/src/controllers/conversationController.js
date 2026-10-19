@@ -68,7 +68,7 @@ exports.getConversation = async (req, res, next) => {
   try {
     const conversation = await Conversation.findOne({
       _id: req.params.id,
-      ...getBaseFilter(req)
+      ...(await getBaseFilter(req))
     }).populate('agent', 'name aiProvider model');
 
     if (!conversation) return next(new AppError('Conversation not found.', 404));
@@ -96,7 +96,7 @@ exports.replyToConversation = async (req, res, next) => {
     const { message, replyToMessageId } = req.body;
     if (!message) return next(new AppError('Message is required.', 400));
 
-    const conversation = await Conversation.findOne({ _id: id, ...getBaseFilter(req) })
+    const conversation = await Conversation.findOne({ _id: id, ...(await getBaseFilter(req)) })
       .populate({ path: 'whatsappAccount', select: '+accessToken phoneNumberId' })
       .populate({ path: 'telegramAccount', select: '+botToken' })
       .populate({ path: 'instagramAccount', select: '+pageAccessToken pageId igAccountId' })
@@ -319,126 +319,27 @@ exports.getDashboardStats = async (req, res, next) => {
 // ─── LEAD INTELLIGENCE DASHBOARD ─────────────────────────────────────────────
 exports.getLeadsDashboard = async (req, res, next) => {
   try {
-    const userId = req.user._id;
     const { platform, status, search, page = 1, limit = 20 } = req.query;
-
-    // Interest keywords that indicate high buying intent
-    const HIGH_INTEREST_KEYWORDS = [
-      'price', 'cost', 'how much', 'buy', 'purchase', 'order', 'demo', 'trial',
-      'interested', 'sign up', 'register', 'subscribe', 'plan', 'pricing',
-      'sdx', 'product', 'service', 'feature', 'integration', 'start', 'begin',
-      'kitna', 'khareedna', 'lena hai', 'batao', 'chahiye', 'karna hai',
-    ];
-
+    const leadIntelligenceService = require('../services/leadIntelligenceService');
     const baseFilter = await getBaseFilter(req);
-    const filter = { ...baseFilter };
-    if (platform) filter.platform = platform;
-    if (status) filter.status = status;
-    if (search) {
-      filter.$or = [
-        { customerName: { $regex: search, $options: 'i' } },
-        { customerPhone: { $regex: search, $options: 'i' } },
-        { customerUsername: { $regex: search, $options: 'i' } },
-      ];
-    }
 
-    const skip = (Number(page) - 1) * Number(limit);
-
-    const [conversations, total] = await Promise.all([
-      Conversation.find(filter)
-        .populate('agent', 'name')
-        .sort({ lastMessageAt: -1 })
-        .skip(skip)
-        .limit(Number(limit))
-        .lean(),
-      Conversation.countDocuments(filter),
-    ]);
-
-    // Compute interest score + classify each lead
-    const leads = conversations.map((conv) => {
-      const userMessages = (conv.messages || []).filter((m) => m.role === 'user');
-      const msgCount = userMessages.length;
-      const allText = userMessages.map((m) => m.content?.toLowerCase() || '').join(' ');
-
-      // Count matching interest keywords
-      const keywordMatches = HIGH_INTEREST_KEYWORDS.filter((kw) =>
-        allText.includes(kw.toLowerCase())
-      ).length;
-
-      // Interest score: 0–100
-      // Base: message volume (up to 40pts), keywords (up to 40pts), handoff (+20pts)
-      const msgScore = Math.min(msgCount * 5, 40);
-      const kwScore = Math.min(keywordMatches * 8, 40);
-      const handoffBonus = conv.status === 'human_handoff' ? 20 : 0;
-      const interestScore = Math.min(msgScore + kwScore + handoffBonus, 100);
-
-      // Engagement level label
-      let engagementLevel, engagementColor;
-      if (interestScore >= 70) { engagementLevel = 'Hot'; engagementColor = 'red'; }
-      else if (interestScore >= 40) { engagementLevel = 'Warm'; engagementColor = 'amber'; }
-      else if (interestScore >= 15) { engagementLevel = 'Interested'; engagementColor = 'blue'; }
-      else { engagementLevel = 'Cold'; engagementColor = 'gray'; }
-
-      // Extract matched keywords for display (unique, max 5)
-      const matchedKeywords = [...new Set(
-        HIGH_INTEREST_KEYWORDS.filter((kw) => allText.includes(kw.toLowerCase()))
-      )].slice(0, 5);
-
-      // Last user message preview
-      const lastUserMsg = [...userMessages].reverse()[0]?.content || '';
-
-      return {
-        _id: conv._id,
-        customerName: conv.customerName || conv.customerUsername || conv.customerPhone || 'Unknown',
-        customerPhone: conv.customerPhone,
-        customerUsername: conv.customerUsername,
-        platform: conv.platform || 'whatsapp',
-        status: conv.status,
-        interestScore,
-        engagementLevel,
-        engagementColor,
-        matchedKeywords,
-        wantsHuman: conv.status === 'human_handoff',
-        totalMessages: conv.totalMessages || conv.messages.length,
-        userMessages: msgCount,
-        lastMessageAt: conv.lastMessageAt || conv.updatedAt,
-        lastUserMessage: lastUserMsg.slice(0, 120),
-        agentName: conv.agent?.name || '—',
-        createdAt: conv.createdAt,
-      };
+    const result = await leadIntelligenceService.queryLeads({
+      baseFilter,
+      platform,
+      status,
+      search,
+      page,
+      limit
     });
-
-    // ── Summary aggregations ──────────────────────────────────────────────────
-    const baseSummaryFilter = await getBaseFilter(req);
-    const [
-      platformBreakdown,
-      handoffCount,
-      totalLeadsCount,
-      hotLeadsCount,
-    ] = await Promise.all([
-      Conversation.aggregate([
-        { $match: baseSummaryFilter },
-        { $group: { _id: '$platform', count: { $sum: 1 } } },
-      ]),
-      Conversation.countDocuments({ ...baseSummaryFilter, status: 'human_handoff' }),
-      Conversation.countDocuments(baseSummaryFilter),
-      // Hot leads = conversations with totalMessages >= 6 (proxy for high engagement)
-      Conversation.countDocuments({ ...baseSummaryFilter, totalMessages: { $gte: 6 } }),
-    ]);
 
     res.status(200).json({
       status: 'success',
-      total,
-      totalPages: Math.ceil(total / limit),
-      currentPage: Number(page),
+      total: result.total,
+      totalPages: result.totalPages,
+      currentPage: result.page,
       data: {
-        leads,
-        summary: {
-          totalLeads: totalLeadsCount,
-          hotLeads: hotLeadsCount,
-          wantHuman: handoffCount,
-          platformBreakdown: platformBreakdown.map((p) => ({ platform: p._id || 'whatsapp', count: p.count })),
-        },
+        leads: result.leads,
+        summary: result.summary,
       },
     });
   } catch (err) {
@@ -503,7 +404,7 @@ exports.sendTemplateReply = async (req, res, next) => {
     const { templateName, languageCode, components } = req.body;
     if (!templateName) return next(new AppError('Template name is required.', 400));
 
-    const conversation = await Conversation.findOne({ _id: id, ...getBaseFilter(req) })
+    const conversation = await Conversation.findOne({ _id: id, ...(await getBaseFilter(req)) })
       .populate({ path: 'whatsappAccount', select: '+accessToken phoneNumberId' });
 
     if (!conversation) return next(new AppError('Conversation not found.', 404));
@@ -573,7 +474,7 @@ exports.createConversationTemplate = async (req, res, next) => {
       return next(new AppError('Template name must contain only lowercase alphanumeric characters and underscores.', 400));
     }
 
-    const conversation = await Conversation.findOne({ _id: id, ...getBaseFilter(req) })
+    const conversation = await Conversation.findOne({ _id: id, ...(await getBaseFilter(req)) })
       .populate({ path: 'whatsappAccount', select: '+accessToken phoneNumberId wabaId' });
 
     if (!conversation) return next(new AppError('Conversation not found.', 404));
@@ -617,12 +518,22 @@ exports.createConversationTemplate = async (req, res, next) => {
 
 exports.getMessages = async (req, res) => {
   try {
+    const baseFilter = await getBaseFilter(req);
+    const conversation = await Conversation.findOne({
+      _id: req.params.id,
+      ...baseFilter
+    }).select('_id').lean();
+
+    if (!conversation) {
+      return res.status(404).json({ success: false, message: 'Conversation not found' });
+    }
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
     const skip = (page - 1) * limit;
 
     const Message = require('../models/Message');
-    const messages = await Message.find({ conversationId: req.params.id })
+    const messages = await Message.find({ conversationId: conversation._id })
       .sort({ timestamp: -1 })
       .skip(skip)
       .limit(limit);
