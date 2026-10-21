@@ -1,8 +1,14 @@
 const Redis = require('ioredis');
 const logger = require('../utils/logger');
 
-// Retrieve and sanitize Redis URL (handles accidental quotes, redis-cli prefixes, etc.)
+// Retrieve and sanitize Redis URL (handles accidental quotes, redis-cli prefixes, trailing punctuation, etc.)
 let rawUrl = (process.env.REDIS_URL || '').trim();
+
+// Fallback to user-provided production Redis URL if none provided
+if (!rawUrl) {
+  rawUrl = 'redis://default:8iiNSbDobPSjcY5I3YsQ7inf6EjbI8zZ@prose-sleet-clarion-41396.db.redis.io:12195';
+}
+
 if (rawUrl) {
   if (rawUrl.startsWith('REDIS_URL=')) rawUrl = rawUrl.replace(/^REDIS_URL=/, '').trim();
   rawUrl = rawUrl.replace(/^['"]|['"]$/g, '').trim();
@@ -23,7 +29,7 @@ if (rawUrl) {
   // Strip trailing punctuation like . , ;
   rawUrl = rawUrl.replace(/[.,;]+$/, '').trim();
 
-  // If Upstash or TLS, ensure rediss:// protocol
+  // If Upstash, ensure rediss:// protocol
   if (rawUrl.includes('upstash') && rawUrl.startsWith('redis://')) {
     rawUrl = rawUrl.replace(/^redis:\/\//, 'rediss://');
   }
@@ -31,9 +37,10 @@ if (rawUrl) {
 
 // Validate URL format gracefully
 let isValidUrl = false;
+let urlObj = null;
 try {
   if (rawUrl) {
-    new URL(rawUrl);
+    urlObj = new URL(rawUrl);
     isValidUrl = true;
   }
 } catch (e) {
@@ -42,27 +49,42 @@ try {
 
 let redis;
 let redisConfig;
+let isRedisStub = false;
 
 const baseOptions = {
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
+  connectTimeout: 10000,
   retryStrategy(times) {
-    if (times > 50) {
-      logger.warn('Redis reconnection retries exhausted. Backing off.');
+    if (times > 20) {
+      logger.warn('Redis reconnection retries exhausted (20 attempts). Pausing retry.');
       return false;
     }
-    return Math.min(times * 200, 3000);
+    return Math.min(times * 300, 3000);
   }
 };
 
 try {
-  if (isValidUrl) {
-    const options = { ...baseOptions };
-    if (rawUrl.startsWith('rediss://') || rawUrl.includes('upstash') || process.env.REDIS_TLS === 'true') {
-      options.tls = { rejectUnauthorized: false };
+  if (isValidUrl && urlObj) {
+    const isTls = rawUrl.startsWith('rediss://') || rawUrl.includes('upstash') || process.env.REDIS_TLS === 'true';
+    redisConfig = {
+      ...baseOptions,
+      host: urlObj.hostname,
+      port: parseInt(urlObj.port, 10) || (isTls ? 6380 : 6379),
+      username: urlObj.username ? decodeURIComponent(urlObj.username) : undefined,
+      password: urlObj.password ? decodeURIComponent(urlObj.password) : undefined,
+    };
+
+    if (urlObj.pathname && urlObj.pathname.length > 1) {
+      const dbIndex = parseInt(urlObj.pathname.slice(1), 10);
+      if (!isNaN(dbIndex)) redisConfig.db = dbIndex;
     }
-    redisConfig = options;
-    redis = new Redis(rawUrl, options);
+
+    if (isTls) {
+      redisConfig.tls = { rejectUnauthorized: false };
+    }
+
+    redis = new Redis(rawUrl, redisConfig);
   } else if (process.env.REDIS_HOST) {
     redisConfig = {
       ...baseOptions,
@@ -85,12 +107,14 @@ try {
   }
 } catch (initErr) {
   logger.error('Failed to instantiate Redis client synchronously:', initErr.message);
+  isRedisStub = true;
   // Safe in-memory stub so application doesn't crash on require
   class RedisStub {
     constructor() { this.status = 'stub'; }
     on() { return this; }
     once() { return this; }
     emit() { return true; }
+    duplicate() { return this; }
     async get() { return null; }
     async set() { return 'OK'; }
     async setex() { return 'OK'; }
@@ -103,15 +127,27 @@ try {
   redisConfig = { ...baseOptions };
 }
 
+let redisConnectedLogged = false;
+let redisErrorLogged = false;
+
 redis.on('connect', () => {
-  logger.info('✅ Successfully connected to Redis');
+  if (!redisConnectedLogged) {
+    logger.info(`✅ Successfully connected to Redis (${redisConfig.host || 'cluster'}:${redisConfig.port || ''})`);
+    redisConnectedLogged = true;
+    redisErrorLogged = false;
+  }
 });
 
 redis.on('error', (err) => {
-  logger.error('❌ Redis Connection Error:', err.message || err);
+  if (!redisErrorLogged) {
+    logger.error('❌ Redis Connection Error:', err.message || err);
+    redisErrorLogged = true;
+  }
 });
 
 module.exports = {
   redis,
-  redisConfig
+  redisConfig,
+  redisUrl: rawUrl,
+  isRedisStub
 };

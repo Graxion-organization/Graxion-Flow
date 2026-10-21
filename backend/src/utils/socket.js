@@ -18,20 +18,47 @@ const initSocket = (server) => {
     },
   });
 
-  // Setup Redis Adapter for PM2 Cluster Support
+  // Setup Redis Adapter for multi-worker scaling / PM2 cluster support
   try {
-    const { redisConfig } = require('../config/redis');
+    const { redis, isRedisStub, redisConfig } = require('../config/redis');
 
-    const pubClient = new Redis(redisConfig);
-    const subClient = pubClient.duplicate();
+    // Only attach Redis adapter if Redis is enabled and not running as a fallback stub
+    if (!isRedisStub && redis && typeof redis.duplicate === 'function') {
+      const pubClient = redis.duplicate();
+      const subClient = redis.duplicate();
 
-    pubClient.on('error', (err) => logger.error('[Socket Redis] PubClient Error', err));
-    subClient.on('error', (err) => logger.error('[Socket Redis] SubClient Error', err));
+      let pubLogged = false;
+      let subLogged = false;
 
-    io.adapter(createAdapter(pubClient, subClient));
-    logger.info('[Socket] Redis Adapter attached successfully');
+      pubClient.on('error', (err) => {
+        if (!pubLogged) {
+          logger.warn(`[Socket Redis] PubClient Error: ${err.message || err}`);
+          pubLogged = true;
+        }
+      });
+      pubClient.on('connect', () => {
+        pubLogged = false;
+        logger.info(`✅ [Socket Redis] PubClient Connected (${redisConfig?.host || 'remote'})`);
+      });
+
+      subClient.on('error', (err) => {
+        if (!subLogged) {
+          logger.warn(`[Socket Redis] SubClient Error: ${err.message || err}`);
+          subLogged = true;
+        }
+      });
+      subClient.on('connect', () => {
+        subLogged = false;
+        logger.info(`✅ [Socket Redis] SubClient Connected (${redisConfig?.host || 'remote'})`);
+      });
+
+      io.adapter(createAdapter(pubClient, subClient));
+      logger.info('🔌 [Socket] Redis Adapter attached successfully');
+    } else {
+      logger.info('🔌 [Socket] Running with default in-memory adapter');
+    }
   } catch (err) {
-    logger.error('[Socket] Failed to attach Redis Adapter', err);
+    logger.warn('[Socket] Redis Adapter skipped (running in-memory):', err.message);
   }
 
   io.use(async (socket, next) => {
