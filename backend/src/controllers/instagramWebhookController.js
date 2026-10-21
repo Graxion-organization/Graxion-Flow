@@ -109,7 +109,19 @@ async function persistAndEnqueueEvent(igAccount, eventType, eventId, senderId, p
       });
     } catch (enqueueErr) {
       logger.error(`[Webhook Controller] BullMQ enqueue failed for ${eventId}: ${enqueueErr.message}`);
-      // Atomicity fallback: The sweeper cron will pick this up later since status is 'queued'
+      // Immediate fallback to inline processing so user DM/comment is replied to instantly!
+      setImmediate(async () => {
+        try {
+          const { processWebhookEvent } = require('../workers/instagramWebhookWorker');
+          await processWebhookEvent(event);
+          event.status = 'processed';
+          event.processedAt = new Date();
+          await event.save();
+          logger.info(`[Inline Fallback] Event ${eventId} processed successfully inline.`);
+        } catch (procErr) {
+          logger.error(`[Webhook Controller Inline Fallback] Failed for ${eventId}: ${procErr.message}`);
+        }
+      });
     }
     
   } catch (err) {

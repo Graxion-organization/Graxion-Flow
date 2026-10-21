@@ -18,47 +18,25 @@ const initSocket = (server) => {
     },
   });
 
-  // Setup Redis Adapter for multi-worker scaling / PM2 cluster support
+  // High-Performance Socket Adapter (Native In-Memory by default for zero-latency instant inbox updates)
   try {
-    const { redis, isRedisStub, redisConfig } = require('../config/redis');
+    const { redis, isRedisReady, redisConfig } = require('../config/redis');
+    const enableRedisCluster = process.env.ENABLE_REDIS_SOCKET_ADAPTER === 'true';
 
-    // Only attach Redis adapter if Redis is enabled and not running as a fallback stub
-    if (!isRedisStub && redis && typeof redis.duplicate === 'function') {
-      const pubClient = redis.duplicate();
-      const subClient = redis.duplicate();
+    if (enableRedisCluster && isRedisReady() && typeof redis.duplicate === 'function') {
+      const pubClient = redis.duplicate({ enableOfflineQueue: false });
+      const subClient = redis.duplicate({ enableOfflineQueue: false });
 
-      let pubLogged = false;
-      let subLogged = false;
-
-      pubClient.on('error', (err) => {
-        if (!pubLogged) {
-          logger.warn(`[Socket Redis] PubClient Error: ${err.message || err}`);
-          pubLogged = true;
-        }
-      });
-      pubClient.on('connect', () => {
-        pubLogged = false;
-        logger.info(`✅ [Socket Redis] PubClient Connected (${redisConfig?.host || 'remote'})`);
-      });
-
-      subClient.on('error', (err) => {
-        if (!subLogged) {
-          logger.warn(`[Socket Redis] SubClient Error: ${err.message || err}`);
-          subLogged = true;
-        }
-      });
-      subClient.on('connect', () => {
-        subLogged = false;
-        logger.info(`✅ [Socket Redis] SubClient Connected (${redisConfig?.host || 'remote'})`);
-      });
+      pubClient.on('error', (err) => logger.warn(`[Socket Redis] PubClient Error: ${err.message}`));
+      subClient.on('error', (err) => logger.warn(`[Socket Redis] SubClient Error: ${err.message}`));
 
       io.adapter(createAdapter(pubClient, subClient));
-      logger.info('🔌 [Socket] Redis Adapter attached successfully');
+      logger.info(`🔌 [Socket] Redis Adapter attached for cluster mode (${redisConfig?.host})`);
     } else {
-      logger.info('🔌 [Socket] Running with default in-memory adapter');
+      logger.info('⚡ [Socket] Using high-performance native in-memory adapter (Instant inbox updates)');
     }
   } catch (err) {
-    logger.warn('[Socket] Redis Adapter skipped (running in-memory):', err.message);
+    logger.warn('[Socket] Redis Adapter skipped, running native in-memory:', err.message);
   }
 
   io.use(async (socket, next) => {

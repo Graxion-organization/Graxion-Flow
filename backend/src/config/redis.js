@@ -54,10 +54,12 @@ let isRedisStub = false;
 const baseOptions = {
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
-  connectTimeout: 10000,
+  connectTimeout: 5000,
+  commandTimeout: 3000,
+  enableOfflineQueue: false, // CRITICAL: Never hang Node commands if Redis is offline/reconnecting
   retryStrategy(times) {
-    if (times > 20) {
-      logger.warn('Redis reconnection retries exhausted (20 attempts). Pausing retry.');
+    if (times > 10) {
+      logger.warn('Redis reconnection retries exhausted (10 attempts). Pausing retry.');
       return false;
     }
     return Math.min(times * 300, 3000);
@@ -97,18 +99,29 @@ try {
     }
     redis = new Redis(redisConfig);
   } else {
-    // Default fallback to local redis
-    redisConfig = {
-      ...baseOptions,
-      host: '127.0.0.1',
-      port: 6379,
-    };
-    redis = new Redis(redisConfig);
+    // In production without Redis configured, use safe stub
+    isRedisStub = true;
+    class RedisStub {
+      constructor() { this.status = 'stub'; }
+      on() { return this; }
+      once() { return this; }
+      emit() { return true; }
+      duplicate() { return this; }
+      async get() { return null; }
+      async set() { return 'OK'; }
+      async setex() { return 'OK'; }
+      async del() { return 1; }
+      async ping() { return 'PONG'; }
+      async eval() { return 1; }
+      quit() { return Promise.resolve(); }
+      disconnect() {}
+    }
+    redis = new RedisStub();
+    redisConfig = { ...baseOptions };
   }
 } catch (initErr) {
   logger.error('Failed to instantiate Redis client synchronously:', initErr.message);
   isRedisStub = true;
-  // Safe in-memory stub so application doesn't crash on require
   class RedisStub {
     constructor() { this.status = 'stub'; }
     on() { return this; }
@@ -120,6 +133,7 @@ try {
     async setex() { return 'OK'; }
     async del() { return 1; }
     async ping() { return 'PONG'; }
+    async eval() { return 1; }
     quit() { return Promise.resolve(); }
     disconnect() {}
   }
@@ -132,7 +146,7 @@ let redisErrorLogged = false;
 
 redis.on('connect', () => {
   if (!redisConnectedLogged) {
-    logger.info(`✅ Successfully connected to Redis (${redisConfig.host || 'cluster'}:${redisConfig.port || ''})`);
+    logger.info(`✅ Successfully connected to Redis (${redisConfig?.host || 'cluster'}:${redisConfig?.port || ''})`);
     redisConnectedLogged = true;
     redisErrorLogged = false;
   }
@@ -145,9 +159,14 @@ redis.on('error', (err) => {
   }
 });
 
+const isRedisReady = () => {
+  return !isRedisStub && redis && redis.status === 'ready';
+};
+
 module.exports = {
   redis,
   redisConfig,
   redisUrl: rawUrl,
-  isRedisStub
+  isRedisStub,
+  isRedisReady
 };

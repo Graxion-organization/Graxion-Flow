@@ -55,11 +55,20 @@ exports.verifyWebhook = async (req, res) => {
   }
 };
 
-// POST - Receive incoming messages (Push to BullMQ)
+// POST - Receive incoming messages (Push to BullMQ with instant inline fallback)
 exports.receiveMessage = async (req, res) => {
   // Always respond 200 immediately to Meta
   res.status(200).json({ status: 'ok' });
-  await enqueueWebhook('whatsapp', 'message', req.body);
+  try {
+    await enqueueWebhook('whatsapp', 'message', req.body);
+  } catch (err) {
+    logger.error(`[Webhook Controller] Error enqueuing WhatsApp webhook: ${err.message}`);
+    setImmediate(() => {
+      exports.processWebhookPayload(req.body).catch((e) => {
+        logger.error(`[Webhook Controller Fallback] Direct payload processing error: ${e.message}`);
+      });
+    });
+  }
 };
 
 // Process payload from BullMQ Worker

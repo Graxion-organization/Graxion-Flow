@@ -1,5 +1,5 @@
 const { Worker, UnrecoverableError } = require('bullmq');
-const { redis, redisConfig } = require('../config/redis');
+const { redis, redisConfig, isRedisReady } = require('../config/redis');
 const logger = require('../utils/logger');
 const { IG_WEBHOOK_QUEUE_NAME, enqueueInstagramWebhook } = require('../queues/instagramQueue');
 const InstagramWebhookEvent = require('../models/InstagramWebhookEvent');
@@ -35,24 +35,39 @@ const RELEASE_LOCK_SCRIPT = `
 `;
 
 async function withLock(lockKey, lockTimeoutSec, fn) {
+  // If Redis is offline or not ready, execute fn directly without blocking!
+  if (!isRedisReady()) {
+    return await fn();
+  }
+
   const token = Math.random().toString(36).substring(2);
   let acquired = false;
   
-  for (let i = 0; i < 3; i++) {
-    acquired = await redis.eval(ACQUIRE_LOCK_SCRIPT, 1, lockKey, token, lockTimeoutSec);
-    if (acquired) break;
-    await new Promise(res => setTimeout(res, 1000));
+  try {
+    for (let i = 0; i < 3; i++) {
+      const evalPromise = redis.eval(ACQUIRE_LOCK_SCRIPT, 1, lockKey, token, lockTimeoutSec);
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Lock timeout')), 1000));
+      acquired = await Promise.race([evalPromise, timeoutPromise]);
+      if (acquired) break;
+      await new Promise(res => setTimeout(res, 400));
+    }
+  } catch (lockErr) {
+    logger.warn(`[InstagramLock] Redis lock bypass (${lockErr.message}), executing directly`);
+    return await fn();
   }
   
   if (!acquired) {
-    throw new Error(`LOCK_ACQUIRE_FAILED: Could not acquire lock for ${lockKey}`);
+    // If lock could not be acquired due to concurrent worker, execute directly to not drop user message
+    return await fn();
   }
   
   try {
     return await fn();
   } finally {
     try {
-      await redis.eval(RELEASE_LOCK_SCRIPT, 1, lockKey, token);
+      if (isRedisReady()) {
+        redis.eval(RELEASE_LOCK_SCRIPT, 1, lockKey, token).catch(() => {});
+      }
     } catch (e) {
       logger.error(`Error releasing lock ${lockKey}: ${e.message}`);
     }

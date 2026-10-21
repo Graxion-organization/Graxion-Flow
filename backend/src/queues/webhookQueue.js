@@ -18,31 +18,84 @@ const webhookQueue = new Queue(WEBHOOK_QUEUE_NAME, {
   }
 });
 
+const { isRedisReady } = require('../config/redis');
+
 /**
  * We export a function that controllers can use to enqueue jobs.
- * Instead of storing the function (which BullMQ can't serialize), 
- * we store the platform, event data, and metadata.
+ * If Redis/BullMQ is healthy, it enqueues to BullMQ.
+ * If Redis is offline, disconnected, or queue times out, it FALLS BACK IMMEDIATELY
+ * to async direct inline processing so that messages and AI replies are NEVER lost!
  */
 const enqueueWebhook = async (platform, eventType, payload) => {
-  try {
-    await webhookQueue.add(`${platform}-${eventType}`, {
-      platform,
-      eventType,
-      payload
-    }, {
-      jobId: `${platform}-${payload?.entry?.[0]?.id}-${Date.now()}` // Basic deduplication
-    });
+  let enqueued = false;
 
-    // Also log to DB (DB-011)
-    await WebhookLog.create({
-      platform,
-      eventType,
-      payload,
-      status: 'PENDING'
-    });
+  if (isRedisReady()) {
+    try {
+      const addPromise = webhookQueue.add(`${platform}-${eventType}`, {
+        platform,
+        eventType,
+        payload
+      }, {
+        jobId: `${platform}-${payload?.entry?.[0]?.id || Date.now()}-${Date.now()}`
+      });
 
-  } catch (err) {
-    logger.error(`[BullMQ] Failed to enqueue webhook: ${err.message}`);
+      // 2.5s timeout race so a lagging Redis never hangs the response
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('BullMQ queue timeout')), 2500)
+      );
+
+      await Promise.race([addPromise, timeoutPromise]);
+      enqueued = true;
+
+      // Log to DB (DB-011)
+      await WebhookLog.create({
+        platform,
+        eventType,
+        payload,
+        status: 'PENDING'
+      }).catch(() => {});
+
+    } catch (err) {
+      logger.warn(`[BullMQ] Enqueue skipped/failed (${err.message}). Processing inline immediately.`);
+    }
+  }
+
+  // Fallback to inline processing if queue wasn't used or failed
+  if (!enqueued) {
+    logger.info(`[Webhook Inline] Processing ${platform} (${eventType}) directly inline`);
+    setImmediate(async () => {
+      try {
+        if (platform === 'whatsapp') {
+          const waController = require('../controllers/webhookController');
+          await waController.processWebhookPayload(payload);
+        } else if (platform === 'instagram') {
+          const igController = require('../controllers/instagramWebhookController');
+          await igController.processWebhookPayload(payload);
+        } else if (platform === 'facebook') {
+          const fbController = require('../controllers/facebookWebhookController');
+          await fbController.processWebhookPayload(payload);
+        } else if (platform === 'telegram') {
+          const tgController = require('../controllers/telegramWebhookController');
+          await tgController.processWebhookPayload(payload);
+        }
+
+        await WebhookLog.create({
+          platform,
+          eventType,
+          payload,
+          status: 'PROCESSED'
+        }).catch(() => {});
+      } catch (inlineErr) {
+        logger.error(`[Webhook Inline Error] Failed to process ${platform} webhook: ${inlineErr.message}`);
+        await WebhookLog.create({
+          platform,
+          eventType,
+          payload,
+          status: 'FAILED',
+          error: inlineErr.message
+        }).catch(() => {});
+      }
+    });
   }
 };
 

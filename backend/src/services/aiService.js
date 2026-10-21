@@ -1,7 +1,7 @@
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
 const Agent = require('../models/Agent');
 const logger = require('../utils/logger');
-const redis = require('../config/redis').redis;
+const { redis, isRedisReady } = require('../config/redis');
 const ApiRequestLog = require('../models/ApiRequestLog');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'MOCK_KEY');
@@ -284,18 +284,20 @@ class AIService {
       
       let cached = null;
       try {
-        if (redis && typeof redis.get === 'function') {
-          cached = await redis.get(cacheKey);
+        if (isRedisReady() && typeof redis.get === 'function') {
+          const getPromise = redis.get(cacheKey);
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Cache timeout')), 500));
+          cached = await Promise.race([getPromise, timeoutPromise]);
         }
       } catch (redisGetErr) {
-        logger.warn(`[AI Cache] Redis read error (bypassing cache): ${redisGetErr.message}`);
+        // Cache misses or offline Redis seamlessly proceed to generation
       }
- 
+
       if (cached) {
         if (AIService.isCannedError(cached)) {
           logger.warn(`[AI Cache] Purging poisoned cache entry for key ${cacheKey}`);
           try {
-            if (redis && typeof redis.del === 'function') await redis.del(cacheKey);
+            if (isRedisReady() && typeof redis.del === 'function') redis.del(cacheKey).catch(() => {});
           } catch (delErr) {}
         } else {
           logger.info(`[AI Cache Hit] Returned instant response for ${userMessageText}`);
@@ -394,13 +396,13 @@ class AIService {
       const outputTokens = responseText.length / 4;
       const tokensUsed = Math.ceil(inputTokens + outputTokens);
 
-      // Cache valid non-error answer for 24 hours (with safe error handling so Redis failure is non-blocking)
+      // Cache valid non-error answer for 24 hours (non-blocking fire-and-forget)
       try {
-        if (redis && typeof redis.setex === 'function') {
-          await redis.setex(cacheKey, 86400, responseText);
+        if (isRedisReady() && typeof redis.setex === 'function') {
+          redis.setex(cacheKey, 86400, responseText).catch(() => {});
         }
       } catch (redisWriteErr) {
-        logger.warn(`[AI Cache] Redis write error (non-fatal): ${redisWriteErr.message}`);
+        // Non-blocking
       }
 
       return {
