@@ -75,6 +75,23 @@ class AIService {
     });
   }
 
+  static isCannedError(text) {
+    if (!text || typeof text !== 'string') return true;
+    const lower = text.toLowerCase().trim();
+    if (lower.length === 0) return true;
+    return (
+      lower.includes('experiencing some technical difficulties') ||
+      lower.includes('technical difficulties') ||
+      lower.includes('currently unable to process') ||
+      lower.includes('unable to process your request') ||
+      lower.includes('canned error response') ||
+      lower.includes('ai provider error') ||
+      lower.includes('model is overloaded') ||
+      lower.includes('rate limit exceeded') ||
+      lower.includes('an error occurred while processing')
+    );
+  }
+
   static async callGemini(modelName, systemPrompt, effectiveContext, userMessageText, temperature) {
     const startTime = Date.now();
     let history = [];
@@ -121,6 +138,11 @@ class AIService {
 
       const result = await chat.sendMessage(userMessageText);
       const responseText = result.response.text();
+
+      if (!responseText || AIService.isCannedError(responseText)) {
+        throw new Error(`Gemini returned empty or canned error response.`);
+      }
+
       await AIService.logApiRequest('gemini', modelName, { systemPrompt, history, userMessageText }, { responseText }, 'SUCCESS', null, startTime);
       return responseText;
     } catch (error) {
@@ -147,7 +169,12 @@ class AIService {
         messages: messages,
         temperature: temperature || 0.7,
       });
-      const responseText = completion.choices[0].message.content;
+      const responseText = completion?.choices?.[0]?.message?.content;
+
+      if (!responseText || AIService.isCannedError(responseText)) {
+        throw new Error(`OpenAI returned empty or canned error response.`);
+      }
+
       await AIService.logApiRequest('openai', modelName, messages, completion, 'SUCCESS', null, startTime);
       return responseText;
     } catch (error) {
@@ -175,7 +202,12 @@ class AIService {
         temperature: temperature || 0.7,
         messages: messages,
       });
-      const responseText = msg.content[0].text;
+      const responseText = msg?.content?.[0]?.text;
+
+      if (!responseText || AIService.isCannedError(responseText)) {
+        throw new Error(`Anthropic returned empty or canned error response.`);
+      }
+
       await AIService.logApiRequest('anthropic', modelName, { systemPrompt, messages }, msg, 'SUCCESS', null, startTime);
       return responseText;
     } catch (error) {
@@ -191,6 +223,10 @@ class AIService {
       const { OpenAI } = require('openai');
       const apiKey = useBackupKey && process.env.OPENROUTER_API_KEY_2 ? process.env.OPENROUTER_API_KEY_2 : process.env.OPENROUTER_API_KEY;
       
+      if (!apiKey) {
+        throw new Error('OPENROUTER_API_KEY is not configured on server.');
+      }
+
       const openai = new OpenAI({
         baseURL: "https://openrouter.ai/api/v1",
         apiKey: apiKey,
@@ -211,7 +247,12 @@ class AIService {
         messages: messages,
         temperature: temperature || 0.7,
       });
-      const responseText = completion.choices[0].message.content;
+      const responseText = completion?.choices?.[0]?.message?.content;
+
+      if (!responseText || AIService.isCannedError(responseText)) {
+        throw new Error(`OpenRouter (${modelName}) returned empty or canned error response.`);
+      }
+
       await AIService.logApiRequest('openrouter', modelName, messages, completion, 'SUCCESS', null, startTime);
       return responseText;
     } catch (error) {
@@ -227,17 +268,35 @@ class AIService {
   // WA-011: Redis Caching & WA-009: Memory Summarization
   static async generate(agent, contextMessages, userMessageText, platform, wantsVoice = false, ragContext = '', memoryContext = '') {
     try {
-      const contextString = JSON.stringify(contextMessages.slice(-4)); // Use last 4 messages for context hash
+      // 1. Sanitize contextMessages: strip out any past canned error messages so the LLM doesn't hallucinate or repeat them
+      const cleanContext = (contextMessages || []).filter(msg => {
+        if (!msg || !msg.content) return false;
+        if (msg.role === 'assistant' && AIService.isCannedError(msg.content)) {
+          return false;
+        }
+        return true;
+      });
+
+      // 2. Safe Redis cache check (v4 prefix immediately bypasses any stale/poisoned keys in Redis)
+      const contextString = JSON.stringify(cleanContext.slice(-4));
       const cacheHash = Buffer.from((userMessageText + contextString).toLowerCase().trim()).toString('base64').substring(0, 64);
-      const cacheKey = `ai_cache_v2:${agent._id}:${cacheHash}`;
-      const cached = await redis.get(cacheKey);
+      const cacheKey = `ai_cache_v4:${agent._id}:${cacheHash}`;
+      
+      let cached = null;
+      try {
+        if (redis && typeof redis.get === 'function') {
+          cached = await redis.get(cacheKey);
+        }
+      } catch (redisGetErr) {
+        logger.warn(`[AI Cache] Redis read error (bypassing cache): ${redisGetErr.message}`);
+      }
  
       if (cached) {
-        // Reject poisoned cache entries (stale error responses that were cached before the filter existed)
-        const cachedLower = cached.toLowerCase();
-        if (cachedLower.includes('experiencing some technical difficulties') || cachedLower.includes('currently unable to process')) {
-          logger.warn(`[AI Cache] Invalidating poisoned cache entry for key ${cacheKey}`);
-          await redis.del(cacheKey);
+        if (AIService.isCannedError(cached)) {
+          logger.warn(`[AI Cache] Purging poisoned cache entry for key ${cacheKey}`);
+          try {
+            if (redis && typeof redis.del === 'function') await redis.del(cacheKey);
+          } catch (delErr) {}
         } else {
           logger.info(`[AI Cache Hit] Returned instant response for ${userMessageText}`);
           return { content: cached, isVoiceResponse: wantsVoice, tokensUsed: 0 };
@@ -245,9 +304,9 @@ class AIService {
       }
  
       // If context is too long, summarize it
-      let effectiveContext = contextMessages;
-      if (contextMessages.length > 10) {
-        effectiveContext = await this.summarizeContext(contextMessages);
+      let effectiveContext = cleanContext;
+      if (cleanContext.length > 10) {
+        effectiveContext = await this.summarizeContext(cleanContext);
       }
  
       let systemPrompt = agent.systemPrompt || 'You are a helpful AI assistant.';
@@ -284,23 +343,21 @@ class AIService {
         }
       } catch (providerError) {
         logger.error(`[RENDER_LOG] [AI_SERVICE] Primary AI Provider Error (${modelName}): ${providerError.message}`);
-        logger.error(`Primary AI Provider Error (${modelName}):`, providerError.message);
         logger.info(`[RENDER_LOG] [AI_SERVICE] Falling back to default Gemini model (gemini-2.5-flash)...`);
-        logger.info('Falling back to default Gemini model (gemini-2.5-flash)...');
         
         try {
           // Fallback to default Gemini if primary fails
           responseText = await this.callGemini('gemini-2.5-flash', systemPrompt, effectiveContext, userMessageText, agent.temperature);
         } catch (geminiError) {
           logger.error(`[RENDER_LOG] [AI_SERVICE] Fallback Gemini Error: ${geminiError.message}`);
-          logger.error(`Fallback Gemini Error:`, geminiError.message);
           
-          // God-Tier Ultimate Fallback Loop
+          // OpenRouter Ultimate Fallbacks (ordered by speed and reliability)
           const openRouterFallbacks = [
             'meta-llama/llama-3.3-70b-instruct',
             'google/gemini-2.5-flash',
             'qwen/qwen-2.5-72b-instruct',
-            'meta-llama/llama-3.1-8b-instruct'
+            'meta-llama/llama-3.1-8b-instruct',
+            'mistralai/mistral-small-24b-instruct-2501'
           ];
           
           let success = false;
@@ -309,13 +366,14 @@ class AIService {
           for (const fallbackModel of openRouterFallbacks) {
             try {
               logger.info(`[RENDER_LOG] [AI_SERVICE] Attempting Ultimate Fallback to OpenRouter (${fallbackModel})...`);
-              logger.info(`Attempting Ultimate Fallback to OpenRouter (${fallbackModel})...`);
-              responseText = await this.callOpenRouter(fallbackModel, systemPrompt, effectiveContext, userMessageText, agent.temperature);
-              logger.info(`[RENDER_LOG] [AI_SERVICE] Ultimate Fallback Success with ${fallbackModel}`);
-              success = true;
-              break;
+              const candidate = await this.callOpenRouter(fallbackModel, systemPrompt, effectiveContext, userMessageText, agent.temperature);
+              if (candidate && !AIService.isCannedError(candidate)) {
+                responseText = candidate;
+                logger.info(`[RENDER_LOG] [AI_SERVICE] Ultimate Fallback Success with ${fallbackModel}`);
+                success = true;
+                break;
+              }
             } catch (openRouterErr) {
-              logger.error(`[RENDER_LOG] [AI_SERVICE] OpenRouter fallback ${fallbackModel} failed: ${openRouterErr.message}`);
               logger.warn(`OpenRouter fallback ${fallbackModel} failed: ${openRouterErr.message}`);
               lastErr = openRouterErr;
             }
@@ -328,18 +386,22 @@ class AIService {
         }
       }
 
-      // Estimate tokens (roughly 4 chars per token)
-      // Check for canned API error responses
-      if (responseText.toLowerCase().includes("experiencing some technical difficulties") || responseText.toLowerCase().includes("currently unable to process")) {
-        throw new Error("AI provider returned a canned error response.");
+      if (!responseText || AIService.isCannedError(responseText)) {
+        throw new Error("AI provider returned a canned or empty error response.");
       }
 
       const inputTokens = (systemPrompt.length + JSON.stringify(effectiveContext).length + userMessageText.length) / 4;
       const outputTokens = responseText.length / 4;
       const tokensUsed = Math.ceil(inputTokens + outputTokens);
 
-      // Cache the exact match answer for 24 hours
-      await redis.setex(cacheKey, 86400, responseText);
+      // Cache valid non-error answer for 24 hours (with safe error handling so Redis failure is non-blocking)
+      try {
+        if (redis && typeof redis.setex === 'function') {
+          await redis.setex(cacheKey, 86400, responseText);
+        }
+      } catch (redisWriteErr) {
+        logger.warn(`[AI Cache] Redis write error (non-fatal): ${redisWriteErr.message}`);
+      }
 
       return {
         content: responseText,
