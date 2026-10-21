@@ -97,9 +97,11 @@ export default function BroadcastPage() {
     try {
       setIsSubmitting(true);
       const payload = {
-        name,
+        name: name.trim(),
         whatsappAccountId: activeAccount._id,
+        template: selectedTemplate,
         templateId: selectedTemplate,
+        contactGroup: selectedGroup === 'all' ? null : selectedGroup,
         contactGroupId: selectedGroup === 'all' ? null : selectedGroup,
         scheduledAt: sendType === 'later' ? scheduledAt : null,
       };
