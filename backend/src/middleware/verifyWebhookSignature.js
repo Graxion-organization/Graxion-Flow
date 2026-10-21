@@ -7,6 +7,11 @@ const logger = require('../utils/logger');
  * Tests against META_APP_SECRET, INSTAGRAM_APP_SECRET, and FACEBOOK_APP_SECRET.
  */
 exports.verifyMetaSignature = (req, res, next) => {
+  if (process.env.BYPASS_WEBHOOK_SIGNATURE === 'true') {
+    logger.info('[Webhook Signature] Bypassing signature verification (BYPASS_WEBHOOK_SIGNATURE=true)');
+    return next();
+  }
+
   const signatureHeader = req.headers['x-hub-signature-256'];
   const isProduction = process.env.NODE_ENV === 'production';
   

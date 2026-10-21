@@ -41,13 +41,16 @@ function normalizeInstagramChangeMessage(value) {
 async function persistAndEnqueueEvent(igAccount, eventType, eventId, senderId, payload, extras = {}) {
   try {
     try {
-      const isNew = await redis.set(`ig_dedup_${eventId}`, '1', 'EX', 3600, 'NX');
-      if (!isNew) {
-        logger.info(`[Webhook Controller] Duplicate event ${eventId} dropped by Redis lock.`);
-        return;
+      const { isRedisReady } = require('../config/redis');
+      if (isRedisReady()) {
+        const isNew = await redis.set(`ig_dedup_${eventId}`, '1', 'EX', 3600, 'NX');
+        if (!isNew) {
+          logger.info(`[Webhook Controller] Duplicate event ${eventId} dropped by Redis lock.`);
+          return;
+        }
       }
     } catch (redisErr) {
-      logger.warn(`[Webhook Controller] Redis dedup failed for ${eventId}, falling back to DB unique index: ${redisErr.message}`);
+      logger.warn(`[Webhook Controller] Redis dedup skipped/failed for ${eventId}: ${redisErr.message}`);
     }
 
     const event = await InstagramWebhookEvent.findOneAndUpdate(
