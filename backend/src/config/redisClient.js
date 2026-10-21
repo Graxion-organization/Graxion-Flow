@@ -2,17 +2,30 @@ const { createClient } = require('redis');
 const logger = require('../utils/logger');
 
 // Retrieve and sanitize Redis URL (handles accidental quotes or REDIS_URL= prefix pasted in dashboard)
-let rawUrl = process.env.REDIS_URL || '';
+let rawUrl = (process.env.REDIS_URL || '').trim();
 if (rawUrl) {
-  rawUrl = rawUrl.trim();
-  if (rawUrl.startsWith('REDIS_URL=')) rawUrl = rawUrl.replace(/^REDIS_URL=/, '');
-  rawUrl = rawUrl.replace(/^"|"$/g, '').replace(/^'|'$/g, '');
-  
+  if (rawUrl.startsWith('REDIS_URL=')) rawUrl = rawUrl.replace(/^REDIS_URL=/, '').trim();
+  rawUrl = rawUrl.replace(/^['"]|['"]$/g, '').trim();
+
   // If user pasted a redis-cli command, extract just the URL
-  if (rawUrl.includes('redis://')) {
-    rawUrl = 'redis://' + rawUrl.split('redis://')[1].split(' ')[0];
+  if (rawUrl.includes('-u ')) {
+    const parts = rawUrl.split('-u ');
+    rawUrl = parts[parts.length - 1].trim().split(' ')[0];
   } else if (rawUrl.includes('rediss://')) {
     rawUrl = 'rediss://' + rawUrl.split('rediss://')[1].split(' ')[0];
+  } else if (rawUrl.includes('redis://')) {
+    const matches = rawUrl.match(/(rediss?:\/\/[a-zA-Z0-9_\-.:@]+)/g);
+    if (matches && matches.length > 0) {
+      rawUrl = matches[matches.length - 1];
+    }
+  }
+
+  // Strip trailing punctuation like . , ;
+  rawUrl = rawUrl.replace(/[.,;]+$/, '').trim();
+
+  // If Upstash or TLS, ensure rediss:// protocol
+  if (rawUrl.includes('upstash') && rawUrl.startsWith('redis://')) {
+    rawUrl = rawUrl.replace(/^redis:\/\//, 'rediss://');
   }
 }
 

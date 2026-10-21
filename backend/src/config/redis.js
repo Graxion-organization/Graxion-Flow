@@ -20,6 +20,9 @@ if (rawUrl) {
     }
   }
 
+  // Strip trailing punctuation like . , ;
+  rawUrl = rawUrl.replace(/[.,;]+$/, '').trim();
+
   // If Upstash or TLS, ensure rediss:// protocol
   if (rawUrl.includes('upstash') && rawUrl.startsWith('redis://')) {
     rawUrl = rawUrl.replace(/^redis:\/\//, 'rediss://');
