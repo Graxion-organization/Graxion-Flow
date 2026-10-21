@@ -54,12 +54,10 @@ let isRedisStub = false;
 const baseOptions = {
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
-  connectTimeout: 5000,
-  commandTimeout: 3000,
-  enableOfflineQueue: false, // CRITICAL: Never hang Node commands if Redis is offline/reconnecting
+  connectTimeout: 10000,
   retryStrategy(times) {
-    if (times > 10) {
-      logger.warn('Redis reconnection retries exhausted (10 attempts). Pausing retry.');
+    if (times > 50) {
+      logger.warn('Redis reconnection retries exhausted. Pausing retry.');
       return false;
     }
     return Math.min(times * 300, 3000);
