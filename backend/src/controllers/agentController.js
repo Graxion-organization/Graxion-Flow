@@ -5,7 +5,6 @@ const WhatsappAccount = require('../models/WhatsappAccount');
 const AppError = require('../utils/AppError');
 const AIService = require('../services/aiService');
 const catchAsync = require('../utils/catchAsync');
-const pdfParse = require('pdf-parse');
 const fs = require('fs').promises;
 const path = require('path');
 
@@ -188,6 +187,7 @@ exports.uploadKnowledgeBase = async (req, res, next) => {
           }
 
           if (fileBuffer) {
+            const pdfParse = require('pdf-parse');
             const pdfData = await pdfParse(fileBuffer);
             extractedText = pdfData.text || '';
             logger.info(`[PDF Parse] Extracted ${extractedText.length} characters from PDF: ${req.file.originalname}`);

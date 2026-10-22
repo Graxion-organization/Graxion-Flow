@@ -96,9 +96,12 @@ class RoutingEngine {
     // ==========================================
     // STAGE 2: SEMANTIC ROUTER (Cosine embedding similarity)
     // ==========================================
-    const agents = await Agent.find({ organization: organizationId, isActive: true });
+    let agents = await Agent.find({ organization: organizationId, isActive: true });
     if (agents.length === 0) {
-      logger.warn('[RoutingEngine] No active agents found for organization');
+      agents = await Agent.find({ isActive: true });
+    }
+    if (agents.length === 0) {
+      logger.warn('[RoutingEngine] No active agents found in system');
       return [];
     }
     if (agents.length === 1) {

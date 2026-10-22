@@ -305,6 +305,45 @@ export default function ConversationsPage() {
 
   useEffect(() => { fetchConversations(); }, [fetchConversations]);
 
+  // Background silent polling sync (guarantees inbox updates even if socket temporarily reconnects)
+  useEffect(() => {
+    const pollInterval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        conversationAPI.getAll({
+          status: activeTab || undefined,
+          platform: activePlatform || undefined,
+          search: search || undefined,
+          page,
+          limit: 25
+        }).then((res) => {
+          if (res?.data?.data?.conversations) {
+            setConversations(res.data.data.conversations);
+            if (typeof res.data.total === 'number') setTotal(res.data.total);
+          }
+        }).catch(() => {});
+
+        if (selected?._id) {
+          conversationAPI.getOne(selected._id).then((res) => {
+            const updatedConv = res?.data?.data?.conversation;
+            if (updatedConv) {
+              setSelected((prev) => {
+                if (prev && prev._id === updatedConv._id) {
+                  return {
+                    ...updatedConv,
+                    messages: updatedConv.messages || prev.messages
+                  };
+                }
+                return prev;
+              });
+            }
+          }).catch(() => {});
+        }
+      }
+    }, 6000);
+
+    return () => clearInterval(pollInterval);
+  }, [activeTab, activePlatform, search, page, selected?._id]);
+
   useEffect(() => {
     if (showDetail && window.innerWidth < 1024) {
       window.dispatchEvent(new CustomEvent('graxion-toggle-mobile-nav', { detail: { hide: true } }));

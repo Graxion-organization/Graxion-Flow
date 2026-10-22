@@ -64,6 +64,7 @@ const initSocket = (server) => {
       
       socket.userId = decoded.id;
       socket.userRole = user.role;
+      socket.orgId = user.organization ? user.organization.toString() : null;
       next();
     } catch (err) {
       next(new Error('Authentication error'));
@@ -75,6 +76,20 @@ const initSocket = (server) => {
     
     // Join a room for the specific user so we can emit to all their devices
     socket.join(`user_${socket.userId}`);
+
+    // Join organization room if available
+    if (socket.orgId) {
+      socket.join(`org_${socket.orgId}`);
+      logger.info(`User ${socket.userId} joined org_${socket.orgId}`);
+    }
+
+    // Dynamic join organization room from frontend
+    socket.on('join_org', (orgId) => {
+      if (orgId) {
+        socket.join(`org_${orgId}`);
+        logger.info(`Socket ${socket.id} explicitly joined org_${orgId}`);
+      }
+    });
 
     // If admin, join the admin room
     if (socket.userRole === 'admin') {
@@ -103,17 +118,28 @@ const getIO = () => {
   return io;
 };
 
-// Emits an event to a specific user's room
-const emitToUser = (userId, event, data) => {
+// Emits an event to a specific user's room and organization room
+const emitToUser = (userId, event, data, orgId = null) => {
   if (io) {
-    io.to(`user_${userId}`).emit(event, data);
+    const cleanUserId = userId ? (userId._id || userId).toString() : null;
+    if (cleanUserId) {
+      io.to(`user_${cleanUserId}`).emit(event, data);
+    }
+    const cleanOrgId = orgId ? (orgId._id || orgId).toString() : null;
+    if (cleanOrgId) {
+      io.to(`org_${cleanOrgId}`).emit(event, data);
+    }
+    // Also emit to admin room for monitoring
+    io.to('admin_room').emit(event, data);
   }
 };
 
-// Emits a structured notification to a specific user
-const emitNotification = (userId, { type, title, message, conversationId, platform }) => {
+// Emits a structured notification to a specific user and organization
+const emitNotification = (userId, { type, title, message, conversationId, platform }, orgId = null) => {
   if (io) {
-    io.to(`user_${userId}`).emit('new_notification', {
+    const cleanUserId = userId ? (userId._id || userId).toString() : null;
+    const cleanOrgId = orgId ? (orgId._id || orgId).toString() : null;
+    const payload = {
       id: Date.now().toString(),
       type,         // 'new_message' | 'human_handoff' | 'system'
       title,
@@ -122,7 +148,9 @@ const emitNotification = (userId, { type, title, message, conversationId, platfo
       platform: platform || null,
       timestamp: new Date().toISOString(),
       read: false,
-    });
+    };
+    if (cleanUserId) io.to(`user_${cleanUserId}`).emit('new_notification', payload);
+    if (cleanOrgId) io.to(`org_${cleanOrgId}`).emit('new_notification', payload);
   }
 };
 

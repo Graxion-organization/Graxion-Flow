@@ -14,7 +14,7 @@ const conversationSchema = new mongoose.Schema({
   agent: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Agent',
-    required: true,
+    required: false,
   },
   whatsappAccount: {
     type: mongoose.Schema.Types.ObjectId,

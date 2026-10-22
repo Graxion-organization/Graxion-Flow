@@ -10,8 +10,17 @@ const { validate, schemas } = require('../middleware/validation');
 const { verifyMetaSignature } = require('../middleware/verifyWebhookSignature');
 
 // Webhook routes (no auth - called by Meta)
-router.get('/webhook', webhookController.verifyWebhook);
-router.post('/webhook', verifyMetaSignature, webhookController.receiveMessage);
+router.get(['/webhook', '/'], (req, res, next) => {
+  const logger = require('../utils/logger');
+  logger.info(`[WhatsApp Webhook GET] Verification request from ${req.ip}. Query: ${JSON.stringify(req.query)}`);
+  next();
+}, webhookController.verifyWebhook);
+
+router.post(['/webhook', '/'], (req, res, next) => {
+  const logger = require('../utils/logger');
+  logger.info(`[WhatsApp Webhook POST Incoming] IP: ${req.ip}, URL: ${req.originalUrl}, Content-Type: ${req.headers['content-type']}, Signature: ${Boolean(req.headers['x-hub-signature-256'])}`);
+  next();
+}, verifyMetaSignature, webhookController.receiveMessage);
 
 // Protected routes
 router.use(protect);

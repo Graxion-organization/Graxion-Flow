@@ -252,6 +252,8 @@ const { webhookIpLimiter } = require('./middleware/webhookRateLimit');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/whatsapp', webhookIpLimiter, whatsappRoutes); // Includes webhook endpoints
+app.use('/api/webhook', webhookIpLimiter, whatsappRoutes); // Universal alias for /api/webhook
+app.use('/webhook', webhookIpLimiter, whatsappRoutes); // Universal alias for /webhook
 app.use('/api/telegram/webhook', webhookIpLimiter, telegramWebhookRoutes);
 app.use('/api/telegram', telegramRoutes);
 app.use('/api/instagram/webhook', webhookIpLimiter, instagramWebhookRoutes);

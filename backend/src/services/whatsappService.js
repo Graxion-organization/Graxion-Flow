@@ -412,9 +412,12 @@ class WhatsAppService {
           }
         }
 
+        const phoneNumId = value.metadata?.phone_number_id || value.phone_number_id || entry?.id;
+        logger.info(`[WhatsApp Webhook] Parsed incoming message ${message.id} from ${message.from} on phoneId: ${phoneNumId}`);
+
         return {
           isStatusUpdate: false,
-          phoneNumberId: value.metadata.phone_number_id,
+          phoneNumberId: phoneNumId,
           from: message.from,
           customerName: contact?.profile?.name || 'Unknown',
           messageId: message.id,

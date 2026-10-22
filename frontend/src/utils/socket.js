@@ -1,8 +1,21 @@
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = process.env.REACT_APP_API_URL 
-  ? process.env.REACT_APP_API_URL.replace(/\/api\/?$/, '').replace(/['"]/g, '').replace(/\/$/, '')
-  : 'http://localhost:5000';
+const getSocketUrl = () => {
+  const envUrl = (typeof process !== 'undefined' && process.env?.REACT_APP_API_URL) ||
+    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL);
+    
+  if (envUrl && typeof envUrl === 'string' && envUrl.startsWith('http')) {
+    return envUrl.replace(/\/api\/?$/, '').replace(/['"]/g, '').replace(/\/$/, '');
+  }
+
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin;
+  }
+
+  return 'http://localhost:5000';
+};
+
+const SOCKET_URL = getSocketUrl();
 
 let socket = null;
 
@@ -15,10 +28,9 @@ export const getSocket = () => {
   if (socket) return socket;
 
   // The app stores the JWT as 'authToken' in localStorage (see store/index.js)
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem('authToken') || localStorage.getItem('token');
 
   if (!token) {
-    console.warn('[Socket] No authToken found in localStorage. Socket will not connect.');
     // Return a dummy no-op object so callers don't crash
     return {
       on: () => {},
@@ -35,11 +47,15 @@ export const getSocket = () => {
     reconnectionAttempts: Infinity,
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
-    transports: ['websocket'],
+    transports: ['polling', 'websocket'],
   });
 
   socket.on('connect', () => {
-    console.log('[Socket] Connected:', socket.id);
+    console.log('[Socket] Connected to', SOCKET_URL, 'ID:', socket.id);
+    const orgId = localStorage.getItem('organizationId');
+    if (orgId) {
+      socket.emit('join_org', orgId);
+    }
   });
 
   socket.on('disconnect', (reason) => {

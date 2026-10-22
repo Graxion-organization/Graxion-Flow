@@ -110,9 +110,15 @@ class OrchestrationEngine {
     wantsVoice
   }) {
     // 1. Call Routing Engine
-    const routes = await RoutingEngine.route(organizationId, conversation, userMessageText);
-    if (routes.length === 0) {
-      throw new Error('No active agents routed to handle this message.');
+    let routes = await RoutingEngine.route(organizationId, conversation, userMessageText);
+    if (!routes || routes.length === 0) {
+      const fallbackAgent = await Agent.findOne({ isActive: true });
+      if (fallbackAgent) {
+        routes = [{ agent: fallbackAgent, confidence: 0.5 }];
+      } else {
+        logger.warn('[OrchestrationEngine] No active agents exist in the system.');
+        return { content: null, tokensUsed: 0 };
+      }
     }
 
     // 2. Parallel execution of agents

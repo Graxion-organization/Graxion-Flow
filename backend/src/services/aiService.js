@@ -326,7 +326,10 @@ class AIService {
         systemPrompt += `\n\n[Context Memory/Learned Profile]:\n${memoryContext}`;
       }
  
-      const modelName = agent.model || 'gemini-2.5-flash';
+      let modelName = agent.model || 'gemini-1.5-flash';
+      if (modelName === 'gemini-2.5-flash') {
+        modelName = 'gemini-1.5-flash';
+      }
       let responseText = '';
 
       try {
@@ -345,18 +348,18 @@ class AIService {
         }
       } catch (providerError) {
         logger.error(`[RENDER_LOG] [AI_SERVICE] Primary AI Provider Error (${modelName}): ${providerError.message}`);
-        logger.info(`[RENDER_LOG] [AI_SERVICE] Falling back to default Gemini model (gemini-2.5-flash)...`);
+        logger.info(`[RENDER_LOG] [AI_SERVICE] Falling back to default Gemini model (gemini-1.5-flash)...`);
         
         try {
           // Fallback to default Gemini if primary fails
-          responseText = await this.callGemini('gemini-2.5-flash', systemPrompt, effectiveContext, userMessageText, agent.temperature);
+          responseText = await this.callGemini('gemini-1.5-flash', systemPrompt, effectiveContext, userMessageText, agent.temperature);
         } catch (geminiError) {
           logger.error(`[RENDER_LOG] [AI_SERVICE] Fallback Gemini Error: ${geminiError.message}`);
           
           // OpenRouter Ultimate Fallbacks (ordered by speed and reliability)
           const openRouterFallbacks = [
             'meta-llama/llama-3.3-70b-instruct',
-            'google/gemini-2.5-flash',
+            'google/gemini-flash-1.5',
             'qwen/qwen-2.5-72b-instruct',
             'meta-llama/llama-3.1-8b-instruct',
             'mistralai/mistral-small-24b-instruct-2501'

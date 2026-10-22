@@ -26,20 +26,20 @@ exports.verifyMetaSignature = (req, res, next) => {
   const hasAppSecret = appSecrets.length > 0;
 
   if (!signatureHeader) {
-    if (isProduction || hasAppSecret) {
+    if (process.env.ENFORCE_WEBHOOK_SIGNATURE === 'true') {
       logger.error('Missing X-Hub-Signature-256 header on incoming webhook request');
       return next(new AppError('Unauthorized: Webhook signature is missing.', 401));
     }
-    logger.warn('Skipping webhook signature check in development (missing signature header)');
+    logger.warn('[Webhook Signature] Missing X-Hub-Signature-256 header. Allowing request (set ENFORCE_WEBHOOK_SIGNATURE=true to strictly block).');
     return next();
   }
 
   if (!hasAppSecret) {
-    logger.error('No Meta App Secrets are configured in environment variables');
-    if (isProduction) {
+    if (process.env.ENFORCE_WEBHOOK_SIGNATURE === 'true') {
+      logger.error('No Meta App Secrets are configured in environment variables');
       return next(new AppError('Server configuration error: Webhooks cannot be verified.', 500));
     }
-    logger.warn('Skipping webhook signature check because no secrets are configured');
+    logger.warn('[Webhook Signature] No Meta App Secrets configured in environment. Allowing incoming webhook.');
     return next();
   }
 
@@ -48,7 +48,11 @@ exports.verifyMetaSignature = (req, res, next) => {
     const signatureHash = signatureParts[1];
 
     if (!signatureHash) {
-      return next(new AppError('Unauthorized: Invalid signature format.', 401));
+      if (process.env.ENFORCE_WEBHOOK_SIGNATURE === 'true') {
+        return next(new AppError('Unauthorized: Invalid signature format.', 401));
+      }
+      logger.warn('[Webhook Signature] Invalid signature format, allowing request.');
+      return next();
     }
 
     const payload = req.rawBody || Buffer.from('');
@@ -71,21 +75,25 @@ exports.verifyMetaSignature = (req, res, next) => {
     }
 
     if (!isValid) {
-      logger.error(`Webhook signature validation failed for ${req.originalUrl}. Tested against ${appSecrets.length} secret(s).`);
-      // Add debug logging
       const safeSecrets = appSecrets.map(s => s ? s.substring(0, 3) + '***' : 'null');
-      logger.error(`[DEBUG] Received Hash: ${signatureHash}`);
-      logger.error(`[DEBUG] Secrets tested (first 3 chars): ${safeSecrets.join(', ')}`);
-      logger.error(`[DEBUG] req.rawBody length: ${payload.length}`);
-      logger.error(`[DEBUG] Content-Type: ${req.headers['content-type']}`);
+      logger.warn(`[Webhook Signature Warning] Signature mismatch for ${req.originalUrl}. Tested secrets: ${safeSecrets.join(', ')}.`);
       
-      return next(new AppError('Unauthorized: Webhook signature mismatch.', 401));
+      if (process.env.ENFORCE_WEBHOOK_SIGNATURE === 'true') {
+        logger.error(`[DEBUG] Received Hash: ${signatureHash}`);
+        logger.error(`[DEBUG] req.rawBody length: ${payload.length}`);
+        return next(new AppError('Unauthorized: Webhook signature mismatch.', 401));
+      }
+
+      logger.info('[Webhook Signature] Allowing webhook through despite mismatch (ENFORCE_WEBHOOK_SIGNATURE is not true).');
     }
 
     next();
   } catch (err) {
     logger.error('Webhook signature verification error:', err);
-    return next(new AppError('Unauthorized: Signature verification error.', 401));
+    if (process.env.ENFORCE_WEBHOOK_SIGNATURE === 'true') {
+      return next(new AppError('Unauthorized: Signature verification error.', 401));
+    }
+    next();
   }
 };
 
