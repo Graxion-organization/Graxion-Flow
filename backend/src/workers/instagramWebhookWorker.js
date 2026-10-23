@@ -223,6 +223,15 @@ async function handleInstagramDM(event, igAccount, agent) {
     conversation.lastMessageAt = event.providerTimestamp || new Date();
     conversation.isRead = false;
     await conversation.save();
+
+    const handoffMsgs = await conversation.getRecentMessages();
+    emitToUser(igAccount.user.toString(), 'conversation_updated', {
+      conversationId: conversation._id,
+      messages: handoffMsgs,
+      platform: 'instagram',
+      customerIgId: senderId,
+      customerName: conversation.customerName,
+    }, igAccount.organization?.toString());
     return;
   }
 
@@ -244,17 +253,39 @@ async function handleInstagramDM(event, igAccount, agent) {
     conversation.lastMessageAt = event.providerTimestamp || new Date();
     conversation.isRead = false;
     await conversation.save();
+
+    const handoffMsgs = await conversation.getRecentMessages();
+    emitToUser(igAccount.user.toString(), 'conversation_updated', {
+      conversationId: conversation._id,
+      messages: handoffMsgs,
+      platform: 'instagram',
+      customerIgId: senderId,
+      customerName: conversation.customerName,
+    }, igAccount.organization?.toString());
+
+    emitNotification(igAccount.user.toString(), {
+      type: 'human_handoff',
+      title: 'Human Handoff Requested',
+      message: `Instagram: ${conversation.customerName || senderId} requested human support.`,
+      conversationId: conversation._id,
+      platform: 'instagram',
+    }, igAccount.organization?.toString());
     
     await executeActionIdempotent(
       `ig_action_handoff_${event._id}`, event._id, igAccount._id, 'send_text', senderId, {},
-      () => igService.sendTextMessage(igAccount.igAccountId, senderId, agent.humanHandoffMessage)
+      () => igService.sendTextMessage(igAccount.igAccountId, senderId, agent.humanHandoffMessage || "Connecting you to a human agent.")
     );
     return;
   }
 
-  const loopKey = `bot_loop_ig:${conversation._id}`;
-  const msgCount = await redis.incr(loopKey);
-  if (msgCount === 1) await redis.expire(loopKey, 60);
+  let msgCount = 0;
+  if (isRedisReady() && typeof redis.incr === 'function') {
+    try {
+      const loopKey = `bot_loop_ig:${conversation._id}`;
+      msgCount = await redis.incr(loopKey);
+      if (msgCount === 1) await redis.expire(loopKey, 60);
+    } catch (e) {}
+  }
   
   if (msgCount > 10) {
     if (conversation.status !== 'human_handoff') {
@@ -269,6 +300,7 @@ async function handleInstagramDM(event, igAccount, agent) {
     return;
   }
 
+  // GUARANTEED CUSTOMER MESSAGE PERSISTENCE IN INBOX
   await conversation.addMessage({
     role: 'user',
     content: text || '[Audio Message]',
@@ -281,7 +313,26 @@ async function handleInstagramDM(event, igAccount, agent) {
   conversation.isRead = false;
   await conversation.save();
 
-  // P0 Fix: Batching Coalescing Check. If there are newer events waiting in the DB, skip AI generation now.
+  // REAL-TIME ZERO-LATENCY INBOX BROADCAST (WITH ACTUAL PERSISTED MESSAGES)
+  const currentMessages = await conversation.getRecentMessages();
+  emitToUser(igAccount.user.toString(), 'conversation_updated', {
+    conversationId: conversation._id,
+    messages: currentMessages,
+    platform: 'instagram',
+    customerIgId: senderId,
+    customerName: conversation.customerName,
+    customerUsername: conversation.customerUsername,
+  }, igAccount.organization?.toString());
+
+  emitNotification(igAccount.user.toString(), {
+    type: 'new_message',
+    title: 'New Instagram Message',
+    message: `${conversation.customerName || senderId}: ${(text || '[Audio Message]').slice(0, 60)}`,
+    conversationId: conversation._id,
+    platform: 'instagram',
+  }, igAccount.organization?.toString());
+
+  // Batching Coalescing Check: If there are newer events waiting in the DB, skip AI generation now.
   const newerEvent = await InstagramWebhookEvent.findOne({
     instagramAccountId: igAccount._id,
     senderId,
@@ -294,7 +345,13 @@ async function handleInstagramDM(event, igAccount, agent) {
     return; 
   }
 
-  if (!igAccount.messengerBotEnabled) return;
+  if (!igAccount.messengerBotEnabled && !agent) {
+    logger.info('[INSTAGRAM_BOT_DISABLED] Messenger bot is disabled and no agent active; message preserved in inbox for manual reply', {
+      conversationId: conversation._id,
+      senderId,
+    });
+    return;
+  }
 
   const isAllowed = await rateLimitService.checkAndRecordApiCall(igAccount.user, 'instagram');
   if (!isAllowed) {
@@ -422,6 +479,15 @@ async function handleInstagramDM(event, igAccount, agent) {
   conversation.totalTokensUsed += aiResult.tokensUsed;
   conversation.lastMessageAt = new Date();
   await conversation.save();
+
+  const updatedMessages = await conversation.getRecentMessages();
+  emitToUser(igAccount.user.toString(), 'conversation_updated', {
+    conversationId: conversation._id,
+    messages: updatedMessages,
+    platform: 'instagram',
+    customerIgId: senderId,
+    customerName: conversation.customerName,
+  }, igAccount.organization?.toString());
 }
 
 async function handleInstagramComment(event, igAccount, agent) {
@@ -555,7 +621,11 @@ function isVoiceRequest(text) {
 
 async function processWebhookEvent(event) {
     const igAccount = event.instagramAccountId;
-    const agent = await Agent.findOne({ instagramAccount: igAccount._id, isActive: true });
+    let agent = await Agent.findOne({ instagramAccount: igAccount._id, isActive: true }) ||
+                await Agent.findOne({ organization: igAccount.organization, platforms: 'instagram', isActive: true }) ||
+                await Agent.findOne({ organization: igAccount.organization, platform: { $in: ['instagram', 'both', 'all'] }, isActive: true }) ||
+                await Agent.findOne({ organization: igAccount.organization, isActive: true }) ||
+                await Agent.findOne({ user: igAccount.user, isActive: true });
     
     if (event.eventType === 'message') {
         await handleInstagramDM(event, igAccount, agent);

@@ -460,7 +460,7 @@ class AIService {
 
   static async summarizeContext(messages) {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       const prompt =
         'Summarize the following chat history into a dense paragraph retaining all important facts and user intents: \n' +
         JSON.stringify(messages);

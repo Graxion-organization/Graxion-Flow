@@ -417,6 +417,7 @@ exports.processWebhookPayload = async (payload) => {
       emitToUser(waAccount.user.toString(), 'conversation_updated', {
         conversationId: conversation._id,
         messages: currentMessages,
+        platform: 'whatsapp',
         customerPhone: conversation.customerPhone || from,
         customerName: conversation.customerName || customerName,
       }, waAccount.organization?.toString());
@@ -773,6 +774,9 @@ exports.processWebhookPayload = async (payload) => {
         emitToUser(waAccount.user.toString(), 'conversation_updated', {
           conversationId: conversation._id,
           messages: updatedMessages,
+          platform: 'whatsapp',
+          customerPhone: conversation.customerPhone || from,
+          customerName: conversation.customerName,
         }, waAccount.organization?.toString());
 
         emitNotification(waAccount.user.toString(), {

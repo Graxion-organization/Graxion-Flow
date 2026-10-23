@@ -31,12 +31,21 @@ const enqueueWebhook = async (platform, eventType, payload) => {
 
   if (isRedisReady()) {
     try {
+      const rawMsgId = payload?.entry?.[0]?.changes?.[0]?.value?.messages?.[0]?.id ||
+                       payload?.entry?.[0]?.messaging?.[0]?.message?.mid ||
+                       payload?.message?.message_id ||
+                       payload?.update_id ||
+                       payload?.messageId;
+      const deterministicJobId = rawMsgId 
+        ? `${platform}-${rawMsgId}` 
+        : `${platform}-${payload?.entry?.[0]?.id || 'evt'}-${Date.now()}`;
+
       const addPromise = webhookQueue.add(`${platform}-${eventType}`, {
         platform,
         eventType,
         payload
       }, {
-        jobId: `${platform}-${payload?.entry?.[0]?.id || Date.now()}-${Date.now()}`
+        jobId: deterministicJobId
       });
 
       // 2.5s timeout race so a lagging Redis never hangs the response

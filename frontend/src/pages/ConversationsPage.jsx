@@ -418,9 +418,13 @@ export default function ConversationsPage() {
             _id: data.conversationId,
             messages: data.messages,
             customerPhone: data.customerPhone,
-            platform: data.platform || 'unknown',
-            status: 'active',
-            lastMessageAt: data.messages[data.messages.length - 1]?.timestamp || new Date(),
+            customerName: data.customerName,
+            customerTgId: data.customerTgId,
+            customerIgId: data.customerIgId,
+            customerUsername: data.customerUsername,
+            platform: data.platform || 'whatsapp',
+            status: data.status || 'active',
+            lastMessageAt: data.messages?.[data.messages.length - 1]?.timestamp || new Date(),
             createdAt: new Date(),
           }, ...prev];
         }
@@ -746,8 +750,8 @@ export default function ConversationsPage() {
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className={`w-9 h-9 rounded-full ${selected?._id === conv._id ? itemTheme.btnPrimary : getAvatarColor(conv.customerName || conv.customerPhone || conv.customerIgId || conv.customerTelegramId || 'U')} flex items-center justify-center text-sm font-bold shrink-0 shadow-sm relative`}>
-                          {(conv.customerName || conv.customerPhone || conv.customerIgId || conv.customerTelegramId || 'U')[0]?.toUpperCase()}
+                        <div className={`w-9 h-9 rounded-full ${selected?._id === conv._id ? itemTheme.btnPrimary : getAvatarColor(conv.customerName || conv.customerPhone || conv.customerTgId || conv.customerIgId || conv.customerTelegramId || 'U')} flex items-center justify-center text-sm font-bold shrink-0 shadow-sm relative`}>
+                          {(conv.customerName || conv.customerPhone || conv.customerTgId || conv.customerIgId || conv.customerTelegramId || 'U')[0]?.toUpperCase()}
                           {!conv.isRead && selected?._id !== conv._id && (
                             <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-red-500 border-2 border-white rounded-full"></span>
                           )}
@@ -755,10 +759,10 @@ export default function ConversationsPage() {
                         </div>
                         <div className="min-w-0">
                           <p className={`text-sm truncate ${selected?._id === conv._id ? ('text-gray-900 font-medium dark:text-white dark:font-medium') : (!conv.isRead ? ('text-gray-900 font-bold dark:text-slate-100 dark:font-bold') : ('text-gray-700 dark:text-slate-300'))}`}>
-                            {conv.customerName || conv.customerPhone || conv.customerIgId || conv.customerTelegramId || 'Unknown'}
+                            {conv.customerName || conv.customerPhone || conv.customerTgId || conv.customerIgId || conv.customerTelegramId || 'Unknown'}
                           </p>
                           <p className={`text-xs truncate ${selected?._id === conv._id ? itemTheme.iconColor : (!conv.isRead ? ('text-gray-600 font-medium dark:text-slate-300 dark:font-medium') : ('text-gray-400 dark:text-slate-400'))}`}>
-                            {conv.platform || 'whatsapp'} {conv.customerPhone ? ` - ${conv.customerPhone}` : ''}
+                            {conv.platform || 'whatsapp'} {conv.customerPhone ? ` - ${conv.customerPhone}` : (conv.customerUsername ? ` - @${conv.customerUsername}` : '')}
                           </p>
                         </div>
                       </div>
