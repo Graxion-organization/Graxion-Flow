@@ -646,7 +646,13 @@ const instagramWebhookWorker = new Worker(IG_WEBHOOK_QUEUE_NAME, async (job) => 
   try {
     triggerEvent = await InstagramWebhookEvent.findById(webhookEventId);
     if (!triggerEvent) {
-      throw new Error(`Webhook event ${webhookEventId} not found in DB`);
+      // Allow brief 500ms delay in case of database replica/write delay
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      triggerEvent = await InstagramWebhookEvent.findById(webhookEventId);
+      if (!triggerEvent) {
+        logger.warn(`[InstagramWorker] Webhook event ${webhookEventId} not found in DB. Dropping orphaned job ${job.id}.`);
+        return;
+      }
     }
 
     if (triggerEvent.status === 'processed') {

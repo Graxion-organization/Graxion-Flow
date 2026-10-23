@@ -68,6 +68,11 @@ jest.mock('../src/models/InstagramActionLog', () => ({
   updateOne: jest.fn().mockResolvedValue({ nModified: 1 }),
 }));
 
+jest.mock('../src/queues/instagramQueue', () => ({
+  enqueueInstagramWebhook: jest.fn().mockResolvedValue(true),
+  IG_WEBHOOK_QUEUE_NAME: 'instagram-webhooks',
+}));
+
 jest.mock('../src/models/InstagramWebhookEvent', () => {
   const mockEvent = {
     _id: '650c1f1e1c9d440000ee0001',
