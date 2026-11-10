@@ -10,7 +10,7 @@ import {
 import { agentAPI, whatsappAPI, telegramAPI, instagramAPI, facebookAPI, youtubeAPI, socialHubAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import ActionGuard from '../components/dashboard/ActionGuard';
-import { useAuthStore } from '../store';
+import { useAuthStore, useOrganizationStore } from '../store';
 
 const agentSchema = z.object({
   name:                z.string().min(2, 'Min 2 chars').max(50),
@@ -115,6 +115,12 @@ function AgentFormModal({ onClose, onSave, editingAgent, connectedPlatforms, waA
       : [...selectedPlatforms, id];
     setSelectedPlatforms(next);
     setValue('platforms', next, { shouldValidate: true });
+    if (!isSelected && id === 'whatsapp' && Array.isArray(waAccounts) && waAccounts.length > 0) {
+      const currentWaIds = watch('whatsappAccountIds');
+      if (!currentWaIds || currentWaIds.length === 0) {
+        setValue('whatsappAccountIds', [String(waAccounts[0]._id || waAccounts[0].id)], { shouldValidate: true });
+      }
+    }
   };
 
   const provider = watch('aiProvider');
@@ -473,6 +479,7 @@ function TestModal({ agent, onClose, isDark }) {
 
 export default function AgentsPage() {
   const { user } = useAuthStore();
+  const { currentOrganization } = useOrganizationStore();
   const isDowngraded = !!user?.subscription?.lastPlan;
   const [isDark, setIsDark] = useState((localStorage.getItem('app-theme') || 'dark') === 'dark');
   const { onboardingStatus } = useOutletContext() || {};
@@ -497,15 +504,41 @@ export default function AgentsPage() {
     return () => window.removeEventListener('app-theme-change', sync);
   }, []);
 
+  const fetchWhatsAppAccounts = async () => {
+    try {
+      const r = await whatsappAPI.getAll();
+      const list = r.data?.data?.accounts || [];
+      if (Array.isArray(list) && list.length > 0) {
+        setWaAccounts(list);
+        return;
+      }
+    } catch {}
+    try {
+      const hubRes = await socialHubAPI.getAccounts();
+      const hubAccounts = (hubRes.data?.data || [])
+        .filter((acc) => acc.platform === 'whatsapp' && acc.status !== 'disconnected')
+        .map((acc) => ({
+          _id: acc.modelId || acc.id,
+          displayPhoneNumber: acc.username || acc.name || 'WhatsApp Business',
+          verifiedName: acc.name || 'WhatsApp Business',
+          status: acc.status || 'connected',
+          isActive: true,
+        }));
+      if (hubAccounts.length > 0) {
+        setWaAccounts(hubAccounts);
+      }
+    } catch {}
+  };
+
   useEffect(() => {
     Promise.all([
-      agentAPI.getAll().then((r) => setAgents(r.data.data.agents)),
-      whatsappAPI.getAll().then((r) => setWaAccounts(r.data.data.accounts)),
-      telegramAPI.getAll().then(r => setTgAccounts(r.data.data.accounts)).catch(() => {}),
-      instagramAPI.getAll().then(r => setIgAccounts(r.data.data.accounts)).catch(() => {}),
-      facebookAPI.getAll().then(r => setFbAccounts(r.data.data.accounts)).catch(() => {}),
-      youtubeAPI.getAll().then(r => setYtAccounts(r.data.data.accounts)).catch(() => {}),
-      socialHubAPI.getAllLinkedInAccounts().then(r => setLnAccounts(r.data.data.accounts || r.data.accounts)).catch(() => {}),
+      agentAPI.getAll().then((r) => setAgents(r.data?.data?.agents || [])).catch(() => {}),
+      fetchWhatsAppAccounts(),
+      telegramAPI.getAll().then(r => setTgAccounts(r.data?.data?.accounts || [])).catch(() => {}),
+      instagramAPI.getAll().then(r => setIgAccounts(r.data?.data?.accounts || [])).catch(() => {}),
+      facebookAPI.getAll().then(r => setFbAccounts(r.data?.data?.accounts || [])).catch(() => {}),
+      youtubeAPI.getAll().then(r => setYtAccounts(r.data?.data?.accounts || [])).catch(() => {}),
+      socialHubAPI.getAllLinkedInAccounts().then(r => setLnAccounts(r.data?.data?.accounts || r.data?.accounts || [])).catch(() => {}),
     ]).finally(() => {
       setLoading(false);
       
@@ -522,7 +555,7 @@ export default function AgentsPage() {
         setSearchParams(newParams, { replace: true });
       }
     });
-  }, []);
+  }, [currentOrganization?._id]);
 
   const handleSave = (agent, isEdit) => {
     if (isEdit) setAgents((prev) => prev.map((a) => a._id === agent._id ? agent : a));
@@ -531,7 +564,7 @@ export default function AgentsPage() {
 
   const openCreateModal = (agent = null) => {
     setEditingAgent(agent);
-    whatsappAPI.getAll().then((r) => setWaAccounts(r.data.data?.accounts || [])).catch(() => {});
+    fetchWhatsAppAccounts();
     setShowForm(true);
   };
 
@@ -561,19 +594,32 @@ export default function AgentsPage() {
     </div>
   );
 
+  const connectedWaAccounts = Array.isArray(waAccounts)
+    ? waAccounts.filter((a) => a && a.status !== 'disconnected' && a.isActive !== false)
+    : [];
+  const connectedTgAccounts = Array.isArray(tgAccounts)
+    ? tgAccounts.filter((a) => a && a.status !== 'disconnected')
+    : [];
+  const connectedIgAccounts = Array.isArray(igAccounts)
+    ? igAccounts.filter((a) => a && a.status !== 'disconnected')
+    : [];
+  const connectedFbAccounts = Array.isArray(fbAccounts)
+    ? fbAccounts.filter((a) => a && a.status !== 'disconnected')
+    : [];
+
   // Determine connected platforms
   const connectedPlatforms = {
-    whatsapp: Array.isArray(waAccounts) && waAccounts.length > 0,
-    telegram: Array.isArray(tgAccounts) && tgAccounts.length > 0,
-    instagram: Array.isArray(igAccounts) && igAccounts.length > 0,
-    facebook: Array.isArray(fbAccounts) && fbAccounts.length > 0,
+    whatsapp: connectedWaAccounts.length > 0,
+    telegram: connectedTgAccounts.length > 0,
+    instagram: connectedIgAccounts.length > 0,
+    facebook: connectedFbAccounts.length > 0,
     youtube: Array.isArray(ytAccounts) && ytAccounts.length > 0,
     linkedin: Array.isArray(lnAccounts) && lnAccounts.length > 0
   };
 
   const hasAnyConnected = Object.values(connectedPlatforms).some(Boolean);
 
-  if (onboardingStatus && !onboardingStatus.hasIntegration) {
+  if (onboardingStatus && !onboardingStatus.hasIntegration && !hasAnyConnected) {
     return (
       <ActionGuard 
         status={onboardingStatus} 
@@ -739,10 +785,10 @@ export default function AgentsPage() {
           onSave={handleSave}
           editingAgent={editingAgent}
           connectedPlatforms={connectedPlatforms}
-          waAccounts={waAccounts.filter(a => a.status === 'connected')}
-          tgAccounts={tgAccounts.filter(a => a.status === 'connected')}
-          igAccounts={igAccounts.filter(a => a.status === 'connected')}
-          fbAccounts={fbAccounts.filter(a => a.status === 'connected')}
+          waAccounts={connectedWaAccounts}
+          tgAccounts={connectedTgAccounts}
+          igAccounts={connectedIgAccounts}
+          fbAccounts={connectedFbAccounts}
           ytAccounts={ytAccounts}
           lnAccounts={lnAccounts}
           initialPlatform={initialPlatform}

@@ -56,10 +56,19 @@ const sendTokens = (user, statusCode, res, req = null) => {
 
 exports.getOnboardingStatus = async (req, res, next) => {
   try {
-    const orgId = req.organization?._id || req.user.currentOrganization;
-    if (!orgId) {
+    const orgId = req.organization?._id || req.user?.currentOrganization || req.user?.organization;
+    const userId = req.user?._id;
+    if (!orgId && !userId) {
       return res.status(200).json({ status: 'success', data: { hasIntegration: false, hasAgent: false, isCompleted: false } });
     }
+
+    const scopeFilter = orgId && userId
+      ? { $or: [{ organization: orgId }, { user: userId }] }
+      : orgId
+      ? { organization: orgId }
+      : { user: userId };
+
+    const orgOnlyFilter = orgId ? { organization: orgId } : { user: userId };
 
     const [
       agentsCount,
@@ -71,14 +80,14 @@ exports.getOnboardingStatus = async (req, res, next) => {
       ytCount,
       liCount
     ] = await Promise.all([
-      Agent.countDocuments({ organization: orgId }),
-      WhatsappAccount.countDocuments({ organization: orgId }),
-      FacebookAccount.countDocuments({ organization: orgId }),
-      InstagramAccount.countDocuments({ organization: orgId }),
-      TelegramAccount.countDocuments({ organization: orgId }),
-      Integration.countDocuments({ organization: orgId }),
-      YoutubeAccount.countDocuments({ organization: orgId }),
-      LinkedInAccount.countDocuments({ organization: orgId })
+      Agent.countDocuments(scopeFilter),
+      WhatsappAccount.countDocuments({ ...scopeFilter, status: { $ne: 'disconnected' }, isActive: { $ne: false } }),
+      FacebookAccount.countDocuments(scopeFilter),
+      InstagramAccount.countDocuments(scopeFilter),
+      TelegramAccount.countDocuments(scopeFilter),
+      Integration.countDocuments(orgOnlyFilter),
+      YoutubeAccount.countDocuments(scopeFilter),
+      LinkedInAccount.countDocuments(scopeFilter)
     ]);
 
     const hasIntegration = (waCount + fbCount + igCount + tgCount + intCount + ytCount + liCount) > 0;

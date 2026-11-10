@@ -359,8 +359,20 @@ export const adminAPI = {
   updateSetting: (key, value) => api.patch('/admin/settings', { key, value }),
   getLogs: (params) => api.get('/admin/logs', { params }),
   getErrorLogs: (params) => api.get('/admin/error-logs', { params }),
-  resolveErrorLog: (id, resolved) => api.patch(`/admin/error-logs/${id}/resolve`, { resolved }),
-  deleteErrorLog: (id) => api.delete(`/admin/error-logs/${id}`),
+  resolveErrorLog: (id, resolved) => {
+    const logId = typeof id === 'object' && id !== null ? (id._id || id.id) : id;
+    const resolvedVal =
+      typeof resolved === 'boolean'
+        ? resolved
+        : typeof id === 'object' && id !== null && typeof id.resolved === 'boolean'
+        ? !id.resolved
+        : true;
+    return api.patch(`/admin/error-logs/${encodeURIComponent(String(logId || ''))}/resolve`, { resolved: resolvedVal });
+  },
+  deleteErrorLog: (id) => {
+    const logId = typeof id === 'object' && id !== null ? (id._id || id.id) : id;
+    return api.delete(`/admin/error-logs/${encodeURIComponent(String(logId || ''))}`);
+  },
   getOrphanMedia: () => api.get('/admin/orphan-media'),
   deleteOrphanMedia: (publicIds) => api.delete('/admin/orphan-media', { data: { publicIds } }),
   getDeletionRequests: (params) => api.get('/admin/deletion-requests', { params }),

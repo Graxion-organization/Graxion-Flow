@@ -722,4 +722,124 @@ describe('Graxion Flow — Critical Bug Fix & Centralized Admin Error Logging (1
       })
     );
   });
+
+  test('13. getErrorLogs serializes BSON ObjectId _id as string and resolveErrorLog handles graxion-proxy-admin and invalid IDs without 500 CastError', async () => {
+    const mongoose = require('mongoose');
+    const bsonId = new mongoose.Types.ObjectId('650c1f1e1c9d440000c00999');
+
+    const mockLogChain = {
+      sort: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      lean: jest.fn().mockResolvedValue([
+        {
+          _id: bsonId,
+          level: 'error',
+          severity: 'ERROR',
+          service: 'api',
+          message: 'Test ObjectId serialization',
+          resolved: false,
+        },
+      ]),
+    };
+
+    jest.spyOn(SystemErrorLog, 'find').mockReturnValue(mockLogChain);
+    jest.spyOn(SystemErrorLog, 'countDocuments').mockResolvedValue(1);
+
+    const getRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    await adminController.getErrorLogs({ query: {} }, getRes, jest.fn());
+
+    const returnedLogs = getRes.json.mock.calls[0][0].data.logs;
+    expect(typeof returnedLogs[0]._id).toBe('string');
+    expect(returnedLogs[0]._id).toBe('650c1f1e1c9d440000c00999');
+
+    // Resolve with graxion-proxy-admin (non-ObjectId user._id)
+    jest.spyOn(SystemErrorLog, 'findByIdAndUpdate').mockResolvedValue({
+      _id: '650c1f1e1c9d440000c00999',
+      resolved: true,
+      resolvedBy: null,
+    });
+
+    const resolveRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    await adminController.resolveErrorLog(
+      {
+        params: { id: '650c1f1e1c9d440000c00999' },
+        body: { resolved: true },
+        user: { _id: 'graxion-proxy-admin', role: 'superadmin' },
+      },
+      resolveRes,
+      jest.fn()
+    );
+
+    expect(SystemErrorLog.findByIdAndUpdate).toHaveBeenCalledWith(
+      '650c1f1e1c9d440000c00999',
+      expect.objectContaining({ resolved: true, resolvedBy: null }),
+      { new: true }
+    );
+    expect(resolveRes.status).toHaveBeenCalledWith(200);
+
+    // Invalid "[object Object]" ID returns 400 cleanly instead of throwing 500 CastError
+    const badRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    await adminController.resolveErrorLog(
+      {
+        params: { id: '[object Object]' },
+        body: { resolved: true },
+        user: { _id: 'graxion-proxy-admin' },
+      },
+      badRes,
+      jest.fn()
+    );
+    expect(badRes.status).toHaveBeenCalledWith(400);
+  });
+
+  test('14. Unauthenticated 401 on /api/organizations does not pollute SystemErrorLog', async () => {
+    const err = new Error('You are not logged in. Please log in to access.');
+    err.statusCode = 401;
+    err.status = 'fail';
+    err.isOperational = true;
+
+    const req = {
+      originalUrl: '/api/organizations',
+      method: 'GET',
+      headers: {},
+      socket: { remoteAddress: '127.0.0.1' },
+    };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    const countBefore = recordedAdminLogs.length;
+    errorHandler(err, req, res, jest.fn());
+    expect(recordedAdminLogs.length).toBe(countBefore);
+  });
+
+  test('15. GET /api/whatsapp returns connected WhatsApp accounts for authenticated user without being intercepted by webhook verifyWebhook', async () => {
+    const waController = require('../controllers/whatsappController');
+    jest.spyOn(WhatsappAccount, 'find').mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue([
+          {
+            _id: dummyWaAccountId,
+            phoneNumberId,
+            displayPhoneNumber: '+1 555-0199',
+            verifiedName: 'Graxion Support',
+            status: 'pending',
+            isActive: true,
+          },
+        ]),
+      }),
+    });
+
+    const req = {
+      organization: { _id: dummyOrgId },
+      user: { _id: dummyUserId, currentOrganization: dummyOrgId },
+    };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    await waController.getAccounts(req, res, jest.fn());
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    const body = res.json.mock.calls[0][0];
+    expect(body.data.accounts.length).toBe(1);
+    expect(body.data.accounts[0].status).toBe('connected');
+  });
 });
+

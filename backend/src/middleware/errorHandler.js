@@ -39,7 +39,13 @@ module.exports = (err, req, res, next) => {
   const requestId = req.headers?.['x-request-id'] || req.id || undefined;
   const endpoint = logger.sanitizeEndpoint ? logger.sanitizeEndpoint(req.originalUrl) : req.originalUrl;
 
-  logger.error(`${err.statusCode} - ${err.message} - ${endpoint}`, {
+  const isRoutineUnauthOrNotFound =
+    (err.statusCode === 401 && userId === 'unauthenticated') ||
+    (err.statusCode === 404 && !err.service && !err.provider);
+
+  const logMethod = isRoutineUnauthOrNotFound ? logger.warn.bind(logger) : logger.error.bind(logger);
+
+  logMethod(`${err.statusCode} - ${err.message} - ${endpoint}`, {
     ip,
     userId,
     workspaceId,

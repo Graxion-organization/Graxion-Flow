@@ -17,12 +17,16 @@ exports.createAgent = async (req, res, next) => {
     const waIds = Array.isArray(whatsappAccountIds) ? whatsappAccountIds : (whatsappAccountIds ? [whatsappAccountIds] : []);
 
     if (agentData.agentType !== 'presenter') {
-      // Verify WA accounts belong to this organization for social agents
+      // Verify WA accounts belong to this organization or user for social agents
       if (waIds.length > 0) {
         const validWaAccounts = await WhatsappAccount.find({
           _id: { $in: waIds },
-          organization: req.organization._id,
-          status: 'connected',
+          $or: [
+            { organization: req.organization._id },
+            { user: req.user._id },
+          ],
+          status: { $ne: 'disconnected' },
+          isActive: { $ne: false },
         });
         if (validWaAccounts.length !== waIds.length) {
           return next(new AppError('One or more selected WhatsApp accounts are invalid or not connected.', 400));

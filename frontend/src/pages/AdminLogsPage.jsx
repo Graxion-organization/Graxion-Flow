@@ -113,7 +113,11 @@ export default function AdminLogsPage() {
 
       const res = await adminAPI.getErrorLogs(params);
       const data = res?.data?.data || {};
-      setLogs(data.logs || []);
+      const normalizedLogs = (data.logs || []).map((item) => ({
+        ...item,
+        _id: typeof item?._id === 'string' ? item._id : String(item?._id || item?.id || ''),
+      }));
+      setLogs(normalizedLogs);
       setPagination(data.pagination || { total: 0, page: 1, pages: 1, limit: 25 });
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to load system error logs');
@@ -128,31 +132,43 @@ export default function AdminLogsPage() {
 
   const handleToggleResolve = async (log, e) => {
     if (e) e.stopPropagation();
-    const nextResolved = !log.resolved;
+    const logId = typeof log === 'object' && log !== null ? String(log._id || log.id || '') : String(log || '');
+    if (!logId || logId === '[object Object]') {
+      toast.error('Invalid error log ID');
+      return;
+    }
+    const nextResolved = typeof log === 'object' && log !== null ? !log.resolved : true;
     try {
-      const res = await adminAPI.resolveErrorLog(log._id, nextResolved);
-      const updated = res?.data?.data?.log || { ...log, resolved: nextResolved };
-      setLogs((prev) => prev.map((item) => (item._id === log._id ? updated : item)));
-      if (selectedLog && selectedLog._id === log._id) {
+      const res = await adminAPI.resolveErrorLog(logId, nextResolved);
+      const updated = res?.data?.data?.log
+        ? { ...res.data.data.log, _id: String(res.data.data.log._id || logId) }
+        : { ...(typeof log === 'object' ? log : {}), _id: logId, resolved: nextResolved };
+      setLogs((prev) => prev.map((item) => (String(item._id) === logId ? updated : item)));
+      if (selectedLog && String(selectedLog._id) === logId) {
         setSelectedLog(updated);
       }
       toast.success(nextResolved ? 'Marked as resolved' : 'Reopened error log');
     } catch (err) {
-      toast.error('Failed to update error status');
+      toast.error(err.response?.data?.message || 'Failed to update error status');
     }
   };
 
-  const handleDeleteLog = async (id, e) => {
+  const handleDeleteLog = async (idOrLog, e) => {
     if (e) e.stopPropagation();
+    const logId = typeof idOrLog === 'object' && idOrLog !== null ? String(idOrLog._id || idOrLog.id || '') : String(idOrLog || '');
+    if (!logId || logId === '[object Object]') {
+      toast.error('Invalid error log ID');
+      return;
+    }
     try {
-      await adminAPI.deleteErrorLog(id);
-      setLogs((prev) => prev.filter((item) => item._id !== id));
-      if (selectedLog && selectedLog._id === id) {
+      await adminAPI.deleteErrorLog(logId);
+      setLogs((prev) => prev.filter((item) => String(item._id) !== logId));
+      if (selectedLog && String(selectedLog._id) === logId) {
         setSelectedLog(null);
       }
       toast.success('Error log deleted');
     } catch (err) {
-      toast.error('Failed to delete error log');
+      toast.error(err.response?.data?.message || 'Failed to delete error log');
     }
   };
 

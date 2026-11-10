@@ -74,15 +74,31 @@ exports.getAccounts = async (req, res, next) => {
     const orgId = req.organization?._id || req.user?.currentOrganization || req.user?.organization;
     const userId = req.user?._id;
 
-    // Find all active accounts matching user or organization
-    const accounts = await WhatsappAccount.find({
+    // Find all active accounts matching current organization, with fallback to user's accounts
+    let accounts = await WhatsappAccount.find({
       ...(orgId ? { organization: orgId } : { user: userId }),
-      isActive: true
+      status: { $ne: 'disconnected' },
+      isActive: true,
     })
       .select('-accessToken')
       .lean();
 
-    res.status(200).json({ status: 'success', results: accounts.length, data: { accounts } });
+    if (accounts.length === 0 && userId) {
+      accounts = await WhatsappAccount.find({
+        user: userId,
+        status: { $ne: 'disconnected' },
+        isActive: true,
+      })
+        .select('-accessToken')
+        .lean();
+    }
+
+    const normalizedAccounts = accounts.map((acc) => ({
+      ...acc,
+      status: acc.status === 'pending' && acc.isActive !== false ? 'connected' : (acc.status || 'connected'),
+    }));
+
+    res.status(200).json({ status: 'success', results: normalizedAccounts.length, data: { accounts: normalizedAccounts } });
   } catch (err) {
     next(err);
   }

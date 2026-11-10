@@ -1755,10 +1755,15 @@ exports.getErrorLogs = async (req, res, next) => {
 
     const logs = Array.isArray(logsResult) ? logsResult : [];
 
-    // Sanitize logs on read as an extra defense-in-depth layer
+    // Sanitize logs on read as an extra defense-in-depth layer and preserve string _id
     const sanitizedLogs = logs.map((doc) => {
       const raw = doc && typeof doc.toObject === 'function' ? doc.toObject() : doc;
-      return logger.sanitizeLogData ? logger.sanitizeLogData(raw) : raw;
+      const rawId = raw && raw._id !== undefined && raw._id !== null ? String(raw._id) : undefined;
+      const sanitized = logger.sanitizeLogData ? logger.sanitizeLogData(raw) : raw;
+      if (sanitized && typeof sanitized === 'object' && rawId) {
+        sanitized._id = rawId;
+      }
+      return sanitized;
     });
 
     const pages = Math.ceil(total / limit) || 1;
@@ -1789,15 +1794,30 @@ exports.getErrorLogs = async (req, res, next) => {
  */
 exports.resolveErrorLog = async (req, res, next) => {
   try {
+    const mongoose = require('mongoose');
+    const rawId = typeof req.params.id === 'object' ? (req.params.id?._id || req.params.id?.id) : req.params.id;
+    const logId = rawId !== undefined && rawId !== null ? String(rawId).trim() : '';
+
+    if (!logId || logId === '[object Object]' || (typeof mongoose.Types?.ObjectId?.isValid === 'function' && !mongoose.Types.ObjectId.isValid(logId))) {
+      return res.status(400).json({ status: 'fail', message: 'Invalid error log ID' });
+    }
+
     const resolvedState = req.body && req.body.resolved !== undefined ? Boolean(req.body.resolved) : true;
+    const rawUserId = req.user?._id ? String(req.user._id) : '';
+    const isValidUserObjectId =
+      rawUserId &&
+      typeof mongoose.Types?.ObjectId?.isValid === 'function' &&
+      mongoose.Types.ObjectId.isValid(rawUserId) &&
+      /^[0-9a-fA-F]{24}$/.test(rawUserId);
+
     const updateData = {
       resolved: resolvedState,
       resolvedAt: resolvedState ? new Date() : null,
-      resolvedBy: resolvedState && req.user ? req.user._id : null,
+      resolvedBy: resolvedState && isValidUserObjectId ? req.user._id : null,
     };
 
     const log = await SystemErrorLog.findByIdAndUpdate(
-      req.params.id,
+      logId,
       updateData,
       { new: true }
     );
@@ -1820,7 +1840,15 @@ exports.resolveErrorLog = async (req, res, next) => {
  */
 exports.deleteErrorLog = async (req, res, next) => {
   try {
-    const log = await SystemErrorLog.findByIdAndDelete(req.params.id);
+    const mongoose = require('mongoose');
+    const rawId = typeof req.params.id === 'object' ? (req.params.id?._id || req.params.id?.id) : req.params.id;
+    const logId = rawId !== undefined && rawId !== null ? String(rawId).trim() : '';
+
+    if (!logId || logId === '[object Object]' || (typeof mongoose.Types?.ObjectId?.isValid === 'function' && !mongoose.Types.ObjectId.isValid(logId))) {
+      return res.status(400).json({ status: 'fail', message: 'Invalid error log ID' });
+    }
+
+    const log = await SystemErrorLog.findByIdAndDelete(logId);
 
     if (!log) {
       return res.status(404).json({ status: 'fail', message: 'Error log not found' });

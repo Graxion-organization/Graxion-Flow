@@ -15,7 +15,7 @@ export default function OrganizationSwitcher({ isDark = true, primaryColor = "#F
   const dropdownRef = useRef(null);
   const contextMenuRef = useRef(null);
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
 
   const {
     organizations,
@@ -26,31 +26,39 @@ export default function OrganizationSwitcher({ isDark = true, primaryColor = "#F
   } = useOrganizationStore();
 
   useEffect(() => {
+    const hasToken = Boolean(localStorage.getItem("authToken"));
+    if (!isAuthenticated && !hasToken && !user) {
+      return;
+    }
+
     const fetchOrgs = async () => {
       try {
         setLoading(true);
         const res = await organizationAPI.getAll();
-        const orgs = res.data.data.organizations;
+        const orgs = res.data?.data?.organizations || [];
         setOrganizations(orgs);
 
         const storedId = localStorage.getItem("organizationId");
+        const activeOrg = useOrganizationStore.getState().currentOrganization;
         if (orgs.length > 0) {
           const found = orgs.find((o) => o._id === storedId);
-          if (!currentOrganization || (storedId && !found)) {
+          if (!activeOrg || (storedId && !found)) {
             setCurrentOrganization(found || orgs[0]);
-          } else if (found && currentOrganization._id !== found._id) {
+          } else if (found && activeOrg._id !== found._id) {
             setCurrentOrganization(found);
           }
         }
       } catch (err) {
-        console.error("Failed to fetch organizations", err);
+        if (err?.response?.status !== 401) {
+          console.error("Failed to fetch organizations", err);
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchOrgs();
-  }, [currentOrganization, setCurrentOrganization, setOrganizations]);
+  }, [isAuthenticated, user?._id, setCurrentOrganization, setOrganizations]);
 
   useEffect(() => {
     const handleOutsideClick = (e) => {

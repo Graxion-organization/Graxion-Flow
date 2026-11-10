@@ -25,6 +25,15 @@ const circularSafeClone = (obj, seen = new WeakSet()) => {
     return `[TypedArray: ${obj.constructor.name || 'View'} of size ${obj.byteLength} bytes]`;
   }
 
+  if (
+    obj._bsontype === 'ObjectId' ||
+    obj._bsontype === 'ObjectID' ||
+    typeof obj.toHexString === 'function' ||
+    (mongoose?.Types?.ObjectId && obj instanceof mongoose.Types.ObjectId)
+  ) {
+    return obj.toString();
+  }
+
   if (obj instanceof Date) return new Date(obj.getTime());
   if (obj instanceof RegExp) return new RegExp(obj);
   

@@ -10,11 +10,31 @@ const { validate, schemas } = require('../middleware/validation');
 const { verifyMetaSignature } = require('../middleware/verifyWebhookSignature');
 
 // Webhook routes (no auth - called by Meta)
-router.get(['/webhook', '/'], (req, res, next) => {
+router.get('/webhook', (req, res, next) => {
   const logger = require('../utils/logger');
   logger.info(`[WhatsApp Webhook GET] Verification request from ${req.ip}. Query: ${JSON.stringify(req.query)}`);
   next();
 }, webhookController.verifyWebhook);
+
+// Support Meta webhook verification at root /api/whatsapp ONLY when hub.* challenge params are present;
+// otherwise fall through to the authenticated GET / route (waController.getAccounts)
+router.get('/', (req, res, next) => {
+  const hasHubChallenge = Boolean(
+    req.query &&
+      (req.query['hub.mode'] ||
+        req.query['hub_mode'] ||
+        req.query['hub.verify_token'] ||
+        req.query['hub_verify_token'] ||
+        req.query['hub.challenge'] ||
+        req.query['hub_challenge'])
+  );
+  if (!hasHubChallenge) {
+    return next('route');
+  }
+  const logger = require('../utils/logger');
+  logger.info(`[WhatsApp Webhook GET] Verification request from ${req.ip}. Query: ${JSON.stringify(req.query)}`);
+  return webhookController.verifyWebhook(req, res, next);
+});
 
 router.post(['/webhook', '/'], (req, res, next) => {
   const logger = require('../utils/logger');
@@ -36,6 +56,7 @@ router.get('/accounts/:id/quality-rating', waController.getQualityRating);
 
 
 router.post('/connect', validate(schemas.connectWhatsapp), waController.connectAccount);
+router.get('/accounts', waController.getAccounts);
 router.get('/', waController.getAccounts);
 router.get('/:id', waController.getAccount);
 router.post('/:id/verify', waController.verifyConnection);

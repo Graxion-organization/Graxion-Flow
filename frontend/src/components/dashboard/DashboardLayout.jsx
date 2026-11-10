@@ -357,6 +357,11 @@ export default function DashboardLayout() {
   const { notifications, unreadCount, setFromAPI, addNotification, markRead, markAllRead } = useNotificationStore();
 
   useEffect(() => {
+    const hasToken = Boolean(localStorage.getItem("authToken"));
+    if (!user && !hasToken) {
+      setIsOnboardingLoading(false);
+      return;
+    }
     const checkOnboarding = async () => {
       try {
         const res = await authAPI.getOnboardingStatus();
@@ -364,14 +369,15 @@ export default function DashboardLayout() {
           setOnboardingStatus(res.data.data);
         }
       } catch (err) {
-        console.error('Failed to fetch onboarding status', err);
+        if (err?.response?.status !== 401) {
+          console.error('Failed to fetch onboarding status', err);
+        }
       } finally {
         setIsOnboardingLoading(false);
       }
     };
-    if (currentOrganization) checkOnboarding();
-    else setIsOnboardingLoading(false);
-  }, [currentOrganization, location.pathname]);
+    checkOnboarding();
+  }, [currentOrganization?._id, user?._id, location.pathname]);
 
   useEffect(() => {
     const storedTheme = localStorage.getItem("app-theme");
