@@ -7,6 +7,7 @@
     "dev": "cd frontend && PORT=3000 npm start",
     "start": "cd frontend && PORT=3000 npm start",
     "postinstall": "cd frontend && npm install --legacy-peer-deps",
-    "build": "node -e 'console.log(\"Graxion Flow Build verified successfully\")'"
+    "build": "node -e 'console.log(\"Graxion Flow Build verified successfully\")'",
+    "lint": "node --check backend/src/controllers/webhookController.js && node --check backend/src/services/whatsappService.js && node --check backend/src/queues/webhookQueue.js && node --check backend/src/utils/logger.js && node --check backend/src/controllers/adminController.js"
   }
 }

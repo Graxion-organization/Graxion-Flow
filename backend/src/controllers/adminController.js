@@ -1620,34 +1620,164 @@ exports.markContactMessageRead = async (req, res, next) => {
  */
 exports.getErrorLogs = async (req, res, next) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 50;
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 25));
     const skip = (page - 1) * limit;
 
     const query = {};
-    if (req.query.resolved !== undefined) {
+    if (req.query.resolved !== undefined && req.query.resolved !== '' && req.query.resolved !== 'all') {
       query.resolved = req.query.resolved === 'true';
     }
-    
-    if (req.query.search) {
-      query.message = { $regex: req.query.search, $options: 'i' };
+
+    if (req.query.severity && req.query.severity !== 'all') {
+      const sev = String(req.query.severity).toUpperCase();
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { severity: sev },
+          { level: sev.toLowerCase() },
+          ...(sev === 'WARNING' ? [{ level: 'warn' }] : []),
+        ],
+      });
+    } else if (req.query.level && req.query.level !== 'all') {
+      query.level = String(req.query.level).toLowerCase();
     }
 
-    const logs = await SystemErrorLog.find(query)
-      .sort('-count -lastOccurredAt')
+    if (req.query.service && req.query.service !== 'all') {
+      const svcEscaped = String(req.query.service).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const svcRegex = { $regex: `^${svcEscaped}$`, $options: 'i' };
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { service: svcRegex },
+          { provider: svcRegex },
+          { 'context.service': svcRegex },
+          { 'context.provider': svcRegex },
+        ],
+      });
+    }
+
+    if (req.query.provider && req.query.provider !== 'all') {
+      const provEscaped = String(req.query.provider).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const provRegex = { $regex: `^${provEscaped}$`, $options: 'i' };
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { provider: provRegex },
+          { service: provRegex },
+          { 'context.provider': provRegex },
+        ],
+      });
+    }
+
+    if (req.query.workspaceId) {
+      const ws = String(req.query.workspaceId).trim();
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { workspaceId: ws },
+          { 'context.workspaceId': ws },
+          { 'context.organizationId': ws },
+        ],
+      });
+    }
+
+    if (req.query.startDate || req.query.endDate || req.query.date) {
+      const dateFilter = {};
+      if (req.query.date) {
+        const start = new Date(req.query.date);
+        if (!isNaN(start.getTime())) {
+          start.setHours(0, 0, 0, 0);
+          const end = new Date(start);
+          end.setHours(23, 59, 59, 999);
+          dateFilter.$gte = start;
+          dateFilter.$lte = end;
+        }
+      } else {
+        if (req.query.startDate) {
+          const start = new Date(req.query.startDate);
+          if (!isNaN(start.getTime())) dateFilter.$gte = start;
+        }
+        if (req.query.endDate) {
+          const end = new Date(req.query.endDate);
+          if (!isNaN(end.getTime())) {
+            end.setHours(23, 59, 59, 999);
+            dateFilter.$lte = end;
+          }
+        }
+      }
+      if (Object.keys(dateFilter).length > 0) {
+        query.lastOccurredAt = dateFilter;
+      }
+    }
+
+    if (req.query.search && String(req.query.search).trim()) {
+      const term = String(req.query.search).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = { $regex: term, $options: 'i' };
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { message: regex },
+          { errorCode: regex },
+          { requestId: regex },
+          { workspaceId: regex },
+          { userId: regex },
+          { conversationId: regex },
+          { messageId: regex },
+          { service: regex },
+          { provider: regex },
+          { endpoint: regex },
+          { stage: regex },
+          { 'context.errorCode': regex },
+          { 'context.requestId': regex },
+          { 'context.workspaceId': regex },
+          { 'context.organizationId': regex },
+          { 'context.conversationId': regex },
+        ],
+      });
+    }
+
+    const sortField = req.query.sort === 'count' ? { count: -1, lastOccurredAt: -1 } : { lastOccurredAt: -1, count: -1 };
+
+    let findQuery = SystemErrorLog.find(query)
+      .sort(sortField)
       .skip(skip)
       .limit(limit);
 
-    const total = await SystemErrorLog.countDocuments(query);
+    if (findQuery && typeof findQuery.lean === 'function') {
+      findQuery = findQuery.lean();
+    }
+
+    const [logsResult, total] = await Promise.all([
+      findQuery,
+      SystemErrorLog.countDocuments(query),
+    ]);
+
+    const logs = Array.isArray(logsResult) ? logsResult : [];
+
+    // Sanitize logs on read as an extra defense-in-depth layer
+    const sanitizedLogs = logs.map((doc) => {
+      const raw = doc && typeof doc.toObject === 'function' ? doc.toObject() : doc;
+      return logger.sanitizeLogData ? logger.sanitizeLogData(raw) : raw;
+    });
+
+    const pages = Math.ceil(total / limit) || 1;
 
     res.status(200).json({
       status: 'success',
       data: {
-        logs,
+        logs: sanitizedLogs,
         total,
         page,
-        pages: Math.ceil(total / limit)
-      }
+        limit,
+        pages,
+        pagination: {
+          total,
+          page,
+          limit,
+          pages,
+        },
+      },
     });
   } catch (err) {
     next(err);
@@ -1655,13 +1785,20 @@ exports.getErrorLogs = async (req, res, next) => {
 };
 
 /**
- * Resolve an error log
+ * Resolve or reopen an error log
  */
 exports.resolveErrorLog = async (req, res, next) => {
   try {
+    const resolvedState = req.body && req.body.resolved !== undefined ? Boolean(req.body.resolved) : true;
+    const updateData = {
+      resolved: resolvedState,
+      resolvedAt: resolvedState ? new Date() : null,
+      resolvedBy: resolvedState && req.user ? req.user._id : null,
+    };
+
     const log = await SystemErrorLog.findByIdAndUpdate(
       req.params.id,
-      { resolved: true },
+      updateData,
       { new: true }
     );
 

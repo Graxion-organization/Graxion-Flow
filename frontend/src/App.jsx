@@ -112,6 +112,7 @@ const InstagramAnalyticsPage = lazyWithRetry(() => import("./pages/InstagramAnal
 const YouTubeAnalyticsPage = lazyWithRetry(() => import("./pages/YouTubeAnalyticsPage"));
 const FacebookAnalyticsPage = lazyWithRetry(() => import("./pages/FacebookAnalyticsPage"));
 const WhatsAppAnalyticsPage = lazyWithRetry(() => import("./pages/WhatsAppAnalyticsPage"));
+const AdminLogsPage = lazyWithRetry(() => import("./pages/AdminLogsPage"));
 
 // Centered loading fallback design
 const LoadingFallback = () => (
@@ -315,6 +316,7 @@ export default function App() {
             <Route path="billing" element={<BillingPage />} />
             <Route path="partner-dashboard" element={<SalesPartnerDashboard />} />
             <Route path="team" element={<TeamManagementPage />} />
+            <Route path="admin-logs" element={<AdminLogsPage />} />
             <Route path="settings" element={<SettingsPage />} />
 
             {/* 🔥 Nested 404 */}

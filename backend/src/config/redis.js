@@ -4,11 +4,6 @@ const logger = require('../utils/logger');
 // Retrieve and sanitize Redis URL (handles accidental quotes, redis-cli prefixes, trailing punctuation, etc.)
 let rawUrl = (process.env.REDIS_URL || '').trim();
 
-// Fallback to user-provided production Redis URL if none provided
-if (!rawUrl) {
-  rawUrl = 'redis://default:8iiNSbDobPSjcY5I3YsQ7inf6EjbI8zZ@prose-sleet-clarion-41396.db.redis.io:12195';
-}
-
 if (rawUrl) {
   if (rawUrl.startsWith('REDIS_URL=')) rawUrl = rawUrl.replace(/^REDIS_URL=/, '').trim();
   rawUrl = rawUrl.replace(/^['"]|['"]$/g, '').trim();
@@ -44,7 +39,12 @@ try {
     isValidUrl = true;
   }
 } catch (e) {
-  logger.error(`Provided REDIS_URL is malformed: ${rawUrl}`);
+  logger.error('Provided REDIS_URL is malformed', {
+    service: 'redis',
+    provider: 'redis',
+    errorCode: 'MALFORMED_REDIS_URL',
+    stage: 'redis_init',
+  });
 }
 
 let redis;

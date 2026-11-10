@@ -42,38 +42,48 @@ const initSocket = (server) => {
   io.use(async (socket, next) => {
     try {
       // Bot Authentication bypass
-      if (socket.handshake.auth.botSecret === process.env.JWT_SECRET) {
+      if (socket.handshake.auth?.botSecret && socket.handshake.auth.botSecret === process.env.JWT_SECRET) {
         socket.userId = 'zoom-bot';
         socket.userRole = 'admin';
         return next();
       }
 
-      // Assuming token is passed in auth object or query
-      const token = socket.handshake.auth.token || socket.handshake.headers.cookie?.split('token=')[1]?.split(';')[0];
+      // Extract token from auth object, query, or exact 'token' cookie
+      const cookieHeader = socket.handshake.headers?.cookie || '';
+      const cookieMatch = cookieHeader.match(/(?:^|;\s*)token=([^;]+)/);
+      const token =
+        socket.handshake.auth?.token ||
+        socket.handshake.query?.token ||
+        (cookieMatch ? decodeURIComponent(cookieMatch[1]) : null);
+
       if (!token) {
         return next(new Error('Authentication error'));
       }
-      
+
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
-      // We need the role here, so we fetch the user from DB (or we could include role in JWT)
+
       const User = require('../models/User');
       const user = await User.findById(decoded.id);
-      
+
       if (!user) return next(new Error('User not found'));
-      
-      socket.userId = decoded.id;
+
+      socket.userId = decoded.id.toString();
       socket.userRole = user.role;
       socket.orgId = user.organization ? user.organization.toString() : null;
       next();
     } catch (err) {
+      logger.warn(`[Socket Auth] Socket authentication failed: ${err.message}`, {
+        service: 'socket',
+        provider: 'internal',
+        stage: 'socket_auth'
+      });
       next(new Error('Authentication error'));
     }
   });
 
   io.on('connection', (socket) => {
     logger.info(`Socket connected: ${socket.id} for User: ${socket.userId} (${socket.userRole})`);
-    
+
     // Join a room for the specific user so we can emit to all their devices
     socket.join(`user_${socket.userId}`);
 
@@ -86,16 +96,27 @@ const initSocket = (server) => {
     // Dynamic join organization room from frontend
     socket.on('join_org', (orgId) => {
       if (orgId) {
-        socket.join(`org_${orgId}`);
-        logger.info(`Socket ${socket.id} explicitly joined org_${orgId}`);
+        const cleanOrg = (orgId._id || orgId).toString();
+        socket.join(`org_${cleanOrg}`);
+        logger.info(`Socket ${socket.id} explicitly joined org_${cleanOrg}`);
       }
     });
 
     // If admin, join the admin room
-    if (socket.userRole === 'admin') {
+    if (socket.userRole === 'admin' || socket.userRole === 'superadmin') {
       socket.join('admin_room');
       logger.info(`Admin joined admin_room: ${socket.userId}`);
     }
+
+    socket.on('error', (err) => {
+      logger.error(`Socket error for user ${socket.userId}: ${err.message}`, {
+        service: 'socket',
+        provider: 'internal',
+        userId: socket.userId,
+        workspaceId: socket.orgId,
+        stage: 'socket_runtime'
+      });
+    });
 
     socket.on('disconnect', () => {
       logger.info(`Socket disconnected: ${socket.id}`);
@@ -118,39 +139,46 @@ const getIO = () => {
   return io;
 };
 
-// Emits an event to a specific user's room and organization room
+// Emits an event to a specific user's room and organization room (deduplicated across rooms)
 const emitToUser = (userId, event, data, orgId = null) => {
   if (io) {
+    const rooms = [];
     const cleanUserId = userId ? (userId._id || userId).toString() : null;
     if (cleanUserId) {
-      io.to(`user_${cleanUserId}`).emit(event, data);
+      rooms.push(`user_${cleanUserId}`);
     }
     const cleanOrgId = orgId ? (orgId._id || orgId).toString() : null;
     if (cleanOrgId) {
-      io.to(`org_${cleanOrgId}`).emit(event, data);
+      rooms.push(`org_${cleanOrgId}`);
     }
-    // Also emit to admin room for monitoring
-    io.to('admin_room').emit(event, data);
+    rooms.push('admin_room');
+
+    io.to(rooms).emit(event, data);
   }
 };
 
-// Emits a structured notification to a specific user and organization
+// Emits a structured notification to a specific user and organization (deduplicated across rooms)
 const emitNotification = (userId, { type, title, message, conversationId, platform }, orgId = null) => {
   if (io) {
+    const rooms = [];
     const cleanUserId = userId ? (userId._id || userId).toString() : null;
     const cleanOrgId = orgId ? (orgId._id || orgId).toString() : null;
-    const payload = {
-      id: Date.now().toString(),
-      type,         // 'new_message' | 'human_handoff' | 'system'
-      title,
-      message,
-      conversationId: conversationId?.toString() || null,
-      platform: platform || null,
-      timestamp: new Date().toISOString(),
-      read: false,
-    };
-    if (cleanUserId) io.to(`user_${cleanUserId}`).emit('new_notification', payload);
-    if (cleanOrgId) io.to(`org_${cleanOrgId}`).emit('new_notification', payload);
+    if (cleanUserId) rooms.push(`user_${cleanUserId}`);
+    if (cleanOrgId) rooms.push(`org_${cleanOrgId}`);
+
+    if (rooms.length > 0) {
+      const payload = {
+        id: Date.now().toString(),
+        type, // 'new_message' | 'human_handoff' | 'system'
+        title,
+        message,
+        conversationId: conversationId?.toString() || null,
+        platform: platform || null,
+        timestamp: new Date().toISOString(),
+        read: false,
+      };
+      io.to(rooms).emit('new_notification', payload);
+    }
   }
 };
 

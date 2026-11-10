@@ -34,6 +34,22 @@ const messageSchema = new mongoose.Schema({
     enum: ['sent', 'delivered', 'read', 'failed'],
     default: 'sent',
   },
+  processingStatus: {
+    type: String,
+    enum: ['received', 'saved', 'processing', 'completed', 'failed', 'skipped'],
+    default: 'saved',
+    index: true,
+  },
+  aiReplyMessageId: {
+    type: String,
+  },
+  processingError: {
+    type: String,
+  },
+  processingAttempts: {
+    type: Number,
+    default: 0,
+  },
   media: {
     type: mongoose.Schema.Types.Mixed, // flexible for storing { url, id, mimeType, location_data, etc }
   },

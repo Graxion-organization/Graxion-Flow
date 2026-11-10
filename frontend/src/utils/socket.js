@@ -19,29 +19,32 @@ const SOCKET_URL = getSocketUrl();
 
 let socket = null;
 
+const getCurrentToken = () => {
+  if (typeof window === 'undefined' || !window.localStorage) return null;
+  return localStorage.getItem('authToken') || localStorage.getItem('token');
+};
+
 /**
  * Returns the singleton socket instance.
- * Creates and connects it on first call using the JWT from localStorage.
- * Subsequent calls return the same connected instance.
+ * Always creates a real Socket.IO client instance so event listeners attached
+ * before or during authentication remain registered and active once connected.
  */
 export const getSocket = () => {
-  if (socket) return socket;
+  const token = getCurrentToken();
 
-  // The app stores the JWT as 'authToken' in localStorage (see store/index.js)
-  const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-
-  if (!token) {
-    // Return a dummy no-op object so callers don't crash
-    return {
-      on: () => {},
-      off: () => {},
-      emit: () => {},
-      connected: false,
-    };
+  if (socket) {
+    if (token && !socket.connected && !socket.active) {
+      socket.auth = { token };
+      socket.connect();
+    }
+    return socket;
   }
 
   socket = io(SOCKET_URL, {
-    auth: { token },
+    autoConnect: Boolean(token),
+    auth: (cb) => {
+      cb({ token: getCurrentToken() });
+    },
     withCredentials: true,
     reconnection: true,
     reconnectionAttempts: Infinity,
@@ -51,22 +54,43 @@ export const getSocket = () => {
   });
 
   socket.on('connect', () => {
-    console.log('[Socket] Connected to', SOCKET_URL, 'ID:', socket.id);
-    const orgId = localStorage.getItem('organizationId');
+    const orgId = typeof window !== 'undefined' ? localStorage.getItem('organizationId') : null;
     if (orgId) {
       socket.emit('join_org', orgId);
     }
   });
 
-  socket.on('disconnect', (reason) => {
-    console.log('[Socket] Disconnected:', reason);
+  socket.on('disconnect', () => {
+    // Reconnection is handled automatically by Socket.IO
   });
 
-  socket.on('connect_error', (err) => {
-    console.error('[Socket] Connection Error:', err.message);
+  socket.on('connect_error', () => {
+    // Update auth token on next reconnection attempt
+    const latestToken = getCurrentToken();
+    if (latestToken) {
+      socket.auth = { token: latestToken };
+    }
   });
 
   return socket;
+};
+
+/**
+ * Re-authenticates or reconnects the singleton socket when token/workspace changes.
+ */
+export const reconnectSocket = () => {
+  const s = getSocket();
+  const token = getCurrentToken();
+  if (!token) return;
+  s.auth = { token };
+  if (!s.connected) {
+    s.connect();
+  } else {
+    const orgId = typeof window !== 'undefined' ? localStorage.getItem('organizationId') : null;
+    if (orgId) {
+      s.emit('join_org', orgId);
+    }
+  }
 };
 
 /**

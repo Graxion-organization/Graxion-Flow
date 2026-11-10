@@ -33,10 +33,26 @@ module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
-  const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress;
-  const userId = req.user ? req.user._id : 'unauthenticated';
+  const ip = req.headers?.['x-forwarded-for'] || req.socket?.remoteAddress;
+  const userId = req.user ? req.user._id.toString() : 'unauthenticated';
+  const workspaceId = (req.organization?._id || req.headers?.['x-organization-id'] || req.user?.currentOrganization || '')?.toString() || undefined;
+  const requestId = req.headers?.['x-request-id'] || req.id || undefined;
+  const endpoint = logger.sanitizeEndpoint ? logger.sanitizeEndpoint(req.originalUrl) : req.originalUrl;
 
-  logger.error(`${err.statusCode} - ${err.message} - ${req.originalUrl}`, { ip, userId });
+  logger.error(`${err.statusCode} - ${err.message} - ${endpoint}`, {
+    ip,
+    userId,
+    workspaceId,
+    requestId,
+    endpoint,
+    statusCode: err.statusCode,
+    errorCode: err.code || err.name || `HTTP_${err.statusCode}`,
+    service: err.service || 'api',
+    provider: err.provider || 'internal',
+    severity: err.statusCode >= 500 ? 'ERROR' : 'WARNING',
+    stack: err.stack,
+    responseBody: err.response?.data,
+  });
 
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
@@ -48,3 +64,4 @@ module.exports = (err, req, res, next) => {
     sendErrorProd(error, res);
   }
 };
+

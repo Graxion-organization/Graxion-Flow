@@ -39,7 +39,11 @@ try {
     isValidUrl = true;
   }
 } catch (e) {
-  logger.error(`Provided REDIS_URL is fundamentally malformed: ${REDIS_URL}`);
+  logger.error('Provided REDIS_URL is fundamentally malformed', {
+    service: 'redis',
+    provider: 'redis',
+    errorCode: 'MALFORMED_REDIS_URL',
+  });
 }
 
 const isUpstash = (process.env.REDIS_HOST && process.env.REDIS_HOST.includes('upstash'));

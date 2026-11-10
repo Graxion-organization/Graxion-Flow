@@ -109,6 +109,7 @@ const SIDEBAR_GROUPS = [
     items: [
       { to: "/app/partner-dashboard", icon: DollarSign, label: "Sales Partner", minRole: "sales_partner" },
       { to: "/app/team", icon: Users, label: "Team Management", minRole: "admin" },
+      { to: "/app/admin-logs", icon: Server, label: "Admin Logs", minRole: "viewer", systemAdminOnly: true },
       { to: "/app/settings", icon: Settings, label: "Settings", minRole: "viewer" },
       { to: "/app/billing", icon: CreditCard, label: "Billing", minRole: "viewer" },
     ]
@@ -482,6 +483,10 @@ export default function DashboardLayout() {
     const visibleItems = mappedItems.filter(item => {
       // Feature Toggle Check - Unconditionally hide if disabled globally via Admin Panel
       if (item.isGloballyDisabled) {
+        return false;
+      }
+
+      if (item.systemAdminOnly && user?.role !== 'admin' && user?.role !== 'superadmin') {
         return false;
       }
 

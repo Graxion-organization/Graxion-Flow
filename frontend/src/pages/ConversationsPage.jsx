@@ -387,62 +387,134 @@ export default function ConversationsPage() {
   useEffect(() => {
     const socket = getSocket();
 
-    socket.on('conversation_updated', (data) => {
+    const handleConversationUpdated = (data) => {
+      if (!data || !data.conversationId) return;
+      const incomingId = String(data.conversationId);
+
       // 1. Update selected conversation if currently viewing
       setSelected((prevSelected) => {
-        if (prevSelected && prevSelected._id === data.conversationId) {
-          return { 
-            ...prevSelected, 
-            messages: data.messages,
-            customerPhone: data.customerPhone || prevSelected.customerPhone
+        if (prevSelected && String(prevSelected._id) === incomingId) {
+          return {
+            ...prevSelected,
+            messages: Array.isArray(data.messages) ? data.messages : prevSelected.messages,
+            customerPhone: data.customerPhone || prevSelected.customerPhone,
+            customerName: data.customerName || prevSelected.customerName,
+            lastMessageAt:
+              data.messages?.[data.messages.length - 1]?.timestamp ||
+              prevSelected.lastMessageAt ||
+              new Date().toISOString(),
           };
         }
         return prevSelected;
       });
 
-      // 2. Update conversations list (move to top, update last message time)
+      // 2. Update conversations list (move to top, update last message time & unread state)
       setConversations((prev) => {
-        const index = prev.findIndex((c) => c._id === data.conversationId);
+        const index = prev.findIndex((c) => String(c._id) === incomingId);
+        const latestTimestamp =
+          data.messages?.[data.messages.length - 1]?.timestamp || new Date().toISOString();
+
         if (index > -1) {
           const newConversations = [...prev];
+          const existing = newConversations[index];
           const updated = {
-            ...newConversations[index],
-            lastMessageAt: data.messages[data.messages.length - 1]?.timestamp || new Date(),
-            customerPhone: data.customerPhone || newConversations[index].customerPhone
+            ...existing,
+            messages: Array.isArray(data.messages) ? data.messages : existing.messages,
+            totalMessages: Array.isArray(data.messages) ? data.messages.length : existing.totalMessages,
+            lastMessageAt: latestTimestamp,
+            customerPhone: data.customerPhone || existing.customerPhone,
+            customerName: data.customerName || existing.customerName,
           };
           newConversations.splice(index, 1);
           return [updated, ...newConversations];
         } else {
-          // New conversation!
-          return [{
-            _id: data.conversationId,
-            messages: data.messages,
-            customerPhone: data.customerPhone,
-            customerName: data.customerName,
-            customerTgId: data.customerTgId,
-            customerIgId: data.customerIgId,
-            customerUsername: data.customerUsername,
-            platform: data.platform || 'whatsapp',
-            status: data.status || 'active',
-            lastMessageAt: data.messages?.[data.messages.length - 1]?.timestamp || new Date(),
-            createdAt: new Date(),
-          }, ...prev];
+          const incomingPlatform = data.platform || 'whatsapp';
+          const incomingStatus = data.status || 'active';
+          if (activePlatform && activePlatform !== incomingPlatform) {
+            return prev;
+          }
+          if (activeTab && activeTab !== incomingStatus) {
+            return prev;
+          }
+          return [
+            {
+              _id: data.conversationId,
+              messages: data.messages || [],
+              totalMessages: Array.isArray(data.messages) ? data.messages.length : 1,
+              customerPhone: data.customerPhone,
+              customerName: data.customerName,
+              customerTgId: data.customerTgId,
+              customerIgId: data.customerIgId,
+              customerUsername: data.customerUsername,
+              platform: incomingPlatform,
+              status: incomingStatus,
+              isRead: false,
+              lastMessageAt: latestTimestamp,
+              createdAt: new Date().toISOString(),
+            },
+            ...prev,
+          ];
         }
       });
-    });
+    };
 
-    socket.on('ai_typing', (data) => {
+    const handleAiTyping = (data) => {
+      if (!data || !data.conversationId) return;
       setTypingConversations((prev) => ({
         ...prev,
-        [data.conversationId]: data.isTyping
+        [data.conversationId]: data.isTyping,
       }));
-    });
+    };
+
+    const handleSocketReconnect = () => {
+      const orgId = localStorage.getItem('organizationId');
+      if (orgId) {
+        socket.emit('join_org', orgId);
+      }
+      // Sync missed messages on reconnect
+      conversationAPI
+        .getAll({
+          status: activeTab || undefined,
+          platform: activePlatform || undefined,
+          search: search || undefined,
+          page,
+          limit: 25,
+        })
+        .then((res) => {
+          if (res?.data?.data?.conversations) {
+            setConversations(res.data.data.conversations);
+            if (typeof res.data.total === 'number') setTotal(res.data.total);
+          }
+        })
+        .catch(() => {});
+
+      if (selected?._id) {
+        conversationAPI
+          .getOne(selected._id)
+          .then((res) => {
+            const updatedConv = res?.data?.data?.conversation;
+            if (updatedConv) {
+              setSelected((prev) =>
+                prev && String(prev._id) === String(updatedConv._id)
+                  ? { ...updatedConv, messages: updatedConv.messages || prev.messages }
+                  : prev
+              );
+            }
+          })
+          .catch(() => {});
+      }
+    };
+
+    socket.on('conversation_updated', handleConversationUpdated);
+    socket.on('ai_typing', handleAiTyping);
+    socket.on('connect', handleSocketReconnect);
 
     return () => {
-      socket.off('conversation_updated');
-      socket.off('ai_typing');
+      socket.off('conversation_updated', handleConversationUpdated);
+      socket.off('ai_typing', handleAiTyping);
+      socket.off('connect', handleSocketReconnect);
     };
-  }, []);
+  }, [activePlatform, activeTab, search, page, selected?._id]);
 
   useEffect(() => {
     const handlePopState = (e) => {
