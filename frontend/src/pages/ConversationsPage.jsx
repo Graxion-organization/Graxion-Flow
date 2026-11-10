@@ -175,12 +175,8 @@ const getTheme = (platform) => {
   }
 };
 
-const check24hWindow = (conv) => {
-  if (!conv || conv.platform !== 'whatsapp') return false;
-  const userMessages = (conv.messages || []).filter((m) => m.role === 'user');
-  if (userMessages.length === 0) return true;
-  const lastUserMsg = userMessages[userMessages.length - 1];
-  return (Date.now() - new Date(lastUserMsg.timestamp).getTime()) > 24 * 60 * 60 * 1000;
+const check24hWindow = () => {
+  return false;
 };
 
 const AVATAR_COLORS = [
@@ -1098,67 +1094,41 @@ export default function ConversationsPage() {
                   {selected.agent && <span>Agent: {selected.agent.name}</span>}
                 </div>
                 
-                {selected.status !== 'closed' && (
-                  isExpired ? (
-                    <div className={`mx-5 mb-4 p-4 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-4 backdrop-blur-md ${'bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20'}`}>
-                      <div className="flex items-center gap-2.5">
-                        <Clock className="text-amber-500 shrink-0" size={20} />
-                        <div className="text-left">
-                          <p className={`text-xs font-bold ${'text-amber-800 dark:text-amber-300'}`}>
-                            24-Hour Customer Service Window Expired
-                          </p>
-                          <p className={`text-[10px] mt-0.5 ${'text-slate-600 dark:text-slate-300'}`}>
-                            ⚠️ You can only reply using a pre-approved template message.
-                          </p>
-                        </div>
+                <div className="flex flex-col">
+                  {replyingToMessage && (
+                    <div className={`mx-5 mt-3 mb-1 px-4 py-2 rounded-xl flex items-center justify-between border-l-4 ${theme.activeList} ${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'} text-xs relative`}>
+                      <div className="flex-1 min-w-0 pr-4">
+                        <p className="font-bold mb-0.5 capitalize">{replyingToMessage.role}</p>
+                        <p className="truncate text-gray-500 dark:text-slate-400">{replyingToMessage.content}</p>
                       </div>
                       <button
                         type="button"
-                        onClick={handleOpenTemplateModal}
-                        className="w-full sm:w-auto px-5 py-2.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-amber-500/20 hover:scale-102 flex items-center justify-center gap-2 shrink-0"
+                        onClick={() => setReplyingToMessage(null)}
+                        className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-400 transition-colors"
                       >
-                        <Zap size={14} fill="currentColor" />
-                        Send Template Message
+                        <X size={14} />
                       </button>
                     </div>
-                  ) : (
-                    <div className="flex flex-col">
-                      {replyingToMessage && (
-                        <div className={`mx-5 mt-3 mb-1 px-4 py-2 rounded-xl flex items-center justify-between border-l-4 ${theme.activeList} ${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'} text-xs relative`}>
-                          <div className="flex-1 min-w-0 pr-4">
-                            <p className="font-bold mb-0.5 capitalize">{replyingToMessage.role}</p>
-                            <p className="truncate text-gray-500 dark:text-slate-400">{replyingToMessage.content}</p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setReplyingToMessage(null)}
-                            className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-400 transition-colors"
-                          >
-                            <X size={14} />
-                          </button>
-                        </div>
-                      )}
-                      <form onSubmit={handleReply} className="px-3 sm:px-5 pb-3 sm:pb-4 pt-2 flex gap-2">
-                      <input
-                        type="text"
-                        value={replyMessage}
-                        onChange={(e) => setReplyMessage(e.target.value)}
-                        placeholder="Type a message to reply directly..."
-                        className={`flex-1 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all ${isDark ? 'bg-white/10 text-slate-100 border border-white/10 placeholder:text-slate-400' : `${theme.inputBg} border border-gray-200 text-gray-900`} ${theme.ringPrimary}`}
-                        disabled={sendingReply}
-                      />
-                      <button
-                        type="submit"
-                        disabled={sendingReply || !replyMessage.trim()}
-                        className={`px-4 py-2.5 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium shadow-sm ${theme.btnPrimary}`}
-                      >
-                        <Send size={16} />
-                        <span className="hidden sm:inline">Send</span>
-                      </button>
-                    </form>
-                    </div>
-                  )
-                )}
+                  )}
+                  <form onSubmit={handleReply} className="px-3 sm:px-5 pb-3 sm:pb-4 pt-2 flex gap-2">
+                    <input
+                      type="text"
+                      value={replyMessage}
+                      onChange={(e) => setReplyMessage(e.target.value)}
+                      placeholder="Type a message to reply directly..."
+                      className={`flex-1 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all ${isDark ? 'bg-white/10 text-slate-100 border border-white/10 placeholder:text-slate-400' : `${theme.inputBg} border border-gray-200 text-gray-900`} ${theme.ringPrimary}`}
+                      disabled={sendingReply}
+                    />
+                    <button
+                      type="submit"
+                      disabled={sendingReply || !replyMessage.trim()}
+                      className={`px-4 py-2.5 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium shadow-sm ${theme.btnPrimary}`}
+                    >
+                      <Send size={16} />
+                      <span className="hidden sm:inline">Send</span>
+                    </button>
+                  </form>
+                </div>
               </motion.div>
             </>
           )}

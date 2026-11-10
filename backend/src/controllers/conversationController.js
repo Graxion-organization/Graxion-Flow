@@ -107,7 +107,18 @@ exports.replyToConversation = async (req, res, next) => {
     let sentMsg;
 
     if (conversation.platform === 'whatsapp') {
-      const waAccount = conversation.whatsappAccount;
+      let waAccount = conversation.whatsappAccount;
+      if (!waAccount || !waAccount.accessToken) {
+        const WhatsappAccount = require('../models/WhatsappAccount');
+        waAccount = await WhatsappAccount.findOne({
+          $or: [
+            ...(conversation.organization ? [{ organization: conversation.organization }] : []),
+            ...(conversation.user ? [{ user: conversation.user }] : []),
+          ],
+          status: { $ne: 'disconnected' },
+          isActive: { $ne: false },
+        }).select('+accessToken phoneNumberId');
+      }
       if (!waAccount) return next(new AppError('WhatsApp account not connected.', 400));
       const waService = new WhatsAppService(decrypt(waAccount.accessToken), waAccount.phoneNumberId);
       sentMsg = await waService.sendTextMessage(conversation.customerPhone, message, replyToMessageId);
@@ -152,6 +163,9 @@ exports.replyToConversation = async (req, res, next) => {
 
     conversation.totalMessages += 1;
     conversation.lastMessageAt = new Date();
+    if (conversation.status === 'closed') {
+      conversation.status = 'active';
+    }
     await conversation.save();
 
     // Emit to update socket clients
